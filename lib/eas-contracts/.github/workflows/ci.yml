@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get -y install pkg-config libusb-1.0 libudev-dev
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v2
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Compile (Hardhat)
+        run: pnpm compile
+
+      - name: Test
+        run: pnpm test
+
+      - name: Test Deployment
+        run: pnpm test:deploy
+
+      - name: Compile (Foundry)
+        run: forge build
