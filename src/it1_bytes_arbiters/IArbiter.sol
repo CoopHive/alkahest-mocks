@@ -6,11 +6,7 @@ import {Attestation, DeadlineExpired, InvalidEAS} from "lib/eas-contracts/contra
 abstract contract IArbiter {
     bytes32 public attestationSchema;
 
-    function _checkIntrinsic(Attestation memory statement) internal view returns (bool) {
-        // check source
-        if (statement.attester != address(this)) {
-            return false;
-        }
+    function _checkIntrinsic(Attestation calldata statement) internal view returns (bool) {
         // check schema
         if (statement.schema != attestationSchema) {
             return false;
@@ -20,11 +16,15 @@ abstract contract IArbiter {
             revert DeadlineExpired();
         }
         // check revoked
-        if (statement.revocationTime != 0) {
+        if (statement.revocationTime != 0 && statement.revocationTime < block.timestamp) {
             revert InvalidEAS();
         }
 
         return true;
+    }
+
+    function _checkIdentical(Attestation calldata statement, bytes calldata demand) public pure returns (bool) {
+        return keccak256(statement.data) == keccak256(demand);
     }
 
     function checkStatement(Attestation calldata statement, bytes calldata demand) public view virtual returns (bool) {}
