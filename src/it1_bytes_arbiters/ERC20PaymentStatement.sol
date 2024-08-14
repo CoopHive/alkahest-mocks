@@ -49,8 +49,19 @@ contract ERC20PaymentStatement is IStatement {
         );
     }
 
+    function cancelStatement(bytes32 uid) public returns (bool) {
+        Attestation memory attestation = eas.getAttestation(uid);
+        if (msg.sender != attestation.recipient) {
+            revert UnauthorizedCall();
+        }
+        eas.revoke(RevocationRequest({schema: attestationSchema, data: RevocationRequestData({uid: uid, value: 0})}));
+
+        (address token, uint256 amount) = abi.decode(attestation.data, (address, uint256));
+        return IERC20(token).transfer(msg.sender, amount);
+    }
+
     function collectPayment(Attestation calldata payment, Attestation calldata fulfillment) public {
-        // caller is attester
+        // caller is attestation recipient
         if (msg.sender != fulfillment.recipient) {
             revert UnauthorizedCall();
         }
@@ -64,38 +75,34 @@ contract ERC20PaymentStatement is IStatement {
         if (!IArbiter(payment_.arbiter).checkStatement(fulfillment, payment_.demand)) {
             revert InvalidFulfillment();
         }
-        // revoke fulfillment
+        // revoke payment
         eas.revoke(
-            RevocationRequest({
-                schema: fulfillment.schema,
-                data: RevocationRequestData({uid: fulfillment.uid, value: 0})
-            })
+            RevocationRequest({schema: payment.schema, data: RevocationRequestData({uid: payment.uid, value: 0})})
         );
-        // transfer payment
+        // transfer token
         IERC20(payment_.token).transfer(msg.sender, payment_.amount);
     }
 
+    // ISchemaResolver implementations
+
     function onAttest(Attestation calldata attestation, uint256 /* value */ ) internal override returns (bool) {
+        // require token transfer from attestation recipient
         (address token, uint256 amount) = abi.decode(attestation.data, (address, uint256));
-        return IERC20(token).transferFrom(msg.sender, address(this), amount);
+        return IERC20(token).transferFrom(attestation.recipient, address(this), amount);
     }
 
-    function onRevoke(Attestation calldata attestation, uint256 /* value */ ) internal override returns (bool) {
-        (address token, uint256 amount) = abi.decode(attestation.data, (address, uint256));
-        return IERC20(token).transfer(msg.sender, amount);
-    }
+    function onRevoke(Attestation calldata attestation, uint256 /* value */ ) internal override returns (bool) {}
 
-    // demand parameters: (address token, uint256 amount)
-    function checkStatement(Attestation calldata statement, bytes calldata demand)
-        public
-        view
-        override
-        returns (bool)
-    {
+    // IArbiter implementations
+
+    function checkStatement(
+        Attestation calldata statement,
+        bytes calldata demand /* (address token, uint256 amount) */
+    ) public view override returns (bool) {
         if (!_checkIntrinsic(statement)) {
             return false;
         }
-
+        // payment is more than demanded amount of demanded token
         (address token, uint256 amount) = abi.decode(statement.data, (address, uint256));
         (address tokenD, uint256 amountD) = abi.decode(demand, (address, uint256));
 
