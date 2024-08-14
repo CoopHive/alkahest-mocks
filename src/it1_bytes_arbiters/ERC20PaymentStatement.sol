@@ -86,12 +86,18 @@ contract ERC20PaymentStatement is IStatement {
     // ISchemaResolver implementations
 
     function onAttest(Attestation calldata attestation, uint256 /* value */ ) internal override returns (bool) {
+        // only statement contract can attest
+        if (msg.sender != address(this)) {
+            return false;
+        }
         // require token transfer from attestation recipient
         (address token, uint256 amount) = abi.decode(attestation.data, (address, uint256));
         return IERC20(token).transferFrom(attestation.recipient, address(this), amount);
     }
 
-    function onRevoke(Attestation calldata attestation, uint256 /* value */ ) internal override returns (bool) {}
+    function onRevoke(Attestation calldata, uint256 /* value */ ) internal pure override returns (bool) {
+        return true;
+    }
 
     // IArbiter implementations
 
