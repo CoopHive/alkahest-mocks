@@ -95,6 +95,6 @@ contract ERC20PaymentStatement is IStatement {
             })
         );
         // transfer payment
-        IERC20(token).transfer(fulfillment.attester, amount);
+        IERC20(token).transfer(msg.sender, amount);
     }
 }
