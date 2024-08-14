@@ -72,26 +72,29 @@ contract ERC20PaymentStatement is IStatement {
     }
 
     function collectPayment(Attestation calldata payment, Attestation calldata fulfillment) public {
+        // caller is attester
+        if (msg.sender != fulfillment.attester) {
+            revert UnauthorizedCall();
+        }
+        // payment statement valid
         if (!_checkIntrinsic(payment)) {
             revert InvalidPayment();
         }
 
         (address token, uint256 amount, address arbiter, bytes memory demand) =
             abi.decode(payment.data, (address, uint256, address, bytes));
-        if (msg.sender != arbiter) {
-            revert UnauthorizedCall();
-        }
-
+        // fulfillment statement valid
         if (!IArbiter(arbiter).checkStatement(fulfillment, demand)) {
             revert InvalidFulfillment();
         }
-
+        // revoke fulfillment
         eas.revoke(
             RevocationRequest({
                 schema: fulfillment.schema,
                 data: RevocationRequestData({uid: fulfillment.uid, value: 0})
             })
         );
+        // transfer payment
         IERC20(token).transfer(fulfillment.attester, amount);
     }
 }
