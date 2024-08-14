@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.26;
 
 import {IArbiter} from "./IArbiter.sol";
-import {IEAS} from "lib/eas-contracts/contracts/IEAS.sol";
-import {ISchemaRegistry} from "lib/eas-contracts/contracts/ISchemaRegistry.sol";
-import {SchemaResolver} from "lib/eas-contracts/contracts/resolver/SchemaResolver.sol";
+import {IEAS} from "@eas/IEAS.sol";
+import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 
 abstract contract IStatement is IArbiter, SchemaResolver {
     ISchemaRegistry public schemaRegistry;

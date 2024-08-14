@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.26;
 
-import {Attestation, NO_EXPIRATION_TIME, EMPTY_UID} from "lib/eas-contracts/contracts/Common.sol";
+import {Attestation, NO_EXPIRATION_TIME, EMPTY_UID} from "@eas/Common.sol";
 import {
-    IEAS,
-    AttestationRequest,
-    AttestationRequestData,
-    RevocationRequest,
-    RevocationRequestData
-} from "lib/eas-contracts/contracts/IEAS.sol";
-import {ISchemaRegistry} from "lib/eas-contracts/contracts/ISchemaRegistry.sol";
-import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+    IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData
+} from "@eas/IEAS.sol";
+import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
 import {IStatement} from "./IStatement.sol";
 import {IArbiter} from "./IArbiter.sol";
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.26;
 
-import {Attestation, DeadlineExpired, InvalidEAS} from "lib/eas-contracts/contracts/Common.sol";
+import {Attestation, DeadlineExpired, InvalidEAS} from "@eas/Common.sol";
 
 abstract contract IArbiter {
     bytes32 public attestationSchema;
