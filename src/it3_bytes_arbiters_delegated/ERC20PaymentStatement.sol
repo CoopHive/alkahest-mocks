@@ -23,7 +23,7 @@ contract ERC20PaymentStatement is IStatement {
     }
 
     string public constant SCHEMA_ABI = "address token, uint256 amount, address arbiter, bytes demand";
-    string public constant DEMAND_ABI = "address token, uint256 amount, bytes32 fulfilling";
+    string public constant DEMAND_ABI = "address token, uint256 amount";
     bool public constant IS_REVOCABLE = true;
 
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry)
@@ -34,9 +34,6 @@ contract ERC20PaymentStatement is IStatement {
         public
         returns (bytes32)
     {
-        // require token transfer from attestation recipient
-        IERC20(data.token).transferFrom(msg.sender, address(this), data.amount);
-
         return eas.attest(
             AttestationRequest({
                 schema: attestationSchema,
@@ -63,10 +60,7 @@ contract ERC20PaymentStatement is IStatement {
         return IERC20(token).transfer(msg.sender, amount);
     }
 
-    function collectPayment(bytes32 _payment, bytes32 _fulfillment) public {
-        Attestation memory payment = eas.getAttestation(_payment);
-        Attestation memory fulfillment = eas.getAttestation(_fulfillment);
-
+    function collectPayment(Attestation calldata payment, Attestation calldata fulfillment) public {
         // caller is attestation recipient
         if (msg.sender != fulfillment.recipient) {
             revert UnauthorizedCall();
@@ -81,34 +75,44 @@ contract ERC20PaymentStatement is IStatement {
         if (!IArbiter(payment_.arbiter).checkStatement(fulfillment, payment_.demand)) {
             revert InvalidFulfillment();
         }
-        // revoke payment statement
+        // revoke payment
         eas.revoke(
-            RevocationRequest({schema: attestationSchema, data: RevocationRequestData({uid: payment.uid, value: 0})})
+            RevocationRequest({schema: payment.schema, data: RevocationRequestData({uid: payment.uid, value: 0})})
         );
         // transfer token
         IERC20(payment_.token).transfer(msg.sender, payment_.amount);
     }
 
+    // ISchemaResolver implementations
+
+    function onAttest(Attestation calldata attestation, uint256 /* value */ ) internal override returns (bool) {
+        // only statement contract can attest
+        if (msg.sender != address(this)) {
+            return false;
+        }
+        // require token transfer from attestation recipient
+        (address token, uint256 amount) = abi.decode(attestation.data, (address, uint256));
+        return IERC20(token).transferFrom(attestation.recipient, address(this), amount);
+    }
+
+    function onRevoke(Attestation calldata, uint256 /* value */ ) internal pure override returns (bool) {
+        return true;
+    }
+
     // IArbiter implementations
 
     function checkStatement(
-        Attestation memory statement,
-        bytes memory demand /* (address token, uint256 amount, address fulfilling) */
+        Attestation calldata statement,
+        bytes calldata demand /* (address token, uint256 amount) */
     ) public view override returns (bool) {
-        (address tokenD, uint256 amountD, bytes32 fulfilling) = abi.decode(demand, (address, uint256, bytes32));
-        // as fulfillment, payment already collected
-        if (statement.uid == fulfilling && statement.schema == attestationSchema) {
-            return true;
-        }
-
-        // statement valid
         if (!_checkIntrinsic(statement)) {
             return false;
         }
-
-        (address token, uint256 amount) = abi.decode(statement.data, (address, uint256));
         // payment is more than demanded amount of demanded token
-        return token == tokenD && amount >= amountD;
+        (address token, uint256 amount) = abi.decode(statement.data, (address, uint256));
+        (address tokenD, uint256 amountD) = abi.decode(demand, (address, uint256));
+
+        return token == tokenD && amount > amountD;
     }
 
     function getSchemaAbi() public pure override returns (string memory) {
