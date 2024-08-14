@@ -28,4 +28,7 @@ abstract contract IArbiter {
     }
 
     function checkStatement(Attestation calldata statement, bytes calldata demand) public view virtual returns (bool) {}
+
+    function getSchemaAbi() public pure virtual returns (string memory) {}
+    function getDemandAbi() public pure virtual returns (string memory) {}
 }

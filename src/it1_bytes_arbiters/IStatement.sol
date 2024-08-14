@@ -10,5 +10,11 @@ abstract contract IStatement is IArbiter, SchemaResolver {
     ISchemaRegistry public schemaRegistry;
     IEAS public eas;
 
-    constructor(IEAS _eas) SchemaResolver(_eas) {}
+    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, string memory schema, bool revocable)
+        SchemaResolver(_eas)
+    {
+        eas = _eas;
+        schemaRegistry = _schemaRegistry;
+        attestationSchema = schemaRegistry.register(schema, this, revocable);
+    }
 }
