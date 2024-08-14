@@ -16,7 +16,7 @@ abstract contract IArbiter {
             revert DeadlineExpired();
         }
         // check revoked
-        if (statement.revocationTime != 0 && statement.revocationTime < block.timestamp) {
+        if (statement.revocationTime != 0) {
             revert InvalidEAS();
         }
 

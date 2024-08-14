@@ -2,7 +2,13 @@
 pragma solidity ^0.8.13;
 
 import {Attestation, NO_EXPIRATION_TIME, EMPTY_UID} from "lib/eas-contracts/contracts/Common.sol";
-import {IEAS, AttestationRequest, AttestationRequestData} from "lib/eas-contracts/contracts/IEAS.sol";
+import {
+    IEAS,
+    AttestationRequest,
+    AttestationRequestData,
+    RevocationRequest,
+    RevocationRequestData
+} from "lib/eas-contracts/contracts/IEAS.sol";
 import {ISchemaRegistry} from "lib/eas-contracts/contracts/ISchemaRegistry.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IStatement} from "./IStatement.sol";
@@ -11,6 +17,7 @@ import {IArbiter} from "./IArbiter.sol";
 contract ERC20PaymentStatement is IStatement {
     error InvalidPayment();
     error InvalidFulfillment();
+    error UnauthorizedCall();
 
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) IStatement(_eas) {
         eas = _eas;
@@ -71,11 +78,20 @@ contract ERC20PaymentStatement is IStatement {
 
         (address token, uint256 amount, address arbiter, bytes memory demand) =
             abi.decode(payment.data, (address, uint256, address, bytes));
+        if (msg.sender != arbiter) {
+            revert UnauthorizedCall();
+        }
 
         if (!IArbiter(arbiter).checkStatement(fulfillment, demand)) {
             revert InvalidFulfillment();
         }
 
+        eas.revoke(
+            RevocationRequest({
+                schema: fulfillment.schema,
+                data: RevocationRequestData({uid: fulfillment.uid, value: 0})
+            })
+        );
         IERC20(token).transfer(fulfillment.attester, amount);
     }
 }
