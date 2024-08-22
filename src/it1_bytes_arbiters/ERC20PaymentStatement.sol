@@ -27,8 +27,6 @@ contract ERC20PaymentStatement is IStatement {
     string public constant DEMAND_ABI = "address token, uint256 amount, address arbiter, bytes demand";
     bool public constant IS_REVOCABLE = true;
 
-    mapping(bytes32 => bytes32) public collectedFor;
-
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry)
         IStatement(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
     {}
@@ -62,17 +60,13 @@ contract ERC20PaymentStatement is IStatement {
 
         if (!_checkIntrinsic(payment)) revert InvalidPaymentAttestation();
 
-        if (payment.refUID != bytes32(0) && payment.refUID != _fulfillment) {
-            revert InvalidFulfillment();
-        }
-
         StatementData memory paymentData = abi.decode(payment.data, (StatementData));
 
-        if (!IArbiter(paymentData.arbiter).checkStatement(fulfillment, paymentData.demand, _payment)) {
+        // Check if the fulfillment is valid
+        if (!_isValidFulfillment(payment, fulfillment, paymentData)) {
             revert InvalidFulfillment();
         }
 
-        collectedFor[_payment] = _fulfillment;
         eas.revoke(
             RevocationRequest({schema: ATTESTATION_SCHEMA, data: RevocationRequestData({uid: _payment, value: 0})})
         );
@@ -89,17 +83,14 @@ contract ERC20PaymentStatement is IStatement {
         return IERC20(data.token).transfer(msg.sender, data.amount);
     }
 
-    // IArbiter implementations
-
-    function checkStatement(
-        Attestation memory statement,
-        bytes memory demand, /* (address token, uint256 amount, address arbiter, bytes demand) */
-        bytes32 counteroffer
-    ) public view override returns (bool) {
+    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer)
+        public
+        view
+        override
+        returns (bool)
+    {
         if (!_checkIntrinsic(statement)) {
-            // Check alternative valid condition for revoked statements
-            return statement.schema == ATTESTATION_SCHEMA && statement.refUID != bytes32(0)
-                && statement.refUID == counteroffer;
+            return false;
         }
 
         StatementData memory payment = abi.decode(statement.data, (StatementData));
@@ -107,6 +98,20 @@ contract ERC20PaymentStatement is IStatement {
 
         return payment.token == demandData.token && payment.amount >= demandData.amount
             && payment.arbiter == demandData.arbiter && keccak256(payment.demand) == keccak256(demandData.demand);
+    }
+
+    function _isValidFulfillment(
+        Attestation memory payment,
+        Attestation memory fulfillment,
+        StatementData memory paymentData
+    ) internal view returns (bool) {
+        // Special case: If the payment references this fulfillment, consider it valid
+        if (payment.refUID == fulfillment.uid) {
+            return true;
+        }
+
+        // Regular case: check using the arbiter
+        return IArbiter(paymentData.arbiter).checkStatement(fulfillment, paymentData.demand, payment.uid);
     }
 
     function getSchemaAbi() public pure override returns (string memory) {
