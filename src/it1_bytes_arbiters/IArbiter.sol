@@ -4,11 +4,11 @@ pragma solidity 0.8.26;
 import {Attestation, DeadlineExpired, InvalidEAS} from "@eas/Common.sol";
 
 abstract contract IArbiter {
-    bytes32 public attestationSchema;
+    bytes32 public immutable ATTESTATION_SCHEMA;
 
     function _checkIntrinsic(Attestation memory statement) internal view returns (bool) {
         // check schema
-        if (statement.schema != attestationSchema) {
+        if (statement.schema != ATTESTATION_SCHEMA) {
             return false;
         }
         // check expired
@@ -27,7 +27,12 @@ abstract contract IArbiter {
         return keccak256(statement.data) == keccak256(demand);
     }
 
-    function checkStatement(Attestation memory statement, bytes memory demand) public view virtual returns (bool) {}
+    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer)
+        public
+        view
+        virtual
+        returns (bool)
+    {}
 
     function getSchemaAbi() public pure virtual returns (string memory) {}
     function getDemandAbi() public pure virtual returns (string memory) {}
