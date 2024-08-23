@@ -8,8 +8,6 @@ import "../src/it1_bytes_arbiters/OptimisticStringValidator.sol";
 import "../src/it1_bytes_arbiters/StringResultStatement.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-// "https://mainnet.infura.io/v3/eb2d06db679f493e85c13bd1f6d9bbaf"
-
 contract MockERC20 is ERC20 {
     constructor() ERC20("MockToken", "MTK") {
         _mint(msg.sender, 1000000 * 10 ** 18);
