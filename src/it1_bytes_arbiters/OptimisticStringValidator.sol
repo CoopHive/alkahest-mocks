@@ -6,11 +6,11 @@ import {
     IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData
 } from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IStatement} from "./IStatement.sol";
 import {IArbiter} from "./IArbiter.sol";
+import {IValidator} from "./IValidator.sol";
 import {StringResultStatement} from "./StringResultStatement.sol";
 
-contract OptimisticStringValidator is IStatement {
+contract OptimisticStringValidator is IValidator {
     struct ValidationData {
         string query;
         uint64 mediationPeriod;
@@ -33,7 +33,7 @@ contract OptimisticStringValidator is IStatement {
     address public immutable BASE_STATEMENT;
 
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, address _baseStatement)
-        IStatement(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
+        IValidator(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
     {
         BASE_STATEMENT = _baseStatement;
     }

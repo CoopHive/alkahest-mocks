@@ -4,10 +4,10 @@ pragma solidity 0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IStatement} from "./IStatement.sol";
+import {IValidator} from "./IValidator.sol";
 import {ERC20PaymentStatement} from "./ERC20PaymentStatement.sol";
 
-contract ERC20PaymentFulfillmentValidator is IStatement {
+contract ERC20PaymentFulfillmentValidator is IValidator {
     struct ValidationData {
         bytes demand;
     }
@@ -24,7 +24,7 @@ contract ERC20PaymentFulfillmentValidator is IStatement {
     ERC20PaymentStatement public immutable paymentStatement;
 
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, ERC20PaymentStatement _paymentStatement)
-        IStatement(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
+        IValidator(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
     {
         paymentStatement = _paymentStatement;
     }

@@ -32,3 +32,6 @@ Requirements:
 - each payment can only be collected once
 - statement fulfilling demands can be used to collect
 - (? maybe specified in demand) fullfillment statement invalidated after finalization 
+
+## To Explore
+- Abstract common fields of statements like arbiter, demand, counterparty
