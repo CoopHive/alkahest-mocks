@@ -30,12 +30,12 @@ contract OptimisticStringValidator is IValidator {
     string public constant DEMAND_ABI = "string query, uint64 mediationPeriod";
     bool public constant IS_REVOCABLE = true;
 
-    address public immutable BASE_STATEMENT;
+    StringResultStatement public immutable resultStatement;
 
-    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, address _baseStatement)
+    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, StringResultStatement _baseStatement)
         IValidator(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
     {
-        BASE_STATEMENT = _baseStatement;
+        resultStatement = _baseStatement;
     }
 
     function startValidation(bytes32 resultUID, ValidationData calldata validationData)
@@ -102,7 +102,7 @@ contract OptimisticStringValidator is IValidator {
             return false;
         }
 
-        return IArbiter(BASE_STATEMENT).checkStatement(
+        return resultStatement.checkStatement(
             eas.getAttestation(statement.refUID),
             abi.encode(StringResultStatement.DemandData({query: statementData.query})),
             counteroffer

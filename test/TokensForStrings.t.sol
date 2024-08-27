@@ -14,7 +14,7 @@ contract MockERC20 is ERC20 {
     }
 }
 
-contract ERC20PaymentStatementTest is Test {
+contract TokensForStringsTest is Test {
     ERC20PaymentStatement public paymentStatement;
     OptimisticStringValidator public validator;
     StringResultStatement public resultStatement;
@@ -38,7 +38,7 @@ contract ERC20PaymentStatementTest is Test {
         mockToken = new MockERC20();
         resultStatement = new StringResultStatement(eas, schemaRegistry);
         paymentStatement = new ERC20PaymentStatement(eas, schemaRegistry);
-        validator = new OptimisticStringValidator(eas, schemaRegistry, address(resultStatement));
+        validator = new OptimisticStringValidator(eas, schemaRegistry, resultStatement);
 
         // Fund Alice and Bob with mock tokens
         mockToken.transfer(alice, 1000 * 10 ** 18);

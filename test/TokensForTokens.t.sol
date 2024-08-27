@@ -3,7 +3,8 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import "../src/it1_bytes_arbiters/ERC20PaymentStatement.sol";
-import "@openzeppelin/token/ERC20/ERC20.sol";
+import "../src/it1_bytes_arbiters/ERC20PaymentFulfillmentValidator.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MockERC20 is ERC20 {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
@@ -11,8 +12,9 @@ contract MockERC20 is ERC20 {
     }
 }
 
-contract ERC20PaymentStatementSelfReferentialTest is Test {
+contract ERC20PaymentStatementTest is Test {
     ERC20PaymentStatement public paymentStatement;
+    ERC20PaymentFulfillmentValidator public validator;
     MockERC20 public tokenA;
     MockERC20 public tokenB;
     IEAS public eas;
@@ -28,19 +30,23 @@ contract ERC20PaymentStatementSelfReferentialTest is Test {
         vm.createSelectFork(vm.rpcUrl(vm.envString("INFURA_URL_MAINNET")));
         eas = IEAS(EAS_ADDRESS);
         schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+
         tokenA = new MockERC20("Token A", "TKA");
         tokenB = new MockERC20("Token B", "TKB");
+
         paymentStatement = new ERC20PaymentStatement(eas, schemaRegistry);
+        validator = new ERC20PaymentFulfillmentValidator(eas, schemaRegistry, paymentStatement);
+
         tokenA.transfer(alice, 1000 * 10 ** 18);
         tokenB.transfer(bob, 1000 * 10 ** 18);
     }
 
     function testERC20PaymentStatementSelfReferential() public {
-        (bytes32 alicePaymentUID, bytes32 bobPaymentUID) = _setupTrade();
+        (bytes32 alicePaymentUID, bytes32 bobPaymentUID, bytes32 validationUID) = _setupTrade();
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(alicePaymentUID, bobPaymentUID);
+        bool successBob = paymentStatement.collectPayment(alicePaymentUID, validationUID);
         assertTrue(successBob, "Bob's payment collection should succeed");
 
         // Alice collects Bob's payment
@@ -52,7 +58,7 @@ contract ERC20PaymentStatementSelfReferentialTest is Test {
     }
 
     function testCollectionOrderReversed() public {
-        (bytes32 alicePaymentUID, bytes32 bobPaymentUID) = _setupTrade();
+        (bytes32 alicePaymentUID, bytes32 bobPaymentUID, bytes32 validationUID) = _setupTrade();
 
         // Alice collects Bob's payment first
         vm.prank(alice);
@@ -61,21 +67,21 @@ contract ERC20PaymentStatementSelfReferentialTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(alicePaymentUID, bobPaymentUID);
+        bool successBob = paymentStatement.collectPayment(alicePaymentUID, validationUID);
         assertTrue(successBob, "Bob's payment collection should succeed");
 
         _assertFinalBalances();
     }
 
     function testDoubleSpendingAlice() public {
-        (bytes32 alicePaymentUID, bytes32 bobPaymentUID) = _setupTrade();
+        (bytes32 alicePaymentUID, bytes32 bobPaymentUID, bytes32 validationUID) = _setupTrade();
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(alicePaymentUID, bobPaymentUID);
+        bool successBob = paymentStatement.collectPayment(alicePaymentUID, validationUID);
         assertTrue(successBob, "Bob's payment collection should succeed");
 
-        // Alice tries to collect Bob's payment
+        // Alice collects Bob's payment
         vm.prank(alice);
         bool successAlice = paymentStatement.collectPayment(bobPaymentUID, alicePaymentUID);
         assertTrue(successAlice, "Alice's payment collection should succeed");
@@ -87,38 +93,33 @@ contract ERC20PaymentStatementSelfReferentialTest is Test {
     }
 
     function testDoubleSpendingBob() public {
-        (bytes32 alicePaymentUID, bytes32 bobPaymentUID) = _setupTrade();
+        (bytes32 alicePaymentUID, bytes32 bobPaymentUID, bytes32 validationUID) = _setupTrade();
 
         // Alice collects Bob's payment
         vm.prank(alice);
         bool successAlice = paymentStatement.collectPayment(bobPaymentUID, alicePaymentUID);
         assertTrue(successAlice, "Alice's payment collection should succeed");
 
-        // Bob tries to collect Alice's payment
+        // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(alicePaymentUID, bobPaymentUID);
+        bool successBob = paymentStatement.collectPayment(alicePaymentUID, validationUID);
         assertTrue(successBob, "Bob's payment collection should succeed");
 
         // Bob attempts to double spend
         vm.prank(bob);
         vm.expectRevert();
-        paymentStatement.collectPayment(alicePaymentUID, bobPaymentUID);
+        paymentStatement.collectPayment(alicePaymentUID, validationUID);
     }
 
-    function _setupTrade() internal returns (bytes32 alicePaymentUID, bytes32 bobPaymentUID) {
+    function _setupTrade() internal returns (bytes32 alicePaymentUID, bytes32 bobPaymentUID, bytes32 validationUID) {
         vm.startPrank(alice);
         tokenA.approve(address(paymentStatement), 100 * 10 ** 18);
         ERC20PaymentStatement.StatementData memory alicePaymentData = ERC20PaymentStatement.StatementData({
             token: address(tokenA),
             amount: 100 * 10 ** 18,
-            arbiter: address(paymentStatement),
+            arbiter: address(validator),
             demand: abi.encode(
-                ERC20PaymentStatement.StatementData({
-                    token: address(tokenB),
-                    amount: 200 * 10 ** 18,
-                    arbiter: address(paymentStatement),
-                    demand: ""
-                })
+                ERC20PaymentFulfillmentValidator.DemandData({token: address(tokenB), amount: 200 * 10 ** 18})
             )
         });
         alicePaymentUID = paymentStatement.makeStatement(alicePaymentData, 0, bytes32(0));
@@ -129,17 +130,14 @@ contract ERC20PaymentStatementSelfReferentialTest is Test {
         ERC20PaymentStatement.StatementData memory bobPaymentData = ERC20PaymentStatement.StatementData({
             token: address(tokenB),
             amount: 200 * 10 ** 18,
-            arbiter: address(paymentStatement),
-            demand: abi.encode(
-                ERC20PaymentStatement.StatementData({
-                    token: address(tokenA),
-                    amount: 100 * 10 ** 18,
-                    arbiter: address(paymentStatement),
-                    demand: ""
-                })
-            )
+            arbiter: address(0),
+            demand: ""
         });
         bobPaymentUID = paymentStatement.makeStatement(bobPaymentData, 0, alicePaymentUID);
+
+        ERC20PaymentFulfillmentValidator.ValidationData memory validationData = ERC20PaymentFulfillmentValidator
+            .ValidationData({token: address(tokenB), amount: 200 * 10 ** 18, fulfilling: alicePaymentUID});
+        validationUID = validator.createValidation(bobPaymentUID, validationData);
         vm.stopPrank();
     }
 

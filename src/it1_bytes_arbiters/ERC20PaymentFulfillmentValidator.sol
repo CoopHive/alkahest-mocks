@@ -9,7 +9,14 @@ import {ERC20PaymentStatement} from "./ERC20PaymentStatement.sol";
 
 contract ERC20PaymentFulfillmentValidator is IValidator {
     struct ValidationData {
-        bytes demand;
+        address token;
+        uint256 amount;
+        bytes32 fulfilling;
+    }
+
+    struct DemandData {
+        address token;
+        uint256 amount;
     }
 
     event ValidationCreated(bytes32 indexed validationUID, bytes32 indexed paymentUID);
@@ -17,16 +24,16 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
     error InvalidPaymentAttestation();
     error InvalidValidation();
 
-    string public constant SCHEMA_ABI = "bytes demand";
-    string public constant DEMAND_ABI = "bytes demand";
-    bool public constant IS_REVOCABLE = false;
+    string public constant SCHEMA_ABI = "address token, uint256 amount, bytes32 fulfilling";
+    string public constant DEMAND_ABI = "address token, uint256 amount";
+    bool public constant IS_REVOCABLE = true;
 
     ERC20PaymentStatement public immutable paymentStatement;
 
-    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, ERC20PaymentStatement _paymentStatement)
+    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, ERC20PaymentStatement _baseStatement)
         IValidator(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
     {
-        paymentStatement = _paymentStatement;
+        paymentStatement = _baseStatement;
     }
 
     function createValidation(bytes32 paymentUID, ValidationData calldata validationData)
@@ -35,19 +42,29 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
     {
         Attestation memory paymentAttestation = eas.getAttestation(paymentUID);
         if (paymentAttestation.schema != paymentStatement.ATTESTATION_SCHEMA()) revert InvalidPaymentAttestation();
-
-        // Use the base payment statement's check
-        if (!paymentStatement.checkStatement(paymentAttestation, validationData.demand, bytes32(0))) {
-            revert InvalidValidation();
-        }
+        if (paymentAttestation.refUID != validationData.fulfilling) revert InvalidValidation();
+        if (
+            !paymentStatement.checkStatement(
+                paymentAttestation,
+                abi.encode(
+                    ERC20PaymentStatement.StatementData({
+                        token: validationData.token,
+                        amount: validationData.amount,
+                        arbiter: address(0),
+                        demand: ""
+                    })
+                ),
+                0
+            )
+        ) revert InvalidPaymentAttestation();
 
         validationUID = eas.attest(
             AttestationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
                     recipient: msg.sender,
-                    expirationTime: 0,
-                    revocable: false,
+                    expirationTime: paymentAttestation.expirationTime,
+                    revocable: paymentAttestation.revocable,
                     refUID: paymentUID,
                     data: abi.encode(validationData),
                     value: 0
@@ -64,19 +81,13 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
         override
         returns (bool)
     {
-        if (!_checkIntrinsic(statement)) revert InvalidValidation();
+        if (!_checkIntrinsic(statement)) return false;
 
         ValidationData memory validationData = abi.decode(statement.data, (ValidationData));
-        ValidationData memory demandData = abi.decode(demand, (ValidationData));
+        DemandData memory demandData = abi.decode(demand, (DemandData));
 
-        if (keccak256(validationData.demand) != keccak256(demandData.demand)) {
-            return false;
-        }
-
-        Attestation memory paymentAttestation = eas.getAttestation(statement.refUID);
-
-        // Use the base payment statement's check
-        return paymentStatement.checkStatement(paymentAttestation, validationData.demand, bytes32(0));
+        return validationData.fulfilling == counteroffer && validationData.token == demandData.token
+            && validationData.amount >= demandData.amount;
     }
 
     function getSchemaAbi() public pure override returns (string memory) {
