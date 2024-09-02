@@ -21,10 +21,7 @@ abstract contract IValidator is IArbiter, SchemaResolver {
 
     function onAttest(Attestation calldata attestation, uint256 /* value */ ) internal view override returns (bool) {
         // only statement contract can attest
-        if (attestation.attester != address(this)) {
-            return false;
-        }
-        return true;
+        return attestation.attester == address(this);
     }
 
     function onRevoke(Attestation calldata, uint256 /* value */ ) internal pure override returns (bool) {

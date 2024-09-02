@@ -65,12 +65,11 @@ contract TokensForStringsTest is Test {
         StringResultStatement.StatementData memory resultData =
             StringResultStatement.StatementData({result: "HELLO WORLD"});
         bytes32 resultUID = resultStatement.makeStatement(resultData, paymentUID);
-        vm.stopPrank();
 
         // Collect payment
-        vm.prank(bob);
         bool success = paymentStatement.collectPayment(paymentUID, resultUID);
         assertTrue(success, "Payment collection should succeed");
+        vm.stopPrank();
 
         // Check balances
         assertEq(mockToken.balanceOf(bob), 1100 * 10 ** 18, "Bob should have received the payment");
@@ -111,6 +110,7 @@ contract TokensForStringsTest is Test {
         vm.prank(bob);
         bool success = paymentStatement.collectPayment(paymentUID, validationUID);
         assertTrue(success, "Payment collection should succeed");
+        vm.stopPrank();
 
         // Check balances
         assertEq(mockToken.balanceOf(bob), 1100 * 10 ** 18, "Bob should have received the payment");
