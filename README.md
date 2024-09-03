@@ -1,66 +1,32 @@
-## Foundry
+## Alkahest
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Alkahest is a library and ecosystem for peer-to-peer exchange.
 
-Foundry consists of:
+Statements represent obligations within a peer-to-peer agreement, while validators represent conditions under which statements are considered valid. 
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+These compose with each other to eventually enable trading anything for anything else, with flexible per-deal assurance guarantees.
 
-## Documentation
+Learn more at [Alkahest Docs](https://alkahest.coophive.network).
 
-https://book.getfoundry.sh/
+Base contracts: 
+- [IArbiter](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/IArbiter.sol)
+- [IStatement](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/IStatement.sol)
+- [IValidator](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/IValidator.sol)
 
-## Usage
 
-### Build
 
-```shell
-$ forge build
-```
+Implementations:
 
-### Test
+- Statements:
+    - [ERC20PaymentStatement](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/ERC20PaymentStatement.sol)
+    - [StringResultStatement](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/StringResultStatement.sol)
+- Validators:
+    - [ERC20PaymentFulfillmentValidator](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/ERC20PaymentFulfillmentValidator.sol)
+    - [OptimisticStringValidator](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/OptimisticStringValidator.sol)
 
-```shell
-$ forge test
-```
+## Demo
+Example workflows
+- Buying string uppercasing for ERC20 tokens, with optimistic mediation: [tokens for strings](https://github.com/CoopHive/alkahest-mocks/blob/main/test/TokensForStrings.t.sol)
+- Exchanging ERC20 tokens for other ERC20 tokens: [tokens for tokens](https://github.com/CoopHive/alkahest-mocks/blob/main/test/TokensForTokens.t.sol)
 
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+run tests: `forge test`
