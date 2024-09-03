@@ -8,6 +8,8 @@ These compose with each other to eventually enable trading anything for anything
 
 Learn more at [Alkahest Docs](https://alkahest.coophive.network).
 
+## Contracts
+
 Base contracts: 
 - [IArbiter](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/IArbiter.sol)
 - [IStatement](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/IStatement.sol)
