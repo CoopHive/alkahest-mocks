@@ -27,7 +27,7 @@ contract ERC20PaymentStatementTest is Test {
     address public bob = address(0x2);
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("INFURA_URL_MAINNET")));
+        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
         eas = IEAS(EAS_ADDRESS);
         schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
 

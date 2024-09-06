@@ -30,7 +30,7 @@ contract TokensForStringsTest is Test {
 
     function setUp() public {
         // Fork Ethereum mainnet
-        vm.createSelectFork(vm.rpcUrl(vm.envString("INFURA_URL_MAINNET")));
+        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
 
         eas = IEAS(EAS_ADDRESS);
         schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);

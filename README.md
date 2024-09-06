@@ -31,4 +31,6 @@ Example workflows
 - Buying string uppercasing for ERC20 tokens, with optimistic mediation: [tokens for strings](https://github.com/CoopHive/alkahest-mocks/blob/main/test/TokensForStrings.t.sol)
 - Exchanging ERC20 tokens for other ERC20 tokens: [tokens for tokens](https://github.com/CoopHive/alkahest-mocks/blob/main/test/TokensForTokens.t.sol)
 
-run tests: `forge test`
+run tests: 
+1. set `RPC_URL_MAINNET` env variable to any Ethereum mainnet RPC url - e.g. Alchemy, Infura, etc.
+2. `forge test`
