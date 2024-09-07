@@ -6,9 +6,9 @@ import {
     IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData
 } from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IArbiter} from "./IArbiter.sol";
-import {IValidator} from "./IValidator.sol";
-import {StringResultStatement} from "./StringResultStatement.sol";
+import {IArbiter} from "../IArbiter.sol";
+import {IValidator} from "../IValidator.sol";
+import {StringResultStatement} from "../Statements/StringResultStatement.sol";
 
 contract OptimisticStringValidator is IValidator {
     struct ValidationData {
@@ -19,12 +19,9 @@ contract OptimisticStringValidator is IValidator {
     event ValidationStarted(bytes32 indexed validationUID, bytes32 indexed resultUID, string query);
     event MediationRequested(bytes32 indexed validationUID, bool success_);
 
-    error InvalidValidationSchema();
+    error InvalidStatement();
+    error InvalidValidation();
     error MediationPeriodExpired();
-    error InvalidStatementSchema();
-    error StatementRevoked();
-    error QueryMismatch();
-    error MediationPeriodMismatch();
 
     string public constant SCHEMA_ABI = "string query, uint64 mediationPeriod";
     string public constant DEMAND_ABI = "string query, uint64 mediationPeriod";
@@ -42,6 +39,11 @@ contract OptimisticStringValidator is IValidator {
         external
         returns (bytes32 validationUID_)
     {
+        Attestation memory resultAttestation = eas.getAttestation(resultUID);
+        if (resultAttestation.schema != resultStatement.ATTESTATION_SCHEMA()) revert InvalidStatement();
+        if (resultAttestation.revocationTime != 0) revert InvalidStatement();
+        if (resultAttestation.recipient != msg.sender) revert InvalidStatement();
+
         validationUID_ = eas.attest(
             AttestationRequest({
                 schema: ATTESTATION_SCHEMA,
@@ -55,13 +57,12 @@ contract OptimisticStringValidator is IValidator {
                 })
             })
         );
-
         emit ValidationStarted(validationUID_, resultUID, validationData.query);
     }
 
     function mediate(bytes32 validationUID) external returns (bool success_) {
         Attestation memory validation = eas.getAttestation(validationUID);
-        if (validation.schema != ATTESTATION_SCHEMA) revert InvalidValidationSchema();
+        if (validation.schema != ATTESTATION_SCHEMA) revert InvalidValidation();
 
         ValidationData memory data = abi.decode(validation.data, (ValidationData));
         if (block.timestamp > validation.time + data.mediationPeriod) revert MediationPeriodExpired();
@@ -89,18 +90,15 @@ contract OptimisticStringValidator is IValidator {
         override
         returns (bool)
     {
-        if (statement.schema != ATTESTATION_SCHEMA) revert InvalidStatementSchema();
-        if (statement.revocationTime != 0) revert StatementRevoked();
+        if (statement.schema != ATTESTATION_SCHEMA) return false;
+        if (statement.revocationTime != 0) return false;
 
         ValidationData memory demandData = abi.decode(demand, (ValidationData));
         ValidationData memory statementData = abi.decode(statement.data, (ValidationData));
 
-        if (keccak256(bytes(statementData.query)) != keccak256(bytes(demandData.query))) revert QueryMismatch();
-        if (statementData.mediationPeriod != demandData.mediationPeriod) revert MediationPeriodMismatch();
-
-        if (block.timestamp <= statement.time + statementData.mediationPeriod) {
-            return false;
-        }
+        if (keccak256(bytes(statementData.query)) != keccak256(bytes(demandData.query))) return false;
+        if (statementData.mediationPeriod != demandData.mediationPeriod) return false;
+        if (block.timestamp <= statement.time + statementData.mediationPeriod) return false;
 
         return resultStatement.checkStatement(
             eas.getAttestation(statement.refUID),
@@ -113,21 +111,15 @@ contract OptimisticStringValidator is IValidator {
         bytes memory queryBytes = bytes(query);
         bytes memory resultBytes = bytes(result);
 
-        if (queryBytes.length != resultBytes.length) {
-            return false;
-        }
+        if (queryBytes.length != resultBytes.length) return false;
 
         for (uint256 i = 0; i < queryBytes.length; i++) {
             if (queryBytes[i] >= 0x61 && queryBytes[i] <= 0x7A) {
                 // If lowercase, it should be capitalized in the result
-                if (uint8(resultBytes[i]) != uint8(queryBytes[i]) - 32) {
-                    return false;
-                }
+                if (uint8(resultBytes[i]) != uint8(queryBytes[i]) - 32) return false;
             } else {
                 // If not lowercase, it should remain the same
-                if (resultBytes[i] != queryBytes[i]) {
-                    return false;
-                }
+                if (resultBytes[i] != queryBytes[i]) return false;
             }
         }
 

@@ -3,10 +3,10 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../src/it1_bytes_arbiters/ERC20PaymentStatement.sol";
-import "../src/it1_bytes_arbiters/OptimisticStringValidator.sol";
-import "../src/it1_bytes_arbiters/StringResultStatement.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../src/Statements/ERC20PaymentStatement.sol";
+import "../src/Statements/StringResultStatement.sol";
+import "../src/Validators/OptimisticStringValidator.sol";
+import "@openzeppelin/token/ERC20/ERC20.sol";
 
 contract MockERC20 is ERC20 {
     constructor() ERC20("MockToken", "MTK") {

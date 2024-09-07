@@ -4,8 +4,8 @@ pragma solidity 0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IValidator} from "./IValidator.sol";
-import {ERC20PaymentStatement} from "./ERC20PaymentStatement.sol";
+import {IValidator} from "../IValidator.sol";
+import {ERC20PaymentStatement} from "../Statements/ERC20PaymentStatement.sol";
 
 contract ERC20PaymentFulfillmentValidator is IValidator {
     struct ValidationData {
@@ -21,7 +21,7 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
 
     event ValidationCreated(bytes32 indexed validationUID, bytes32 indexed paymentUID);
 
-    error InvalidPaymentAttestation();
+    error InvalidStatement();
     error InvalidValidation();
 
     string public constant SCHEMA_ABI = "address token, uint256 amount, bytes32 fulfilling";
@@ -41,8 +41,12 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
         returns (bytes32 validationUID)
     {
         Attestation memory paymentAttestation = eas.getAttestation(paymentUID);
-        if (paymentAttestation.schema != paymentStatement.ATTESTATION_SCHEMA()) revert InvalidPaymentAttestation();
+        if (paymentAttestation.schema != paymentStatement.ATTESTATION_SCHEMA()) revert InvalidStatement();
+        if (paymentAttestation.revocationTime != 0) revert InvalidStatement();
+        if (paymentAttestation.recipient != msg.sender) revert InvalidStatement();
+
         if (paymentAttestation.refUID != validationData.fulfilling) revert InvalidValidation();
+
         if (
             !paymentStatement.checkStatement(
                 paymentAttestation,
@@ -56,7 +60,7 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
                 ),
                 0
             )
-        ) revert InvalidPaymentAttestation();
+        ) revert InvalidStatement();
 
         validationUID = eas.attest(
             AttestationRequest({

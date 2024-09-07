@@ -2,9 +2,9 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import "../src/it1_bytes_arbiters/ERC20PaymentStatement.sol";
-import "../src/it1_bytes_arbiters/ERC20PaymentFulfillmentValidator.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../src/Statements/ERC20PaymentStatement.sol";
+import "../src/Validators/ERC20PaymentFulfillmentValidator.sol";
+import "@openzeppelin/token/ERC20/ERC20.sol";
 
 contract MockERC20 is ERC20 {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {

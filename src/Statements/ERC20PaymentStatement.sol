@@ -7,8 +7,8 @@ import {
 } from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
-import {IStatement} from "./IStatement.sol";
-import {IArbiter} from "./IArbiter.sol";
+import {IStatement} from "../IStatement.sol";
+import {IArbiter} from "../IArbiter.sol";
 
 contract ERC20PaymentStatement is IStatement {
     struct StatementData {
