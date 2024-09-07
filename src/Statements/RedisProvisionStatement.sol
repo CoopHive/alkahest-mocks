@@ -94,9 +94,7 @@ contract StringResultStatement is IStatement {
         override
         returns (bool)
     {
-        if (!_checkIntrinsic(statement)) {
-            return false;
-        }
+        if (!_checkIntrinsic(statement)) return false;
 
         DemandData memory demandData = abi.decode(demand, (DemandData));
         StatementData memory statementData = abi.decode(statement.data, (StatementData));

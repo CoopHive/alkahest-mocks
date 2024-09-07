@@ -54,13 +54,14 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
         emit ValidationCreated(validationUID, statementUID);
     }
 
-    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer)
+    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 /* counteroffer */ )
         public
         view
         override
         returns (bool)
     {
         if (!_checkIntrinsic(statement)) return false;
+
         ValidationData memory statement_ = abi.decode(statement.data, (ValidationData));
         ValidationData memory demand_ = abi.decode(demand, (ValidationData));
 

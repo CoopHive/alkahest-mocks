@@ -141,7 +141,7 @@ contract ERC20PaymentStatementTest is Test {
         vm.stopPrank();
     }
 
-    function _assertFinalBalances() internal {
+    function _assertFinalBalances() internal view {
         assertEq(tokenA.balanceOf(alice), 900 * 10 ** 18, "Alice should have 900 Token A");
         assertEq(tokenA.balanceOf(bob), 100 * 10 ** 18, "Bob should have 100 Token A");
         assertEq(tokenB.balanceOf(alice), 200 * 10 ** 18, "Alice should have 200 Token B");

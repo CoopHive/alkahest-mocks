@@ -90,8 +90,7 @@ contract OptimisticStringValidator is IValidator {
         override
         returns (bool)
     {
-        if (statement.schema != ATTESTATION_SCHEMA) return false;
-        if (statement.revocationTime != 0) return false;
+        if (!_checkIntrinsic(statement)) return false;
 
         ValidationData memory demandData = abi.decode(demand, (ValidationData));
         ValidationData memory statementData = abi.decode(statement.data, (ValidationData));

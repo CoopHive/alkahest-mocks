@@ -47,14 +47,10 @@ contract StringResultStatement is IStatement {
         bytes memory demand, /* (string query) */
         bytes32 counteroffer
     ) public view override returns (bool) {
-        if (!_checkIntrinsic(statement)) {
-            return false;
-        }
+        if (!_checkIntrinsic(statement)) return false;
 
         // Check if the statement is intended to fulfill the specific counteroffer
-        if (statement.refUID != bytes32(0) && statement.refUID != counteroffer) {
-            return false;
-        }
+        if (statement.refUID != bytes32(0) && statement.refUID != counteroffer) return false;
 
         StatementData memory result = abi.decode(statement.data, (StatementData));
         DemandData memory demandData = abi.decode(demand, (DemandData));

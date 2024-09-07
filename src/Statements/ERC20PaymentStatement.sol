@@ -83,15 +83,13 @@ contract ERC20PaymentStatement is IStatement {
         return IERC20(data.token).transfer(msg.sender, data.amount);
     }
 
-    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer)
+    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 /* counteroffer */ )
         public
         view
         override
         returns (bool)
     {
-        if (!_checkIntrinsic(statement)) {
-            return false;
-        }
+        if (!_checkIntrinsic(statement)) return false;
 
         StatementData memory payment = abi.decode(statement.data, (StatementData));
         StatementData memory demandData = abi.decode(demand, (StatementData));
