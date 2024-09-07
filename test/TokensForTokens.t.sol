@@ -2,8 +2,10 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import "../src/Statements/ERC20PaymentStatement.sol";
-import "../src/Validators/ERC20PaymentFulfillmentValidator.sol";
+import {ERC20PaymentStatement} from "../src/Statements/ERC20PaymentStatement.sol";
+import {ERC20PaymentFulfillmentValidator} from "../src/Validators/ERC20PaymentFulfillmentValidator.sol";
+import {IEAS} from "@eas/IEAS.sol";
+import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/token/ERC20/ERC20.sol";
 
 contract MockERC20 is ERC20 {

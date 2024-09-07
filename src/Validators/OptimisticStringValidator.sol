@@ -49,7 +49,7 @@ contract OptimisticStringValidator is IValidator {
                 schema: ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
                     recipient: msg.sender,
-                    expirationTime: uint64(block.timestamp) + validationData.mediationPeriod,
+                    expirationTime: 0,
                     revocable: true,
                     refUID: resultUID,
                     data: abi.encode(validationData),
