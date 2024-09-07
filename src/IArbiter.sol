@@ -8,17 +8,11 @@ abstract contract IArbiter {
 
     function _checkIntrinsic(Attestation memory statement) internal view returns (bool) {
         // check schema
-        if (statement.schema != ATTESTATION_SCHEMA) {
-            return false;
-        }
+        if (statement.schema != ATTESTATION_SCHEMA) return false;
         // check expired
-        if (statement.expirationTime != 0 && statement.expirationTime < block.timestamp) {
-            revert DeadlineExpired();
-        }
+        if (statement.expirationTime != 0 && statement.expirationTime < block.timestamp) revert DeadlineExpired();
         // check revoked
-        if (statement.revocationTime != 0) {
-            revert InvalidEAS();
-        }
+        if (statement.revocationTime != 0) revert InvalidEAS();
 
         return true;
     }

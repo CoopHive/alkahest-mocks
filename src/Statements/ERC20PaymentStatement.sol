@@ -35,9 +35,7 @@ contract ERC20PaymentStatement is IStatement {
         public
         returns (bytes32)
     {
-        if (!IERC20(data.token).transferFrom(msg.sender, address(this), data.amount)) {
-            revert InvalidPayment();
-        }
+        if (!IERC20(data.token).transferFrom(msg.sender, address(this), data.amount)) revert InvalidPayment();
 
         return eas.attest(
             AttestationRequest({
@@ -63,9 +61,7 @@ contract ERC20PaymentStatement is IStatement {
         StatementData memory paymentData = abi.decode(payment.data, (StatementData));
 
         // Check if the fulfillment is valid
-        if (!_isValidFulfillment(payment, fulfillment, paymentData)) {
-            revert InvalidFulfillment();
-        }
+        if (!_isValidFulfillment(payment, fulfillment, paymentData)) revert InvalidFulfillment();
 
         eas.revoke(
             RevocationRequest({schema: ATTESTATION_SCHEMA, data: RevocationRequestData({uid: _payment, value: 0})})
@@ -104,9 +100,7 @@ contract ERC20PaymentStatement is IStatement {
         StatementData memory paymentData
     ) internal view returns (bool) {
         // Special case: If the payment references this fulfillment, consider it valid
-        if (payment.refUID == fulfillment.uid) {
-            return true;
-        }
+        if (payment.refUID == fulfillment.uid) return true;
 
         // Regular case: check using the arbiter
         return IArbiter(paymentData.arbiter).checkStatement(fulfillment, paymentData.demand, payment.uid);

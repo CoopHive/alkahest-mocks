@@ -88,7 +88,7 @@ contract StringResultStatement is IStatement {
         );
     }
 
-    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer)
+    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 /* counteroffer */ )
         public
         view
         override
