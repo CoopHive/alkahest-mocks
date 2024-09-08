@@ -19,19 +19,20 @@ Delegating Attestor
 - enables revocation of fulfillment attestation inside finalization terms
 
 ## Offer/Fulfillment Symmetry
-in `collectPayment`, the payment statement attestation is revoked. but what if we want to use it to collect the fullfillment statement's payment?
+solved with validators
 
-options:
-- don't revoke on collection, and use separate state instead to prevent multiple collections on the same statement
-- `checkStatement` doesn't always fail on revoked/expired attestations
-- separate offer vs fulfillment statements
-    - maybe this makes sense anyway; e.g., pay immediately in fulfillment
+## Effect-Free Validators
+validators end up making attestations that their implementation of checkStatement looks at, but this doesn't have to be the case.
+- we can detach "validations" (checkStatement) from "comments", which are statements asserting properties of other statements.
+- IArbiter doesn't have to make attestations. IArbiter.ATTESTATION_SCHEMA doesn't have to be its own
+- checkStatement is already view
 
-## ERC20PaymentStatement
-Requirements:
-- each payment can only be collected once
-- statement fulfilling demands can be used to collect
-- (? maybe specified in demand) fullfillment statement invalidated after finalization 
 
 ## To Explore
-- Abstract common fields of statements like arbiter, demand, counterparty
+- abstract common fields of statements like arbiter, demand, counterparty
+- detach checkStatement from statement creating contracts
+- dedicated "comment" vs "obligation" statements
+- off-chain attestations
+- checkStatement as multi-dispatch polymorphism
+
+See [functional domain model](https://github.com/CoopHive/holistic-models/tree/main/as_functions/contracts_ecosystem).
