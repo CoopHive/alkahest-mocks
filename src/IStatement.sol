@@ -52,6 +52,4 @@ abstract contract IStatement is IArbiter, SchemaResolver {
     function getSchema() external view returns (SchemaRecord memory) {
         return schemaRegistry.getSchema(ATTESTATION_SCHEMA);
     }
-
-    function SCHEMA_ABI() external pure virtual returns (string memory) {}
 }
