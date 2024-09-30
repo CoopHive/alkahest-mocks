@@ -1,25 +1,49 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.26;
 
-import {Attestation, DeadlineExpired, InvalidEAS} from "@eas/Common.sol";
+import {Attestation} from "@eas/Common.sol";
 
 abstract contract IArbiter {
-    bytes32 public immutable ATTESTATION_SCHEMA;
+    error DeadlineExpired();
+    error AttestationRevoked();
+    error InvalidSchema();
+
+    function _checkExpired(
+        Attestation memory statement
+    ) internal view returns (bool) {
+        return
+            statement.expirationTime != 0 &&
+            statement.expirationTime < block.timestamp;
+    }
+
+    function _checkRevoked(
+        Attestation memory statement
+    ) internal pure returns (bool) {
+        return statement.revocationTime != 0;
+    }
+
+    function _checkSchema(
+        Attestation memory statement,
+        bytes32 schema
+    ) internal pure returns (bool) {
+        return statement.schema == schema;
+    }
 
     function _checkIntrinsic(
         Attestation memory statement
     ) internal view returns (bool) {
-        // check schema
-        if (statement.schema != ATTESTATION_SCHEMA) return false;
-        // check expired
-        if (
-            statement.expirationTime != 0 &&
-            statement.expirationTime < block.timestamp
-        ) revert DeadlineExpired();
-        // check revoked
-        if (statement.revocationTime != 0) revert InvalidEAS();
+        if (!_checkExpired(statement)) revert DeadlineExpired();
+        if (!_checkRevoked(statement)) revert AttestationRevoked();
 
         return true;
+    }
+
+    function _checkIntrinsic(
+        Attestation memory statement,
+        bytes32 schema
+    ) internal view returns (bool) {
+        if (!_checkSchema(statement, schema)) revert InvalidSchema();
+        return _checkIntrinsic(statement);
     }
 
     function _checkIdentical(
@@ -35,7 +59,5 @@ abstract contract IArbiter {
         bytes32 counteroffer
     ) public view virtual returns (bool) {}
 
-    function getSchemaAbi() public pure virtual returns (string memory) {}
-
-    function getDemandAbi() public pure virtual returns (string memory) {}
+    function DEMAND_ABI() public pure virtual returns (string memory) {}
 }

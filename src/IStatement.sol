@@ -10,21 +10,33 @@ import {Attestation} from "@eas/Common.sol";
 abstract contract IStatement is IArbiter, SchemaResolver {
     ISchemaRegistry public immutable schemaRegistry;
     IEAS public immutable eas;
+    bytes32 public immutable ATTESTATION_SCHEMA;
 
-    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, string memory schema, bool revocable)
-        SchemaResolver(_eas)
-    {
+    constructor(
+        IEAS _eas,
+        ISchemaRegistry _schemaRegistry,
+        string memory schema,
+        bool revocable
+    ) SchemaResolver(_eas) {
         eas = _eas;
         schemaRegistry = _schemaRegistry;
         ATTESTATION_SCHEMA = schemaRegistry.register(schema, this, revocable);
     }
 
-    function onAttest(Attestation calldata attestation, uint256 /* value */ ) internal view override returns (bool) {
+    function onAttest(
+        Attestation calldata attestation,
+        uint256 /* value */
+    ) internal view override returns (bool) {
         // only statement contract can attest
         return attestation.attester == address(this);
     }
 
-    function onRevoke(Attestation calldata, uint256 /* value */ ) internal pure override returns (bool) {
+    function onRevoke(
+        Attestation calldata,
+        uint256 /* value */
+    ) internal pure override returns (bool) {
         return true;
     }
+
+    function SCHEMA_ABI() public pure virtual returns (string memory) {}
 }
