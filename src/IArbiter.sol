@@ -59,5 +59,5 @@ abstract contract IArbiter {
         bytes32 counteroffer
     ) public view virtual returns (bool) {}
 
-    function DEMAND_ABI() public pure virtual returns (string memory) {}
+    function DEMAND_ABI() external pure virtual returns (string memory) {}
 }

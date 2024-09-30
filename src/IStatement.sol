@@ -38,5 +38,5 @@ abstract contract IStatement is IArbiter, SchemaResolver {
         return true;
     }
 
-    function SCHEMA_ABI() public pure virtual returns (string memory) {}
+    function SCHEMA_ABI() external pure virtual returns (string memory) {}
 }
