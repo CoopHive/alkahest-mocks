@@ -100,7 +100,7 @@ contract ERC20PaymentStatement is IStatement {
         StatementData memory paymentData
     ) internal view returns (bool) {
         // Special case: If the payment references this fulfillment, consider it valid
-        if (payment.refUID == fulfillment.uid) return true;
+        if (payment.refUID != 0) return payment.refUID == fulfillment.uid;
 
         // Regular case: check using the arbiter
         return IArbiter(paymentData.arbiter).checkStatement(fulfillment, paymentData.demand, payment.uid);
