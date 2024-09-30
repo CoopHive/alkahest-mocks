@@ -12,6 +12,8 @@ abstract contract IStatement is IArbiter, SchemaResolver {
     IEAS public immutable eas;
     bytes32 public immutable ATTESTATION_SCHEMA;
 
+    error NotFromStatement();
+
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry,
@@ -43,11 +45,13 @@ abstract contract IStatement is IArbiter, SchemaResolver {
     ) external view returns (Attestation memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (!_checkSchema(attestation, ATTESTATION_SCHEMA))
-            revert InvalidSchema();
+            revert NotFromStatement();
         return attestation;
     }
 
     function getSchema() external view returns (SchemaRecord memory) {
         return schemaRegistry.getSchema(ATTESTATION_SCHEMA);
     }
+
+    function SCHEMA_ABI() external pure virtual returns (string memory) {}
 }
