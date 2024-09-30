@@ -7,7 +7,7 @@ import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {Attestation} from "@eas/Common.sol";
 
-abstract contract IStatement is IArbiter, SchemaResolver {
+abstract contract IStatement is SchemaResolver {
     ISchemaRegistry public immutable schemaRegistry;
     IEAS public immutable eas;
     bytes32 public immutable ATTESTATION_SCHEMA;
@@ -44,8 +44,7 @@ abstract contract IStatement is IArbiter, SchemaResolver {
         bytes32 uid
     ) external view returns (Attestation memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (!_checkSchema(attestation, ATTESTATION_SCHEMA))
-            revert NotFromStatement();
+        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
         return attestation;
     }
 
