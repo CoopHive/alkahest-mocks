@@ -3,7 +3,7 @@ pragma solidity 0.8.26;
 
 import {IArbiter} from "./IArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
-import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {Attestation} from "@eas/Common.sol";
 
@@ -38,5 +38,16 @@ abstract contract IStatement is IArbiter, SchemaResolver {
         return true;
     }
 
-    function SCHEMA_ABI() external pure virtual returns (string memory) {}
+    function getStatement(
+        bytes32 uid
+    ) external view returns (Attestation memory) {
+        Attestation memory attestation = eas.getAttestation(uid);
+        if (!_checkSchema(attestation, ATTESTATION_SCHEMA))
+            revert InvalidSchema();
+        return attestation;
+    }
+
+    function getSchema() external view returns (SchemaRecord memory) {
+        return schemaRegistry.getSchema(ATTESTATION_SCHEMA);
+    }
 }
