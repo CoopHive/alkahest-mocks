@@ -4,10 +4,11 @@ pragma solidity 0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IValidator} from "../IValidator.sol";
 import {ERC20PaymentStatement} from "../Statements/ERC20PaymentStatement.sol";
+import {IStatement} from "../IStatement.sol";
+import {IArbiter} from "../IArbiter.sol";
 
-contract ERC20PaymentFulfillmentValidator is IValidator {
+contract ERC20PaymentFulfillmentValidator is IStatement, IArbiter {
     struct ValidationData {
         address token;
         uint256 amount;
@@ -19,33 +20,44 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
         uint256 amount;
     }
 
-    event ValidationCreated(bytes32 indexed validationUID, bytes32 indexed paymentUID);
+    event ValidationCreated(
+        bytes32 indexed validationUID,
+        bytes32 indexed paymentUID
+    );
 
     error InvalidStatement();
     error InvalidValidation();
 
-    string public constant SCHEMA_ABI = "address token, uint256 amount, bytes32 fulfilling";
-    string public constant DEMAND_ABI = "address token, uint256 amount";
-    bool public constant IS_REVOCABLE = true;
-
     ERC20PaymentStatement public immutable paymentStatement;
 
-    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, ERC20PaymentStatement _baseStatement)
-        IValidator(_eas, _schemaRegistry, SCHEMA_ABI, IS_REVOCABLE)
+    constructor(
+        IEAS _eas,
+        ISchemaRegistry _schemaRegistry,
+        ERC20PaymentStatement _baseStatement
+    )
+        IStatement(
+            _eas,
+            _schemaRegistry,
+            "address token, uint256 amount, bytes32 fulfilling",
+            true
+        )
     {
         paymentStatement = _baseStatement;
     }
 
-    function createValidation(bytes32 paymentUID, ValidationData calldata validationData)
-        external
-        returns (bytes32 validationUID)
-    {
+    function createValidation(
+        bytes32 paymentUID,
+        ValidationData calldata validationData
+    ) external returns (bytes32 validationUID) {
         Attestation memory paymentAttestation = eas.getAttestation(paymentUID);
-        if (paymentAttestation.schema != paymentStatement.ATTESTATION_SCHEMA()) revert InvalidStatement();
+        if (paymentAttestation.schema != paymentStatement.ATTESTATION_SCHEMA())
+            revert InvalidStatement();
         if (paymentAttestation.revocationTime != 0) revert InvalidStatement();
-        if (paymentAttestation.recipient != msg.sender) revert InvalidStatement();
+        if (paymentAttestation.recipient != msg.sender)
+            revert InvalidStatement();
 
-        if (paymentAttestation.refUID != validationData.fulfilling) revert InvalidValidation();
+        if (paymentAttestation.refUID != validationData.fulfilling)
+            revert InvalidValidation();
 
         if (
             !paymentStatement.checkStatement(
@@ -79,26 +91,22 @@ contract ERC20PaymentFulfillmentValidator is IValidator {
         emit ValidationCreated(validationUID, paymentUID);
     }
 
-    function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer)
-        public
-        view
-        override
-        returns (bool)
-    {
+    function checkStatement(
+        Attestation memory statement,
+        bytes memory demand,
+        bytes32 counteroffer
+    ) public view override returns (bool) {
         if (!_checkIntrinsic(statement)) return false;
 
-        ValidationData memory validationData = abi.decode(statement.data, (ValidationData));
+        ValidationData memory validationData = abi.decode(
+            statement.data,
+            (ValidationData)
+        );
         DemandData memory demandData = abi.decode(demand, (DemandData));
 
-        return validationData.fulfilling == counteroffer && validationData.token == demandData.token
-            && validationData.amount >= demandData.amount;
-    }
-
-    function getSchemaAbi() public pure override returns (string memory) {
-        return SCHEMA_ABI;
-    }
-
-    function getDemandAbi() public pure override returns (string memory) {
-        return DEMAND_ABI;
+        return
+            validationData.fulfilling == counteroffer &&
+            validationData.token == demandData.token &&
+            validationData.amount >= demandData.amount;
     }
 }
