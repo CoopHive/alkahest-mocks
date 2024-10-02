@@ -27,7 +27,15 @@ const genImports = (imports: string[]) => {
   return out;
 };
 
-const genStatement = (
+const genCheckStatement = () =>
+  ` function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
+    // implement custom statement verification logic here
+    // we recommend early revert on invalid conditions
+    // ...
+    return true;
+  }\n\n`;
+
+const genObligation = (
   name: string,
   opts: {
     isArbiter: boolean;
@@ -84,23 +92,14 @@ const genStatement = (
     out += "    return true;\n";
     out += "  }\n\n"; // end finalizationTerm
   }
-  if (opts.isArbiter) {
-    out +=
-      "  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {\n";
-    out += "    // implement custom statement verification logic here\n";
-    out +=
-      "    // we recommend early revert on invalid conditions\n    //...\n";
-    out += "    return true;\n";
-    out += "  }\n\n";
-  }
-
+  if (opts.isArbiter) out += genCheckStatement();
   out += "}"; // end contract
   return out;
 };
 
 Bun.write(
   "DemoStatement.sol",
-  genStatement("DemoStatement", {
+  genObligation("DemoObligation", {
     isArbiter: true,
     isRevocable: true,
     finalizationTerms: 2,

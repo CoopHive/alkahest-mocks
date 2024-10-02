@@ -7,7 +7,7 @@ import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IStatement} from "../IStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 
-contract DemoStatement is IStatement, IArbiter {
+contract DemoObligation is IStatement, IArbiter {
   struct StatementData {
     address token;
     uint256 amount;
@@ -49,10 +49,10 @@ contract DemoStatement is IStatement, IArbiter {
     return true;
   }
 
-  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
+ function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
     // implement custom statement verification logic here
     // we recommend early revert on invalid conditions
-    //...
+    // ...
     return true;
   }
 
