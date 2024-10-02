@@ -42,29 +42,17 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
         if (_checkExpired(statement)) revert InvalidStatement();
 
         if (statement.refUID != counteroffer) revert InvalidValidation();
-        // ERC20PaymentStatement.StatementData memory statementData = abi.decode(
-        //     statement.data,
-        //     (ERC20PaymentStatement.StatementData)
-        // );
 
-        // if (statementData.token != validationData.token)
-        //     revert InvalidValidation();
-        // if (statementData.amount < validationData.amount)
-        //     revert InvalidValidation();
-        return
-            paymentStatement.checkStatement(
-                statement,
-                abi.encode(
-                    ERC20PaymentStatement.StatementData({
-                        token: validationData.token,
-                        amount: validationData.amount,
-                        arbiter: address(0),
-                        demand: ""
-                    })
-                ),
-                counteroffer
-            );
+        ERC20PaymentStatement.StatementData memory statementData = abi.decode(
+            statement.data,
+            (ERC20PaymentStatement.StatementData)
+        );
 
-        // return true;
+        if (statementData.token != validationData.token)
+            revert InvalidValidation();
+        if (statementData.amount < validationData.amount)
+            revert InvalidValidation();
+
+        return true;
     }
 }
