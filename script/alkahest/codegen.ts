@@ -28,7 +28,12 @@ const genImports = (imports: string[]) => {
 };
 
 const genCheckStatement = () =>
-  ` function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
+  `  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
+    if (!_checkIntrinsic(statement)) return false;
+
+    StatementData memory data_ = abi.decode(statement.data, (StatementData));
+    DemandData memory demand_ = abi.decode(demand, (DemandData));
+
     // implement custom statement verification logic here
     // we recommend early revert on invalid conditions
     // ...
@@ -62,6 +67,8 @@ const genObligation = (
   // contract
   out += `contract ${name} is IStatement${opts.isArbiter ? ", IArbiter" : ""} {\n`;
   out += `  struct StatementData {\n    ${opts.statementData.split(",").join(";\n   ")};\n  }\n\n`;
+  if (opts.demandData)
+    out += `  struct DemandData {\n    ${opts.demandData.split(",").join(";\n   ")};\n  }\n\n`;
   out += `  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) IStatement(_eas, _schemaRegistry, "${opts.statementData}", ${opts.isRevocable}) {}\n\n`;
 
   // makeStatement
@@ -104,5 +111,6 @@ Bun.write(
     isRevocable: true,
     finalizationTerms: 2,
     statementData: "address token, uint256 amount",
+    demandData: "uint256 deadline, address recipient",
   }),
 );

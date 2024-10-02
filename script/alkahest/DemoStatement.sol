@@ -13,6 +13,11 @@ contract DemoObligation is IStatement, IArbiter {
     uint256 amount;
   }
 
+  struct DemandData {
+    uint256 deadline;
+    address recipient;
+  }
+
   constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) IStatement(_eas, _schemaRegistry, "address token, uint256 amount", true) {}
 
   function makeStatement(StatementData calldata data, uint64 expirationTime, bytes32 fulfilling) public returns (bytes32) {
@@ -49,7 +54,12 @@ contract DemoObligation is IStatement, IArbiter {
     return true;
   }
 
- function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
+  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
+    if (!_checkIntrinsic(statement)) return false;
+
+    StatementData memory data_ = abi.decode(statement.data, (StatementData));
+    DemandData memory demand_ = abi.decode(demand, (DemandData));
+
     // implement custom statement verification logic here
     // we recommend early revert on invalid conditions
     // ...
