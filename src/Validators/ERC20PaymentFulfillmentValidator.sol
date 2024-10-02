@@ -52,7 +52,7 @@ contract ERC20PaymentFulfillmentValidator is IStatement, IArbiter {
         Attestation memory paymentAttestation = eas.getAttestation(paymentUID);
         if (paymentAttestation.schema != paymentStatement.ATTESTATION_SCHEMA())
             revert InvalidStatement();
-        if (paymentAttestation.revocationTime != 0) revert InvalidStatement();
+        if (_checkExpired(paymentAttestation)) revert InvalidStatement();
         if (paymentAttestation.recipient != msg.sender)
             revert InvalidStatement();
 
