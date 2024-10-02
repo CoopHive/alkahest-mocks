@@ -8,7 +8,7 @@ import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
 import {IStatement} from "../IStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 
-contract ERC20PaymentStatement is IStatement {
+contract ERC20PaymentStatement is IStatement, IArbiter {
     struct StatementData {
         address token;
         uint256 amount;
@@ -21,15 +21,17 @@ contract ERC20PaymentStatement is IStatement {
     error InvalidFulfillment();
     error UnauthorizedCall();
 
-    string public constant override SCHEMA_ABI =
-        "address token, uint256 amount, address arbiter, bytes demand";
-    string public constant override DEMAND_ABI =
-        "address token, uint256 amount, address arbiter, bytes demand";
-
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) IStatement(_eas, _schemaRegistry, SCHEMA_ABI, true) {}
+    )
+        IStatement(
+            _eas,
+            _schemaRegistry,
+            "address token, uint256 amount, address arbiter, bytes demand",
+            true
+        )
+    {}
 
     function makeStatement(
         StatementData calldata data,
