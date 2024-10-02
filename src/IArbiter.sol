@@ -11,31 +11,22 @@ abstract contract IArbiter {
     function _checkExpired(
         Attestation memory statement
     ) internal view returns (bool) {
-        // false if expired
         return
-            statement.expirationTime == 0 ||
-            statement.expirationTime > block.timestamp;
+            statement.expirationTime != 0 &&
+            statement.expirationTime < block.timestamp;
     }
 
     function _checkRevoked(
         Attestation memory statement
     ) internal pure returns (bool) {
-        // false if revoked
-        return statement.revocationTime == 0;
-    }
-
-    function _checkSchema(
-        Attestation memory statement,
-        bytes32 schema
-    ) internal pure returns (bool) {
-        return statement.schema == schema;
+        return statement.revocationTime != 0;
     }
 
     function _checkIntrinsic(
         Attestation memory statement
     ) internal view returns (bool) {
-        if (!_checkExpired(statement)) revert DeadlineExpired();
-        if (!_checkRevoked(statement)) revert AttestationRevoked();
+        if (_checkExpired(statement)) revert DeadlineExpired();
+        if (_checkRevoked(statement)) revert AttestationRevoked();
 
         return true;
     }
@@ -44,7 +35,7 @@ abstract contract IArbiter {
         Attestation memory statement,
         bytes32 schema
     ) internal view returns (bool) {
-        if (!_checkSchema(statement, schema)) revert InvalidSchema();
+        if (statement.schema != schema) revert InvalidSchema();
         return _checkIntrinsic(statement);
     }
 
