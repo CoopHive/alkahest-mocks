@@ -11,15 +11,17 @@ abstract contract IArbiter {
     function _checkExpired(
         Attestation memory statement
     ) internal view returns (bool) {
+        // false if expired
         return
-            statement.expirationTime != 0 &&
-            statement.expirationTime < block.timestamp;
+            statement.expirationTime == 0 ||
+            statement.expirationTime > block.timestamp;
     }
 
     function _checkRevoked(
         Attestation memory statement
     ) internal pure returns (bool) {
-        return statement.revocationTime != 0;
+        // false if revoked
+        return statement.revocationTime == 0;
     }
 
     function _checkSchema(
