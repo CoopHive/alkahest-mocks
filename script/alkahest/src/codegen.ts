@@ -140,21 +140,7 @@ const genArbiter = (
   return out;
 };
 
-Bun.write(
-  "DemoObligation.sol",
-  genObligation("DemoObligation", {
-    isArbiter: true,
-    isRevocable: true,
-    finalizationTerms: 2,
-    statementData: "address token, uint256 amount",
-    demandData: "uint256 token, address amount",
-  }),
-);
-
-Bun.write(
-  "DemoArbiter.sol",
-  genArbiter("DemoArbiter", {
-    demandData: "address recipient, address mediator",
-    baseStatement: "DemoObligation",
-  }),
-);
+export const gen = {
+  obligation: genObligation,
+  arbiter: genArbiter,
+};
