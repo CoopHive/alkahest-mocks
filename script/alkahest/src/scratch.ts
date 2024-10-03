@@ -1,2 +1,1 @@
 // %%
-Number.parseInt(undefined);

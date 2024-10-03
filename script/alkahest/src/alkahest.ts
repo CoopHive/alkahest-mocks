@@ -56,7 +56,7 @@ async function createObligation(args: string[]) {
     isArbiter: false,
     isRevocable: false,
     finalizationTerms: 0,
-    statementData: "address token, uint256 amount",
+    statementData: "",
     demandData: "",
   };
 
@@ -66,7 +66,7 @@ async function createObligation(args: string[]) {
   );
   process.stderr.write("> ");
   for await (const line of console) {
-    name = line;
+    name = line ? line : "PaymentObligation";
     break;
   }
   console.error(
@@ -74,7 +74,7 @@ async function createObligation(args: string[]) {
   );
   process.stderr.write("> ");
   for await (const line of console) {
-    opts.statementData = line;
+    opts.statementData = line ? line : "address token, uint256 amount";
     break;
   }
   console.error(
@@ -91,7 +91,7 @@ async function createObligation(args: string[]) {
     );
     process.stderr.write("> ");
     for await (const line of console) {
-      opts.demandData = line ?? opts.statementData;
+      opts.demandData = line ? line : opts.statementData;
       break;
     }
   }
@@ -120,7 +120,42 @@ async function createObligation(args: string[]) {
 }
 
 async function createArbiter(args: string[]) {
+  let name = "";
+  const opts = {
+    baseStatement: "",
+    demandData: "",
+  };
+
   console.error("Creating new arbiter contract");
+  console.error(
+    "What's the contract name? We recommend it ends with 'Arbiter', [PaymentArbiter]",
+  );
+  process.stderr.write("> ");
+  for await (const line of console) {
+    name = line ? line : "PaymentArbiter";
+    break;
+  }
+  console.error(
+    "What base statement is it for? Leave blank for a statement-generic arbiter.",
+  );
+  process.stderr.write("> ");
+  for await (const line of console) {
+    opts.baseStatement = line;
+    break;
+  }
+  console.error(
+    "What's the demand schema? Enter a solidity ABI without parentheses. [address token, uint256 amount]",
+  );
+  process.stderr.write("> ");
+  for await (const line of console) {
+    opts.demandData = line ? line : "address token, uint256 amount";
+    break;
+  }
+
+  console.error("Generating contract...");
+  console.log(gen.arbiter(name, opts));
+
+  return 0;
 }
 
 await main(process.argv.slice(2));
