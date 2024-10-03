@@ -39,11 +39,7 @@ contract ERC20PaymentStatementTest is Test {
         tokenB = new MockERC20("Token B", "TKB");
 
         paymentStatement = new ERC20PaymentStatement(eas, schemaRegistry);
-        validator = new ERC20PaymentFulfillmentArbiter(
-            eas,
-            schemaRegistry,
-            paymentStatement
-        );
+        validator = new ERC20PaymentFulfillmentArbiter(paymentStatement);
 
         tokenA.transfer(alice, 1000 * 10 ** 18);
         tokenB.transfer(bob, 1000 * 10 ** 18);

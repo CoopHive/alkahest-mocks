@@ -2,8 +2,6 @@
 pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
-import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {ERC20PaymentStatement} from "../Statements/ERC20PaymentStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 
@@ -17,16 +15,8 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
     error InvalidValidation();
 
     ERC20PaymentStatement public immutable paymentStatement;
-    ISchemaRegistry public immutable schemaRegistry;
-    IEAS public immutable eas;
 
-    constructor(
-        IEAS _eas,
-        ISchemaRegistry _schemaRegistry,
-        ERC20PaymentStatement _baseStatement
-    ) {
-        eas = _eas;
-        schemaRegistry = _schemaRegistry;
+    constructor(ERC20PaymentStatement _baseStatement) {
         paymentStatement = _baseStatement;
     }
 
