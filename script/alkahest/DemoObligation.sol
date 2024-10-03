@@ -14,8 +14,8 @@ contract DemoObligation is IStatement, IArbiter {
   }
 
   struct DemandData {
-    uint256 deadline;
-    address recipient;
+    uint256 token;
+    address amount;
   }
 
   constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) IStatement(_eas, _schemaRegistry, "address token, uint256 amount", true) {}
@@ -54,7 +54,7 @@ contract DemoObligation is IStatement, IArbiter {
     return true;
   }
 
-  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
+  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
     if (!_checkIntrinsic(statement)) return false;
 
     StatementData memory data_ = abi.decode(statement.data, (StatementData));

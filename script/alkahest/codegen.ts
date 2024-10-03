@@ -27,19 +27,6 @@ const genImports = (imports: string[]) => {
   return out;
 };
 
-const genCheckStatement = () =>
-  `  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view returns (bool) {
-    if (!_checkIntrinsic(statement)) return false;
-
-    StatementData memory data_ = abi.decode(statement.data, (StatementData));
-    DemandData memory demand_ = abi.decode(demand, (DemandData));
-
-    // implement custom statement verification logic here
-    // we recommend early revert on invalid conditions
-    // ...
-    return true;
-  }\n\n`;
-
 const genObligation = (
   name: string,
   opts: {
@@ -99,18 +86,75 @@ const genObligation = (
     out += "    return true;\n";
     out += "  }\n\n"; // end finalizationTerm
   }
-  if (opts.isArbiter) out += genCheckStatement();
+  if (opts.isArbiter)
+    out += `  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
+    if (!_checkIntrinsic(statement)) return false;
+
+    StatementData memory data_ = abi.decode(statement.data, (StatementData));
+    DemandData memory demand_ = abi.decode(demand, (DemandData));
+
+    // implement custom statement verification logic here
+    // we recommend early revert on invalid conditions
+    // ...
+    return true;
+  }\n\n`;
+  out += "}"; // end contract
+  return out;
+};
+
+const genArbiter = (
+  name: string,
+  opts: {
+    baseStatement?: string;
+    demandData: string;
+  },
+) => {
+  const imports = ["Attestation", "IArbiter"];
+  // header
+  let out = `${license}\n${pragma}\n\n${genImports(imports)}\n`;
+  if (opts.baseStatement)
+    out += `import {${opts.baseStatement}} from "./path/to/${opts.baseStatement}.sol";\n\n`;
+  // contract
+  out += `contract ${name} is IArbiter {\n`;
+  out += `  struct DemandData {\n    ${opts.demandData.split(",").join(";\n   ")};\n  }\n\n`;
+  out += "  error IncompatibleStatement();\n";
+
+  if (opts.baseStatement) {
+    out += `  ${opts.baseStatement} public immutable baseStatement;\n\n`;
+    out += `  constructor(${opts.baseStatement} _baseStatement) {\n    baseStatement = _baseStatement;\n  }\n\n`;
+  } else {
+    out += "  constructor() {}\n\n";
+  }
+
+  out += `  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
+    if (statement.schema != baseStatement.ATTESTATION_SCHEMA()) revert IncompatibleStatement();
+    DemandData memory demand_ = abi.decode(demand, (DemandData));
+    // implement custom checks here.
+    // early revert with custom errors is recommended on failure.
+    // remember that utility checks are available in IArbiter${opts.baseStatement ? ",\n    // and you can also use baseStatement.checkStatement() if appropriate." : ""}
+    // ...
+    return true;
+  }\n\n`;
+
   out += "}"; // end contract
   return out;
 };
 
 Bun.write(
-  "DemoStatement.sol",
+  "DemoObligation.sol",
   genObligation("DemoObligation", {
     isArbiter: true,
     isRevocable: true,
     finalizationTerms: 2,
     statementData: "address token, uint256 amount",
-    demandData: "uint256 deadline, address recipient",
+    demandData: "uint256 token, address amount",
+  }),
+);
+
+Bun.write(
+  "DemoArbiter.sol",
+  genArbiter("DemoArbiter", {
+    demandData: "address recipient, address mediator",
+    baseStatement: "DemoObligation",
   }),
 );
