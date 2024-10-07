@@ -72,7 +72,7 @@ contract ERC20PaymentStatement is BaseStatement, IArbiter {
         Attestation memory payment = eas.getAttestation(_payment);
         Attestation memory fulfillment = eas.getAttestation(_fulfillment);
 
-        if (!payment.._checkIntrinsic()) revert InvalidPaymentAttestation();
+        if (!payment._checkIntrinsic()) revert InvalidPaymentAttestation();
 
         StatementData memory paymentData = abi.decode(
             payment.data,
@@ -119,7 +119,7 @@ contract ERC20PaymentStatement is BaseStatement, IArbiter {
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement..._checkIntrinsic()) return false;
+        if (!statement._checkIntrinsic()) return false;
 
         StatementData memory payment = abi.decode(
             statement.data,
