@@ -32,7 +32,7 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
 
         if (statement.schema != paymentStatement.ATTESTATION_SCHEMA())
             revert InvalidStatement();
-        if (_checkExpired(statement)) revert InvalidStatement();
+        if (statement._checkExpired()) revert InvalidStatement();
 
         if (statement.refUID != counteroffer) revert InvalidValidation();
 
