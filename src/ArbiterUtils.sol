@@ -36,7 +36,7 @@ library ArbiterUtils {
         bytes32 schema
     ) internal view returns (bool) {
         if (statement.schema != schema) revert InvalidSchema();
-        return statement._checkIntrinsic();
+        return _checkIntrinsic(statement);
     }
 
     function _checkIdentical(
