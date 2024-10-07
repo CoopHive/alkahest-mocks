@@ -7,9 +7,9 @@ import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {Attestation} from "@eas/Common.sol";
 
-abstract contract IStatement is SchemaResolver {
-    ISchemaRegistry public immutable schemaRegistry;
-    IEAS public immutable eas;
+abstract contract BaseStatement is SchemaResolver {
+    ISchemaRegistry internal immutable schemaRegistry;
+    IEAS internal immutable eas;
     bytes32 public immutable ATTESTATION_SCHEMA;
 
     error NotFromStatement();

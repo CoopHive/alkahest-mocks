@@ -25,7 +25,7 @@ solved with validators
 validators end up making attestations that their implementation of checkStatement looks at, but this doesn't have to be the case.
 - we can detach "validations" (checkStatement) from "comments", which are statements asserting properties of other statements.
 - IArbiter doesn't have to make attestations. IArbiter.ATTESTATION_SCHEMA doesn't have to be its own
-    - IArbiter doesn't necessarily need ATTESTATION_SCHEMA. checks could be generic to attestations or a class of statements (e.g., "statement recipient is x"). maybe move ATTESTATION_SCHEMA to IStatement
+    - IArbiter doesn't necessarily need ATTESTATION_SCHEMA. checks could be generic to attestations or a class of statements (e.g., "statement recipient is x"). maybe move ATTESTATION_SCHEMA to BaseStatement
 - checkStatement is already view
 
 
