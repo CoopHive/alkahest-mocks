@@ -20,10 +20,12 @@ const genImports = (imports: string[]) => {
     out += `import {${easIEAS.join(", ")}} from "@eas/IEAS.sol";\n`;
   if (easISchemaRegistry.length > 0)
     out += `import {${easISchemaRegistry.join(", ")}} from "@eas/ISchemaRegistry.sol";\n`;
-  if (imports_.has("IStatement"))
-    out += `import {IStatement} from "../IStatement.sol";\n`;
+  if (imports_.has("BaseStatement"))
+    out += `import {BaseStatement} from "../BaseStatement.sol";\n`;
   if (imports_.has("IArbiter"))
     out += `import {IArbiter} from "../IArbiter.sol";\n`;
+  if (imports_.has("IArbiter"))
+    out += `import {ArbiterUtils} from "../ArbiterUtils.sol";\n`;
   return out;
 };
 
@@ -38,25 +40,27 @@ const genObligation = (
   },
 ) => {
   const imports = [
-    "IStatement",
+    "BaseStatement",
     "IEAS",
     "ISchemaRegistry",
     "Attestation",
     "AttestationRequest",
     "AttestationRequestData",
   ];
-  if (opts.isArbiter) imports.push("IArbiter");
+  if (opts.isArbiter) imports.push("IArbiter", "ArbiterUtils");
+
   if (opts.isRevocable)
     imports.push("RevocationRequest", "RevocationRequestData");
 
   // header
   let out = `${license}\n${pragma}\n\n${genImports(imports)}\n`;
   // contract
-  out += `contract ${name} is IStatement${opts.isArbiter ? ", IArbiter" : ""} {\n`;
+  out += `contract ${name} is BaseStatement${opts.isArbiter ? ", IArbiter" : ""} {\n`;
+  if (opts.isArbiter) out += "  using ArbiterUtils for Attestation;\n\n";
   out += `  struct StatementData {\n    ${opts.statementData.split(",").join(";\n   ")};\n  }\n\n`;
   if (opts.demandData)
     out += `  struct DemandData {\n    ${opts.demandData.split(",").join(";\n   ")};\n  }\n\n`;
-  out += `  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) IStatement(_eas, _schemaRegistry, "${opts.statementData}", ${opts.isRevocable}) {}\n\n`;
+  out += `  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) BaseStatement(_eas, _schemaRegistry, "${opts.statementData}", ${opts.isRevocable}) {}\n\n`;
 
   // makeStatement
   out +=
@@ -88,7 +92,7 @@ const genObligation = (
   }
   if (opts.isArbiter)
     out += `  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
-    if (!_checkIntrinsic(statement)) return false;
+    if (!statement._checkIntrinsic()) return false;
 
     StatementData memory data_ = abi.decode(statement.data, (StatementData));
     DemandData memory demand_ = abi.decode(demand, (DemandData));
@@ -109,13 +113,14 @@ const genArbiter = (
     demandData: string;
   },
 ) => {
-  const imports = ["Attestation", "IArbiter"];
+  const imports = ["Attestation", "IArbiter", "ArbiterUtils"];
   // header
   let out = `${license}\n${pragma}\n\n${genImports(imports)}\n`;
   if (opts.baseStatement)
     out += `import {${opts.baseStatement}} from "./path/to/${opts.baseStatement}.sol";\n\n`;
   // contract
   out += `contract ${name} is IArbiter {\n`;
+  out += "  using ArbiterUtils for Attestation;\n\n";
   out += `  struct DemandData {\n    ${opts.demandData.split(",").join(";\n   ")};\n  }\n\n`;
   out += "  error IncompatibleStatement();\n";
 
