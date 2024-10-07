@@ -4,10 +4,13 @@ pragma solidity 0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IStatement} from "../IStatement.sol";
+import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
+import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract StringResultStatement is IStatement, IArbiter {
+contract StringResultStatement is BaseStatement, IArbiter {
+    using ArbiterUtils for Attestation;
+
     struct StatementData {
         address user;
         uint256 size;
@@ -35,7 +38,7 @@ contract StringResultStatement is IStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        IStatement(
+        BaseStatement(
             _eas,
             _schemaRegistry,
             "address user, uint256 size, uint256 duration, string url",
@@ -112,7 +115,7 @@ contract StringResultStatement is IStatement, IArbiter {
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!_checkIntrinsic(statement)) return false;
+        if (!statement._checkIntrinsic()) return false;
 
         DemandData memory demandData = abi.decode(demand, (DemandData));
         StatementData memory statementData = abi.decode(

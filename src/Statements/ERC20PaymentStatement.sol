@@ -5,10 +5,13 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
-import {IStatement} from "../IStatement.sol";
+import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
+import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract ERC20PaymentStatement is IStatement, IArbiter {
+contract ERC20PaymentStatement is BaseStatement, IArbiter {
+    using ArbiterUtils for Attestation;
+
     struct StatementData {
         address token;
         uint256 amount;
@@ -25,7 +28,7 @@ contract ERC20PaymentStatement is IStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        IStatement(
+        BaseStatement(
             _eas,
             _schemaRegistry,
             "address token, uint256 amount, address arbiter, bytes demand",
@@ -69,7 +72,7 @@ contract ERC20PaymentStatement is IStatement, IArbiter {
         Attestation memory payment = eas.getAttestation(_payment);
         Attestation memory fulfillment = eas.getAttestation(_fulfillment);
 
-        if (!_checkIntrinsic(payment)) revert InvalidPaymentAttestation();
+        if (!payment.._checkIntrinsic()) revert InvalidPaymentAttestation();
 
         StatementData memory paymentData = abi.decode(
             payment.data,
@@ -116,7 +119,7 @@ contract ERC20PaymentStatement is IStatement, IArbiter {
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!_checkIntrinsic(statement)) return false;
+        if (!statement..._checkIntrinsic()) return false;
 
         StatementData memory payment = abi.decode(
             statement.data,

@@ -4,8 +4,11 @@ pragma solidity 0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {ERC20PaymentStatement} from "../Statements/ERC20PaymentStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
+import {ArbiterUtils} from "../ArbiterUtils.sol";
 
 contract ERC20PaymentFulfillmentArbiter is IArbiter {
+    using ArbiterUtils for Attestation;
+
     struct DemandData {
         address token;
         uint256 amount;

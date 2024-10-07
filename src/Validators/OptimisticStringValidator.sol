@@ -5,10 +5,13 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IArbiter} from "../IArbiter.sol";
-import {IStatement} from "../IStatement.sol";
+import {BaseStatement} from "../BaseStatement.sol";
 import {StringResultStatement} from "../Statements/StringResultStatement.sol";
+import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract OptimisticStringValidator is IStatement, IArbiter {
+contract OptimisticStringValidator is BaseStatement, IArbiter {
+    using ArbiterUtils for Attestation;
+
     struct ValidationData {
         string query;
         uint64 mediationPeriod;
@@ -32,7 +35,7 @@ contract OptimisticStringValidator is IStatement, IArbiter {
         ISchemaRegistry _schemaRegistry,
         StringResultStatement _baseStatement
     )
-        IStatement(
+        BaseStatement(
             _eas,
             _schemaRegistry,
             "string query, uint64 mediationPeriod",
@@ -106,7 +109,7 @@ contract OptimisticStringValidator is IStatement, IArbiter {
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
-        if (!_checkIntrinsic(statement)) return false;
+        if (!statement._checkIntrinsic()) return false;
 
         ValidationData memory demandData = abi.decode(demand, (ValidationData));
         ValidationData memory statementData = abi.decode(

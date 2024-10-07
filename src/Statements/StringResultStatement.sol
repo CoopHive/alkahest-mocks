@@ -4,10 +4,13 @@ pragma solidity 0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IStatement} from "../IStatement.sol";
+import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
+import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract StringResultStatement is IStatement, IArbiter {
+contract StringResultStatement is BaseStatement, IArbiter {
+    using ArbiterUtils for Attestation;
+
     struct StatementData {
         string result;
     }
@@ -22,7 +25,7 @@ contract StringResultStatement is IStatement, IArbiter {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) IStatement(_eas, _schemaRegistry, "string result", true) {}
+    ) BaseStatement(_eas, _schemaRegistry, "string result", true) {}
 
     function makeStatement(
         StatementData calldata data,
@@ -49,7 +52,7 @@ contract StringResultStatement is IStatement, IArbiter {
         bytes memory demand /* (string query) */,
         bytes32 counteroffer
     ) public view override returns (bool) {
-        if (!_checkIntrinsic(statement)) return false;
+        if (!statement._checkIntrinsic()) return false;
 
         // Check if the statement is intended to fulfill the specific counteroffer
         if (statement.refUID != bytes32(0) && statement.refUID != counteroffer)
