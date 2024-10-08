@@ -6,7 +6,7 @@ import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, Rev
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {BaseStatement} from "../BaseStatement.sol";
-import {StringResultStatement} from "../Statements/StringResultStatement.sol";
+import {StringResultObligation} from "../Statements/StringResultObligation.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
 contract OptimisticStringValidator is BaseStatement, IArbiter {
@@ -28,12 +28,12 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
     error InvalidValidation();
     error MediationPeriodExpired();
 
-    StringResultStatement public immutable resultStatement;
+    StringResultObligation public immutable resultStatement;
 
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry,
-        StringResultStatement _baseStatement
+        StringResultObligation _baseStatement
     )
         BaseStatement(
             _eas,
@@ -86,9 +86,9 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
         Attestation memory resultAttestation = eas.getAttestation(
             validation.refUID
         );
-        StringResultStatement.StatementData memory resultData = abi.decode(
+        StringResultObligation.StatementData memory resultData = abi.decode(
             resultAttestation.data,
-            (StringResultStatement.StatementData)
+            (StringResultObligation.StatementData)
         );
         success_ = _isCapitalized(data.query, resultData.result);
 
@@ -130,7 +130,7 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
             resultStatement.checkStatement(
                 eas.getAttestation(statement.refUID),
                 abi.encode(
-                    StringResultStatement.DemandData({
+                    StringResultObligation.DemandData({
                         query: statementData.query
                     })
                 ),

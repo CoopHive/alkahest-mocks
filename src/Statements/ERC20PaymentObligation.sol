@@ -9,7 +9,7 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract ERC20PaymentStatement is BaseStatement, IArbiter {
+contract ERC20PaymentObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
