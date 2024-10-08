@@ -33,8 +33,6 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         string newUrl;
     }
 
-    error InvalidResultAttestation();
-    error InvalidDemand();
     error UnauthorizedCall();
 
     constructor(
