@@ -8,24 +8,24 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract StringResultStatement is BaseStatement, IArbiter {
+contract RedisProvisionStatement is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
         address user;
-        uint256 size;
-        uint64 duration;
+        uint256 capacity; // bytes
+        uint64 expiration; // unix timestamp (seconds)
         string url;
     }
 
     struct DemandData {
         address user;
-        uint256 size;
-        uint256 duration;
+        uint256 capacity;
+        uint256 expiration;
     }
 
     struct ChangeData {
-        uint256 addedSize;
+        uint256 addedCapacity;
         uint64 addedDuration;
         string newUrl;
     }
@@ -41,7 +41,7 @@ contract StringResultStatement is BaseStatement, IArbiter {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address user, uint256 size, uint256 duration, string url",
+            "address user, uint256 size, uint64 duration, string url",
             true
         )
     {}
@@ -56,7 +56,7 @@ contract StringResultStatement is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: uint64(block.timestamp) + data.duration,
+                        expirationTime: data.expiration,
                         revocable: true,
                         refUID: refUID,
                         data: abi.encode(data),
@@ -76,10 +76,10 @@ contract StringResultStatement is BaseStatement, IArbiter {
             (StatementData)
         );
 
-        if (statementData.user != msg.sender) revert UnauthorizedCall();
+        if (statement.recipient != msg.sender) revert UnauthorizedCall();
 
-        statementData.duration += changeData.addedDuration;
-        statementData.size += changeData.addedSize;
+        statementData.expiration += changeData.addedDuration;
+        statementData.capacity += changeData.addedCapacity;
 
         if (bytes(changeData.newUrl).length != 0) {
             statementData.url = changeData.newUrl;
@@ -98,9 +98,7 @@ contract StringResultStatement is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: statement.expirationTime -
-                            uint64(block.timestamp) +
-                            changeData.addedDuration,
+                        expirationTime: statementData.expiration,
                         revocable: true,
                         refUID: statement.refUID,
                         data: abi.encode(statementData),
@@ -125,7 +123,7 @@ contract StringResultStatement is BaseStatement, IArbiter {
 
         return
             demandData.user == statementData.user &&
-            demandData.size == statementData.size &&
-            demandData.duration == statementData.duration;
+            demandData.capacity <= statementData.capacity &&
+            demandData.expiration <= statementData.expiration;
     }
 }
