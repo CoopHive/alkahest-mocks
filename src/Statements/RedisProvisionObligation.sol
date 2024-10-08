@@ -14,6 +14,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
     struct StatementData {
         address user;
         uint256 capacity; // bytes
+        uint256 egress; // bytes
         uint64 expiration; // unix timestamp (seconds)
         string url;
     }
@@ -21,11 +22,13 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
     struct DemandData {
         address user;
         uint256 capacity;
-        uint256 expiration;
+        uint256 egress;
+        uint64 expiration;
     }
 
     struct ChangeData {
         uint256 addedCapacity;
+        uint256 addedEgress;
         uint64 addedDuration;
         string newUrl;
     }
@@ -47,8 +50,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
     {}
 
     function makeStatement(
-        StatementData calldata data,
-        bytes32 refUID
+        StatementData calldata data
     ) public returns (bytes32) {
         return
             eas.attest(
@@ -58,7 +60,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
                         recipient: msg.sender,
                         expirationTime: data.expiration,
                         revocable: true,
-                        refUID: refUID,
+                        refUID: 0,
                         data: abi.encode(data),
                         value: 0
                     })
@@ -80,6 +82,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
 
         statementData.expiration += changeData.addedDuration;
         statementData.capacity += changeData.addedCapacity;
+        statementData.egress += changeData.addedEgress;
 
         if (bytes(changeData.newUrl).length != 0) {
             statementData.url = changeData.newUrl;
@@ -100,7 +103,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
                         recipient: msg.sender,
                         expirationTime: statementData.expiration,
                         revocable: true,
-                        refUID: statement.refUID,
+                        refUID: statement.uid,
                         data: abi.encode(statementData),
                         value: 0
                     })
