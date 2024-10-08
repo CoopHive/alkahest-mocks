@@ -101,7 +101,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
                         recipient: msg.sender,
                         expirationTime: statementData.expiration,
                         revocable: true,
-                        refUID: statement.uid,
+                        refUID: statementUID,
                         data: abi.encode(statementData),
                         value: 0
                     })
