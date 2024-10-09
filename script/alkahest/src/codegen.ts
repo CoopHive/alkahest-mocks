@@ -24,8 +24,9 @@ const genImports = (imports: string[]) => {
     out += `import {BaseStatement} from "../BaseStatement.sol";\n`;
   if (imports_.has("IArbiter"))
     out += `import {IArbiter} from "../IArbiter.sol";\n`;
-  if (imports_.has("IArbiter"))
+  if (imports_.has("ArbiterUtils"))
     out += `import {ArbiterUtils} from "../ArbiterUtils.sol";\n`;
+
   return out;
 };
 
