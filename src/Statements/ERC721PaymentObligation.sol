@@ -95,7 +95,7 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
 
         return
             payment.token == demandData.token &&
-            payment.tokenId >= demandData.tokenId &&
+            payment.tokenId == demandData.tokenId &&
             payment.arbiter == demandData.arbiter &&
             keccak256(payment.demand) == keccak256(demandData.demand);
     }
