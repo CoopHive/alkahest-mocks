@@ -14,20 +14,24 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
     struct StatementData {
         address user;
         uint256 capacity; // bytes
+        uint256 ingress; // bytes
         uint256 egress; // bytes
         uint64 expiration; // unix timestamp (seconds)
         string url;
     }
 
     struct DemandData {
+        bytes32 replaces;
         address user;
         uint256 capacity;
+        uint256 ingress;
         uint256 egress;
         uint64 expiration;
     }
 
     struct ChangeData {
         uint256 addedCapacity;
+        uint256 addedIngress;
         uint256 addedEgress;
         uint64 addedDuration;
         string newUrl;
@@ -80,6 +84,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
 
         statementData.expiration += changeData.addedDuration;
         statementData.capacity += changeData.addedCapacity;
+        statementData.ingress += changeData.addedIngress;
         statementData.egress += changeData.addedEgress;
 
         if (bytes(changeData.newUrl).length != 0) {
@@ -123,8 +128,11 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         );
 
         return
+            demandData.replaces == statement.refUID &&
             demandData.user == statementData.user &&
             demandData.capacity <= statementData.capacity &&
+            demandData.ingress <= statementData.ingress &&
+            demandData.egress <= statementData.egress &&
             demandData.expiration <= statementData.expiration;
     }
 }
