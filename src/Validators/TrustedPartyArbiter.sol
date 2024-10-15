@@ -9,7 +9,7 @@ contract TrustedPartyArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
-        address recipient;
+        address creator;
         address baseArbiter;
         bytes baseDemand;
     }
@@ -23,11 +23,7 @@ contract TrustedPartyArbiter is IArbiter {
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        // implement custom checks here.
-        // early revert with custom errors is recommended on failure.
-        // remember that utility checks are available in IArbiter
-        // ...
-        if (statement.recipient != demand_.recipient) revert NotTrustedParty();
+        if (statement.recipient != demand_.creator) revert NotTrustedParty();
 
         return
             IArbiter(demand_.baseArbiter).checkStatement(
