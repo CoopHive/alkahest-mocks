@@ -8,30 +8,35 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract StringResultStatement is BaseStatement, IArbiter {
+contract RedisProvisionObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
         address user;
-        uint256 size;
-        uint64 duration;
+        uint256 capacity; // bytes
+        uint256 ingress; // bytes
+        uint256 egress; // bytes
+        uint64 expiration; // unix timestamp (seconds)
         string url;
     }
 
     struct DemandData {
+        bytes32 replaces;
         address user;
-        uint256 size;
-        uint256 duration;
+        uint256 capacity;
+        uint256 ingress;
+        uint256 egress;
+        uint64 expiration;
     }
 
     struct ChangeData {
-        uint256 addedSize;
+        uint256 addedCapacity;
+        uint256 addedIngress;
+        uint256 addedEgress;
         uint64 addedDuration;
         string newUrl;
     }
 
-    error InvalidResultAttestation();
-    error InvalidDemand();
     error UnauthorizedCall();
 
     constructor(
@@ -41,14 +46,13 @@ contract StringResultStatement is BaseStatement, IArbiter {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address user, uint256 size, uint256 duration, string url",
+            "address user, uint256 size, uint64 duration, string url",
             true
         )
     {}
 
     function makeStatement(
-        StatementData calldata data,
-        bytes32 refUID
+        StatementData calldata data
     ) public returns (bytes32) {
         return
             eas.attest(
@@ -56,9 +60,9 @@ contract StringResultStatement is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: uint64(block.timestamp) + data.duration,
+                        expirationTime: data.expiration,
                         revocable: true,
-                        refUID: refUID,
+                        refUID: 0,
                         data: abi.encode(data),
                         value: 0
                     })
@@ -76,10 +80,12 @@ contract StringResultStatement is BaseStatement, IArbiter {
             (StatementData)
         );
 
-        if (statementData.user != msg.sender) revert UnauthorizedCall();
+        if (statement.recipient != msg.sender) revert UnauthorizedCall();
 
-        statementData.duration += changeData.addedDuration;
-        statementData.size += changeData.addedSize;
+        statementData.expiration += changeData.addedDuration;
+        statementData.capacity += changeData.addedCapacity;
+        statementData.ingress += changeData.addedIngress;
+        statementData.egress += changeData.addedEgress;
 
         if (bytes(changeData.newUrl).length != 0) {
             statementData.url = changeData.newUrl;
@@ -98,11 +104,9 @@ contract StringResultStatement is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: statement.expirationTime -
-                            uint64(block.timestamp) +
-                            changeData.addedDuration,
+                        expirationTime: statementData.expiration,
                         revocable: true,
-                        refUID: statement.refUID,
+                        refUID: statementUID,
                         data: abi.encode(statementData),
                         value: 0
                     })
@@ -124,8 +128,11 @@ contract StringResultStatement is BaseStatement, IArbiter {
         );
 
         return
+            demandData.replaces == statement.refUID &&
             demandData.user == statementData.user &&
-            demandData.size == statementData.size &&
-            demandData.duration == statementData.duration;
+            demandData.capacity <= statementData.capacity &&
+            demandData.ingress <= statementData.ingress &&
+            demandData.egress <= statementData.egress &&
+            demandData.expiration <= statementData.expiration;
     }
 }

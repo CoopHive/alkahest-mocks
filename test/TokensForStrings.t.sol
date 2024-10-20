@@ -3,8 +3,8 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import {ERC20PaymentStatement} from "../src/Statements/ERC20PaymentStatement.sol";
-import {StringResultStatement} from "../src/Statements/StringResultStatement.sol";
+import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
+import {StringResultObligation} from "../src/Statements/StringResultObligation.sol";
 import {OptimisticStringValidator} from "../src/Validators/OptimisticStringValidator.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
@@ -17,9 +17,9 @@ contract MockERC20 is ERC20 {
 }
 
 contract TokensForStringsTest is Test {
-    ERC20PaymentStatement public paymentStatement;
+    ERC20PaymentObligation public paymentStatement;
     OptimisticStringValidator public validator;
-    StringResultStatement public resultStatement;
+    StringResultObligation public resultStatement;
     MockERC20 public mockToken;
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
@@ -38,8 +38,8 @@ contract TokensForStringsTest is Test {
         schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
 
         mockToken = new MockERC20();
-        resultStatement = new StringResultStatement(eas, schemaRegistry);
-        paymentStatement = new ERC20PaymentStatement(eas, schemaRegistry);
+        resultStatement = new StringResultObligation(eas, schemaRegistry);
+        paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
         validator = new OptimisticStringValidator(eas, schemaRegistry, resultStatement);
 
         // Fund Alice and Bob with mock tokens
@@ -51,9 +51,9 @@ contract TokensForStringsTest is Test {
         vm.startPrank(alice);
         mockToken.approve(address(paymentStatement), 100 * 10 ** 18);
 
-        StringResultStatement.DemandData memory stringDemand = StringResultStatement.DemandData({query: "hello world"});
+        StringResultObligation.DemandData memory stringDemand = StringResultObligation.DemandData({query: "hello world"});
 
-        ERC20PaymentStatement.StatementData memory paymentData = ERC20PaymentStatement.StatementData({
+        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(resultStatement),
@@ -64,8 +64,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultStatement.StatementData memory resultData =
-            StringResultStatement.StatementData({result: "HELLO WORLD"});
+        StringResultObligation.StatementData memory resultData =
+            StringResultObligation.StatementData({result: "HELLO WORLD"});
         bytes32 resultUID = resultStatement.makeStatement(resultData, paymentUID);
 
         // Collect payment
@@ -85,7 +85,7 @@ contract TokensForStringsTest is Test {
         OptimisticStringValidator.ValidationData memory validationDemand =
             OptimisticStringValidator.ValidationData({query: "hello world", mediationPeriod: 1 days});
 
-        ERC20PaymentStatement.StatementData memory paymentData = ERC20PaymentStatement.StatementData({
+        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(validator),
@@ -96,8 +96,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultStatement.StatementData memory resultData =
-            StringResultStatement.StatementData({result: "HELLO WORLD"});
+        StringResultObligation.StatementData memory resultData =
+            StringResultObligation.StatementData({result: "HELLO WORLD"});
         bytes32 resultUID = resultStatement.makeStatement(resultData, paymentUID);
 
         OptimisticStringValidator.ValidationData memory validationData =
@@ -126,7 +126,7 @@ contract TokensForStringsTest is Test {
         OptimisticStringValidator.ValidationData memory validationDemand =
             OptimisticStringValidator.ValidationData({query: "hello world", mediationPeriod: 1 days});
 
-        ERC20PaymentStatement.StatementData memory paymentData = ERC20PaymentStatement.StatementData({
+        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(validator),
@@ -137,8 +137,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultStatement.StatementData memory resultData =
-            StringResultStatement.StatementData({result: "HELLO WORLD"});
+        StringResultObligation.StatementData memory resultData =
+            StringResultObligation.StatementData({result: "HELLO WORLD"});
         bytes32 resultUID = resultStatement.makeStatement(resultData, paymentUID);
 
         OptimisticStringValidator.ValidationData memory validationData =
@@ -165,7 +165,7 @@ contract TokensForStringsTest is Test {
         OptimisticStringValidator.ValidationData memory validationDemand =
             OptimisticStringValidator.ValidationData({query: "hello world", mediationPeriod: 1 days});
 
-        ERC20PaymentStatement.StatementData memory paymentData = ERC20PaymentStatement.StatementData({
+        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(validator),
@@ -176,8 +176,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultStatement.StatementData memory resultData =
-            StringResultStatement.StatementData({result: "INCORRECT RESULT"});
+        StringResultObligation.StatementData memory resultData =
+            StringResultObligation.StatementData({result: "INCORRECT RESULT"});
         bytes32 resultUID = resultStatement.makeStatement(resultData, paymentUID);
 
         OptimisticStringValidator.ValidationData memory validationData =
@@ -201,9 +201,9 @@ contract TokensForStringsTest is Test {
         vm.startPrank(alice);
         mockToken.approve(address(paymentStatement), 100 * 10 ** 18);
 
-        StringResultStatement.DemandData memory stringDemand = StringResultStatement.DemandData({query: "hello world"});
+        StringResultObligation.DemandData memory stringDemand = StringResultObligation.DemandData({query: "hello world"});
 
-        ERC20PaymentStatement.StatementData memory paymentData = ERC20PaymentStatement.StatementData({
+        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(resultStatement),
@@ -214,8 +214,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultStatement.StatementData memory resultData =
-            StringResultStatement.StatementData({result: "INCORRECT LENGTH RESULT"});
+        StringResultObligation.StatementData memory resultData =
+            StringResultObligation.StatementData({result: "INCORRECT LENGTH RESULT"});
         bytes32 resultUID = resultStatement.makeStatement(resultData, paymentUID);
         vm.stopPrank();
 
