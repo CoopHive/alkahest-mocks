@@ -14,9 +14,9 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
     struct StatementData {
         address user;
         uint256 capacity; // bytes
-        uint256 ingress; // bytes
         uint256 egress; // bytes
-        uint64 expiration; // unix timestamp (seconds)
+        uint256 cpus; // cores
+        string serverName;
         string url;
     }
 
@@ -24,16 +24,18 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         bytes32 replaces;
         address user;
         uint256 capacity;
-        uint256 ingress;
         uint256 egress;
+        uint256 cpus;
         uint64 expiration;
+        string serverName;
     }
 
     struct ChangeData {
         uint256 addedCapacity;
-        uint256 addedIngress;
         uint256 addedEgress;
+        uint256 addedCpus;
         uint64 addedDuration;
+        string newServerName;
         string newUrl;
     }
 
@@ -46,13 +48,14 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address user, uint256 size, uint64 duration, string url",
+            "address user, uint256 capacity, uint256 egress, uint256 cpus, string memory serverName, string memory url",
             true
         )
     {}
 
     function makeStatement(
-        StatementData calldata data
+        StatementData calldata data,
+        uint64 expirationTime
     ) public returns (bytes32) {
         return
             eas.attest(
@@ -60,7 +63,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: data.expiration,
+                        expirationTime: expirationTime,
                         revocable: true,
                         refUID: 0,
                         data: abi.encode(data),
@@ -82,13 +85,17 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
 
         if (statement.recipient != msg.sender) revert UnauthorizedCall();
 
-        statementData.expiration += changeData.addedDuration;
+        statement.expirationTime += changeData.addedDuration;
         statementData.capacity += changeData.addedCapacity;
-        statementData.ingress += changeData.addedIngress;
         statementData.egress += changeData.addedEgress;
+        statementData.cpus += changeData.addedCpus;
 
         if (bytes(changeData.newUrl).length != 0) {
             statementData.url = changeData.newUrl;
+        }
+
+        if (bytes(changeData.newServerName).length != 0) {
+            statementData.serverName = changeData.newServerName;
         }
 
         eas.revoke(
@@ -104,7 +111,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: statementData.expiration,
+                        expirationTime: statement.expirationTime,
                         revocable: true,
                         refUID: statementUID,
                         data: abi.encode(statementData),
@@ -119,7 +126,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         DemandData memory demandData = abi.decode(demand, (DemandData));
         StatementData memory statementData = abi.decode(
@@ -129,10 +136,12 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
 
         return
             demandData.replaces == statement.refUID &&
+            demandData.expiration <= statement.expirationTime &&
             demandData.user == statementData.user &&
             demandData.capacity <= statementData.capacity &&
-            demandData.ingress <= statementData.ingress &&
             demandData.egress <= statementData.egress &&
-            demandData.expiration <= statementData.expiration;
+            demandData.cpus <= statementData.cpus &&
+            keccak256(bytes(demandData.serverName)) ==
+            keccak256(bytes(statementData.serverName));
     }
 }
