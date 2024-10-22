@@ -119,7 +119,7 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         StatementData memory payment = abi.decode(
             statement.data,
