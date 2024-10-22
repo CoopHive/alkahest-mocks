@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {ERC20PaymentStatement} from "../Statements/ERC20PaymentStatement.sol";
+import {ERC20PaymentObligation} from "../Statements/ERC20PaymentObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
@@ -17,9 +17,9 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
     error InvalidStatement();
     error InvalidValidation();
 
-    ERC20PaymentStatement public immutable paymentStatement;
+    ERC20PaymentObligation public immutable paymentStatement;
 
-    constructor(ERC20PaymentStatement _baseStatement) {
+    constructor(ERC20PaymentObligation _baseStatement) {
         paymentStatement = _baseStatement;
     }
 
@@ -36,9 +36,9 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
 
         if (statement.refUID != counteroffer) revert InvalidValidation();
 
-        ERC20PaymentStatement.StatementData memory statementData = abi.decode(
+        ERC20PaymentObligation.StatementData memory statementData = abi.decode(
             statement.data,
-            (ERC20PaymentStatement.StatementData)
+            (ERC20PaymentObligation.StatementData)
         );
 
         if (statementData.token != validationData.token)

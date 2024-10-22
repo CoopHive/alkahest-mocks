@@ -8,30 +8,37 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract StringResultStatement is BaseStatement, IArbiter {
+contract RedisProvisionObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
         address user;
-        uint256 size;
-        uint64 duration;
+        uint256 capacity; // bytes
+        uint256 egress; // bytes
+        uint256 cpus; // cores
+        string serverName;
         string url;
     }
 
     struct DemandData {
+        bytes32 replaces;
         address user;
-        uint256 size;
-        uint256 duration;
+        uint256 capacity;
+        uint256 egress;
+        uint256 cpus;
+        uint64 expiration;
+        string serverName;
     }
 
     struct ChangeData {
-        uint256 addedSize;
+        uint256 addedCapacity;
+        uint256 addedEgress;
+        uint256 addedCpus;
         uint64 addedDuration;
+        string newServerName;
         string newUrl;
     }
 
-    error InvalidResultAttestation();
-    error InvalidDemand();
     error UnauthorizedCall();
 
     constructor(
@@ -41,14 +48,14 @@ contract StringResultStatement is BaseStatement, IArbiter {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address user, uint256 size, uint256 duration, string url",
+            "address user, uint256 capacity, uint256 egress, uint256 cpus, string memory serverName, string memory url",
             true
         )
     {}
 
     function makeStatement(
         StatementData calldata data,
-        bytes32 refUID
+        uint64 expirationTime
     ) public returns (bytes32) {
         return
             eas.attest(
@@ -56,9 +63,9 @@ contract StringResultStatement is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: uint64(block.timestamp) + data.duration,
+                        expirationTime: expirationTime,
                         revocable: true,
-                        refUID: refUID,
+                        refUID: 0,
                         data: abi.encode(data),
                         value: 0
                     })
@@ -76,13 +83,19 @@ contract StringResultStatement is BaseStatement, IArbiter {
             (StatementData)
         );
 
-        if (statementData.user != msg.sender) revert UnauthorizedCall();
+        if (statement.recipient != msg.sender) revert UnauthorizedCall();
 
-        statementData.duration += changeData.addedDuration;
-        statementData.size += changeData.addedSize;
+        statement.expirationTime += changeData.addedDuration;
+        statementData.capacity += changeData.addedCapacity;
+        statementData.egress += changeData.addedEgress;
+        statementData.cpus += changeData.addedCpus;
 
         if (bytes(changeData.newUrl).length != 0) {
             statementData.url = changeData.newUrl;
+        }
+
+        if (bytes(changeData.newServerName).length != 0) {
+            statementData.serverName = changeData.newServerName;
         }
 
         eas.revoke(
@@ -98,11 +111,9 @@ contract StringResultStatement is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: statement.expirationTime -
-                            uint64(block.timestamp) +
-                            changeData.addedDuration,
+                        expirationTime: statement.expirationTime,
                         revocable: true,
-                        refUID: statement.refUID,
+                        refUID: statementUID,
                         data: abi.encode(statementData),
                         value: 0
                     })
@@ -115,7 +126,7 @@ contract StringResultStatement is BaseStatement, IArbiter {
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         DemandData memory demandData = abi.decode(demand, (DemandData));
         StatementData memory statementData = abi.decode(
@@ -124,8 +135,13 @@ contract StringResultStatement is BaseStatement, IArbiter {
         );
 
         return
+            demandData.replaces == statement.refUID &&
+            demandData.expiration <= statement.expirationTime &&
             demandData.user == statementData.user &&
-            demandData.size == statementData.size &&
-            demandData.duration == statementData.duration;
+            demandData.capacity <= statementData.capacity &&
+            demandData.egress <= statementData.egress &&
+            demandData.cpus <= statementData.cpus &&
+            keccak256(bytes(demandData.serverName)) ==
+            keccak256(bytes(statementData.serverName));
     }
 }
