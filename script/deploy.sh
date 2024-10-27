@@ -8,3 +8,6 @@ forge create src/Statements/ERC721PaymentObligation.sol:ERC721PaymentObligation 
 
 echo "Deploying JobResultObligation"
 forge create src/Statements/JobResultObligation.sol:JobResultObligation --rpc-url $RPC_URL --private-key $DEPLOYMENT_KEY --constructor-args  0x4200000000000000000000000000000000000021 0x4200000000000000000000000000000000000020
+
+echo "Deploying BundlePaymentObligation"
+forge create src/Statements/BundlePaymentObligation.sol:BundlePaymentObligation --rpc-url $RPC_URL --private-key $DEPLOYMENT_KEY --constructor-args  0x4200000000000000000000000000000000000021 0x4200000000000000000000000000000000000020
