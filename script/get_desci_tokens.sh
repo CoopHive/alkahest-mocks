@@ -7,8 +7,8 @@ cast balance $BUYER --rpc-url $RPC_URL
 cast balance $SELLER --rpc-url $RPC_URL
 
 # Define arrays for tokens and holders
-TOKENS=($VITA $NEURON $ATH $RSC $GROW)
-HOLDERS=($VITA_HOLDER $NEURON_HOLDER $ATH_HOLDER $RSC_HOLDER $GROW_HOLDER)
+TOKENS=($VITA $NEURON $ATH $RSC $GROW $CRYO)
+HOLDERS=($VITA_HOLDER $NEURON_HOLDER $ATH_HOLDER $RSC_HOLDER $GROW_HOLDER $CRYO_HOLDER)
 
 # Loop through tokens and holders
 for i in ${!TOKENS[@]}; do
