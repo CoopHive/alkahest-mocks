@@ -22,18 +22,16 @@ for i in ${!TOKENS[@]}; do
   echo "Impersonating account: $HOLDER"
   cast rpc anvil_impersonateAccount $HOLDER --rpc-url $RPC_URL
 
-  for RECEIVER in $BUYER $SELLER; do
-    echo "Transferring tokens from $HOLDER to $RECEIVER"
+  echo "Transferring tokens from $HOLDER to $BUYER"
 
-    GAS_ESTIMATE=$(cast estimate $TOKEN "transfer(address,uint256)(bool)" $RECEIVER 10000 --from $HOLDER --rpc-url $RPC_URL)
-    GAS_LIMIT=$((GAS_ESTIMATE + 50000))
+  GAS_ESTIMATE=$(cast estimate $TOKEN "transfer(address,uint256)(bool)" $BUYER 10000 --from $HOLDER --rpc-url $RPC_URL)
+  GAS_LIMIT=$((GAS_ESTIMATE + 50000))
 
-    cast send $TOKEN --from $HOLDER "transfer(address,uint256)(bool)" $RECEIVER 10000 \
-      --unlocked --rpc-url $RPC_URL --gas-limit $GAS_LIMIT
-    
-    BALANCE=$(cast call $TOKEN "balanceOf(address)(uint256)" $RECEIVER --rpc-url $RPC_URL)
-    echo "Balance of $RECEIVER: $BALANCE"
-  done
+  cast send $TOKEN --from $HOLDER "transfer(address,uint256)(bool)" $BUYER 10000 \
+    --unlocked --rpc-url $RPC_URL --gas-limit $GAS_LIMIT
+  
+  BALANCE=$(cast call $TOKEN "balanceOf(address)(uint256)" $BUYER --rpc-url $RPC_URL)
+  echo "Balance of $BUYER: $BALANCE"
 
   cast rpc anvil_stopImpersonatingAccount $HOLDER --rpc-url $RPC_URL
 done
