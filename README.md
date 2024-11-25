@@ -20,8 +20,8 @@ Base contracts:
 Implementations:
 
 - Statements:
-    - [ERC20PaymentStatement](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/ERC20PaymentStatement.sol)
-    - [StringResultStatement](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/StringResultStatement.sol)
+    - [ERC20PaymentObligation](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/ERC20PaymentObligation.sol)
+    - [StringResultObligation](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/StringResultObligation.sol)
 - Validators:
     - [ERC20PaymentFulfillmentValidator](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/ERC20PaymentFulfillmentValidator.sol)
     - [OptimisticStringValidator](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/OptimisticStringValidator.sol)

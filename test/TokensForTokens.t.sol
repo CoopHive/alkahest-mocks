@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20PaymentStatement} from "../src/Statements/ERC20PaymentStatement.sol";
+import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
@@ -14,8 +14,8 @@ contract MockERC20 is ERC20 {
     }
 }
 
-contract ERC20PaymentStatementTest is Test {
-    ERC20PaymentStatement public paymentStatement;
+contract ERC20PaymentObligationTest is Test {
+    ERC20PaymentObligation public paymentStatement;
     ERC20PaymentFulfillmentArbiter public validator;
     MockERC20 public tokenA;
     MockERC20 public tokenB;
@@ -38,14 +38,14 @@ contract ERC20PaymentStatementTest is Test {
         tokenA = new MockERC20("Token A", "TKA");
         tokenB = new MockERC20("Token B", "TKB");
 
-        paymentStatement = new ERC20PaymentStatement(eas, schemaRegistry);
+        paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
         validator = new ERC20PaymentFulfillmentArbiter(paymentStatement);
 
         tokenA.transfer(alice, 1000 * 10 ** 18);
         tokenB.transfer(bob, 1000 * 10 ** 18);
     }
 
-    function testERC20PaymentStatementSelfReferential() public {
+    function testERC20PaymentObligationSelfReferential() public {
         (bytes32 alicePaymentUID, bytes32 bobPaymentUID) = _setupTrade();
 
         // Bob collects Alice's payment
@@ -145,8 +145,8 @@ contract ERC20PaymentStatementTest is Test {
     {
         vm.startPrank(alice);
         tokenA.approve(address(paymentStatement), 100 * 10 ** 18);
-        ERC20PaymentStatement.StatementData
-            memory alicePaymentData = ERC20PaymentStatement.StatementData({
+        ERC20PaymentObligation.StatementData
+            memory alicePaymentData = ERC20PaymentObligation.StatementData({
                 token: address(tokenA),
                 amount: 100 * 10 ** 18,
                 arbiter: address(validator),
@@ -166,8 +166,8 @@ contract ERC20PaymentStatementTest is Test {
 
         vm.startPrank(bob);
         tokenB.approve(address(paymentStatement), 200 * 10 ** 18);
-        ERC20PaymentStatement.StatementData
-            memory bobPaymentData = ERC20PaymentStatement.StatementData({
+        ERC20PaymentObligation.StatementData
+            memory bobPaymentData = ERC20PaymentObligation.StatementData({
                 token: address(tokenB),
                 amount: 200 * 10 ** 18,
                 arbiter: address(0),

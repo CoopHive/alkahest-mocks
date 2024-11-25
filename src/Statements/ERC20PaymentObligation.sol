@@ -9,7 +9,7 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract ERC20PaymentStatement is BaseStatement, IArbiter {
+contract ERC20PaymentObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
@@ -119,7 +119,7 @@ contract ERC20PaymentStatement is BaseStatement, IArbiter {
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         StatementData memory payment = abi.decode(
             statement.data,

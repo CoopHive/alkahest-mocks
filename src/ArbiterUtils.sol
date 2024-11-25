@@ -38,11 +38,4 @@ library ArbiterUtils {
         if (statement.schema != schema) revert InvalidSchema();
         return _checkIntrinsic(statement);
     }
-
-    function _checkIdentical(
-        Attestation memory statement,
-        bytes memory demand
-    ) public pure returns (bool) {
-        return keccak256(statement.data) == keccak256(demand);
-    }
 }
