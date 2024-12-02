@@ -40,10 +40,12 @@ done
 # Impersonate account
 cast rpc anvil_impersonateAccount $IPNFT_HOLDER
 
-TOKEN_ID=44
+TOKEN_IDS=(29 30 31)
 
-cast send $IPNFT --from $IPNFT_HOLDER "safeTransferFrom(address,address,uint256)" $IPNFT_HOLDER $BUYER $TOKEN_ID --unlocked
+for TOKEN_ID in "${TOKEN_IDS[@]}"; do
+  cast send $IPNFT --from $IPNFT_HOLDER "safeTransferFrom(address,address,uint256)" $IPNFT_HOLDER $BUYER $TOKEN_ID --unlocked
 
-# Check the balance of the holder and receiver
-cast call $IPNFT "balanceOf(address)(uint256)" $BUYER --rpc-url $RPC_URL
-cast call $IPNFT "ownerOf(uint256)(address)" $TOKEN_ID --rpc-url $RPC_URL
+  # Check the balance of the holder and receiver
+  cast call $IPNFT "balanceOf(address)(uint256)" $BUYER --rpc-url $RPC_URL
+  cast call $IPNFT "ownerOf(uint256)(address)" $TOKEN_ID --rpc-url $RPC_URL
+done
