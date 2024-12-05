@@ -3,13 +3,13 @@ export $(cat ../.env | xargs)
 TOKENS=($VITA $NEURON $ATH $RSC $GROW $CRYO $LAKE $HAIR $GLW_BETA $AXGT $NOBL $WEL)
 HOLDERS=($VITA_HOLDER $NEURON_HOLDER $ATH_HOLDER $RSC_HOLDER $GROW_HOLDER $CRYO_HOLDER $LAKE_HOLDER $HAIR_HOLDER $GLW_BETA_HOLDER $AXGT_HOLDER $NOBL_HOLDER $WEL_HOLDER)
 
-RECEIVERS=($BUYER $SELLER $IPNFT_HOLDER ${HOLDERS[@]})
+RECEIVERS=($BUYER $SELLER ${HOLDERS[@]})
 
 cast rpc anvil_impersonateAccount $ETH_HOLDER
 
 for RECEIVER in ${RECEIVERS[@]}; do
-  echo "Sending 1 ETH to $RECEIVER"
-  cast send --from $ETH_HOLDER --unlocked $RECEIVER --value 1ether --rpc-url $RPC_URL
+  echo "Sending 10 ETH to $RECEIVER"
+  cast send --from $ETH_HOLDER --unlocked $RECEIVER --value 10ether --rpc-url $RPC_URL
 done
 
 cast rpc anvil_stopImpersonatingAccount $ETH_HOLDER --rpc-url $RPC_URL
@@ -37,15 +37,18 @@ for i in ${!TOKENS[@]}; do
 done
 
 # ------------------------------ERC721------------------------------
-# Impersonate account
-cast rpc anvil_impersonateAccount $IPNFT_HOLDER
 
-TOKEN_IDS=(29 30 31)
+TOKEN_IDS=(29 30 31 122 89 44 49 37 28 33 22 18 9 8 31 2)
 
 for TOKEN_ID in "${TOKEN_IDS[@]}"; do
+  IPNFT_HOLDER=$(cast call $IPNFT "ownerOf(uint256)(address)" $TOKEN_ID --rpc-url $RPC_URL)
+
+  cast rpc anvil_impersonateAccount $ETH_HOLDER
+  cast send --from $ETH_HOLDER --unlocked $IPNFT_HOLDER --value 1ether --rpc-url $RPC_URL
+
+  cast rpc anvil_impersonateAccount $IPNFT_HOLDER
   cast send $IPNFT --from $IPNFT_HOLDER "safeTransferFrom(address,address,uint256)" $IPNFT_HOLDER $BUYER $TOKEN_ID --unlocked
 
   # Check the balance of the holder and receiver
   cast call $IPNFT "balanceOf(address)(uint256)" $BUYER --rpc-url $RPC_URL
-  cast call $IPNFT "ownerOf(uint256)(address)" $TOKEN_ID --rpc-url $RPC_URL
 done
