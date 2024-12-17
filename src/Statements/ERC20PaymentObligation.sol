@@ -19,6 +19,14 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         bytes demand;
     }
 
+    event PaymentMade(bytes32 indexed payment, address indexed buyer);
+    event PaymentClaimed(
+        bytes32 indexed payment,
+        bytes32 indexed fulfillment,
+        address indexed fulfiller
+    );
+    event PaymentCancelled(bytes32 indexed payment);
+
     error InvalidPayment();
     error InvalidPaymentAttestation();
     error InvalidFulfillment();
@@ -40,7 +48,7 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         StatementData calldata data,
         uint64 expirationTime,
         bytes32 refUID
-    ) public returns (bytes32) {
+    ) public returns (bytes32 uid_) {
         if (
             !IERC20(data.token).transferFrom(
                 msg.sender,
@@ -49,20 +57,20 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
             )
         ) revert InvalidPayment();
 
-        return
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: msg.sender,
-                        expirationTime: expirationTime,
-                        revocable: true,
-                        refUID: refUID,
-                        data: abi.encode(data),
-                        value: 0
-                    })
+        uid_ = eas.attest(
+            AttestationRequest({
+                schema: ATTESTATION_SCHEMA,
+                data: AttestationRequestData({
+                    recipient: msg.sender,
+                    expirationTime: expirationTime,
+                    revocable: true,
+                    refUID: refUID,
+                    data: abi.encode(data),
+                    value: 0
                 })
-            );
+            })
+        );
+        emit PaymentMade(uid_, msg.sender);
     }
 
     function collectPayment(
@@ -89,11 +97,14 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
                 data: RevocationRequestData({uid: _payment, value: 0})
             })
         );
-        return
-            IERC20(paymentData.token).transfer(
-                fulfillment.recipient,
-                paymentData.amount
-            );
+
+        IERC20(paymentData.token).transfer(
+            fulfillment.recipient,
+            paymentData.amount
+        );
+
+        emit PaymentClaimed(_payment, _fulfillment, fulfillment.recipient);
+        return true;
     }
 
     function cancelStatement(bytes32 uid) public returns (bool) {
@@ -111,7 +122,10 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
             attestation.data,
             (StatementData)
         );
-        return IERC20(data.token).transfer(msg.sender, data.amount);
+        IERC20(data.token).transfer(msg.sender, data.amount);
+
+        emit PaymentCancelled(uid);
+        return true;
     }
 
     function checkStatement(
