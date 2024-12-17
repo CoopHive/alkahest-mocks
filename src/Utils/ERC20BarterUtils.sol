@@ -7,7 +7,7 @@ import {ERC20PaymentFulfillmentArbiter} from "../Validators/ERC20PaymentFulfillm
 import {ERC20PaymentObligation} from "../Statements/ERC20PaymentObligation.sol";
 import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
 
-contract ERC20Barter {
+contract ERC20BarterUtils {
     IEAS internal eas;
     ERC20PaymentObligation internal erc20Payment;
     ERC20PaymentFulfillmentArbiter internal erc20Fulfillment;
