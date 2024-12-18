@@ -37,7 +37,7 @@ contract ERC20BarterUtils {
         IERC20Permit tokenC = IERC20Permit(token);
         tokenC.permit(
             msg.sender,
-            address(erc20Payment),
+            address(this),
             amount,
             block.timestamp + 1,
             v,
@@ -45,7 +45,7 @@ contract ERC20BarterUtils {
             s
         );
         return
-            erc20Payment.makeStatement(
+            erc20Payment.makeStatementFor(
                 ERC20PaymentObligation.StatementData({
                     token: token,
                     amount: amount,
@@ -53,7 +53,9 @@ contract ERC20BarterUtils {
                     demand: demand
                 }),
                 expiration,
-                bytes32(0)
+                bytes32(0),
+                msg.sender,
+                msg.sender
             );
     }
 
@@ -77,7 +79,7 @@ contract ERC20BarterUtils {
             s
         );
         return
-            erc20Payment.makeStatement(
+            erc20Payment.makeStatementFor(
                 ERC20PaymentObligation.StatementData({
                     token: token,
                     amount: amount,
@@ -85,7 +87,9 @@ contract ERC20BarterUtils {
                     demand: ""
                 }),
                 expiration,
-                item
+                item,
+                msg.sender,
+                msg.sender
             );
     }
 
@@ -97,7 +101,7 @@ contract ERC20BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc20Payment.makeStatement(
+            erc20Payment.makeStatementFor(
                 ERC20PaymentObligation.StatementData({
                     token: bidToken,
                     amount: bidAmount,
@@ -110,7 +114,9 @@ contract ERC20BarterUtils {
                     )
                 }),
                 expiration,
-                bytes32(0)
+                bytes32(0),
+                msg.sender,
+                msg.sender
             );
     }
 
@@ -118,11 +124,16 @@ contract ERC20BarterUtils {
         bytes32 buyAttestation
     ) internal returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20PaymentFulfillmentArbiter.DemandData memory demand = abi.decode(
+        ERC20PaymentObligation.StatementData memory paymentData = abi.decode(
             bid.data,
+            (ERC20PaymentObligation.StatementData)
+        );
+        ERC20PaymentFulfillmentArbiter.DemandData memory demand = abi.decode(
+            paymentData.demand,
             (ERC20PaymentFulfillmentArbiter.DemandData)
         );
-        bytes32 sellAttestation = erc20Payment.makeStatement(
+
+        bytes32 sellAttestation = erc20Payment.makeStatementFor(
             ERC20PaymentObligation.StatementData({
                 token: demand.token,
                 amount: demand.amount,
@@ -130,7 +141,9 @@ contract ERC20BarterUtils {
                 demand: ""
             }),
             0,
-            buyAttestation
+            buyAttestation,
+            msg.sender,
+            msg.sender
         );
 
         if (!erc20Payment.collectPayment(buyAttestation, sellAttestation)) {
