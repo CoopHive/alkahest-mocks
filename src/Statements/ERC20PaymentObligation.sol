@@ -44,24 +44,21 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function makeStatement(
+    function makeStatementFor(
         StatementData calldata data,
         uint64 expirationTime,
-        bytes32 refUID
+        bytes32 refUID,
+        address payer,
+        address recipient
     ) public returns (bytes32 uid_) {
-        if (
-            !IERC20(data.token).transferFrom(
-                msg.sender,
-                address(this),
-                data.amount
-            )
-        ) revert InvalidPayment();
+        if (!IERC20(data.token).transferFrom(payer, address(this), data.amount))
+            revert InvalidPayment();
 
         uid_ = eas.attest(
             AttestationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
-                    recipient: msg.sender,
+                    recipient: recipient,
                     expirationTime: expirationTime,
                     revocable: true,
                     refUID: refUID,
@@ -70,7 +67,22 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
                 })
             })
         );
-        emit PaymentMade(uid_, msg.sender);
+        emit PaymentMade(uid_, recipient);
+    }
+
+    function makeStatement(
+        StatementData calldata data,
+        uint64 expirationTime,
+        bytes32 refUID
+    ) public returns (bytes32 uid_) {
+        return
+            makeStatementFor(
+                data,
+                expirationTime,
+                refUID,
+                msg.sender,
+                msg.sender
+            );
     }
 
     function collectPayment(
@@ -88,6 +100,7 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         );
 
         // Check if the fulfillment is valid
+
         if (!_isValidFulfillment(payment, fulfillment, paymentData))
             revert InvalidFulfillment();
 
