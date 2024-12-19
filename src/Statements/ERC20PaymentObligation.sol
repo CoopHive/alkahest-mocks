@@ -25,7 +25,6 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         bytes32 indexed fulfillment,
         address indexed fulfiller
     );
-    event PaymentCancelled(bytes32 indexed payment);
 
     error InvalidPayment();
     error InvalidPaymentAttestation();
@@ -40,7 +39,7 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
             _eas,
             _schemaRegistry,
             "address token, uint256 amount, address arbiter, bytes demand",
-            true
+            false
         )
     {}
 
@@ -99,8 +98,6 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
             (StatementData)
         );
 
-        // Check if the fulfillment is valid
-
         if (!_isValidFulfillment(payment, fulfillment, paymentData))
             revert InvalidFulfillment();
 
@@ -111,34 +108,25 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
             })
         );
 
-        IERC20(paymentData.token).transfer(
-            fulfillment.recipient,
-            paymentData.amount
-        );
-
-        emit PaymentClaimed(_payment, _fulfillment, fulfillment.recipient);
-        return true;
+        return
+            IERC20(paymentData.token).transfer(
+                fulfillment.recipient,
+                paymentData.amount
+            );
     }
 
-    function cancelStatement(bytes32 uid) public returns (bool) {
+    function collectExpired(bytes32 uid) public returns (bool) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (msg.sender != attestation.recipient) revert UnauthorizedCall();
 
-        eas.revoke(
-            RevocationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: uid, value: 0})
-            })
-        );
+        if (block.timestamp < attestation.expirationTime)
+            revert UnauthorizedCall();
 
         StatementData memory data = abi.decode(
             attestation.data,
             (StatementData)
         );
-        IERC20(data.token).transfer(msg.sender, data.amount);
 
-        emit PaymentCancelled(uid);
-        return true;
+        return IERC20(data.token).transfer(attestation.recipient, data.amount);
     }
 
     function checkStatement(
