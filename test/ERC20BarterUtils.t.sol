@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
+import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
 import {ERC20BarterUtils} from "../src/Utils/ERC20BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
@@ -19,7 +19,7 @@ contract MockERC20Permit is ERC20Permit {
 }
 
 contract ERC20BarterUtilsTest is Test {
-    ERC20PaymentObligation public paymentStatement;
+    ERC20EscrowObligation public paymentStatement;
     ERC20PaymentFulfillmentArbiter public validator;
     ERC20BarterUtils public barterUtils;
     MockERC20Permit public tokenA;
@@ -50,7 +50,7 @@ contract ERC20BarterUtilsTest is Test {
         tokenA = new MockERC20Permit("Token A", "TKA");
         tokenB = new MockERC20Permit("Token B", "TKB");
 
-        paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
+        paymentStatement = new ERC20EscrowObligation(eas, schemaRegistry);
         validator = new ERC20PaymentFulfillmentArbiter(paymentStatement);
         barterUtils = new ERC20BarterUtils(
             EAS_ADDRESS,

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
+import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
 import {ERC721PaymentObligation} from "../src/Statements/ERC721PaymentObligation.sol";
 import {ERC721PaymentFulfillmentArbiter} from "../src/Validators/ERC721PaymentFulfillmentArbiter.sol";
@@ -30,7 +30,7 @@ contract MockERC721 is ERC721 {
 }
 
 contract PaymentObligationTest is Test {
-    ERC20PaymentObligation public erc20PaymentObligation;
+    ERC20EscrowObligation public erc20PaymentObligation;
     ERC721PaymentObligation public erc721PaymentObligation;
     ERC20PaymentFulfillmentArbiter public erc20Arbiter;
     ERC721PaymentFulfillmentArbiter public erc721Arbiter;
@@ -63,7 +63,7 @@ contract PaymentObligationTest is Test {
         nftB = new MockERC721("NFT B", "NFTB");
 
         // Deploy payment obligation contracts
-        erc20PaymentObligation = new ERC20PaymentObligation(eas, schemaRegistry);
+        erc20PaymentObligation = new ERC20EscrowObligation(eas, schemaRegistry);
         erc721PaymentObligation = new ERC721PaymentObligation(eas, schemaRegistry);
 
         // Deploy arbiters
@@ -84,7 +84,7 @@ contract PaymentObligationTest is Test {
         vm.startPrank(alice);
         tokenA.approve(address(erc20PaymentObligation), 1000 * 10 ** tokenA.decimals());
 
-        ERC20PaymentObligation.StatementData memory alicePaymentData = ERC20PaymentObligation.StatementData({
+        ERC20EscrowObligation.StatementData memory alicePaymentData = ERC20EscrowObligation.StatementData({
             token: address(tokenA),
             amount: 100 * 10 ** tokenA.decimals(),
             arbiter: address(erc721Arbiter),
@@ -211,7 +211,7 @@ contract PaymentObligationTest is Test {
         vm.startPrank(bob);
         tokenB.approve(address(erc20PaymentObligation), 1000 * 10 ** tokenB.decimals());
 
-        ERC20PaymentObligation.StatementData memory bobPaymentData = ERC20PaymentObligation.StatementData({
+        ERC20EscrowObligation.StatementData memory bobPaymentData = ERC20EscrowObligation.StatementData({
             token: address(tokenB),
             amount: 100 * 10 ** tokenB.decimals(),
             arbiter: address(erc721Arbiter),

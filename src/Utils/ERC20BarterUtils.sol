@@ -4,12 +4,12 @@ pragma solidity 0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../Validators/ERC20PaymentFulfillmentArbiter.sol";
-import {ERC20PaymentObligation} from "../Statements/ERC20PaymentObligation.sol";
+import {ERC20EscrowObligation} from "../Statements/ERC20EscrowObligation.sol";
 import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
 
 contract ERC20BarterUtils {
     IEAS internal eas;
-    ERC20PaymentObligation internal erc20Payment;
+    ERC20EscrowObligation internal erc20Payment;
     ERC20PaymentFulfillmentArbiter internal erc20Fulfillment;
 
     error CouldntCollectPayment();
@@ -20,7 +20,7 @@ contract ERC20BarterUtils {
         address _erc20Fulfillment
     ) {
         eas = IEAS(_eas);
-        erc20Payment = ERC20PaymentObligation(_erc20Payment);
+        erc20Payment = ERC20EscrowObligation(_erc20Payment);
         erc20Fulfillment = ERC20PaymentFulfillmentArbiter(_erc20Fulfillment);
     }
 
@@ -46,7 +46,7 @@ contract ERC20BarterUtils {
         );
         return
             erc20Payment.makeStatementFor(
-                ERC20PaymentObligation.StatementData({
+                ERC20EscrowObligation.StatementData({
                     token: token,
                     amount: amount,
                     arbiter: arbiter,
@@ -80,7 +80,7 @@ contract ERC20BarterUtils {
         );
         return
             erc20Payment.makeStatementFor(
-                ERC20PaymentObligation.StatementData({
+                ERC20EscrowObligation.StatementData({
                     token: token,
                     amount: amount,
                     arbiter: address(0),
@@ -102,7 +102,7 @@ contract ERC20BarterUtils {
     ) internal returns (bytes32) {
         return
             erc20Payment.makeStatementFor(
-                ERC20PaymentObligation.StatementData({
+                ERC20EscrowObligation.StatementData({
                     token: bidToken,
                     amount: bidAmount,
                     arbiter: address(erc20Fulfillment),
@@ -124,9 +124,9 @@ contract ERC20BarterUtils {
         bytes32 buyAttestation
     ) internal returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20PaymentObligation.StatementData memory paymentData = abi.decode(
+        ERC20EscrowObligation.StatementData memory paymentData = abi.decode(
             bid.data,
-            (ERC20PaymentObligation.StatementData)
+            (ERC20EscrowObligation.StatementData)
         );
         ERC20PaymentFulfillmentArbiter.DemandData memory demand = abi.decode(
             paymentData.demand,
@@ -134,7 +134,7 @@ contract ERC20BarterUtils {
         );
 
         bytes32 sellAttestation = erc20Payment.makeStatementFor(
-            ERC20PaymentObligation.StatementData({
+            ERC20EscrowObligation.StatementData({
                 token: demand.token,
                 amount: demand.amount,
                 arbiter: address(0),

@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
+import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
 import {StringResultObligation} from "../src/Statements/StringResultObligation.sol";
 import {OptimisticStringValidator} from "../src/Validators/OptimisticStringValidator.sol";
 import {IEAS} from "@eas/IEAS.sol";
@@ -17,7 +17,7 @@ contract MockERC20 is ERC20 {
 }
 
 contract TokensForStringsTest is Test {
-    ERC20PaymentObligation public paymentStatement;
+    ERC20EscrowObligation public paymentStatement;
     OptimisticStringValidator public validator;
     StringResultObligation public resultStatement;
     MockERC20 public mockToken;
@@ -39,7 +39,7 @@ contract TokensForStringsTest is Test {
 
         mockToken = new MockERC20();
         resultStatement = new StringResultObligation(eas, schemaRegistry);
-        paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
+        paymentStatement = new ERC20EscrowObligation(eas, schemaRegistry);
         validator = new OptimisticStringValidator(eas, schemaRegistry, resultStatement);
 
         // Fund Alice and Bob with mock tokens
@@ -53,7 +53,7 @@ contract TokensForStringsTest is Test {
 
         StringResultObligation.DemandData memory stringDemand = StringResultObligation.DemandData({query: "hello world"});
 
-        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
+        ERC20EscrowObligation.StatementData memory paymentData = ERC20EscrowObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(resultStatement),
@@ -85,7 +85,7 @@ contract TokensForStringsTest is Test {
         OptimisticStringValidator.ValidationData memory validationDemand =
             OptimisticStringValidator.ValidationData({query: "hello world", mediationPeriod: 1 days});
 
-        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
+        ERC20EscrowObligation.StatementData memory paymentData = ERC20EscrowObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(validator),
@@ -126,7 +126,7 @@ contract TokensForStringsTest is Test {
         OptimisticStringValidator.ValidationData memory validationDemand =
             OptimisticStringValidator.ValidationData({query: "hello world", mediationPeriod: 1 days});
 
-        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
+        ERC20EscrowObligation.StatementData memory paymentData = ERC20EscrowObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(validator),
@@ -165,7 +165,7 @@ contract TokensForStringsTest is Test {
         OptimisticStringValidator.ValidationData memory validationDemand =
             OptimisticStringValidator.ValidationData({query: "hello world", mediationPeriod: 1 days});
 
-        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
+        ERC20EscrowObligation.StatementData memory paymentData = ERC20EscrowObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(validator),
@@ -203,7 +203,7 @@ contract TokensForStringsTest is Test {
 
         StringResultObligation.DemandData memory stringDemand = StringResultObligation.DemandData({query: "hello world"});
 
-        ERC20PaymentObligation.StatementData memory paymentData = ERC20PaymentObligation.StatementData({
+        ERC20EscrowObligation.StatementData memory paymentData = ERC20EscrowObligation.StatementData({
             token: address(mockToken),
             amount: 100 * 10 ** 18,
             arbiter: address(resultStatement),
