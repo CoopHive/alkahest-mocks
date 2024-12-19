@@ -39,7 +39,7 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
             _eas,
             _schemaRegistry,
             "address token, uint256 amount, address arbiter, bytes demand",
-            false
+            true
         )
     {}
 
