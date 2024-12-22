@@ -6,22 +6,26 @@ import {IEAS} from "@eas/IEAS.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../Validators/ERC20PaymentFulfillmentArbiter.sol";
 import {ERC20EscrowObligation} from "../Statements/ERC20EscrowObligation.sol";
 import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
+import {SpecificAttestationArbiter} from "../Validators/SpecificAttestationArbiter.sol";
 
 contract ERC20EscrowBarterUtils {
     IEAS internal eas;
     ERC20EscrowObligation internal erc20Escrow;
     ERC20PaymentFulfillmentArbiter internal erc20Fulfillment;
+    SpecificAttestationArbiter internal specificAttestation;
 
     error CouldntCollectPayment();
 
     constructor(
-        address _eas,
-        address payable _erc20Escrow,
-        address _erc20Fulfillment
+        IEAS _eas,
+        ERC20EscrowObligation _erc20Escrow,
+        ERC20PaymentFulfillmentArbiter _erc20Fulfillment,
+        SpecificAttestationArbiter _specificAttestation
     ) {
-        eas = IEAS(_eas);
-        erc20Escrow = ERC20EscrowObligation(_erc20Escrow);
-        erc20Fulfillment = ERC20PaymentFulfillmentArbiter(_erc20Fulfillment);
+        eas = _eas;
+        erc20Escrow = _erc20Escrow;
+        erc20Fulfillment = _erc20Fulfillment;
+        specificAttestation = _specificAttestation;
     }
 
     function permitAndBuyWithErc20(
@@ -53,7 +57,6 @@ contract ERC20EscrowBarterUtils {
                     demand: demand
                 }),
                 expiration,
-                bytes32(0),
                 msg.sender,
                 msg.sender
             );
@@ -83,11 +86,12 @@ contract ERC20EscrowBarterUtils {
                 ERC20EscrowObligation.StatementData({
                     token: token,
                     amount: amount,
-                    arbiter: address(0),
-                    demand: ""
+                    arbiter: address(specificAttestation),
+                    demand: abi.encode(
+                        SpecificAttestationArbiter.DemandData({uid: item})
+                    )
                 }),
                 expiration,
-                item,
                 msg.sender,
                 msg.sender
             );
@@ -114,7 +118,6 @@ contract ERC20EscrowBarterUtils {
                     )
                 }),
                 expiration,
-                bytes32(0),
                 msg.sender,
                 msg.sender
             );
@@ -128,11 +131,12 @@ contract ERC20EscrowBarterUtils {
             ERC20EscrowObligation.StatementData({
                 token: demand.token,
                 amount: demand.amount,
-                arbiter: address(0),
-                demand: ""
+                arbiter: address(specificAttestation),
+                demand: abi.encode(
+                    SpecificAttestationArbiter.DemandData({uid: buyAttestation})
+                )
             }),
             0,
-            buyAttestation,
             msg.sender,
             msg.sender
         );
