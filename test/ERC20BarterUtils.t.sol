@@ -319,4 +319,110 @@ contract ERC20BarterUtilsTest is Test {
             "Permit should have set allowance"
         );
     }
+
+    function testGenericPermitAndBuy() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 askAmount = 200 * 10 ** 18;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+        uint256 deadline = block.timestamp + 1;
+
+        // Create the demand for Token B
+        ERC20PaymentObligation.StatementData
+            memory demand = ERC20PaymentObligation.StatementData({
+                token: address(tokenB),
+                amount: askAmount,
+                payee: alice
+            });
+
+        // Alice creates buy order with permit
+        (uint8 v1, bytes32 r1, bytes32 s1) = _getPermitSignature(
+            tokenA,
+            ALICE_PRIVATE_KEY,
+            address(escrowStatement),
+            bidAmount,
+            deadline
+        );
+
+        vm.prank(alice);
+        bytes32 buyAttestation = barterUtils.permitAndBuyWithErc20(
+            address(tokenA),
+            bidAmount,
+            address(paymentStatement), // arbiter is payment statement contract
+            abi.encode(demand),
+            expiration,
+            v1,
+            r1,
+            s1
+        );
+
+        assertNotEq(
+            buyAttestation,
+            bytes32(0),
+            "Buy attestation should be created"
+        );
+    }
+
+    function testGenericPermitAndPay() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 askAmount = 200 * 10 ** 18;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+        uint256 deadline = block.timestamp + 1;
+
+        // First create the buy order with proper permit signature
+        (uint8 v1, bytes32 r1, bytes32 s1) = _getPermitSignature(
+            tokenA,
+            ALICE_PRIVATE_KEY,
+            address(escrowStatement),
+            bidAmount,
+            deadline
+        );
+
+        ERC20PaymentObligation.StatementData memory demand = ERC20PaymentObligation.StatementData({
+            token: address(tokenB),
+            amount: askAmount,
+            payee: alice
+        });
+
+        vm.prank(alice);
+        bytes32 buyAttestation = barterUtils.permitAndBuyWithErc20(
+            address(tokenA),
+            bidAmount,
+            address(paymentStatement),
+            abi.encode(demand),
+            expiration,
+            v1,
+            r1,
+            s1
+        );
+
+        // Bob fulfills with permit
+        (uint8 v2, bytes32 r2, bytes32 s2) = _getPermitSignature(
+            tokenB,
+            BOB_PRIVATE_KEY,
+            address(paymentStatement),
+            askAmount,
+            deadline
+        );
+
+        vm.prank(bob);
+        bytes32 sellAttestation = barterUtils.permitAndPayWithErc20(
+            address(tokenB),
+            askAmount,
+            alice, // payee
+            v2,
+            r2,
+            s2
+        );
+
+        // Make the payment collection
+        vm.prank(bob);
+        bool success = escrowStatement.collectPayment(buyAttestation, sellAttestation);
+        assertTrue(success, "Payment collection should succeed");
+
+        // Verify final balances
+        assertEq(tokenA.balanceOf(alice), 900 * 10 ** 18, "Alice should have 900 Token A");
+        assertEq(tokenA.balanceOf(bob), 100 * 10 ** 18, "Bob should have 100 Token A");
+        assertEq(tokenB.balanceOf(alice), 200 * 10 ** 18, "Alice should have 200 Token B");
+        assertEq(tokenB.balanceOf(bob), 800 * 10 ** 18, "Bob should have 800 Token B");
+    }
 }
