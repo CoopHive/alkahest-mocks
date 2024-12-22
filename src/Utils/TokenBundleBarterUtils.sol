@@ -3,16 +3,16 @@ pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
-import {BundleEscrowObligation} from "../Statements/BundleEscrowObligation.sol";
-import {BundlePaymentObligation} from "../Statements/BundlePaymentObligation.sol";
+import {TokenBundleEscrowObligation} from "../Statements/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "../Statements/TokenBundlePaymentObligation.sol";
 import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
 import {IERC721} from "@openzeppelin/token/ERC721/IERC721.sol";
 import {IERC1155} from "@openzeppelin/token/ERC1155/IERC1155.sol";
 
-contract BundleBarterUtils {
+contract TokenBundleBarterUtils {
     IEAS internal eas;
-    BundleEscrowObligation internal bundleEscrow;
-    BundlePaymentObligation internal bundlePayment;
+    TokenBundleEscrowObligation internal bundleEscrow;
+    TokenBundlePaymentObligation internal bundlePayment;
 
     error CouldntCollectPayment();
     error InvalidSignatureLength();
@@ -26,8 +26,8 @@ contract BundleBarterUtils {
 
     constructor(
         IEAS _eas,
-        BundleEscrowObligation _bundleEscrow,
-        BundlePaymentObligation _bundlePayment
+        TokenBundleEscrowObligation _bundleEscrow,
+        TokenBundlePaymentObligation _bundlePayment
     ) {
         eas = _eas;
         bundleEscrow = _bundleEscrow;
@@ -35,7 +35,7 @@ contract BundleBarterUtils {
     }
 
     function permitAndEscrowBundle(
-        BundleEscrowObligation.StatementData calldata data,
+        TokenBundleEscrowObligation.StatementData calldata data,
         uint64 expiration,
         ERC20PermitSignature[] calldata permits
     ) external returns (bytes32) {
@@ -65,7 +65,7 @@ contract BundleBarterUtils {
     }
 
     function permitAndPayBundle(
-        BundlePaymentObligation.StatementData calldata data,
+        TokenBundlePaymentObligation.StatementData calldata data,
         ERC20PermitSignature[] calldata permits
     ) external returns (bytes32) {
         if (permits.length != data.erc20Tokens.length)
@@ -88,13 +88,13 @@ contract BundleBarterUtils {
     }
 
     function _buyBundleForBundle(
-        BundleEscrowObligation.StatementData memory bidBundle,
-        BundlePaymentObligation.StatementData memory askBundle,
+        TokenBundleEscrowObligation.StatementData memory bidBundle,
+        TokenBundlePaymentObligation.StatementData memory askBundle,
         uint64 expiration
     ) internal returns (bytes32) {
         return
             bundleEscrow.makeStatementFor(
-                BundleEscrowObligation.StatementData({
+                TokenBundleEscrowObligation.StatementData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,
                     erc721Tokens: bidBundle.erc721Tokens,
@@ -113,7 +113,7 @@ contract BundleBarterUtils {
 
     function _payBundleForBundle(
         bytes32 buyAttestation,
-        BundlePaymentObligation.StatementData memory demand
+        TokenBundlePaymentObligation.StatementData memory demand
     ) internal returns (bytes32) {
         bytes32 sellAttestation = bundlePayment.makeStatementFor(
             demand,
@@ -129,8 +129,8 @@ contract BundleBarterUtils {
     }
 
     function permitAndEscrowBundleForBundle(
-        BundleEscrowObligation.StatementData calldata bidBundle,
-        BundlePaymentObligation.StatementData calldata askBundle,
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundlePaymentObligation.StatementData calldata askBundle,
         uint64 expiration,
         ERC20PermitSignature[] calldata permits
     ) external returns (bytes32) {
@@ -158,13 +158,11 @@ contract BundleBarterUtils {
         ERC20PermitSignature[] calldata permits
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        BundleEscrowObligation.StatementData memory escrowData = abi.decode(
-            bid.data,
-            (BundleEscrowObligation.StatementData)
-        );
-        BundlePaymentObligation.StatementData memory demand = abi.decode(
+        TokenBundleEscrowObligation.StatementData memory escrowData = abi
+            .decode(bid.data, (TokenBundleEscrowObligation.StatementData));
+        TokenBundlePaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
-            (BundlePaymentObligation.StatementData)
+            (TokenBundlePaymentObligation.StatementData)
         );
 
         if (permits.length != demand.erc20Tokens.length)
@@ -187,8 +185,8 @@ contract BundleBarterUtils {
     }
 
     function buyBundleForBundle(
-        BundleEscrowObligation.StatementData calldata bidBundle,
-        BundlePaymentObligation.StatementData calldata askBundle,
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundlePaymentObligation.StatementData calldata askBundle,
         uint64 expiration
     ) external returns (bytes32) {
         return _buyBundleForBundle(bidBundle, askBundle, expiration);
@@ -198,13 +196,11 @@ contract BundleBarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        BundleEscrowObligation.StatementData memory escrowData = abi.decode(
-            bid.data,
-            (BundleEscrowObligation.StatementData)
-        );
-        BundlePaymentObligation.StatementData memory demand = abi.decode(
+        TokenBundleEscrowObligation.StatementData memory escrowData = abi
+            .decode(bid.data, (TokenBundleEscrowObligation.StatementData));
+        TokenBundlePaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
-            (BundlePaymentObligation.StatementData)
+            (TokenBundlePaymentObligation.StatementData)
         );
 
         return _payBundleForBundle(buyAttestation, demand);

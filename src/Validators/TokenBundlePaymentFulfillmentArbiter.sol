@@ -2,12 +2,12 @@
 pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {BundleEscrowObligation} from "../Statements/BundleEscrowObligation.sol";
+import {TokenBundleEscrowObligation} from "../Statements/TokenBundleEscrowObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 import {SpecificAttestationArbiter} from "../Validators/SpecificAttestationArbiter.sol";
 
-contract BundlePaymentFulfillmentArbiter is IArbiter {
+contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
@@ -27,11 +27,11 @@ contract BundlePaymentFulfillmentArbiter is IArbiter {
     error InvalidValidation();
     error ArrayLengthMismatch();
 
-    BundleEscrowObligation public immutable paymentStatement;
+    TokenBundleEscrowObligation public immutable paymentStatement;
     SpecificAttestationArbiter public immutable specificAttestation;
 
     constructor(
-        BundleEscrowObligation _baseStatement,
+        TokenBundleEscrowObligation _baseStatement,
         SpecificAttestationArbiter _specificAttestation
     ) {
         paymentStatement = _baseStatement;
@@ -61,9 +61,9 @@ contract BundlePaymentFulfillmentArbiter is IArbiter {
             revert InvalidStatement();
         if (statement._checkExpired()) revert InvalidStatement();
 
-        BundleEscrowObligation.StatementData memory statementData = abi.decode(
+        TokenBundleEscrowObligation.StatementData memory statementData = abi.decode(
             statement.data,
-            (BundleEscrowObligation.StatementData)
+            (TokenBundleEscrowObligation.StatementData)
         );
 
         if (!_validateTokens(statementData, validationData))
@@ -83,7 +83,7 @@ contract BundlePaymentFulfillmentArbiter is IArbiter {
     }
 
     function _validateTokens(
-        BundleEscrowObligation.StatementData memory statement,
+        TokenBundleEscrowObligation.StatementData memory statement,
         DemandData memory validation
     ) internal pure returns (bool) {
         // Validate ERC20s

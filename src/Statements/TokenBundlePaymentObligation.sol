@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
+import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/token/ERC721/IERC721.sol";
@@ -12,7 +12,11 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
+contract TokenBundlePaymentObligation is
+    BaseStatement,
+    IArbiter,
+    IERC1155Receiver
+{
     using ArbiterUtils for Attestation;
 
     struct StatementData {
@@ -26,21 +30,16 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
         address[] erc1155Tokens;
         uint256[] erc1155TokenIds;
         uint256[] erc1155Amounts;
-        address arbiter;
-        bytes demand;
+        address payee;
     }
 
-    event BundleEscrowed(bytes32 indexed escrow, address indexed buyer);
-    event BundleClaimed(
-        bytes32 indexed escrow,
-        bytes32 indexed fulfillment,
-        address indexed fulfiller
+    event BundleTransferred(
+        bytes32 indexed payment,
+        address indexed from,
+        address indexed to
     );
 
     error InvalidTransfer();
-    error InvalidEscrowAttestation();
-    error InvalidFulfillment();
-    error UnauthorizedCall();
     error ArrayLengthMismatch();
 
     constructor(
@@ -50,7 +49,7 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand",
+            "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee",
             true
         )
     {}
@@ -66,7 +65,7 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
         ) revert ArrayLengthMismatch();
     }
 
-    function transferInBundle(
+    function transferBundle(
         StatementData calldata data,
         address from
     ) internal {
@@ -75,7 +74,7 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
             if (
                 !IERC20(data.erc20Tokens[i]).transferFrom(
                     from,
-                    address(this),
+                    data.payee,
                     data.erc20Amounts[i]
                 )
             ) revert InvalidTransfer();
@@ -85,7 +84,7 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
         for (uint i = 0; i < data.erc721Tokens.length; i++) {
             IERC721(data.erc721Tokens[i]).transferFrom(
                 from,
-                address(this),
+                data.payee,
                 data.erc721TokenIds[i]
             );
         }
@@ -94,35 +93,7 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
         for (uint i = 0; i < data.erc1155Tokens.length; i++) {
             IERC1155(data.erc1155Tokens[i]).safeTransferFrom(
                 from,
-                address(this),
-                data.erc1155TokenIds[i],
-                data.erc1155Amounts[i],
-                ""
-            );
-        }
-    }
-
-    function transferOutBundle(StatementData memory data, address to) internal {
-        // Transfer ERC20s
-        for (uint i = 0; i < data.erc20Tokens.length; i++) {
-            if (!IERC20(data.erc20Tokens[i]).transfer(to, data.erc20Amounts[i]))
-                revert InvalidTransfer();
-        }
-
-        // Transfer ERC721s
-        for (uint i = 0; i < data.erc721Tokens.length; i++) {
-            IERC721(data.erc721Tokens[i]).transferFrom(
-                address(this),
-                to,
-                data.erc721TokenIds[i]
-            );
-        }
-
-        // Transfer ERC1155s
-        for (uint i = 0; i < data.erc1155Tokens.length; i++) {
-            IERC1155(data.erc1155Tokens[i]).safeTransferFrom(
-                address(this),
-                to,
+                data.payee,
                 data.erc1155TokenIds[i],
                 data.erc1155Amounts[i],
                 ""
@@ -132,19 +103,18 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
 
     function makeStatementFor(
         StatementData calldata data,
-        uint64 expirationTime,
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
         validateArrayLengths(data);
-        transferInBundle(data, payer);
+        transferBundle(data, payer);
 
         uid_ = eas.attest(
             AttestationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
                     recipient: recipient,
-                    expirationTime: expirationTime,
+                    expirationTime: 0,
                     revocable: true,
                     refUID: bytes32(0),
                     data: abi.encode(data),
@@ -152,62 +122,13 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
                 })
             })
         );
-        emit BundleEscrowed(uid_, recipient);
+        emit BundleTransferred(uid_, payer, data.payee);
     }
 
     function makeStatement(
-        StatementData calldata data,
-        uint64 expirationTime
+        StatementData calldata data
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, expirationTime, msg.sender, msg.sender);
-    }
-
-    function collectPayment(
-        bytes32 _payment,
-        bytes32 _fulfillment
-    ) public returns (bool) {
-        Attestation memory payment = eas.getAttestation(_payment);
-        Attestation memory fulfillment = eas.getAttestation(_fulfillment);
-
-        if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
-
-        StatementData memory paymentData = abi.decode(
-            payment.data,
-            (StatementData)
-        );
-
-        if (
-            !IArbiter(paymentData.arbiter).checkStatement(
-                fulfillment,
-                paymentData.demand,
-                payment.uid
-            )
-        ) revert InvalidFulfillment();
-
-        eas.revoke(
-            RevocationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: _payment, value: 0})
-            })
-        );
-
-        transferOutBundle(paymentData, fulfillment.recipient);
-        return true;
-    }
-
-    function collectExpired(bytes32 uid) public returns (bool) {
-        Attestation memory attestation = eas.getAttestation(uid);
-
-        if (block.timestamp < attestation.expirationTime)
-            revert UnauthorizedCall();
-
-        StatementData memory data = abi.decode(
-            attestation.data,
-            (StatementData)
-        );
-
-        transferOutBundle(data, attestation.recipient);
-        return true;
+        return makeStatementFor(data, msg.sender, msg.sender);
     }
 
     function checkStatement(
@@ -225,8 +146,7 @@ contract BundleEscrowObligation is BaseStatement, IArbiter, IERC1155Receiver {
 
         return
             _checkTokenArrays(payment, demandData) &&
-            payment.arbiter == demandData.arbiter &&
-            keccak256(payment.demand) == keccak256(demandData.demand);
+            payment.payee == demandData.payee;
     }
 
     function _checkTokenArrays(

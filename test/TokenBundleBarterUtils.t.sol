@@ -2,9 +2,9 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BundleEscrowObligation} from "../src/Statements/BundleEscrowObligation.sol";
-import {BundlePaymentObligation} from "../src/Statements/BundlePaymentObligation.sol";
-import {BundleBarterUtils} from "../src/Utils/BundleBarterUtils.sol";
+import {TokenBundleEscrowObligation} from "../src/Statements/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "../src/Statements/TokenBundlePaymentObligation.sol";
+import {TokenBundleBarterUtils} from "../src/Utils/TokenBundleBarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/token/ERC20/extensions/ERC20Permit.sol";
@@ -37,10 +37,10 @@ contract MockERC1155 is ERC1155 {
     }
 }
 
-contract BundleBarterUtilsTest is Test, IERC1155Receiver {
-    BundleEscrowObligation public escrowStatement;
-    BundlePaymentObligation public paymentStatement;
-    BundleBarterUtils public barterUtils;
+contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
+    TokenBundleEscrowObligation public escrowStatement;
+    TokenBundlePaymentObligation public paymentStatement;
+    TokenBundleBarterUtils public barterUtils;
 
     MockERC20Permit public tokenA;
     MockERC20Permit public tokenB;
@@ -81,9 +81,9 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
         multiTokenA = new MockERC1155();
         multiTokenB = new MockERC1155();
 
-        escrowStatement = new BundleEscrowObligation(eas, schemaRegistry);
-        paymentStatement = new BundlePaymentObligation(eas, schemaRegistry);
-        barterUtils = new BundleBarterUtils(
+        escrowStatement = new TokenBundleEscrowObligation(eas, schemaRegistry);
+        paymentStatement = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        barterUtils = new TokenBundleBarterUtils(
             eas,
             escrowStatement,
             paymentStatement
@@ -114,7 +114,7 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
     function _createBidBundle()
         internal
         pure
-        returns (BundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.StatementData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         uint256[] memory erc20Amounts = new uint256[](1);
@@ -133,7 +133,7 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
         erc1155Amounts[0] = 10;
 
         return
-            BundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.StatementData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -149,7 +149,7 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
     function _createAskBundle()
         internal
         pure
-        returns (BundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.StatementData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         uint256[] memory erc20Amounts = new uint256[](1);
@@ -168,7 +168,7 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
         erc1155Amounts[0] = 20;
 
         return
-            BundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.StatementData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -186,7 +186,7 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
         address spender,
         uint256 value,
         uint256 deadline
-    ) internal view returns (BundleBarterUtils.ERC20PermitSignature memory) {
+    ) internal view returns (TokenBundleBarterUtils.ERC20PermitSignature memory) {
         bytes32 permitTypehash = keccak256(
             "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
         );
@@ -210,7 +210,7 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPrivateKey, digest);
 
         return
-            BundleBarterUtils.ERC20PermitSignature({
+            TokenBundleBarterUtils.ERC20PermitSignature({
                 v: v,
                 r: r,
                 s: s,
@@ -220,13 +220,13 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
 
     function testBundleTradeWithManualApprovals() public {
         // Setup bundles
-        BundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.StatementData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(tokenA);
         bidBundle.erc721Tokens[0] = address(nftA);
         bidBundle.erc1155Tokens[0] = address(multiTokenA);
 
-        BundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.StatementData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(tokenB);
         askBundle.erc721Tokens[0] = address(nftB);
@@ -370,13 +370,13 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
     }
 
     function testFailBundleTradeWithoutApprovals() public {
-        BundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.StatementData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(tokenA);
         bidBundle.erc721Tokens[0] = address(nftA);
         bidBundle.erc1155Tokens[0] = address(multiTokenA);
 
-        BundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.StatementData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(tokenB);
         askBundle.erc721Tokens[0] = address(nftB);
@@ -396,14 +396,14 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
     }
 
     function testFailBundleTradeWithInsufficientBalance() public {
-        BundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.StatementData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(tokenA);
         bidBundle.erc721Tokens[0] = address(nftA);
         bidBundle.erc1155Tokens[0] = address(multiTokenA);
         bidBundle.erc20Amounts[0] = 1000000 * 10 ** 18; // Amount larger than balance
 
-        BundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.StatementData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(tokenB);
         askBundle.erc721Tokens[0] = address(nftB);
@@ -428,13 +428,13 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
 
     function testBundleTradeWithPermits() public {
         // Setup bundles
-        BundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.StatementData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(tokenA);
         bidBundle.erc721Tokens[0] = address(nftA);
         bidBundle.erc1155Tokens[0] = address(multiTokenA);
 
-        BundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.StatementData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(tokenB);
         askBundle.erc721Tokens[0] = address(nftB);
@@ -445,8 +445,8 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
         bidBundle.demand = abi.encode(askBundle);
 
         // Setup permits
-        BundleBarterUtils.ERC20PermitSignature[]
-            memory alicePermits = new BundleBarterUtils.ERC20PermitSignature[](
+        TokenBundleBarterUtils.ERC20PermitSignature[]
+            memory alicePermits = new TokenBundleBarterUtils.ERC20PermitSignature[](
                 1
             );
         alicePermits[0] = _getERC20PermitSignature(
@@ -472,8 +472,8 @@ contract BundleBarterUtilsTest is Test, IERC1155Receiver {
         vm.stopPrank();
 
         // Setup Bob's permits
-        BundleBarterUtils.ERC20PermitSignature[]
-            memory bobPermits = new BundleBarterUtils.ERC20PermitSignature[](1);
+        TokenBundleBarterUtils.ERC20PermitSignature[]
+            memory bobPermits = new TokenBundleBarterUtils.ERC20PermitSignature[](1);
         bobPermits[0] = _getERC20PermitSignature(
             tokenB,
             BOB_PRIVATE_KEY,
