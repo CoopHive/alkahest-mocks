@@ -46,7 +46,6 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
     function makeStatementFor(
         StatementData calldata data,
         uint64 expirationTime,
-        bytes32 refUID,
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
@@ -59,7 +58,7 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
                     recipient: recipient,
                     expirationTime: expirationTime,
                     revocable: true,
-                    refUID: refUID,
+                    refUID: bytes32(0),
                     data: abi.encode(data),
                     value: 0
                 })
@@ -70,17 +69,9 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
 
     function makeStatement(
         StatementData calldata data,
-        uint64 expirationTime,
-        bytes32 refUID
+        uint64 expirationTime
     ) public returns (bytes32 uid_) {
-        return
-            makeStatementFor(
-                data,
-                expirationTime,
-                refUID,
-                msg.sender,
-                msg.sender
-            );
+        return makeStatementFor(data, expirationTime, msg.sender, msg.sender);
     }
 
     function collectPayment(
@@ -97,8 +88,13 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
             (StatementData)
         );
 
-        if (!_isValidFulfillment(payment, fulfillment, paymentData))
-            revert InvalidFulfillment();
+        if (
+            !IArbiter(paymentData.arbiter).checkStatement(
+                fulfillment,
+                paymentData.demand,
+                payment.uid
+            )
+        ) revert InvalidFulfillment();
 
         eas.revoke(
             RevocationRequest({
@@ -152,20 +148,5 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
             payment.tokenId == demandData.tokenId &&
             payment.arbiter == demandData.arbiter &&
             keccak256(payment.demand) == keccak256(demandData.demand);
-    }
-
-    function _isValidFulfillment(
-        Attestation memory payment,
-        Attestation memory fulfillment,
-        StatementData memory paymentData
-    ) internal view returns (bool) {
-        if (payment.refUID != 0) return payment.refUID == fulfillment.uid;
-
-        return
-            IArbiter(paymentData.arbiter).checkStatement(
-                fulfillment,
-                paymentData.demand,
-                payment.uid
-            );
     }
 }
