@@ -52,9 +52,9 @@ contract ERC20BarterUtilsTest is Test {
         escrowStatement = new ERC20EscrowObligation(eas, schemaRegistry);
         paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
         barterUtils = new ERC20BarterUtils(
-            EAS_ADDRESS,
-            payable(address(escrowStatement)),
-            payable(address(paymentStatement))
+            eas,
+            escrowStatement,
+            paymentStatement
         );
 
         tokenA.transfer(alice, 1000 * 10 ** 18);

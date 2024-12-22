@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import "forge-std/Test.sol";
 import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
+import {SpecificAttestationArbiter} from "../src/Validators/SpecificAttestationArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/token/ERC20/ERC20.sol";
@@ -16,7 +17,8 @@ contract MockERC20 is ERC20 {
 
 contract ERC20EscrowObligationTest is Test {
     ERC20EscrowObligation public paymentStatement;
-    ERC20PaymentFulfillmentArbiter public validator;
+    ERC20PaymentFulfillmentArbiter public erc20PaymentFulfillment;
+    SpecificAttestationArbiter public specificAttestation;
     MockERC20 public tokenA;
     MockERC20 public tokenB;
     IEAS public eas;
@@ -39,7 +41,11 @@ contract ERC20EscrowObligationTest is Test {
         tokenB = new MockERC20("Token B", "TKB");
 
         paymentStatement = new ERC20EscrowObligation(eas, schemaRegistry);
-        validator = new ERC20PaymentFulfillmentArbiter(paymentStatement);
+        specificAttestation = new SpecificAttestationArbiter();
+        erc20PaymentFulfillment = new ERC20PaymentFulfillmentArbiter(
+            paymentStatement,
+            specificAttestation
+        );
 
         tokenA.transfer(alice, 1000 * 10 ** 18);
         tokenB.transfer(bob, 1000 * 10 ** 18);
@@ -149,7 +155,7 @@ contract ERC20EscrowObligationTest is Test {
             memory alicePaymentData = ERC20EscrowObligation.StatementData({
                 token: address(tokenA),
                 amount: 100 * 10 ** 18,
-                arbiter: address(validator),
+                arbiter: address(erc20PaymentFulfillment),
                 demand: abi.encode(
                     ERC20PaymentFulfillmentArbiter.DemandData({
                         token: address(tokenB),
@@ -157,11 +163,7 @@ contract ERC20EscrowObligationTest is Test {
                     })
                 )
             });
-        alicePaymentUID = paymentStatement.makeStatement(
-            alicePaymentData,
-            0,
-            bytes32(0)
-        );
+        alicePaymentUID = paymentStatement.makeStatement(alicePaymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
@@ -170,14 +172,14 @@ contract ERC20EscrowObligationTest is Test {
             memory bobPaymentData = ERC20EscrowObligation.StatementData({
                 token: address(tokenB),
                 amount: 200 * 10 ** 18,
-                arbiter: address(0),
-                demand: ""
+                arbiter: address(specificAttestation),
+                demand: abi.encode(
+                    SpecificAttestationArbiter.DemandData({
+                        uid: alicePaymentUID
+                    })
+                )
             });
-        bobPaymentUID = paymentStatement.makeStatement(
-            bobPaymentData,
-            0,
-            alicePaymentUID
-        );
+        bobPaymentUID = paymentStatement.makeStatement(bobPaymentData, 0);
 
         vm.stopPrank();
     }
