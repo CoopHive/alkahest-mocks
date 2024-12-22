@@ -5,8 +5,9 @@ import {Attestation} from "@eas/Common.sol";
 import {ERC721EscrowObligation} from "../Statements/ERC721EscrowObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
+import {SpecificAttestationArbiter} from "../Validators/SpecificAttestationArbiter.sol";
 
-contract ERC20PaymentFulfillmentArbiter is IArbiter {
+contract ERC721FulfillmentArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
@@ -18,9 +19,14 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
     error InvalidValidation();
 
     ERC721EscrowObligation public immutable paymentStatement;
+    SpecificAttestationArbiter public immutable specificAttestation;
 
-    constructor(ERC721EscrowObligation _baseStatement) {
+    constructor(
+        ERC721EscrowObligation _baseStatement,
+        SpecificAttestationArbiter _specificAttestation
+    ) {
         paymentStatement = _baseStatement;
+        specificAttestation = _specificAttestation;
     }
 
     function checkStatement(
@@ -34,8 +40,6 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
             revert InvalidStatement();
         if (statement._checkExpired()) revert InvalidStatement();
 
-        if (statement.refUID != counteroffer) revert InvalidValidation();
-
         ERC721EscrowObligation.StatementData memory statementData = abi.decode(
             statement.data,
             (ERC721EscrowObligation.StatementData)
@@ -45,6 +49,16 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
             revert InvalidValidation();
         if (statementData.tokenId != validationData.tokenId)
             revert InvalidValidation();
+
+        if (statementData.arbiter != address(specificAttestation))
+            revert InvalidValidation();
+
+        SpecificAttestationArbiter.DemandData memory demandData = abi.decode(
+            statementData.demand,
+            (SpecificAttestationArbiter.DemandData)
+        );
+
+        if (demandData.uid != counteroffer) revert InvalidValidation();
 
         return true;
     }

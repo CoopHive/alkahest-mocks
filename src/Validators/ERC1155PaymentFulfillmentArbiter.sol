@@ -2,27 +2,28 @@
 pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {ERC20EscrowObligation} from "../Statements/ERC20EscrowObligation.sol";
+import {ERC1155EscrowObligation} from "../Statements/ERC1155EscrowObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 import {SpecificAttestationArbiter} from "../Validators/SpecificAttestationArbiter.sol";
 
-contract ERC20PaymentFulfillmentArbiter is IArbiter {
+contract ERC1155FulfillmentArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
         address token;
+        uint256 tokenId;
         uint256 amount;
     }
 
     error InvalidStatement();
     error InvalidValidation();
 
-    ERC20EscrowObligation public immutable paymentStatement;
+    ERC1155EscrowObligation public immutable paymentStatement;
     SpecificAttestationArbiter public immutable specificAttestation;
 
     constructor(
-        ERC20EscrowObligation _baseStatement,
+        ERC1155EscrowObligation _baseStatement,
         SpecificAttestationArbiter _specificAttestation
     ) {
         paymentStatement = _baseStatement;
@@ -40,12 +41,14 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
             revert InvalidStatement();
         if (statement._checkExpired()) revert InvalidStatement();
 
-        ERC20EscrowObligation.StatementData memory statementData = abi.decode(
+        ERC1155EscrowObligation.StatementData memory statementData = abi.decode(
             statement.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.StatementData)
         );
 
         if (statementData.token != validationData.token)
+            revert InvalidValidation();
+        if (statementData.tokenId != validationData.tokenId)
             revert InvalidValidation();
         if (statementData.amount < validationData.amount)
             revert InvalidValidation();
