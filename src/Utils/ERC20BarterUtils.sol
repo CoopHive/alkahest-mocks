@@ -15,13 +15,13 @@ contract ERC20BarterUtils {
     error CouldntCollectPayment();
 
     constructor(
-        address _eas,
-        address payable _erc20Escrow,
-        address payable _erc20Payment
+        IEAS _eas,
+        ERC20EscrowObligation _erc20Escrow,
+        ERC20PaymentObligation _erc20Payment
     ) {
-        eas = IEAS(_eas);
-        erc20Escrow = ERC20EscrowObligation(_erc20Escrow);
-        erc20Payment = ERC20PaymentObligation(_erc20Payment);
+        eas = _eas;
+        erc20Escrow = _erc20Escrow;
+        erc20Payment = _erc20Payment;
     }
 
     function permitAndBuyWithErc20(
@@ -53,7 +53,6 @@ contract ERC20BarterUtils {
                     demand: demand
                 }),
                 expiration,
-                bytes32(0),
                 msg.sender,
                 msg.sender
             );
@@ -111,7 +110,6 @@ contract ERC20BarterUtils {
                     )
                 }),
                 expiration,
-                bytes32(0),
                 msg.sender,
                 msg.sender
             );

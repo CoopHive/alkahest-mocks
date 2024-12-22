@@ -15,13 +15,13 @@ contract ERC721BarterUtils {
     error CouldntCollectPayment();
 
     constructor(
-        address _eas,
-        address payable _erc721Escrow,
-        address payable _erc721Payment
+        IEAS _eas,
+        ERC721EscrowObligation _erc721Escrow,
+        ERC721PaymentObligation _erc721Payment
     ) {
-        eas = IEAS(_eas);
-        erc721Escrow = ERC721EscrowObligation(_erc721Escrow);
-        erc721Payment = ERC721PaymentObligation(_erc721Payment);
+        eas = _eas;
+        erc721Escrow = _erc721Escrow;
+        erc721Payment = _erc721Payment;
     }
 
     function _buyErc721ForErc721(
@@ -46,7 +46,6 @@ contract ERC721BarterUtils {
                     )
                 }),
                 expiration,
-                bytes32(0),
                 msg.sender,
                 msg.sender
             );

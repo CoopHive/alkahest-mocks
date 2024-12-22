@@ -15,13 +15,13 @@ contract ERC1155BarterUtils {
     error CouldntCollectPayment();
 
     constructor(
-        address _eas,
-        address payable _erc1155Escrow,
-        address payable _erc1155Payment
+        IEAS _eas,
+        ERC1155EscrowObligation _erc1155Escrow,
+        ERC1155PaymentObligation _erc1155Payment
     ) {
-        eas = IEAS(_eas);
-        erc1155Escrow = ERC1155EscrowObligation(_erc1155Escrow);
-        erc1155Payment = ERC1155PaymentObligation(_erc1155Payment);
+        eas = _eas;
+        erc1155Escrow = _erc1155Escrow;
+        erc1155Payment = _erc1155Payment;
     }
 
     function _buyErc1155ForErc1155(
@@ -50,7 +50,6 @@ contract ERC1155BarterUtils {
                     )
                 }),
                 expiration,
-                bytes32(0),
                 msg.sender,
                 msg.sender
             );
