@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
 import {ERC20EscrowBarterUtils} from "../src/Utils/ERC20EscrowBarterUtils.sol";
+import {SpecificAttestationArbiter} from "../src/Validators/SpecificAttestationArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/token/ERC20/extensions/ERC20Permit.sol";
@@ -20,7 +21,8 @@ contract MockERC20Permit is ERC20Permit {
 
 contract ERC20EscrowBarterUtilsTest is Test {
     ERC20EscrowObligation public escrowStatement;
-    ERC20PaymentFulfillmentArbiter public validator;
+    ERC20PaymentFulfillmentArbiter public erc20PaymentFulfillment;
+    SpecificAttestationArbiter public specificAttestation;
     ERC20EscrowBarterUtils public barterUtils;
     MockERC20Permit public tokenA;
     MockERC20Permit public tokenB;
@@ -51,11 +53,16 @@ contract ERC20EscrowBarterUtilsTest is Test {
         tokenB = new MockERC20Permit("Token B", "TKB");
 
         escrowStatement = new ERC20EscrowObligation(eas, schemaRegistry);
-        validator = new ERC20PaymentFulfillmentArbiter(escrowStatement);
+        specificAttestation = new SpecificAttestationArbiter();
+        erc20PaymentFulfillment = new ERC20PaymentFulfillmentArbiter(
+            escrowStatement,
+            specificAttestation
+        );
         barterUtils = new ERC20EscrowBarterUtils(
-            EAS_ADDRESS,
-            payable(address(escrowStatement)),
-            address(validator)
+            eas,
+            escrowStatement,
+            erc20PaymentFulfillment,
+            specificAttestation
         );
 
         tokenA.transfer(alice, 1000 * 10 ** 18);
