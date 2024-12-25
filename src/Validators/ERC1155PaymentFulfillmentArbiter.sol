@@ -7,7 +7,7 @@ import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 import {SpecificAttestationArbiter} from "../Validators/SpecificAttestationArbiter.sol";
 
-contract ERC1155FulfillmentArbiter is IArbiter {
+contract ERC1155PaymentFulfillmentArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
