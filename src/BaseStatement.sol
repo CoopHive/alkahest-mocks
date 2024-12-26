@@ -34,10 +34,11 @@ abstract contract BaseStatement is SchemaResolver {
     }
 
     function onRevoke(
-        Attestation calldata,
+        Attestation calldata attestation,
         uint256 /* value */
-    ) internal pure override returns (bool) {
-        return true;
+    ) internal view override returns (bool) {
+        // only statement contract can revoke
+        return attestation.attester == address(this);
     }
 
     function getStatement(
