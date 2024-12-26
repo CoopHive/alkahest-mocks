@@ -1,6 +1,6 @@
 // convert-abi.ts
 
-import { readdir } from "fs/promises";
+import { readdir, mkdir } from "fs/promises";
 import { join } from "path";
 import { parseArgs } from "util";
 
@@ -22,7 +22,7 @@ const { values } = parseArgs({
     },
   },
   strict: true,
-  allowPositionals: false,
+  allowPositionals: true,
 });
 
 if (values.help) {
@@ -46,7 +46,7 @@ const outputDir = values.out ? join(process.cwd(), values.out) : inputDir;
 async function convertAbiFiles() {
   try {
     // Ensure output directory exists
-    await Bun.write(outputDir, "");
+    await mkdir(outputDir, { recursive: true });
 
     // Read all files in the input directory
     const files = await readdir(inputDir);
