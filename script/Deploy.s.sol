@@ -11,6 +11,7 @@ import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.s
 import {ERC20BarterUtils} from "../src/Utils/ERC20BarterUtils.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
 import {ERC20EscrowBarterUtils} from "../src/Utils/ERC20EscrowBarterUtils.sol";
+import {ERC20BarterCrossToken} from "../src/Utils/ERC20BarterCrossToken.sol";
 
 // ERC721 Contracts
 import {ERC721EscrowObligation} from "../src/Statements/ERC721EscrowObligation.sol";
@@ -157,6 +158,16 @@ contract Deploy is Script {
             );
         */
 
+        // Deploy ERC20BarterCrossToken
+        ERC20BarterCrossToken erc20BarterCrossToken = new ERC20BarterCrossToken(
+            IEAS(easAddress),
+            erc20Escrow,
+            erc20Payment,
+            erc721Payment,
+            erc1155Payment,
+            bundlePayment
+        );
+
         vm.stopBroadcast();
 
         // Print all deployed addresses
@@ -220,5 +231,8 @@ contract Deploy is Script {
             address(bundleEscrowBarterUtils)
         );
         */
+
+        console.log("\nCross Token Contracts:");
+        console.log("ERC20BarterCrossToken:", address(erc20BarterCrossToken));
     }
 }
