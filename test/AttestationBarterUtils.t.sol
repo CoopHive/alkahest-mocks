@@ -64,7 +64,7 @@ contract AttestationBarterUtilsTest is Test {
         address resolver = barterUtils.schemaResolvers(schemaId);
         assertEq(
             resolver,
-            address(0),
+            0x2e234DAe75C793f67A35089C9d99245E1C58470b,
             "Schema resolver should be set correctly"
         );
     }
