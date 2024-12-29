@@ -111,14 +111,14 @@ contract AttestationBarterUtils is SchemaResolver {
     }
 
     function onAttest(
-        Attestation calldata attestation,
+        Attestation calldata /* attestation */,
         uint256
     ) internal pure override returns (bool) {
         return true; // Allow all attestations
     }
 
     function onRevoke(
-        Attestation calldata attestation,
+        Attestation calldata /* attestation */,
         uint256
     ) internal pure override returns (bool) {
         return true; // Allow all revocations
