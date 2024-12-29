@@ -102,7 +102,7 @@ contract ERC20BarterCrossTokenTest is Test {
 
         // Setup initial token balances
         bidToken.transfer(alice, 1000 * 10 ** 18);
-        uint256 nftId = nftToken.mint(bob);
+        /* uint256 nftId = */ nftToken.mint(bob);
         multiToken.mint(bob, 1, 100);
     }
 
