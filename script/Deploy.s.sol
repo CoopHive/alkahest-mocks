@@ -34,6 +34,11 @@ import {TokenBundleBarterUtils} from "../src/Utils/TokenBundleBarterUtils.sol";
 import {TokenBundlePaymentFulfillmentArbiter} from "../src/Validators/TokenBundlePaymentFulfillmentArbiter.sol";
 // import {TokenBundleEscrowBarterUtils} from "../src/Utils/TokenBundleEscrowBarterUtils.sol";
 
+// Attestation Contracts
+import {AttestationEscrowObligation} from "../src/Statements/AttestationEscrowObligation.sol";
+import {AttestationEscrowObligation2} from "../src/Statements/AttestationEscrowObligation2.sol";
+import {AttestationBarterUtils} from "../src/Utils/AttestationBarterUtils.sol";
+
 // Common
 import {SpecificAttestationArbiter} from "../src/Validators/SpecificAttestationArbiter.sol";
 
@@ -168,6 +173,21 @@ contract Deploy is Script {
             bundlePayment
         );
 
+        // Deploy attestation barter contracts
+        AttestationEscrowObligation attestationEscrow = new AttestationEscrowObligation(
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
+        AttestationEscrowObligation2 attestationEscrow2 = new AttestationEscrowObligation2(
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
+        AttestationBarterUtils attestationBarterUtils = new AttestationBarterUtils(
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress),
+                attestationEscrow2
+            );
+
         vm.stopBroadcast();
 
         // Print all deployed addresses
@@ -183,6 +203,7 @@ contract Deploy is Script {
         );
         console.log("ERC20BarterUtils:", address(erc20BarterUtils));
         console.log("ERC20EscrowBarterUtils:", address(erc20EscrowBarterUtils));
+        console.log("ERC20BarterCrossToken:", address(erc20BarterCrossToken));
 
         console.log("\nERC721 Contracts:");
         console.log("ERC721EscrowObligation:", address(erc721Escrow));
@@ -232,7 +253,12 @@ contract Deploy is Script {
         );
         */
 
-        console.log("\nCross Token Contracts:");
-        console.log("ERC20BarterCrossToken:", address(erc20BarterCrossToken));
+        console.log("\nAttestation Barter Contracts:");
+        console.log("AttestationEscrowObligation:", address(attestationEscrow));
+        console.log(
+            "AttestationEscrowObligation2:",
+            address(attestationEscrow2)
+        );
+        console.log("AttestationBarterUtils:", address(attestationBarterUtils));
     }
 }
