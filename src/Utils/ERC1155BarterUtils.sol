@@ -29,7 +29,7 @@ contract ERC1155BarterUtils {
         uint256 bidTokenId,
         uint256 bidAmount,
         address askToken,
-        uint256 askTokenId,
+        uint256 askId,
         uint256 askAmount,
         uint64 expiration
     ) internal returns (bytes32) {
@@ -43,7 +43,7 @@ contract ERC1155BarterUtils {
                     demand: abi.encode(
                         ERC1155PaymentObligation.StatementData({
                             token: askToken,
-                            tokenId: askTokenId,
+                            tokenId: askId,
                             amount: askAmount,
                             payee: msg.sender
                         })
@@ -77,7 +77,7 @@ contract ERC1155BarterUtils {
         uint256 bidTokenId,
         uint256 bidAmount,
         address askToken,
-        uint256 askTokenId,
+        uint256 askId,
         uint256 askAmount,
         uint64 expiration
     ) external returns (bytes32) {
@@ -87,7 +87,7 @@ contract ERC1155BarterUtils {
                 bidTokenId,
                 bidAmount,
                 askToken,
-                askTokenId,
+                askId,
                 askAmount,
                 expiration
             );
