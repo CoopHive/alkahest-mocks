@@ -224,6 +224,7 @@ contract ERC20BarterCrossTokenTest is Test {
             address(nftToken),
             nftId,
             expiration,
+            deadline,
             v,
             r,
             s

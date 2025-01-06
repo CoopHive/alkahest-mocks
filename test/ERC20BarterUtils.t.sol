@@ -163,6 +163,7 @@ contract ERC20BarterUtilsTest is Test {
             address(tokenB),
             askAmount,
             expiration,
+            deadline,
             v,
             r,
             s
@@ -197,6 +198,7 @@ contract ERC20BarterUtilsTest is Test {
             address(tokenB),
             askAmount,
             expiration,
+            deadline,
             v1,
             r1,
             s1
@@ -214,6 +216,7 @@ contract ERC20BarterUtilsTest is Test {
         vm.prank(bob);
         bytes32 sellAttestation = barterUtils.permitAndPayErc20ForErc20(
             buyAttestation,
+            deadline,
             v2,
             r2,
             s2
@@ -255,6 +258,7 @@ contract ERC20BarterUtilsTest is Test {
             address(tokenB),
             askAmount,
             expiration,
+            deadline,
             v,
             r,
             s
@@ -350,6 +354,7 @@ contract ERC20BarterUtilsTest is Test {
             address(paymentStatement), // arbiter is payment statement contract
             abi.encode(demand),
             expiration,
+            deadline,
             v1,
             r1,
             s1
@@ -377,11 +382,12 @@ contract ERC20BarterUtilsTest is Test {
             deadline
         );
 
-        ERC20PaymentObligation.StatementData memory demand = ERC20PaymentObligation.StatementData({
-            token: address(tokenB),
-            amount: askAmount,
-            payee: alice
-        });
+        ERC20PaymentObligation.StatementData
+            memory demand = ERC20PaymentObligation.StatementData({
+                token: address(tokenB),
+                amount: askAmount,
+                payee: alice
+            });
 
         vm.prank(alice);
         bytes32 buyAttestation = barterUtils.permitAndBuyWithErc20(
@@ -390,6 +396,7 @@ contract ERC20BarterUtilsTest is Test {
             address(paymentStatement),
             abi.encode(demand),
             expiration,
+            deadline,
             v1,
             r1,
             s1
@@ -409,6 +416,7 @@ contract ERC20BarterUtilsTest is Test {
             address(tokenB),
             askAmount,
             alice, // payee
+            deadline,
             v2,
             r2,
             s2
@@ -416,13 +424,32 @@ contract ERC20BarterUtilsTest is Test {
 
         // Make the payment collection
         vm.prank(bob);
-        bool success = escrowStatement.collectPayment(buyAttestation, sellAttestation);
+        bool success = escrowStatement.collectPayment(
+            buyAttestation,
+            sellAttestation
+        );
         assertTrue(success, "Payment collection should succeed");
 
         // Verify final balances
-        assertEq(tokenA.balanceOf(alice), 900 * 10 ** 18, "Alice should have 900 Token A");
-        assertEq(tokenA.balanceOf(bob), 100 * 10 ** 18, "Bob should have 100 Token A");
-        assertEq(tokenB.balanceOf(alice), 200 * 10 ** 18, "Alice should have 200 Token B");
-        assertEq(tokenB.balanceOf(bob), 800 * 10 ** 18, "Bob should have 800 Token B");
+        assertEq(
+            tokenA.balanceOf(alice),
+            900 * 10 ** 18,
+            "Alice should have 900 Token A"
+        );
+        assertEq(
+            tokenA.balanceOf(bob),
+            100 * 10 ** 18,
+            "Bob should have 100 Token A"
+        );
+        assertEq(
+            tokenB.balanceOf(alice),
+            200 * 10 ** 18,
+            "Alice should have 200 Token B"
+        );
+        assertEq(
+            tokenB.balanceOf(bob),
+            800 * 10 ** 18,
+            "Bob should have 800 Token B"
+        );
     }
 }
