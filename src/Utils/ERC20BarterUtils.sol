@@ -30,6 +30,7 @@ contract ERC20BarterUtils {
         address arbiter,
         bytes memory demand,
         uint64 expiration,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -39,7 +40,7 @@ contract ERC20BarterUtils {
             msg.sender,
             address(erc20Escrow),
             amount,
-            block.timestamp + 1,
+            deadline,
             v,
             r,
             s
@@ -62,6 +63,7 @@ contract ERC20BarterUtils {
         address token,
         uint256 amount,
         address payee,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -71,7 +73,7 @@ contract ERC20BarterUtils {
             msg.sender,
             address(erc20Payment),
             amount,
-            block.timestamp + 1,
+            deadline,
             v,
             r,
             s
@@ -138,6 +140,7 @@ contract ERC20BarterUtils {
         address askToken,
         uint256 askAmount,
         uint64 expiration,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -147,7 +150,7 @@ contract ERC20BarterUtils {
             msg.sender,
             address(erc20Escrow),
             bidAmount,
-            block.timestamp + 1,
+            deadline,
             v,
             r,
             s
@@ -164,6 +167,7 @@ contract ERC20BarterUtils {
 
     function permitAndPayErc20ForErc20(
         bytes32 buyAttestation,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -183,7 +187,7 @@ contract ERC20BarterUtils {
             msg.sender,
             address(erc20Payment),
             demand.amount,
-            block.timestamp + 1,
+            deadline,
             v,
             r,
             s
