@@ -33,8 +33,8 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function _buyErc721WithErc20(
         address bidToken,
         uint256 bidAmount,
-        address nftToken,
-        uint256 tokenId,
+        address askToken,
+        uint256 askId,
         uint64 expiration
     ) internal returns (bytes32) {
         return
@@ -45,8 +45,8 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
                     arbiter: address(erc721Payment),
                     demand: abi.encode(
                         ERC721PaymentObligation.StatementData({
-                            token: nftToken,
-                            tokenId: tokenId,
+                            token: askToken,
+                            tokenId: askId,
                             payee: msg.sender
                         })
                     )
@@ -60,9 +60,9 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function _buyErc1155WithErc20(
         address bidToken,
         uint256 bidAmount,
-        address nftToken,
-        uint256 tokenId,
-        uint256 amount,
+        address askToken,
+        uint256 askId,
+        uint256 askAmount,
         uint64 expiration
     ) internal returns (bytes32) {
         return
@@ -73,9 +73,9 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
                     arbiter: address(erc1155Payment),
                     demand: abi.encode(
                         ERC1155PaymentObligation.StatementData({
-                            token: nftToken,
-                            tokenId: tokenId,
-                            amount: amount,
+                            token: askToken,
+                            tokenId: askId,
+                            amount: askAmount,
                             payee: msg.sender
                         })
                     )
@@ -89,7 +89,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function _buyBundleWithErc20(
         address bidToken,
         uint256 bidAmount,
-        TokenBundlePaymentObligation.StatementData memory bundleData,
+        TokenBundlePaymentObligation.StatementData memory askData,
         uint64 expiration
     ) internal returns (bytes32) {
         return
@@ -98,7 +98,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
                     token: bidToken,
                     amount: bidAmount,
                     arbiter: address(bundlePayment),
-                    demand: abi.encode(bundleData)
+                    demand: abi.encode(askData)
                 }),
                 expiration,
                 msg.sender,
@@ -110,16 +110,16 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function buyErc721WithErc20(
         address bidToken,
         uint256 bidAmount,
-        address nftToken,
-        uint256 tokenId,
+        address askToken,
+        uint256 askId,
         uint64 expiration
     ) external returns (bytes32) {
         return
             _buyErc721WithErc20(
                 bidToken,
                 bidAmount,
-                nftToken,
-                tokenId,
+                askToken,
+                askId,
                 expiration
             );
     }
@@ -127,9 +127,10 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function permitAndBuyErc721WithErc20(
         address bidToken,
         uint256 bidAmount,
-        address nftToken,
-        uint256 tokenId,
+        address askToken,
+        uint256 askId,
         uint64 expiration,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -139,7 +140,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             msg.sender,
             address(erc20Escrow),
             bidAmount,
-            block.timestamp + 1,
+            deadline,
             v,
             r,
             s
@@ -148,8 +149,8 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             _buyErc721WithErc20(
                 bidToken,
                 bidAmount,
-                nftToken,
-                tokenId,
+                askToken,
+                askId,
                 expiration
             );
     }
@@ -158,18 +159,18 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function buyErc1155WithErc20(
         address bidToken,
         uint256 bidAmount,
-        address nftToken,
-        uint256 tokenId,
-        uint256 amount,
+        address askToken,
+        uint256 askId,
+        uint256 askAmount,
         uint64 expiration
     ) external returns (bytes32) {
         return
             _buyErc1155WithErc20(
                 bidToken,
                 bidAmount,
-                nftToken,
-                tokenId,
-                amount,
+                askToken,
+                askId,
+                askAmount,
                 expiration
             );
     }
@@ -177,10 +178,11 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function permitAndBuyErc1155WithErc20(
         address bidToken,
         uint256 bidAmount,
-        address nftToken,
-        uint256 tokenId,
-        uint256 amount,
+        address askToken,
+        uint256 askId,
+        uint256 askAmount,
         uint64 expiration,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -190,7 +192,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             msg.sender,
             address(erc20Escrow),
             bidAmount,
-            block.timestamp + 1,
+            deadline,
             v,
             r,
             s
@@ -199,9 +201,9 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             _buyErc1155WithErc20(
                 bidToken,
                 bidAmount,
-                nftToken,
-                tokenId,
-                amount,
+                askToken,
+                askId,
+                askAmount,
                 expiration
             );
     }
@@ -210,17 +212,18 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function buyBundleWithErc20(
         address bidToken,
         uint256 bidAmount,
-        TokenBundlePaymentObligation.StatementData calldata bundleData,
+        TokenBundlePaymentObligation.StatementData calldata askData,
         uint64 expiration
     ) external returns (bytes32) {
-        return _buyBundleWithErc20(bidToken, bidAmount, bundleData, expiration);
+        return _buyBundleWithErc20(bidToken, bidAmount, askData, expiration);
     }
 
     function permitAndBuyBundleWithErc20(
         address bidToken,
         uint256 bidAmount,
-        TokenBundlePaymentObligation.StatementData calldata bundleData,
+        TokenBundlePaymentObligation.StatementData calldata askData,
         uint64 expiration,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -230,11 +233,11 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             msg.sender,
             address(erc20Escrow),
             bidAmount,
-            block.timestamp + 1,
+            deadline,
             v,
             r,
             s
         );
-        return _buyBundleWithErc20(bidToken, bidAmount, bundleData, expiration);
+        return _buyBundleWithErc20(bidToken, bidAmount, askData, expiration);
     }
 }
