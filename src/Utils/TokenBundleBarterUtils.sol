@@ -6,8 +6,6 @@ import {IEAS} from "@eas/IEAS.sol";
 import {TokenBundleEscrowObligation} from "../Statements/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "../Statements/TokenBundlePaymentObligation.sol";
 import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
-import {IERC721} from "@openzeppelin/token/ERC721/IERC721.sol";
-import {IERC1155} from "@openzeppelin/token/ERC1155/IERC1155.sol";
 
 contract TokenBundleBarterUtils {
     IEAS internal eas;
