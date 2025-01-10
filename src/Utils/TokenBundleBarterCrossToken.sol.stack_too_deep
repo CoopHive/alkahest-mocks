@@ -1,0 +1,245 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.26;
+
+import {TokenBundleBarterUtils} from "./TokenBundleBarterUtils.sol";
+import {IEAS} from "@eas/IEAS.sol";
+import {TokenBundleEscrowObligation} from "../Statements/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "../Statements/TokenBundlePaymentObligation.sol";
+import {ERC20PaymentObligation} from "../Statements/ERC20PaymentObligation.sol";
+import {ERC721PaymentObligation} from "../Statements/ERC721PaymentObligation.sol";
+import {ERC1155PaymentObligation} from "../Statements/ERC1155PaymentObligation.sol";
+import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
+
+contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
+    ERC20PaymentObligation internal erc20Payment;
+    ERC721PaymentObligation internal erc721Payment;
+    ERC1155PaymentObligation internal erc1155Payment;
+
+    constructor(
+        IEAS _eas,
+        TokenBundleEscrowObligation _bundleEscrow,
+        TokenBundlePaymentObligation _bundlePayment,
+        ERC20PaymentObligation _erc20Payment,
+        ERC721PaymentObligation _erc721Payment,
+        ERC1155PaymentObligation _erc1155Payment
+    ) TokenBundleBarterUtils(_eas, _bundleEscrow, _bundlePayment) {
+        erc20Payment = _erc20Payment;
+        erc721Payment = _erc721Payment;
+        erc1155Payment = _erc1155Payment;
+    }
+
+    function _buyErc20WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askAmount,
+        uint64 expiration
+    ) internal returns (bytes32) {
+        return
+            bundleEscrow.makeStatementFor(
+                TokenBundleEscrowObligation.StatementData({
+                    erc20Tokens: bidBundle.erc20Tokens,
+                    erc20Amounts: bidBundle.erc20Amounts,
+                    erc721Tokens: bidBundle.erc721Tokens,
+                    erc721TokenIds: bidBundle.erc721TokenIds,
+                    erc1155Tokens: bidBundle.erc1155Tokens,
+                    erc1155TokenIds: bidBundle.erc1155TokenIds,
+                    erc1155Amounts: bidBundle.erc1155Amounts,
+                    arbiter: address(erc20Payment),
+                    demand: abi.encode(
+                        ERC20PaymentObligation.StatementData({
+                            token: askToken,
+                            amount: askAmount,
+                            payee: msg.sender
+                        })
+                    )
+                }),
+                expiration,
+                msg.sender,
+                msg.sender
+            );
+    }
+
+    function _buyErc721WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askTokenId,
+        uint64 expiration
+    ) internal returns (bytes32) {
+        return
+            bundleEscrow.makeStatementFor(
+                TokenBundleEscrowObligation.StatementData({
+                    erc20Tokens: bidBundle.erc20Tokens,
+                    erc20Amounts: bidBundle.erc20Amounts,
+                    erc721Tokens: bidBundle.erc721Tokens,
+                    erc721TokenIds: bidBundle.erc721TokenIds,
+                    erc1155Tokens: bidBundle.erc1155Tokens,
+                    erc1155TokenIds: bidBundle.erc1155TokenIds,
+                    erc1155Amounts: bidBundle.erc1155Amounts,
+                    arbiter: address(erc721Payment),
+                    demand: abi.encode(
+                        ERC721PaymentObligation.StatementData({
+                            token: askToken,
+                            tokenId: askTokenId,
+                            payee: msg.sender
+                        })
+                    )
+                }),
+                expiration,
+                msg.sender,
+                msg.sender
+            );
+    }
+
+    function _buyErc1155WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askTokenId,
+        uint256 askAmount,
+        uint64 expiration
+    ) internal returns (bytes32) {
+        return
+            bundleEscrow.makeStatementFor(
+                TokenBundleEscrowObligation.StatementData({
+                    erc20Tokens: bidBundle.erc20Tokens,
+                    erc20Amounts: bidBundle.erc20Amounts,
+                    erc721Tokens: bidBundle.erc721Tokens,
+                    erc721TokenIds: bidBundle.erc721TokenIds,
+                    erc1155Tokens: bidBundle.erc1155Tokens,
+                    erc1155TokenIds: bidBundle.erc1155TokenIds,
+                    erc1155Amounts: bidBundle.erc1155Amounts,
+                    arbiter: address(erc1155Payment),
+                    demand: abi.encode(
+                        ERC1155PaymentObligation.StatementData({
+                            token: askToken,
+                            tokenId: askTokenId,
+                            amount: askAmount,
+                            payee: msg.sender
+                        })
+                    )
+                }),
+                expiration,
+                msg.sender,
+                msg.sender
+            );
+    }
+
+    function buyErc20WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askAmount,
+        uint64 expiration
+    ) external returns (bytes32) {
+        return _buyErc20WithBundle(bidBundle, askToken, askAmount, expiration);
+    }
+
+    function buyErc721WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askTokenId,
+        uint64 expiration
+    ) external returns (bytes32) {
+        return
+            _buyErc721WithBundle(bidBundle, askToken, askTokenId, expiration);
+    }
+
+    function buyErc1155WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askTokenId,
+        uint256 askAmount,
+        uint64 expiration
+    ) external returns (bytes32) {
+        return
+            _buyErc1155WithBundle(
+                bidBundle,
+                askToken,
+                askTokenId,
+                askAmount,
+                expiration
+            );
+    }
+
+    function permitAndBuyErc20WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askAmount,
+        uint64 expiration,
+        ERC20PermitSignature[] calldata permits
+    ) external returns (bytes32) {
+        if (permits.length != bidBundle.erc20Tokens.length)
+            revert InvalidSignatureLength();
+
+        for (uint i = 0; i < bidBundle.erc20Tokens.length; i++) {
+            IERC20Permit(bidBundle.erc20Tokens[i]).permit(
+                msg.sender,
+                address(bundleEscrow),
+                bidBundle.erc20Amounts[i],
+                permits[i].deadline,
+                permits[i].v,
+                permits[i].r,
+                permits[i].s
+            );
+        }
+
+        return _buyErc20WithBundle(bidBundle, askToken, askAmount, expiration);
+    }
+
+    function permitAndBuyErc721WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askTokenId,
+        uint64 expiration,
+        ERC20PermitSignature[] calldata permits
+    ) external returns (bytes32) {
+        if (permits.length != bidBundle.erc20Tokens.length)
+            revert InvalidSignatureLength();
+
+        for (uint i = 0; i < bidBundle.erc20Tokens.length; i++) {
+            IERC20Permit(bidBundle.erc20Tokens[i]).permit(
+                msg.sender,
+                address(bundleEscrow),
+                bidBundle.erc20Amounts[i],
+                permits[i].deadline,
+                permits[i].v,
+                permits[i].r,
+                permits[i].s
+            );
+        }
+
+        return
+            _buyErc721WithBundle(bidBundle, askToken, askTokenId, expiration);
+    }
+
+    function permitAndBuyErc1155WithBundle(
+        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        address askToken,
+        uint256 askTokenId,
+        uint256 askAmount,
+        uint64 expiration,
+        ERC20PermitSignature[] calldata permits
+    ) external returns (bytes32) {
+        if (permits.length != bidBundle.erc20Tokens.length)
+            revert InvalidSignatureLength();
+
+        for (uint i = 0; i < bidBundle.erc20Tokens.length; i++) {
+            IERC20Permit(bidBundle.erc20Tokens[i]).permit(
+                msg.sender,
+                address(bundleEscrow),
+                bidBundle.erc20Amounts[i],
+                permits[i].deadline,
+                permits[i].v,
+                permits[i].r,
+                permits[i].s
+            );
+        }
+
+        return
+            _buyErc1155WithBundle(
+                bidBundle,
+                askToken,
+                askTokenId,
+                askAmount,
+                expiration
+            );
+    }
+}
