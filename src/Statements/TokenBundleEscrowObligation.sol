@@ -34,9 +34,9 @@ contract TokenBundleEscrowObligation is
         bytes demand;
     }
 
-    event BundleEscrowed(bytes32 indexed escrow, address indexed buyer);
-    event BundleClaimed(
-        bytes32 indexed escrow,
+    event EscrowMade(bytes32 indexed payment, address indexed buyer);
+    event EscrowClaimed(
+        bytes32 indexed payment,
         bytes32 indexed fulfillment,
         address indexed fulfiller
     );
@@ -159,7 +159,7 @@ contract TokenBundleEscrowObligation is
                 })
             })
         );
-        emit BundleEscrowed(uid_, recipient);
+        emit EscrowMade(uid_, recipient);
     }
 
     function makeStatement(

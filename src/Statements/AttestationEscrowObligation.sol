@@ -17,9 +17,9 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         bytes demand;
     }
 
-    event EscrowCreated(bytes32 indexed escrow, address indexed buyer);
-    event AttestationClaimed(
-        bytes32 indexed escrow,
+    event EscrowMade(bytes32 indexed payment, address indexed buyer);
+    event EscrowClaimed(
+        bytes32 indexed payment,
         bytes32 indexed fulfillment,
         address indexed fulfiller
     );
@@ -58,7 +58,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
                 })
             })
         );
-        emit EscrowCreated(uid_, recipient);
+        emit EscrowMade(uid_, recipient);
     }
 
     function makeStatement(
@@ -98,7 +98,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         );
 
         bytes32 attestationUid = eas.attest(escrowData.attestation);
-        emit AttestationClaimed(_escrow, _fulfillment, fulfillment.recipient);
+        emit EscrowClaimed(_escrow, _fulfillment, fulfillment.recipient);
         return attestationUid;
     }
 

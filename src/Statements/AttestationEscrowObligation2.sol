@@ -19,12 +19,11 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
         bytes demand;
     }
 
-    event EscrowCreated(bytes32 indexed escrow, address indexed buyer);
-    event AttestationValidated(
-        bytes32 indexed escrow,
+    event EscrowMade(bytes32 indexed payment, address indexed buyer);
+    event EscrowClaimed(
+        bytes32 indexed payment,
         bytes32 indexed fulfillment,
-        bytes32 indexed attestationUid,
-        address fulfiller
+        address indexed fulfiller
     );
 
     error InvalidEscrowAttestation();
@@ -68,7 +67,7 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
                 })
             })
         );
-        emit EscrowCreated(uid_, recipient);
+        emit EscrowMade(uid_, recipient);
     }
 
     function makeStatement(
@@ -123,12 +122,7 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
             })
         );
 
-        emit AttestationValidated(
-            _escrow,
-            _fulfillment,
-            escrowData.attestationUid,
-            fulfillment.recipient
-        );
+        emit EscrowClaimed(_escrow, _fulfillment, fulfillment.recipient);
         return validationUid;
     }
 

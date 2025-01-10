@@ -19,15 +19,15 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         bytes demand;
     }
 
-    event PaymentMade(bytes32 indexed payment, address indexed buyer);
-    event PaymentClaimed(
+    event EscrowMade(bytes32 indexed payment, address indexed buyer);
+    event EscrowClaimed(
         bytes32 indexed payment,
         bytes32 indexed fulfillment,
         address indexed fulfiller
     );
 
-    error InvalidPayment();
-    error InvalidPaymentAttestation();
+    error InvalidEscrow();
+    error InvalidEscrowAttestation();
     error InvalidFulfillment();
     error UnauthorizedCall();
 
@@ -64,7 +64,7 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
                 })
             })
         );
-        emit PaymentMade(uid_, recipient);
+        emit EscrowMade(uid_, recipient);
     }
 
     function makeStatement(
@@ -81,7 +81,7 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         Attestation memory payment = eas.getAttestation(_payment);
         Attestation memory fulfillment = eas.getAttestation(_fulfillment);
 
-        if (!payment._checkIntrinsic()) revert InvalidPaymentAttestation();
+        if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
 
         StatementData memory paymentData = abi.decode(
             payment.data,
