@@ -82,7 +82,10 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         multiTokenB = new MockERC1155();
 
         escrowStatement = new TokenBundleEscrowObligation(eas, schemaRegistry);
-        paymentStatement = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        paymentStatement = new TokenBundlePaymentObligation(
+            eas,
+            schemaRegistry
+        );
         barterUtils = new TokenBundleBarterUtils(
             eas,
             escrowStatement,
@@ -186,7 +189,11 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         address spender,
         uint256 value,
         uint256 deadline
-    ) internal view returns (TokenBundleBarterUtils.ERC20PermitSignature memory) {
+    )
+        internal
+        view
+        returns (TokenBundleBarterUtils.ERC20PermitSignature memory)
+    {
         bytes32 permitTypehash = keccak256(
             "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
         );
@@ -473,7 +480,9 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Setup Bob's permits
         TokenBundleBarterUtils.ERC20PermitSignature[]
-            memory bobPermits = new TokenBundleBarterUtils.ERC20PermitSignature[](1);
+            memory bobPermits = new TokenBundleBarterUtils.ERC20PermitSignature[](
+                1
+            );
         bobPermits[0] = _getERC20PermitSignature(
             tokenB,
             BOB_PRIVATE_KEY,
