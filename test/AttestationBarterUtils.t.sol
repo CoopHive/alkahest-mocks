@@ -92,12 +92,17 @@ contract AttestationBarterUtilsTest is Test {
         vm.prank(alice);
         (bytes32 attestationUid, bytes32 escrowUid) = barterUtils
             .attestAndCreateEscrow(
-                testSchema,
-                bob,
-                uint64(block.timestamp + 1 days), // attestation expiration
-                true, // revocable
-                bytes32(0), // refUID
-                attestationData,
+                AttestationRequest({
+                    schema: testSchema,
+                    data: AttestationRequestData({
+                        recipient: bob,
+                        expirationTime: uint64(block.timestamp + 1 days),
+                        revocable: false,
+                        refUID: 0,
+                        data: attestationData,
+                        value: 0
+                    })
+                }),
                 address(this), // arbiter
                 demandData,
                 uint64(block.timestamp + 2 days) // escrow expiration

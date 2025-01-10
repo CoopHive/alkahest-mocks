@@ -69,32 +69,13 @@ contract AttestationBarterUtils is SchemaResolver {
     }
 
     function attestAndCreateEscrow(
-        // Parameters for the initial attestation
-        bytes32 schema,
-        address recipient,
-        uint64 attestationExpirationTime,
-        bool revocable,
-        bytes32 refUID,
-        bytes calldata attestationData,
-        // Parameters for the escrow
+        AttestationRequest calldata attestationRequest,
         address arbiter,
         bytes calldata demand,
-        uint64 escrowExpirationTime
+        uint64 expiration
     ) external returns (bytes32 attestationUid, bytes32 escrowUid) {
         // First create the attestation
-        attestationUid = eas.attest(
-            AttestationRequest({
-                schema: schema,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: attestationExpirationTime,
-                    revocable: revocable,
-                    refUID: refUID,
-                    data: attestationData,
-                    value: 0
-                })
-            })
-        );
+        attestationUid = eas.attest(attestationRequest);
 
         // Then create the escrow statement
         AttestationEscrowObligation2.StatementData
@@ -104,10 +85,7 @@ contract AttestationBarterUtils is SchemaResolver {
                 demand: demand
             });
 
-        escrowUid = escrowContract.makeStatement(
-            escrowData,
-            escrowExpirationTime
-        );
+        escrowUid = escrowContract.makeStatement(escrowData, expiration);
     }
 
     function onAttest(
