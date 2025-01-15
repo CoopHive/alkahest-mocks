@@ -17,3 +17,4 @@ docs/
 *.rdb
 alkahest-ts
 alkahest-rs
+alkahest-py
