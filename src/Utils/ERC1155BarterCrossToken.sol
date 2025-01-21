@@ -23,12 +23,12 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
 
     constructor(
         IEAS _eas,
-        ERC1155EscrowObligation _erc1155Escrow,
-        ERC1155PaymentObligation _erc1155Payment,
         ERC20EscrowObligation _erc20Escrow,
         ERC20PaymentObligation _erc20Payment,
         ERC721EscrowObligation _erc721Escrow,
         ERC721PaymentObligation _erc721Payment,
+        ERC1155EscrowObligation _erc1155Escrow,
+        ERC1155PaymentObligation _erc1155Payment,
         TokenBundleEscrowObligation _bundleEscrow,
         TokenBundlePaymentObligation _bundlePayment
     ) ERC1155BarterUtils(_eas, _erc1155Escrow, _erc1155Payment) {
