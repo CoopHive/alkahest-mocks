@@ -4,8 +4,11 @@ pragma solidity ^0.8.26;
 import "forge-std/Test.sol";
 import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
 import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
+import {ERC721EscrowObligation} from "../src/Statements/ERC721EscrowObligation.sol";
 import {ERC721PaymentObligation} from "../src/Statements/ERC721PaymentObligation.sol";
+import {ERC1155EscrowObligation} from "../src/Statements/ERC1155EscrowObligation.sol";
 import {ERC1155PaymentObligation} from "../src/Statements/ERC1155PaymentObligation.sol";
+import {TokenBundleEscrowObligation} from "../src/Statements/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "../src/Statements/TokenBundlePaymentObligation.sol";
 import {ERC20BarterCrossToken} from "../src/Utils/ERC20BarterCrossToken.sol";
 import {IEAS} from "@eas/IEAS.sol";
@@ -46,8 +49,11 @@ contract MockERC1155 is ERC1155 {
 contract ERC20BarterCrossTokenTest is Test {
     ERC20EscrowObligation public escrowStatement;
     ERC20PaymentObligation public paymentStatement;
+    ERC721EscrowObligation public erc721Escrow;
     ERC721PaymentObligation public erc721Payment;
+    ERC1155EscrowObligation public erc1155Escrow;
     ERC1155PaymentObligation public erc1155Payment;
+    TokenBundleEscrowObligation public bundleEscrow;
     TokenBundlePaymentObligation public bundlePayment;
     ERC20BarterCrossToken public barterCross;
 
@@ -86,8 +92,11 @@ contract ERC20BarterCrossTokenTest is Test {
         // Deploy statements
         escrowStatement = new ERC20EscrowObligation(eas, schemaRegistry);
         paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
+        erc721Escrow = new ERC721EscrowObligation(eas, schemaRegistry);
         erc721Payment = new ERC721PaymentObligation(eas, schemaRegistry);
+        erc1155Escrow = new ERC1155EscrowObligation(eas, schemaRegistry);
         erc1155Payment = new ERC1155PaymentObligation(eas, schemaRegistry);
+        bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
 
         // Deploy barter cross token contract
@@ -95,8 +104,11 @@ contract ERC20BarterCrossTokenTest is Test {
             eas,
             escrowStatement,
             paymentStatement,
+            erc721Escrow,
             erc721Payment,
+            erc1155Escrow,
             erc1155Payment,
+            bundleEscrow,
             bundlePayment
         );
 
