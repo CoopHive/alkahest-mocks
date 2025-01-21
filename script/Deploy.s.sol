@@ -170,26 +170,35 @@ contract Deploy is Script {
             IEAS(easAddress),
             erc20Escrow,
             erc20Payment,
+            erc721Escrow,
             erc721Payment,
+            erc1155Escrow,
             erc1155Payment,
+            bundleEscrow,
             bundlePayment
         );
 
         ERC721BarterCrossToken erc721BarterCrossToken = new ERC721BarterCrossToken(
                 IEAS(easAddress),
+                erc20Escrow,
+                erc20Payment,
                 erc721Escrow,
                 erc721Payment,
-                erc20Payment,
+                erc1155Escrow,
                 erc1155Payment,
+                bundleEscrow,
                 bundlePayment
             );
 
         ERC1155BarterCrossToken erc1155BarterCrossToken = new ERC1155BarterCrossToken(
                 IEAS(easAddress),
+                erc20Escrow,
+                erc20Payment,
+                erc721Escrow,
+                erc721Payment,
                 erc1155Escrow,
                 erc1155Payment,
-                erc20Payment,
-                erc721Payment,
+                bundleEscrow,
                 bundlePayment
             );
 
