@@ -23,10 +23,10 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
 
     constructor(
         IEAS _eas,
-        ERC721EscrowObligation _erc721Escrow,
-        ERC721PaymentObligation _erc721Payment,
         ERC20EscrowObligation _erc20Escrow,
         ERC20PaymentObligation _erc20Payment,
+        ERC721EscrowObligation _erc721Escrow,
+        ERC721PaymentObligation _erc721Payment,
         ERC1155EscrowObligation _erc1155Escrow,
         ERC1155PaymentObligation _erc1155Payment,
         TokenBundleEscrowObligation _bundleEscrow,
