@@ -35,3 +35,8 @@ Attestation Barter Contracts:
   AttestationEscrowObligation: 0xD181642bccb8D74c18C15cCd308Bd5618F7dE528
   AttestationEscrowObligation2: 0xA4F18f0aa351DD2FF67CA29b1329bd21a9Ee0C92
   AttestationBarterUtils: 0x907b9cf8faA5d1cBF052bCE82DFA22eB8E1431c9
+
+Cross Token Barter Contracts (updated):
+  ERC20BarterCrossToken: 0xe73248934009d9eb2482f47eD99BC79D56FA4099
+  ERC721BarterCrossToken: 0x56427ce5Ef6DbFD6b4d55991E5BDf91067282387
+  ERC1155BarterCrossToken: 0x8a7373437dCD3D4448a663600Be058Bd3239245F
