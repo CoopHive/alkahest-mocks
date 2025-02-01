@@ -104,11 +104,13 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
             })
         );
 
-        return
-            IERC20(paymentData.token).transfer(
-                fulfillment.recipient,
-                paymentData.amount
-            );
+        IERC20(paymentData.token).transfer(
+            fulfillment.recipient,
+            paymentData.amount
+        );
+
+        emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
+        return true;
     }
 
     function collectExpired(bytes32 uid) public returns (bool) {

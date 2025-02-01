@@ -108,6 +108,8 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
             fulfillment.recipient,
             paymentData.tokenId
         );
+
+        emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
         return true;
     }
 

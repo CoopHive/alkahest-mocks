@@ -199,6 +199,8 @@ contract TokenBundleEscrowObligation is
         );
 
         transferOutTokenBundle(paymentData, fulfillment.recipient);
+
+        emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
         return true;
     }
 

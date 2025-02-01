@@ -117,6 +117,8 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter {
             paymentData.amount,
             ""
         );
+
+        emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
         return true;
     }
 
