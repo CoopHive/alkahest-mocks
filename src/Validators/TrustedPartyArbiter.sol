@@ -14,7 +14,6 @@ contract TrustedPartyArbiter is IArbiter {
         bytes baseDemand;
     }
 
-    error IncompatibleStatement();
     error NotTrustedParty();
 
     function checkStatement(
