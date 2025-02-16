@@ -14,7 +14,7 @@ contract SpecificAttestationArbiter is IArbiter {
     function checkStatement(
         Attestation memory statement,
         bytes memory demand,
-        bytes32 /* counteroffer */
+        bytes32 /*counteroffer*/
     ) public pure override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
         if (statement.uid != demand_.uid) revert NotDemandedAttestation();

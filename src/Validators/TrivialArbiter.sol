@@ -8,7 +8,7 @@ import {ArbiterUtils} from "../ArbiterUtils.sol";
 contract TrivialArbiter is IArbiter {
     function checkStatement(
         Attestation memory /*statement*/,
-        bytes memory /*demand */,
+        bytes memory /*demand*/,
         bytes32 /*counteroffer*/
     ) public pure override returns (bool) {
         return true;
