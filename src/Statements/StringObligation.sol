@@ -5,15 +5,15 @@ import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {BaseStatement} from "../BaseStatement.sol";
 
-contract JobResultObligation is BaseStatement {
+contract StringObligation is BaseStatement {
     struct StatementData {
-        string result;
+        string item;
     }
 
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) BaseStatement(_eas, _schemaRegistry, "string result", true) {}
+    ) BaseStatement(_eas, _schemaRegistry, "string item", true) {}
 
     function makeStatement(
         StatementData calldata data,
