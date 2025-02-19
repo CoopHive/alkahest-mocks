@@ -1,5 +1,6 @@
 Common Contracts:
   SpecificAttestationArbiter: 0x056034D1D432dD9eA0B7fC20A4375b3A54Ce2e48
+  TrustedOracleArbiter: 0x8441e4c9eD25C1F2c4d7d191099B6726ADa2D517
 
 ERC20 Contracts:
   ERC20EscrowObligation: 0xa34CD115800aA79758Ee5A781a4A3C02915c8602
