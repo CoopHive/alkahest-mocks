@@ -6,7 +6,7 @@ import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 
-contract TrustedPartyArbiter is IArbiter {
+contract TrustedOracleArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
