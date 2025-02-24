@@ -1,5 +1,9 @@
 Common Contracts:
+  ## Obligations
+  StringObligation: 0xb4692f27f3Ef6968394F12eb5843e7C494a0Ed72
+  ## Arbiters
   SpecificAttestationArbiter: 0x056034D1D432dD9eA0B7fC20A4375b3A54Ce2e48
+  TrivialArbiter: 0x8fdbf9C22Ce0B83aFEe8da63F14467663D150b5d
   TrustedOracleArbiter: 0x8441e4c9eD25C1F2c4d7d191099B6726ADa2D517
 
 ERC20 Contracts:
