@@ -7,15 +7,13 @@ import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/token/ERC721/IERC721.sol";
 import {IERC1155} from "@openzeppelin/token/ERC1155/IERC1155.sol";
-import {IERC1155Receiver} from "@openzeppelin/token/ERC1155/IERC1155Receiver.sol";
 import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
 contract TokenBundlePaymentObligation is
     BaseStatement,
-    IArbiter,
-    IERC1155Receiver
+    IArbiter
 {
     using ArbiterUtils for Attestation;
 
@@ -187,30 +185,4 @@ contract TokenBundlePaymentObligation is
         return true;
     }
 
-    // ERC1155 Receiver Implementation
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes calldata
-    ) external pure override returns (bytes4) {
-        return this.onERC1155Received.selector;
-    }
-
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] calldata,
-        uint256[] calldata,
-        bytes calldata
-    ) external pure override returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) external pure override returns (bool) {
-        return interfaceId == type(IERC1155Receiver).interfaceId;
-    }
 }
