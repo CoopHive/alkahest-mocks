@@ -5,11 +5,12 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC1155} from "@openzeppelin/token/ERC1155/IERC1155.sol";
+import {ERC1155Holder} from "@openzeppelin/token/ERC1155/utils/ERC1155Holder.sol";
 import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract ERC1155EscrowObligation is BaseStatement, IArbiter {
+contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
@@ -163,4 +164,5 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter {
             payment.arbiter == demandData.arbiter &&
             keccak256(payment.demand) == keccak256(demandData.demand);
     }
+    
 }
