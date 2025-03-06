@@ -2,13 +2,13 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {AttestationBarterUtils} from "../src/Utils/AttestationBarterUtils.sol";
-import {AttestationEscrowObligation2} from "../src/Statements/AttestationEscrowObligation2.sol";
+import {AttestationBarterUtils} from "../../src/Utils/AttestationBarterUtils.sol";
+import {AttestationEscrowObligation2} from "../../src/Statements/AttestationEscrowObligation2.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 
-contract AttestationBarterUtilsTest is Test {
+contract AttestationBarterUtilsIntegrationTest is Test {
     AttestationBarterUtils public barterUtils;
     AttestationEscrowObligation2 public escrowContract;
     IEAS public eas;
@@ -47,42 +47,6 @@ contract AttestationBarterUtilsTest is Test {
 
         // Register test schema
         testSchema = barterUtils.registerSchema(TEST_SCHEMA, barterUtils, true);
-    }
-
-    function testRegisterSchema() public {
-        string memory schema = "uint256 value";
-        bytes32 schemaId = barterUtils.registerSchema(
-            schema,
-            barterUtils,
-            true
-        );
-
-        // Verify schema registration
-        assertNotEq(schemaId, bytes32(0), "Schema should be registered");
-
-        // Verify schema resolver mapping
-        address resolver = barterUtils.schemaResolvers(schemaId);
-        assertEq(
-            resolver,
-            0x2e234DAe75C793f67A35089C9d99245E1C58470b,
-            "Schema resolver should be set correctly"
-        );
-    }
-
-    function testAttest() public {
-        bytes memory data = abi.encode(true);
-
-        vm.prank(alice);
-        bytes32 attestationId = barterUtils.attest(
-            testSchema,
-            bob,
-            uint64(block.timestamp + 1 days),
-            true,
-            bytes32(0),
-            data
-        );
-
-        assertNotEq(attestationId, bytes32(0), "Attestation should be created");
     }
 
     function testAttestAndCreateEscrow() public {
@@ -134,16 +98,5 @@ contract AttestationBarterUtilsTest is Test {
             keccak256(demandData),
             "Demand data should match"
         );
-    }
-
-    function testGetSchema() public view {
-        SchemaRecord memory schema = barterUtils.getSchema(testSchema);
-        assertEq(schema.uid, testSchema, "Schema UID should match");
-        assertEq(schema.schema, TEST_SCHEMA, "Schema string should match");
-    }
-
-    function testFailInvalidSchema() public {
-        vm.expectRevert();
-        barterUtils.getSchema(bytes32(0));
     }
 }

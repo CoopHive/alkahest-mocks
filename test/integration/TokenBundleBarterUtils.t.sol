@@ -2,15 +2,15 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {TokenBundleEscrowObligation} from "../src/Statements/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "../src/Statements/TokenBundlePaymentObligation.sol";
-import {TokenBundleBarterUtils} from "../src/Utils/TokenBundleBarterUtils.sol";
+import {TokenBundleEscrowObligation} from "../../src/Statements/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "../../src/Statements/TokenBundlePaymentObligation.sol";
+import {TokenBundleBarterUtils} from "../../src/Utils/TokenBundleBarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import "@openzeppelin/token/ERC20/extensions/ERC20Permit.sol";
-import "@openzeppelin/token/ERC721/ERC721.sol";
-import "@openzeppelin/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/token/ERC1155/IERC1155Receiver.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
 contract MockERC20Permit is ERC20Permit {
     constructor(

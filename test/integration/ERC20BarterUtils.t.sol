@@ -2,12 +2,12 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
-import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
-import {ERC20BarterUtils} from "../src/Utils/ERC20BarterUtils.sol";
+import {ERC20EscrowObligation} from "../../src/Statements/ERC20EscrowObligation.sol";
+import {ERC20PaymentObligation} from "../../src/Statements/ERC20PaymentObligation.sol";
+import {ERC20BarterUtils} from "../../src/Utils/ERC20BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import "@openzeppelin/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract MockERC20Permit is ERC20Permit {
     constructor(
@@ -18,7 +18,7 @@ contract MockERC20Permit is ERC20Permit {
     }
 }
 
-contract ERC20BarterUtilsTest is Test {
+contract ERC20BarterUtilsIntegrationTest is Test {
     ERC20EscrowObligation public escrowStatement;
     ERC20PaymentObligation public paymentStatement;
     ERC20BarterUtils public barterUtils;
@@ -59,29 +59,6 @@ contract ERC20BarterUtilsTest is Test {
 
         tokenA.transfer(alice, 1000 * 10 ** 18);
         tokenB.transfer(bob, 1000 * 10 ** 18);
-    }
-
-    function testBuyErc20ForErc20() public {
-        uint256 bidAmount = 100 * 10 ** 18;
-        uint256 askAmount = 200 * 10 ** 18;
-        uint64 expiration = uint64(block.timestamp + 1 days);
-
-        vm.startPrank(alice);
-        tokenA.approve(address(escrowStatement), bidAmount);
-        bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
-            address(tokenA),
-            bidAmount,
-            address(tokenB),
-            askAmount,
-            expiration
-        );
-        vm.stopPrank();
-
-        assertNotEq(
-            buyAttestation,
-            bytes32(0),
-            "Buy attestation should be created"
-        );
     }
 
     function testPayErc20ForErc20() public {
@@ -142,40 +119,6 @@ contract ERC20BarterUtilsTest is Test {
         );
     }
 
-    function testPermitAndBuyErc20ForErc20() public {
-        uint256 bidAmount = 100 * 10 ** 18;
-        uint256 askAmount = 200 * 10 ** 18;
-        uint64 expiration = uint64(block.timestamp + 1 days);
-        uint256 deadline = block.timestamp + 1;
-
-        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            tokenA,
-            ALICE_PRIVATE_KEY,
-            address(escrowStatement),
-            bidAmount,
-            deadline
-        );
-
-        vm.prank(alice);
-        bytes32 buyAttestation = barterUtils.permitAndBuyErc20ForErc20(
-            address(tokenA),
-            bidAmount,
-            address(tokenB),
-            askAmount,
-            expiration,
-            deadline,
-            v,
-            r,
-            s
-        );
-
-        assertNotEq(
-            buyAttestation,
-            bytes32(0),
-            "Buy attestation should be created"
-        );
-    }
-
     function testFullTradeWithPermits() public {
         uint256 bidAmount = 100 * 10 ** 18;
         uint256 askAmount = 200 * 10 ** 18;
@@ -233,138 +176,6 @@ contract ERC20BarterUtilsTest is Test {
         assertEq(tokenA.balanceOf(bob), 100 * 10 ** 18);
         assertEq(tokenB.balanceOf(alice), 200 * 10 ** 18);
         assertEq(tokenB.balanceOf(bob), 800 * 10 ** 18);
-    }
-
-    function testFailExpiredPermit() public {
-        uint256 bidAmount = 100 * 10 ** 18;
-        uint256 askAmount = 200 * 10 ** 18;
-        uint64 expiration = uint64(block.timestamp + 1 days);
-        uint256 deadline = block.timestamp + 1;
-
-        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            tokenA,
-            ALICE_PRIVATE_KEY,
-            address(escrowStatement),
-            bidAmount,
-            deadline
-        );
-
-        vm.warp(block.timestamp + 2);
-
-        vm.prank(alice);
-        barterUtils.permitAndBuyErc20ForErc20(
-            address(tokenA),
-            bidAmount,
-            address(tokenB),
-            askAmount,
-            expiration,
-            deadline,
-            v,
-            r,
-            s
-        );
-    }
-
-    function _getPermitSignature(
-        MockERC20Permit token,
-        uint256 ownerPrivateKey,
-        address spender,
-        uint256 value,
-        uint256 deadline
-    ) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        bytes32 permitTypehash = keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
-
-        address owner = vm.addr(ownerPrivateKey);
-        bytes32 structHash = keccak256(
-            abi.encode(
-                permitTypehash,
-                owner,
-                spender,
-                value,
-                token.nonces(owner),
-                deadline
-            )
-        );
-
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", token.DOMAIN_SEPARATOR(), structHash)
-        );
-
-        (v, r, s) = vm.sign(ownerPrivateKey, digest);
-    }
-
-    function testPermitSignatureValidation() public {
-        uint256 amount = 100 * 10 ** 18;
-        uint256 deadline = block.timestamp + 1;
-
-        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            tokenA,
-            ALICE_PRIVATE_KEY,
-            address(escrowStatement),
-            amount,
-            deadline
-        );
-
-        tokenA.permit(
-            alice,
-            address(escrowStatement),
-            amount,
-            deadline,
-            v,
-            r,
-            s
-        );
-
-        assertEq(
-            tokenA.allowance(alice, address(escrowStatement)),
-            amount,
-            "Permit should have set allowance"
-        );
-    }
-
-    function testGenericPermitAndBuy() public {
-        uint256 bidAmount = 100 * 10 ** 18;
-        uint256 askAmount = 200 * 10 ** 18;
-        uint64 expiration = uint64(block.timestamp + 1 days);
-        uint256 deadline = block.timestamp + 1;
-
-        // Create the demand for Token B
-        ERC20PaymentObligation.StatementData
-            memory demand = ERC20PaymentObligation.StatementData({
-                token: address(tokenB),
-                amount: askAmount,
-                payee: alice
-            });
-
-        // Alice creates buy order with permit
-        (uint8 v1, bytes32 r1, bytes32 s1) = _getPermitSignature(
-            tokenA,
-            ALICE_PRIVATE_KEY,
-            address(escrowStatement),
-            bidAmount,
-            deadline
-        );
-
-        vm.prank(alice);
-        bytes32 buyAttestation = barterUtils.permitAndBuyWithErc20(
-            address(tokenA),
-            bidAmount,
-            address(paymentStatement), // arbiter is payment statement contract
-            abi.encode(demand),
-            expiration,
-            deadline,
-            v1,
-            r1,
-            s1
-        );
-
-        assertNotEq(
-            buyAttestation,
-            bytes32(0),
-            "Buy attestation should be created"
-        );
     }
 
     function testGenericPermitAndPay() public {
@@ -451,5 +262,35 @@ contract ERC20BarterUtilsTest is Test {
             800 * 10 ** 18,
             "Bob should have 800 Token B"
         );
+    }
+    
+    function _getPermitSignature(
+        MockERC20Permit token,
+        uint256 ownerPrivateKey,
+        address spender,
+        uint256 value,
+        uint256 deadline
+    ) internal view returns (uint8 v, bytes32 r, bytes32 s) {
+        bytes32 permitTypehash = keccak256(
+            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+        );
+
+        address owner = vm.addr(ownerPrivateKey);
+        bytes32 structHash = keccak256(
+            abi.encode(
+                permitTypehash,
+                owner,
+                spender,
+                value,
+                token.nonces(owner),
+                deadline
+            )
+        );
+
+        bytes32 digest = keccak256(
+            abi.encodePacked("\x19\x01", token.DOMAIN_SEPARATOR(), structHash)
+        );
+
+        (v, r, s) = vm.sign(ownerPrivateKey, digest);
     }
 }

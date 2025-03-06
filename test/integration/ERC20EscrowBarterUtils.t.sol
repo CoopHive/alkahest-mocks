@@ -2,13 +2,13 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
-import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
-import {ERC20EscrowBarterUtils} from "../src/Utils/ERC20EscrowBarterUtils.sol";
-import {SpecificAttestationArbiter} from "../src/Validators/SpecificAttestationArbiter.sol";
+import {ERC20EscrowObligation} from "../../src/Statements/ERC20EscrowObligation.sol";
+import {ERC20PaymentFulfillmentArbiter} from "../../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
+import {ERC20EscrowBarterUtils} from "../../src/Utils/ERC20EscrowBarterUtils.sol";
+import {SpecificAttestationArbiter} from "../../src/Validators/SpecificAttestationArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import "@openzeppelin/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract MockERC20Permit is ERC20Permit {
     constructor(

@@ -2,12 +2,12 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
-import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
-import {SpecificAttestationArbiter} from "../src/Validators/SpecificAttestationArbiter.sol";
+import {ERC20EscrowObligation} from "../../src/Statements/ERC20EscrowObligation.sol";
+import {ERC20PaymentFulfillmentArbiter} from "../../src/Validators/ERC20PaymentFulfillmentArbiter.sol";
+import {SpecificAttestationArbiter} from "../../src/Validators/SpecificAttestationArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import "@openzeppelin/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MockERC20 is ERC20 {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {

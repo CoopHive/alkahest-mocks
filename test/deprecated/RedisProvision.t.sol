@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {RedisProvisionObligation} from "../src/Statements/RedisProvisionObligation.sol";
+import {RedisProvisionObligation} from "../../src/Statements/RedisProvisionObligation.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {Attestation} from "@eas/Common.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
