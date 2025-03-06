@@ -376,7 +376,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         );
     }
 
-    function testFailBundleTradeWithoutApprovals() public {
+    function test_RevertWhen_BundleTradeHasNoApprovals() public {
         TokenBundleEscrowObligation.StatementData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(tokenA);
@@ -395,6 +395,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Attempt to create buy order without approvals
         vm.prank(alice);
+        vm.expectRevert();
         barterUtils.buyBundleForBundle(
             bidBundle,
             askBundle,
@@ -402,7 +403,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         );
     }
 
-    function testFailBundleTradeWithInsufficientBalance() public {
+    function test_RevertWhen_BundleTradeHasInsufficientBalance() public {
         TokenBundleEscrowObligation.StatementData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(tokenA);
@@ -425,6 +426,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         nftA.approve(address(escrowStatement), bidBundle.erc721TokenIds[0]);
         multiTokenA.setApprovalForAll(address(escrowStatement), true);
 
+        vm.expectRevert();
         barterUtils.buyBundleForBundle(
             bidBundle,
             askBundle,

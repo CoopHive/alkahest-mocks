@@ -250,7 +250,7 @@ contract ERC20EscrowBarterUtilsTest is Test {
         assertEq(tokenB.balanceOf(bob), 800 * 10 ** 18);
     }
 
-    function testFailExpiredPermit() public {
+    function test_RevertWhen_PermitIsExpired() public {
         uint256 bidAmount = 100 * 10 ** 18;
         uint256 askAmount = 200 * 10 ** 18;
         uint64 expiration = uint64(block.timestamp + 1 days);
@@ -269,6 +269,7 @@ contract ERC20EscrowBarterUtilsTest is Test {
         vm.warp(block.timestamp + 2);
 
         vm.prank(alice);
+        vm.expectRevert();
         barterUtils.permitAndBuyErc20ForErc20(
             address(tokenA),
             bidAmount,

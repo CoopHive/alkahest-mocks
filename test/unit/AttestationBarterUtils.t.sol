@@ -142,7 +142,7 @@ contract AttestationBarterUtilsTest is Test {
         assertEq(schema.schema, TEST_SCHEMA, "Schema string should match");
     }
 
-    function testFailInvalidSchema() public {
+    function test_RevertWhen_SchemaIsInvalid() public {
         vm.expectRevert();
         barterUtils.getSchema(bytes32(0));
     }
