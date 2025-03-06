@@ -30,7 +30,7 @@ contract MockERC20 is ERC20 {
 contract MockERC721 is ERC721 {
     uint256 private _currentTokenId = 0;
 
-    constructor() ERC721("Mock NFT", "MNFT") {}
+    constructor() ERC721("Mock ERC721", "MERC721") {}
 
     function mint(address to) public returns (uint256) {
         _currentTokenId++;
@@ -59,9 +59,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
     ERC1155BarterCrossToken public barterCross;
 
     MockERC20 public erc20Token;
-    MockERC721 public nftToken;
-    MockERC1155 public tokenA;
-    MockERC1155 public tokenB;
+    MockERC721 public erc721Token;
+    MockERC1155 public erc1155TokenA;
+    MockERC1155 public erc1155TokenB;
 
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
@@ -77,12 +77,12 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
     address public alice;
     address public bob;
 
-    uint256 public tokenAId = 1;
-    uint256 public tokenAAmount = 100;
-    uint256 public tokenBId = 2;
-    uint256 public tokenBAmount = 50;
+    uint256 public erc1155TokenAId = 1;
+    uint256 public erc1155TokenAAmount = 100;
+    uint256 public erc1155TokenBId = 2;
+    uint256 public erc1155TokenBAmount = 50;
     uint256 public erc20Amount = 500 * 10**18;
-    uint256 public nftTokenId;
+    uint256 public erc721TokenId;
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
@@ -95,9 +95,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Deploy mock tokens
         erc20Token = new MockERC20("Test Token", "TEST");
-        nftToken = new MockERC721();
-        tokenA = new MockERC1155();
-        tokenB = new MockERC1155();
+        erc721Token = new MockERC721();
+        erc1155TokenA = new MockERC1155();
+        erc1155TokenB = new MockERC1155();
 
         // Deploy statements
         erc20Escrow = new ERC20EscrowObligation(eas, schemaRegistry);
@@ -126,10 +126,10 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         erc20Token.transfer(bob, erc20Amount);
         
         vm.prank(bob);
-        nftTokenId = nftToken.mint(bob); // Bob has a NFT
+        erc721TokenId = erc721Token.mint(bob); // Bob has an ERC721 token
         
-        tokenA.mint(alice, tokenAId, tokenAAmount); // Alice has tokenA
-        tokenB.mint(bob, tokenBId, tokenBAmount); // Bob has tokenB
+        erc1155TokenA.mint(alice, erc1155TokenAId, erc1155TokenAAmount); // Alice has erc1155TokenA
+        erc1155TokenB.mint(bob, erc1155TokenBId, erc1155TokenBAmount); // Bob has erc1155TokenB
     }
 
     // ERC1155 for ERC20 tests
@@ -137,11 +137,11 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyErc20WithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
             address(erc20Token),
             erc20Amount,
             expiration
@@ -161,9 +161,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             (ERC1155EscrowObligation.StatementData)
         );
         
-        assertEq(escrowData.token, address(tokenA), "Token should match");
-        assertEq(escrowData.tokenId, tokenAId, "TokenId should match");
-        assertEq(escrowData.amount, tokenAAmount, "Amount should match");
+        assertEq(escrowData.token, address(erc1155TokenA), "Token should match");
+        assertEq(escrowData.tokenId, erc1155TokenAId, "TokenId should match");
+        assertEq(escrowData.amount, erc1155TokenAAmount, "Amount should match");
         assertEq(escrowData.arbiter, address(erc20Payment), "Arbiter should be erc20Payment");
         
         // Extract the demand data
@@ -178,12 +178,12 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Verify that Alice's tokens are now escrowed
         assertEq(
-            tokenA.balanceOf(address(erc1155Escrow), tokenAId),
-            tokenAAmount,
+            erc1155TokenA.balanceOf(address(erc1155Escrow), erc1155TokenAId),
+            erc1155TokenAAmount,
             "Tokens should be in escrow"
         );
         assertEq(
-            tokenA.balanceOf(alice, tokenAId),
+            erc1155TokenA.balanceOf(alice, erc1155TokenAId),
             0,
             "Alice should have no tokens left"
         );
@@ -194,11 +194,11 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyErc20WithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
             address(erc20Token),
             erc20Amount,
             expiration
@@ -219,8 +219,8 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Verify the exchange happened
         assertEq(
-            tokenA.balanceOf(bob, tokenAId),
-            tokenAAmount,
+            erc1155TokenA.balanceOf(bob, erc1155TokenAId),
+            erc1155TokenAAmount,
             "Bob should now have Alice's tokens"
         );
         assertEq(
@@ -234,7 +234,7 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             "Bob should have no ERC20 tokens left"
         );
         assertEq(
-            tokenA.balanceOf(address(erc1155Escrow), tokenAId),
+            erc1155TokenA.balanceOf(address(erc1155Escrow), erc1155TokenAId),
             0,
             "Escrow should have released tokens"
         );
@@ -245,13 +245,13 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyErc721WithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
-            address(nftToken),
-            nftTokenId,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
+            address(erc721Token),
+            erc721TokenId,
             expiration
         );
         vm.stopPrank();
@@ -269,9 +269,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             (ERC1155EscrowObligation.StatementData)
         );
         
-        assertEq(escrowData.token, address(tokenA), "Token should match");
-        assertEq(escrowData.tokenId, tokenAId, "TokenId should match");
-        assertEq(escrowData.amount, tokenAAmount, "Amount should match");
+        assertEq(escrowData.token, address(erc1155TokenA), "Token should match");
+        assertEq(escrowData.tokenId, erc1155TokenAId, "TokenId should match");
+        assertEq(escrowData.amount, erc1155TokenAAmount, "Amount should match");
         assertEq(escrowData.arbiter, address(erc721Payment), "Arbiter should be erc721Payment");
         
         // Extract the demand data
@@ -280,18 +280,18 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             (ERC721PaymentObligation.StatementData)
         );
         
-        assertEq(demandData.token, address(nftToken), "NFT token should match");
-        assertEq(demandData.tokenId, nftTokenId, "NFT ID should match");
+        assertEq(demandData.token, address(erc721Token), "ERC721 token should match");
+        assertEq(demandData.tokenId, erc721TokenId, "ERC721 ID should match");
         assertEq(demandData.payee, alice, "Payee should be Alice");
 
         // Verify that Alice's tokens are now escrowed
         assertEq(
-            tokenA.balanceOf(address(erc1155Escrow), tokenAId),
-            tokenAAmount,
+            erc1155TokenA.balanceOf(address(erc1155Escrow), erc1155TokenAId),
+            erc1155TokenAAmount,
             "Tokens should be in escrow"
         );
         assertEq(
-            tokenA.balanceOf(alice, tokenAId),
+            erc1155TokenA.balanceOf(alice, erc1155TokenAId),
             0,
             "Alice should have no tokens left"
         );
@@ -302,20 +302,20 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyErc721WithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
-            address(nftToken),
-            nftTokenId,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
+            address(erc721Token),
+            erc721TokenId,
             expiration
         );
         vm.stopPrank();
 
         // Bob fulfills Alice's bid
         vm.startPrank(bob);
-        nftToken.approve(address(erc721Payment), nftTokenId);
+        erc721Token.approve(address(erc721Payment), erc721TokenId);
         bytes32 payAttestation = barterCross.payErc1155ForErc721(buyAttestation);
         vm.stopPrank();
 
@@ -327,17 +327,17 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Verify the exchange happened
         assertEq(
-            tokenA.balanceOf(bob, tokenAId),
-            tokenAAmount,
+            erc1155TokenA.balanceOf(bob, erc1155TokenAId),
+            erc1155TokenAAmount,
             "Bob should now have Alice's tokens"
         );
         assertEq(
-            nftToken.ownerOf(nftTokenId),
+            erc721Token.ownerOf(erc721TokenId),
             alice,
-            "Alice should now own the NFT"
+            "Alice should now own the ERC721"
         );
         assertEq(
-            tokenA.balanceOf(address(erc1155Escrow), tokenAId),
+            erc1155TokenA.balanceOf(address(erc1155Escrow), erc1155TokenAId),
             0,
             "Escrow should have released tokens"
         );
@@ -361,18 +361,18 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         bundleData.erc20Tokens[0] = address(erc20Token);
         bundleData.erc20Amounts[0] = erc20Amount / 2;
-        bundleData.erc721Tokens[0] = address(nftToken);
-        bundleData.erc721TokenIds[0] = nftTokenId;
-        bundleData.erc1155Tokens[0] = address(tokenB);
-        bundleData.erc1155TokenIds[0] = tokenBId;
-        bundleData.erc1155Amounts[0] = tokenBAmount / 2;
+        bundleData.erc721Tokens[0] = address(erc721Token);
+        bundleData.erc721TokenIds[0] = erc721TokenId;
+        bundleData.erc1155Tokens[0] = address(erc1155TokenB);
+        bundleData.erc1155TokenIds[0] = erc1155TokenBId;
+        bundleData.erc1155Amounts[0] = erc1155TokenBAmount / 2;
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyBundleWithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
             bundleData,
             expiration
         );
@@ -391,9 +391,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             (ERC1155EscrowObligation.StatementData)
         );
         
-        assertEq(escrowData.token, address(tokenA), "Token should match");
-        assertEq(escrowData.tokenId, tokenAId, "TokenId should match");
-        assertEq(escrowData.amount, tokenAAmount, "Amount should match");
+        assertEq(escrowData.token, address(erc1155TokenA), "Token should match");
+        assertEq(escrowData.tokenId, erc1155TokenAId, "TokenId should match");
+        assertEq(escrowData.amount, erc1155TokenAAmount, "Amount should match");
         assertEq(escrowData.arbiter, address(bundlePayment), "Arbiter should be bundlePayment");
         
         // Extract the demand data - we'll just verify it's correctly decodable
@@ -404,17 +404,17 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         
         assertEq(demandData.payee, alice, "Payee should be Alice");
         assertEq(demandData.erc20Tokens[0], address(erc20Token), "ERC20 token should match");
-        assertEq(demandData.erc721Tokens[0], address(nftToken), "ERC721 token should match");
-        assertEq(demandData.erc1155Tokens[0], address(tokenB), "ERC1155 token should match");
+        assertEq(demandData.erc721Tokens[0], address(erc721Token), "ERC721 token should match");
+        assertEq(demandData.erc1155Tokens[0], address(erc1155TokenB), "ERC1155 token should match");
 
         // Verify that Alice's tokens are now escrowed
         assertEq(
-            tokenA.balanceOf(address(erc1155Escrow), tokenAId),
-            tokenAAmount,
+            erc1155TokenA.balanceOf(address(erc1155Escrow), erc1155TokenAId),
+            erc1155TokenAAmount,
             "Tokens should be in escrow"
         );
         assertEq(
-            tokenA.balanceOf(alice, tokenAId),
+            erc1155TokenA.balanceOf(alice, erc1155TokenAId),
             0,
             "Alice should have no tokens left"
         );
@@ -437,18 +437,18 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         bundleData.erc20Tokens[0] = address(erc20Token);
         bundleData.erc20Amounts[0] = erc20Amount / 2;
-        bundleData.erc721Tokens[0] = address(nftToken);
-        bundleData.erc721TokenIds[0] = nftTokenId;
-        bundleData.erc1155Tokens[0] = address(tokenB);
-        bundleData.erc1155TokenIds[0] = tokenBId;
-        bundleData.erc1155Amounts[0] = tokenBAmount / 2;
+        bundleData.erc721Tokens[0] = address(erc721Token);
+        bundleData.erc721TokenIds[0] = erc721TokenId;
+        bundleData.erc1155Tokens[0] = address(erc1155TokenB);
+        bundleData.erc1155TokenIds[0] = erc1155TokenBId;
+        bundleData.erc1155Amounts[0] = erc1155TokenBAmount / 2;
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyBundleWithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
             bundleData,
             expiration
         );
@@ -457,8 +457,8 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         // Bob approves and fulfills
         vm.startPrank(bob);
         erc20Token.approve(address(bundlePayment), erc20Amount / 2);
-        nftToken.approve(address(bundlePayment), nftTokenId);
-        tokenB.setApprovalForAll(address(bundlePayment), true);
+        erc721Token.approve(address(bundlePayment), erc721TokenId);
+        erc1155TokenB.setApprovalForAll(address(bundlePayment), true);
         bytes32 payAttestation = barterCross.payErc1155ForBundle(buyAttestation);
         vm.stopPrank();
 
@@ -470,8 +470,8 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Verify the exchange happened
         assertEq(
-            tokenA.balanceOf(bob, tokenAId),
-            tokenAAmount,
+            erc1155TokenA.balanceOf(bob, erc1155TokenAId),
+            erc1155TokenAAmount,
             "Bob should now have Alice's tokens"
         );
         assertEq(
@@ -480,17 +480,17 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             "Alice should receive ERC20 tokens"
         );
         assertEq(
-            nftToken.ownerOf(nftTokenId),
+            erc721Token.ownerOf(erc721TokenId),
             alice,
-            "Alice should receive Bob's NFT"
+            "Alice should receive Bob's ERC721 token"
         );
         assertEq(
-            tokenB.balanceOf(alice, tokenBId),
-            tokenBAmount / 2,
+            erc1155TokenB.balanceOf(alice, erc1155TokenBId),
+            erc1155TokenBAmount / 2,
             "Alice should receive ERC1155 tokens"
         );
         assertEq(
-            tokenA.balanceOf(address(erc1155Escrow), tokenAId),
+            erc1155TokenA.balanceOf(address(erc1155Escrow), erc1155TokenAId),
             0,
             "Escrow should have released tokens"
         );
@@ -504,9 +504,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         vm.startPrank(alice);
         vm.expectRevert(); // ERC1155: caller is not owner nor approved
         barterCross.buyErc20WithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
             address(erc20Token),
             erc20Amount,
             expiration
@@ -516,14 +516,14 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
     function test_RevertWhen_InsufficientBalance() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
-        uint256 tooManyTokens = tokenAAmount * 2; // More than Alice has
+        uint256 tooManyTokens = erc1155TokenAAmount * 2; // More than Alice has
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         vm.expectRevert(); // ERC1155: insufficient balance for transfer
         barterCross.buyErc20WithErc1155(
-            address(tokenA),
-            tokenAId,
+            address(erc1155TokenA),
+            erc1155TokenAId,
             tooManyTokens,
             address(erc20Token),
             erc20Amount,
@@ -537,11 +537,11 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Alice makes bid
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyErc20WithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
             address(erc20Token),
             erc20Amount,
             expiration
@@ -560,11 +560,11 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 10 minutes);
 
         vm.startPrank(alice);
-        tokenA.setApprovalForAll(address(erc1155Escrow), true);
+        erc1155TokenA.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = barterCross.buyErc20WithErc1155(
-            address(tokenA),
-            tokenAId,
-            tokenAAmount,
+            address(erc1155TokenA),
+            erc1155TokenAId,
+            erc1155TokenAAmount,
             address(erc20Token),
             erc20Amount,
             expiration

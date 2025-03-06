@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 contract MockERC721 is ERC721 {
     uint256 private _currentTokenId = 0;
 
-    constructor() ERC721("Mock NFT", "MNFT") {}
+    constructor() ERC721("Mock ERC721", "MERC721") {}
 
     function mint(address to) public returns (uint256) {
         _currentTokenId++;
@@ -27,8 +27,8 @@ contract ERC721BarterUtilsUnitTest is Test {
     ERC721PaymentObligation public paymentStatement;
     ERC721BarterUtils public barterUtils;
 
-    MockERC721 public nftTokenA;
-    MockERC721 public nftTokenB;
+    MockERC721 public erc721TokenA;
+    MockERC721 public erc721TokenB;
 
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
@@ -44,8 +44,8 @@ contract ERC721BarterUtilsUnitTest is Test {
     address public alice;
     address public bob;
 
-    uint256 public aliceNftId;
-    uint256 public bobNftId;
+    uint256 public aliceErc721Id;
+    uint256 public bobErc721Id;
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
@@ -56,9 +56,9 @@ contract ERC721BarterUtilsUnitTest is Test {
         alice = vm.addr(ALICE_PRIVATE_KEY);
         bob = vm.addr(BOB_PRIVATE_KEY);
 
-        // Deploy mock NFT tokens
-        nftTokenA = new MockERC721();
-        nftTokenB = new MockERC721();
+        // Deploy mock ERC721 tokens
+        erc721TokenA = new MockERC721();
+        erc721TokenB = new MockERC721();
 
         // Deploy statements
         escrowStatement = new ERC721EscrowObligation(eas, schemaRegistry);
@@ -73,22 +73,22 @@ contract ERC721BarterUtilsUnitTest is Test {
 
         // Setup initial token balances
         vm.prank(alice);
-        aliceNftId = nftTokenA.mint(alice); // Alice has tokenA
+        aliceErc721Id = erc721TokenA.mint(alice); // Alice has erc1155TokenA
 
         vm.prank(bob);
-        bobNftId = nftTokenB.mint(bob); // Bob has tokenB
+        bobErc721Id = erc721TokenB.mint(bob); // Bob has erc1155TokenB
     }
 
     function testBuyErc721ForErc721() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        nftTokenA.approve(address(escrowStatement), aliceNftId);
+        erc721TokenA.approve(address(escrowStatement), aliceErc721Id);
         bytes32 buyAttestation = barterUtils.buyErc721ForErc721(
-            address(nftTokenA),
-            aliceNftId,
-            address(nftTokenB),
-            bobNftId,
+            address(erc721TokenA),
+            aliceErc721Id,
+            address(erc721TokenB),
+            bobErc721Id,
             expiration
         );
         vm.stopPrank();
@@ -106,8 +106,8 @@ contract ERC721BarterUtilsUnitTest is Test {
             (ERC721EscrowObligation.StatementData)
         );
         
-        assertEq(escrowData.token, address(nftTokenA), "Token should match");
-        assertEq(escrowData.tokenId, aliceNftId, "TokenId should match");
+        assertEq(escrowData.token, address(erc721TokenA), "Token should match");
+        assertEq(escrowData.tokenId, aliceErc721Id, "TokenId should match");
         assertEq(escrowData.arbiter, address(paymentStatement), "Arbiter should be payment statement");
         
         // Extract the demand data
@@ -116,12 +116,12 @@ contract ERC721BarterUtilsUnitTest is Test {
             (ERC721PaymentObligation.StatementData)
         );
         
-        assertEq(demandData.token, address(nftTokenB), "Demand token should match");
-        assertEq(demandData.tokenId, bobNftId, "Demand tokenId should match");
+        assertEq(demandData.token, address(erc721TokenB), "Demand token should match");
+        assertEq(demandData.tokenId, bobErc721Id, "Demand tokenId should match");
         assertEq(demandData.payee, alice, "Payee should be Alice");
 
-        // Verify that Alice's NFT is now escrowed
-        assertEq(nftTokenA.ownerOf(aliceNftId), address(escrowStatement), "NFT should be in escrow");
+        // Verify that Alice's ERC721 token is now escrowed
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), address(escrowStatement), "ERC721 should be in escrow");
     }
 
     function testPayErc721ForErc721() public {
@@ -129,19 +129,19 @@ contract ERC721BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        nftTokenA.approve(address(escrowStatement), aliceNftId);
+        erc721TokenA.approve(address(escrowStatement), aliceErc721Id);
         bytes32 buyAttestation = barterUtils.buyErc721ForErc721(
-            address(nftTokenA),
-            aliceNftId,
-            address(nftTokenB),
-            bobNftId,
+            address(erc721TokenA),
+            aliceErc721Id,
+            address(erc721TokenB),
+            bobErc721Id,
             expiration
         );
         vm.stopPrank();
 
         // Now Bob fulfills the request
         vm.startPrank(bob);
-        nftTokenB.approve(address(paymentStatement), bobNftId);
+        erc721TokenB.approve(address(paymentStatement), bobErc721Id);
         bytes32 payAttestation = barterUtils.payErc721ForErc721(buyAttestation);
         vm.stopPrank();
 
@@ -152,8 +152,8 @@ contract ERC721BarterUtilsUnitTest is Test {
         );
 
         // Verify the exchange happened
-        assertEq(nftTokenA.ownerOf(aliceNftId), bob, "Bob should now own Alice's NFT");
-        assertEq(nftTokenB.ownerOf(bobNftId), alice, "Alice should now own Bob's NFT");
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), bob, "Bob should now own Alice's ERC721 token");
+        assertEq(erc721TokenB.ownerOf(bobErc721Id), alice, "Alice should now own Bob's ERC721 token");
     }
 
     // Test that we can extract the demand data correctly
@@ -161,12 +161,12 @@ contract ERC721BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        nftTokenA.approve(address(escrowStatement), aliceNftId);
+        erc721TokenA.approve(address(escrowStatement), aliceErc721Id);
         bytes32 buyAttestation = barterUtils.buyErc721ForErc721(
-            address(nftTokenA),
-            aliceNftId,
-            address(nftTokenB),
-            bobNftId,
+            address(erc721TokenA),
+            aliceErc721Id,
+            address(erc721TokenB),
+            bobErc721Id,
             expiration
         );
         vm.stopPrank();
@@ -184,22 +184,22 @@ contract ERC721BarterUtilsUnitTest is Test {
         );
         
         // Verify the demand data matches what we expect
-        assertEq(demand.token, address(nftTokenB), "Token should match");
-        assertEq(demand.tokenId, bobNftId, "TokenId should match");
+        assertEq(demand.token, address(erc721TokenB), "Token should match");
+        assertEq(demand.tokenId, bobErc721Id, "TokenId should match");
         assertEq(demand.payee, alice, "Payee should be alice");
     }
 
     function test_RevertWhen_TokenNotApproved() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        // Alice tries to make bid without approving NFT
+        // Alice tries to make bid without approving ERC721 token
         vm.startPrank(alice);
         vm.expectRevert(); // ERC721: caller is not token owner or approved
         barterUtils.buyErc721ForErc721(
-            address(nftTokenA),
-            aliceNftId,
-            address(nftTokenB),
-            bobNftId,
+            address(erc721TokenA),
+            aliceErc721Id,
+            address(erc721TokenB),
+            bobErc721Id,
             expiration
         );
         vm.stopPrank();
@@ -210,22 +210,22 @@ contract ERC721BarterUtilsUnitTest is Test {
 
         // Alice makes bid
         vm.startPrank(alice);
-        nftTokenA.approve(address(escrowStatement), aliceNftId);
+        erc721TokenA.approve(address(escrowStatement), aliceErc721Id);
         bytes32 buyAttestation = barterUtils.buyErc721ForErc721(
-            address(nftTokenA),
-            aliceNftId,
-            address(nftTokenB),
-            bobNftId,
+            address(erc721TokenA),
+            aliceErc721Id,
+            address(erc721TokenB),
+            bobErc721Id,
             expiration
         );
         vm.stopPrank();
 
-        // Transfer Bob's NFT to someone else
+        // Transfer Bob's ERC721 token to someone else
         address thirdParty = makeAddr("third-party");
         vm.prank(bob);
-        nftTokenB.transferFrom(bob, thirdParty, bobNftId);
+        erc721TokenB.transferFrom(bob, thirdParty, bobErc721Id);
 
-        // Bob tries to fulfill request with NFT he no longer owns
+        // Bob tries to fulfill request with ERC721 he no longer owns
         vm.startPrank(bob);
         vm.expectRevert(); // ERC721: caller is not token owner or approved
         barterUtils.payErc721ForErc721(buyAttestation);
@@ -246,12 +246,12 @@ contract ERC721BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 10 minutes);
 
         vm.startPrank(alice);
-        nftTokenA.approve(address(escrowStatement), aliceNftId);
+        erc721TokenA.approve(address(escrowStatement), aliceErc721Id);
         bytes32 buyAttestation = barterUtils.buyErc721ForErc721(
-            address(nftTokenA),
-            aliceNftId,
-            address(nftTokenB),
-            bobNftId,
+            address(erc721TokenA),
+            aliceErc721Id,
+            address(erc721TokenB),
+            bobErc721Id,
             expiration
         );
         vm.stopPrank();
@@ -261,7 +261,7 @@ contract ERC721BarterUtilsUnitTest is Test {
 
         // Bob tries to fulfill expired bid
         vm.startPrank(bob);
-        nftTokenB.approve(address(paymentStatement), bobNftId);
+        erc721TokenB.approve(address(paymentStatement), bobErc721Id);
         vm.expectRevert();
         barterUtils.payErc721ForErc721(buyAttestation);
         vm.stopPrank();

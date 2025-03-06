@@ -24,7 +24,7 @@ contract MockERC20Permit is ERC20Permit {
 contract MockERC721 is ERC721 {
     uint256 private _currentTokenId = 0;
 
-    constructor() ERC721("Mock NFT", "MNFT") {}
+    constructor() ERC721("Mock ERC721", "MERC721") {}
 
     function mint(address to) public returns (uint256) {
         _currentTokenId++;
@@ -48,10 +48,10 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
     MockERC20Permit public erc20TokenA;
     MockERC20Permit public erc20TokenB;
-    MockERC721 public nftTokenA;
-    MockERC721 public nftTokenB;
-    MockERC1155 public multiTokenA;
-    MockERC1155 public multiTokenB;
+    MockERC721 public erc721TokenA;
+    MockERC721 public erc721TokenB;
+    MockERC1155 public erc1155TokenA;
+    MockERC1155 public erc1155TokenB;
 
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
@@ -68,12 +68,12 @@ contract TokenBundleBarterUtilsUnitTest is Test {
     address public bob;
 
     // Token parameters
-    uint256 public aliceNftId;
-    uint256 public bobNftId;
-    uint256 public multiTokenIdA = 1;
-    uint256 public multiTokenAmountA = 100;
-    uint256 public multiTokenIdB = 2;
-    uint256 public multiTokenAmountB = 50;
+    uint256 public aliceErc721Id;
+    uint256 public bobErc721Id;
+    uint256 public erc1155TokenIdA = 1;
+    uint256 public erc1155TokenAmountA = 100;
+    uint256 public erc1155TokenIdB = 2;
+    uint256 public erc1155TokenAmountB = 50;
     uint256 public erc20AmountA = 500 * 10**18;
     uint256 public erc20AmountB = 250 * 10**18;
 
@@ -89,10 +89,10 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Deploy mock tokens
         erc20TokenA = new MockERC20Permit("Token A", "TKNA");
         erc20TokenB = new MockERC20Permit("Token B", "TKNB");
-        nftTokenA = new MockERC721();
-        nftTokenB = new MockERC721();
-        multiTokenA = new MockERC1155();
-        multiTokenB = new MockERC1155();
+        erc721TokenA = new MockERC721();
+        erc721TokenB = new MockERC721();
+        erc1155TokenA = new MockERC1155();
+        erc1155TokenB = new MockERC1155();
 
         // Deploy statements
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
@@ -109,14 +109,14 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Alice's tokens
         erc20TokenA.transfer(alice, erc20AmountA);
         vm.prank(alice);
-        aliceNftId = nftTokenA.mint(alice);
-        multiTokenA.mint(alice, multiTokenIdA, multiTokenAmountA);
+        aliceErc721Id = erc721TokenA.mint(alice);
+        erc1155TokenA.mint(alice, erc1155TokenIdA, erc1155TokenAmountA);
         
         // Bob's tokens
         erc20TokenB.transfer(bob, erc20AmountB);
         vm.prank(bob);
-        bobNftId = nftTokenB.mint(bob);
-        multiTokenB.mint(bob, multiTokenIdB, multiTokenAmountB);
+        bobErc721Id = erc721TokenB.mint(bob);
+        erc1155TokenB.mint(bob, erc1155TokenIdB, erc1155TokenAmountB);
     }
 
     // Helper function to create a bundle for Alice
@@ -135,11 +135,11 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         
         bundle.erc20Tokens[0] = address(erc20TokenA);
         bundle.erc20Amounts[0] = erc20AmountA;
-        bundle.erc721Tokens[0] = address(nftTokenA);
-        bundle.erc721TokenIds[0] = aliceNftId;
-        bundle.erc1155Tokens[0] = address(multiTokenA);
-        bundle.erc1155TokenIds[0] = multiTokenIdA;
-        bundle.erc1155Amounts[0] = multiTokenAmountA;
+        bundle.erc721Tokens[0] = address(erc721TokenA);
+        bundle.erc721TokenIds[0] = aliceErc721Id;
+        bundle.erc1155Tokens[0] = address(erc1155TokenA);
+        bundle.erc1155TokenIds[0] = erc1155TokenIdA;
+        bundle.erc1155Amounts[0] = erc1155TokenAmountA;
         
         return bundle;
     }
@@ -159,11 +159,11 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         
         bundle.erc20Tokens[0] = address(erc20TokenB);
         bundle.erc20Amounts[0] = erc20AmountB;
-        bundle.erc721Tokens[0] = address(nftTokenB);
-        bundle.erc721TokenIds[0] = bobNftId;
-        bundle.erc1155Tokens[0] = address(multiTokenB);
-        bundle.erc1155TokenIds[0] = multiTokenIdB;
-        bundle.erc1155Amounts[0] = multiTokenAmountB;
+        bundle.erc721Tokens[0] = address(erc721TokenB);
+        bundle.erc721TokenIds[0] = bobErc721Id;
+        bundle.erc1155Tokens[0] = address(erc1155TokenB);
+        bundle.erc1155TokenIds[0] = erc1155TokenIdB;
+        bundle.erc1155Amounts[0] = erc1155TokenAmountB;
         
         return bundle;
     }
@@ -208,8 +208,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Approve tokens
         vm.startPrank(alice);
         erc20TokenA.approve(address(bundleEscrow), erc20AmountA);
-        nftTokenA.approve(address(bundleEscrow), aliceNftId);
-        multiTokenA.setApprovalForAll(address(bundleEscrow), true);
+        erc721TokenA.approve(address(bundleEscrow), aliceErc721Id);
+        erc1155TokenA.setApprovalForAll(address(bundleEscrow), true);
         
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
             aliceBundle,
@@ -233,9 +233,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         
         assertEq(escrowData.erc20Tokens[0], address(erc20TokenA), "ERC20 token should match");
         assertEq(escrowData.erc20Amounts[0], erc20AmountA, "ERC20 amount should match");
-        assertEq(escrowData.erc721Tokens[0], address(nftTokenA), "ERC721 token should match");
-        assertEq(escrowData.erc721TokenIds[0], aliceNftId, "ERC721 tokenId should match");
-        assertEq(escrowData.erc1155Tokens[0], address(multiTokenA), "ERC1155 token should match");
+        assertEq(escrowData.erc721Tokens[0], address(erc721TokenA), "ERC721 token should match");
+        assertEq(escrowData.erc721TokenIds[0], aliceErc721Id, "ERC721 tokenId should match");
+        assertEq(escrowData.erc1155Tokens[0], address(erc1155TokenA), "ERC1155 token should match");
         assertEq(escrowData.arbiter, address(bundlePayment), "Arbiter should be bundlePayment");
         
         // Extract the demand data
@@ -245,16 +245,16 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         );
         
         assertEq(demandData.erc20Tokens[0], address(erc20TokenB), "Demand ERC20 token should match");
-        assertEq(demandData.erc721Tokens[0], address(nftTokenB), "Demand ERC721 token should match");
-        assertEq(demandData.erc1155Tokens[0], address(multiTokenB), "Demand ERC1155 token should match");
+        assertEq(demandData.erc721Tokens[0], address(erc721TokenB), "Demand ERC721 token should match");
+        assertEq(demandData.erc1155Tokens[0], address(erc1155TokenB), "Demand ERC1155 token should match");
         assertEq(demandData.payee, alice, "Payee should be Alice");
 
         // Verify that Alice's tokens are now in escrow
         assertEq(erc20TokenA.balanceOf(address(bundleEscrow)), erc20AmountA, "ERC20 tokens should be in escrow");
-        assertEq(nftTokenA.ownerOf(aliceNftId), address(bundleEscrow), "NFT should be in escrow");
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), address(bundleEscrow), "ERC721 should be in escrow");
         assertEq(
-            multiTokenA.balanceOf(address(bundleEscrow), multiTokenIdA),
-            multiTokenAmountA,
+            erc1155TokenA.balanceOf(address(bundleEscrow), erc1155TokenIdA),
+            erc1155TokenAmountA,
             "ERC1155 tokens should be in escrow"
         );
     }
@@ -268,8 +268,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Alice creates bid
         vm.startPrank(alice);
         erc20TokenA.approve(address(bundleEscrow), erc20AmountA);
-        nftTokenA.approve(address(bundleEscrow), aliceNftId);
-        multiTokenA.setApprovalForAll(address(bundleEscrow), true);
+        erc721TokenA.approve(address(bundleEscrow), aliceErc721Id);
+        erc1155TokenA.setApprovalForAll(address(bundleEscrow), true);
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
             aliceBundle,
             bobBundle,
@@ -279,18 +279,18 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Verify initial escrow state
         assertEq(erc20TokenA.balanceOf(address(bundleEscrow)), erc20AmountA, "ERC20 tokens should be in escrow");
-        assertEq(nftTokenA.ownerOf(aliceNftId), address(bundleEscrow), "NFT should be in escrow");
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), address(bundleEscrow), "ERC721 should be in escrow");
         assertEq(
-            multiTokenA.balanceOf(address(bundleEscrow), multiTokenIdA),
-            multiTokenAmountA,
+            erc1155TokenA.balanceOf(address(bundleEscrow), erc1155TokenIdA),
+            erc1155TokenAmountA,
             "ERC1155 tokens should be in escrow"
         );
 
         // Bob fulfills Alice's bid
         vm.startPrank(bob);
         erc20TokenB.approve(address(bundlePayment), erc20AmountB);
-        nftTokenB.approve(address(bundlePayment), bobNftId);
-        multiTokenB.setApprovalForAll(address(bundlePayment), true);
+        erc721TokenB.approve(address(bundlePayment), bobErc721Id);
+        erc1155TokenB.setApprovalForAll(address(bundlePayment), true);
         bytes32 payAttestation = barterUtils.payBundleForBundle(buyAttestation);
         vm.stopPrank();
 
@@ -303,26 +303,26 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Verify the exchange happened
         // Alice should have Bob's tokens
         assertEq(erc20TokenB.balanceOf(alice), erc20AmountB, "Alice should have Bob's ERC20 tokens");
-        assertEq(nftTokenB.ownerOf(bobNftId), alice, "Alice should have Bob's NFT");
+        assertEq(erc721TokenB.ownerOf(bobErc721Id), alice, "Alice should have Bob's ERC721 token");
         assertEq(
-            multiTokenB.balanceOf(alice, multiTokenIdB),
-            multiTokenAmountB,
+            erc1155TokenB.balanceOf(alice, erc1155TokenIdB),
+            erc1155TokenAmountB,
             "Alice should have Bob's ERC1155 tokens"
         );
         
         // Bob should have Alice's tokens
         assertEq(erc20TokenA.balanceOf(bob), erc20AmountA, "Bob should have Alice's ERC20 tokens");
-        assertEq(nftTokenA.ownerOf(aliceNftId), bob, "Bob should have Alice's NFT");
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), bob, "Bob should have Alice's ERC721 token");
         assertEq(
-            multiTokenA.balanceOf(bob, multiTokenIdA),
-            multiTokenAmountA,
+            erc1155TokenA.balanceOf(bob, erc1155TokenIdA),
+            erc1155TokenAmountA,
             "Bob should have Alice's ERC1155 tokens"
         );
         
         // Escrow should be empty
         assertEq(erc20TokenA.balanceOf(address(bundleEscrow)), 0, "Escrow should have no ERC20 tokens left");
         assertEq(
-            multiTokenA.balanceOf(address(bundleEscrow), multiTokenIdA),
+            erc1155TokenA.balanceOf(address(bundleEscrow), erc1155TokenIdA),
             0,
             "Escrow should have no ERC1155 tokens left"
         );
@@ -353,9 +353,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Alice creates escrow with permit
         vm.startPrank(alice);
-        // Still need to approve NFT and ERC1155
-        nftTokenA.approve(address(bundleEscrow), aliceNftId);
-        multiTokenA.setApprovalForAll(address(bundleEscrow), true);
+        // Still need to approve ERC721 and ERC1155
+        erc721TokenA.approve(address(bundleEscrow), aliceErc721Id);
+        erc1155TokenA.setApprovalForAll(address(bundleEscrow), true);
         
         bytes32 escrowAttestation = barterUtils.permitAndEscrowBundle(
             aliceBundle,
@@ -372,10 +372,10 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Verify that Alice's tokens are now in escrow
         assertEq(erc20TokenA.balanceOf(address(bundleEscrow)), erc20AmountA, "ERC20 tokens should be in escrow");
-        assertEq(nftTokenA.ownerOf(aliceNftId), address(bundleEscrow), "NFT should be in escrow");
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), address(bundleEscrow), "ERC721 should be in escrow");
         assertEq(
-            multiTokenA.balanceOf(address(bundleEscrow), multiTokenIdA),
-            multiTokenAmountA,
+            erc1155TokenA.balanceOf(address(bundleEscrow), erc1155TokenIdA),
+            erc1155TokenAmountA,
             "ERC1155 tokens should be in escrow"
         );
     }
@@ -405,9 +405,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Bob creates payment with permit
         vm.startPrank(bob);
-        // Still need to approve NFT and ERC1155
-        nftTokenB.approve(address(bundlePayment), bobNftId);
-        multiTokenB.setApprovalForAll(address(bundlePayment), true);
+        // Still need to approve ERC721 and ERC1155
+        erc721TokenB.approve(address(bundlePayment), bobErc721Id);
+        erc1155TokenB.setApprovalForAll(address(bundlePayment), true);
         
         bytes32 payAttestation = barterUtils.permitAndPayBundle(
             bobBundle,
@@ -430,7 +430,7 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         
         assertEq(paymentData.erc20Tokens[0], address(erc20TokenB), "ERC20 token should match");
         assertEq(paymentData.erc20Amounts[0], erc20AmountB, "ERC20 amount should match");
-        assertEq(paymentData.erc721Tokens[0], address(nftTokenB), "ERC721 token should match");
+        assertEq(paymentData.erc721Tokens[0], address(erc721TokenB), "ERC721 token should match");
         assertEq(paymentData.payee, alice, "Payee should match");
     }
 
@@ -460,9 +460,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Alice creates bid with permit
         vm.startPrank(alice);
-        // Still need to approve NFT and ERC1155
-        nftTokenA.approve(address(bundleEscrow), aliceNftId);
-        multiTokenA.setApprovalForAll(address(bundleEscrow), true);
+        // Still need to approve ERC721 and ERC1155
+        erc721TokenA.approve(address(bundleEscrow), aliceErc721Id);
+        erc1155TokenA.setApprovalForAll(address(bundleEscrow), true);
         
         bytes32 buyAttestation = barterUtils.permitAndEscrowBundleForBundle(
             aliceBundle,
@@ -480,10 +480,10 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Verify that Alice's tokens are now in escrow
         assertEq(erc20TokenA.balanceOf(address(bundleEscrow)), erc20AmountA, "ERC20 tokens should be in escrow");
-        assertEq(nftTokenA.ownerOf(aliceNftId), address(bundleEscrow), "NFT should be in escrow");
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), address(bundleEscrow), "ERC721 should be in escrow");
         assertEq(
-            multiTokenA.balanceOf(address(bundleEscrow), multiTokenIdA),
-            multiTokenAmountA,
+            erc1155TokenA.balanceOf(address(bundleEscrow), erc1155TokenIdA),
+            erc1155TokenAmountA,
             "ERC1155 tokens should be in escrow"
         );
     }
@@ -498,8 +498,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Alice creates bid
         vm.startPrank(alice);
         erc20TokenA.approve(address(bundleEscrow), erc20AmountA);
-        nftTokenA.approve(address(bundleEscrow), aliceNftId);
-        multiTokenA.setApprovalForAll(address(bundleEscrow), true);
+        erc721TokenA.approve(address(bundleEscrow), aliceErc721Id);
+        erc1155TokenA.setApprovalForAll(address(bundleEscrow), true);
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
             aliceBundle,
             bobBundle,
@@ -526,9 +526,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Bob fulfills Alice's bid with permit
         vm.startPrank(bob);
-        // Still need to approve NFT and ERC1155
-        nftTokenB.approve(address(bundlePayment), bobNftId);
-        multiTokenB.setApprovalForAll(address(bundlePayment), true);
+        // Still need to approve ERC721 and ERC1155
+        erc721TokenB.approve(address(bundlePayment), bobErc721Id);
+        erc1155TokenB.setApprovalForAll(address(bundlePayment), true);
         
         bytes32 payAttestation = barterUtils.permitAndPayBundleForBundle(
             buyAttestation,
@@ -545,19 +545,19 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Verify the exchange happened
         // Alice should have Bob's tokens
         assertEq(erc20TokenB.balanceOf(alice), erc20AmountB, "Alice should have Bob's ERC20 tokens");
-        assertEq(nftTokenB.ownerOf(bobNftId), alice, "Alice should have Bob's NFT");
+        assertEq(erc721TokenB.ownerOf(bobErc721Id), alice, "Alice should have Bob's ERC721 token");
         assertEq(
-            multiTokenB.balanceOf(alice, multiTokenIdB),
-            multiTokenAmountB,
+            erc1155TokenB.balanceOf(alice, erc1155TokenIdB),
+            erc1155TokenAmountB,
             "Alice should have Bob's ERC1155 tokens"
         );
         
         // Bob should have Alice's tokens
         assertEq(erc20TokenA.balanceOf(bob), erc20AmountA, "Bob should have Alice's ERC20 tokens");
-        assertEq(nftTokenA.ownerOf(aliceNftId), bob, "Bob should have Alice's NFT");
+        assertEq(erc721TokenA.ownerOf(aliceErc721Id), bob, "Bob should have Alice's ERC721 token");
         assertEq(
-            multiTokenA.balanceOf(bob, multiTokenIdA),
-            multiTokenAmountA,
+            erc1155TokenA.balanceOf(bob, erc1155TokenIdA),
+            erc1155TokenAmountA,
             "Bob should have Alice's ERC1155 tokens"
         );
     }
@@ -589,8 +589,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Alice creates bid
         vm.startPrank(alice);
         erc20TokenA.approve(address(bundleEscrow), erc20AmountA);
-        nftTokenA.approve(address(bundleEscrow), aliceNftId);
-        multiTokenA.setApprovalForAll(address(bundleEscrow), true);
+        erc721TokenA.approve(address(bundleEscrow), aliceErc721Id);
+        erc1155TokenA.setApprovalForAll(address(bundleEscrow), true);
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
             aliceBundle,
             bobBundle,
@@ -645,8 +645,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Alice creates bid
         vm.startPrank(alice);
         erc20TokenA.approve(address(bundleEscrow), erc20AmountA);
-        nftTokenA.approve(address(bundleEscrow), aliceNftId);
-        multiTokenA.setApprovalForAll(address(bundleEscrow), true);
+        erc721TokenA.approve(address(bundleEscrow), aliceErc721Id);
+        erc1155TokenA.setApprovalForAll(address(bundleEscrow), true);
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
             aliceBundle,
             bobBundle,
@@ -660,8 +660,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Bob tries to fulfill expired bid
         vm.startPrank(bob);
         erc20TokenB.approve(address(bundlePayment), erc20AmountB);
-        nftTokenB.approve(address(bundlePayment), bobNftId);
-        multiTokenB.setApprovalForAll(address(bundlePayment), true);
+        erc721TokenB.approve(address(bundlePayment), bobErc721Id);
+        erc1155TokenB.setApprovalForAll(address(bundlePayment), true);
         vm.expectRevert();
         barterUtils.payBundleForBundle(buyAttestation);
         vm.stopPrank();

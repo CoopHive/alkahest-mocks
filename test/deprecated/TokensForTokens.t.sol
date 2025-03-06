@@ -19,8 +19,8 @@ contract ERC20EscrowObligationTest is Test {
     ERC20EscrowObligation public paymentStatement;
     ERC20PaymentFulfillmentArbiter public erc20PaymentFulfillment;
     SpecificAttestationArbiter public specificAttestation;
-    MockERC20 public tokenA;
-    MockERC20 public tokenB;
+    MockERC20 public erc1155TokenA;
+    MockERC20 public erc1155TokenB;
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
@@ -37,8 +37,8 @@ contract ERC20EscrowObligationTest is Test {
         eas = IEAS(EAS_ADDRESS);
         schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
 
-        tokenA = new MockERC20("Token A", "TKA");
-        tokenB = new MockERC20("Token B", "TKB");
+        erc1155TokenA = new MockERC20("Token A", "TKA");
+        erc1155TokenB = new MockERC20("Token B", "TKB");
 
         paymentStatement = new ERC20EscrowObligation(eas, schemaRegistry);
         specificAttestation = new SpecificAttestationArbiter();
@@ -47,8 +47,8 @@ contract ERC20EscrowObligationTest is Test {
             specificAttestation
         );
 
-        tokenA.transfer(alice, 1000 * 10 ** 18);
-        tokenB.transfer(bob, 1000 * 10 ** 18);
+        erc1155TokenA.transfer(alice, 1000 * 10 ** 18);
+        erc1155TokenB.transfer(bob, 1000 * 10 ** 18);
     }
 
     function testERC20EscrowObligationSelfReferential() public {
@@ -150,15 +150,15 @@ contract ERC20EscrowObligationTest is Test {
         returns (bytes32 alicePaymentUID, bytes32 bobPaymentUID)
     {
         vm.startPrank(alice);
-        tokenA.approve(address(paymentStatement), 100 * 10 ** 18);
+        erc1155TokenA.approve(address(paymentStatement), 100 * 10 ** 18);
         ERC20EscrowObligation.StatementData
             memory alicePaymentData = ERC20EscrowObligation.StatementData({
-                token: address(tokenA),
+                token: address(erc1155TokenA),
                 amount: 100 * 10 ** 18,
                 arbiter: address(erc20PaymentFulfillment),
                 demand: abi.encode(
                     ERC20PaymentFulfillmentArbiter.DemandData({
-                        token: address(tokenB),
+                        token: address(erc1155TokenB),
                         amount: 200 * 10 ** 18
                     })
                 )
@@ -167,10 +167,10 @@ contract ERC20EscrowObligationTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        tokenB.approve(address(paymentStatement), 200 * 10 ** 18);
+        erc1155TokenB.approve(address(paymentStatement), 200 * 10 ** 18);
         ERC20EscrowObligation.StatementData
             memory bobPaymentData = ERC20EscrowObligation.StatementData({
-                token: address(tokenB),
+                token: address(erc1155TokenB),
                 amount: 200 * 10 ** 18,
                 arbiter: address(specificAttestation),
                 demand: abi.encode(
@@ -186,32 +186,32 @@ contract ERC20EscrowObligationTest is Test {
 
     function _assertFinalBalances() internal view {
         assertEq(
-            tokenA.balanceOf(alice),
+            erc1155TokenA.balanceOf(alice),
             900 * 10 ** 18,
             "Alice should have 900 Token A"
         );
         assertEq(
-            tokenA.balanceOf(bob),
+            erc1155TokenA.balanceOf(bob),
             100 * 10 ** 18,
             "Bob should have 100 Token A"
         );
         assertEq(
-            tokenB.balanceOf(alice),
+            erc1155TokenB.balanceOf(alice),
             200 * 10 ** 18,
             "Alice should have 200 Token B"
         );
         assertEq(
-            tokenB.balanceOf(bob),
+            erc1155TokenB.balanceOf(bob),
             800 * 10 ** 18,
             "Bob should have 800 Token B"
         );
         assertEq(
-            tokenA.balanceOf(address(paymentStatement)),
+            erc1155TokenA.balanceOf(address(paymentStatement)),
             0,
             "Payment contract should have no Token A"
         );
         assertEq(
-            tokenB.balanceOf(address(paymentStatement)),
+            erc1155TokenB.balanceOf(address(paymentStatement)),
             0,
             "Payment contract should have no Token B"
         );

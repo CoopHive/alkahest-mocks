@@ -132,8 +132,8 @@ contract TokenBundleEscrowObligationTest is Test {
         // Create tokens
         erc20Token1 = new MockERC20("Token1", "TKN1");
         erc20Token2 = new MockERC20("Token2", "TKN2");
-        erc721Token1 = new MockERC721("NFT1", "NFT1");
-        erc721Token2 = new MockERC721("NFT2", "NFT2");
+        erc721Token1 = new MockERC721("MERC721_1", "MERC721_1");
+        erc721Token2 = new MockERC721("MERC721_2", "MERC721_2");
         erc1155Token1 = new MockERC1155();
         erc1155Token2 = new MockERC1155();
 

@@ -35,7 +35,7 @@ contract ERC1155PaymentObligationTest is Test {
     address internal payer;
     address internal payee;
     uint256 internal tokenId = 1;
-    uint256 internal tokenAmount = 100;
+    uint256 internal erc1155TokenAmount = 100;
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
@@ -50,7 +50,7 @@ contract ERC1155PaymentObligationTest is Test {
         payee = makeAddr("payee");
 
         // Mint tokens for the payer
-        token.mint(payer, tokenId, tokenAmount);
+        token.mint(payer, tokenId, erc1155TokenAmount);
     }
 
     function testConstructor() public view {
@@ -77,7 +77,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory data = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -99,7 +99,7 @@ contract ERC1155PaymentObligationTest is Test {
         // Verify token transfer
         assertEq(
             token.balanceOf(payee, tokenId),
-            tokenAmount,
+            erc1155TokenAmount,
             "Payee should have received tokens"
         );
         assertEq(
@@ -119,7 +119,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory data = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -151,7 +151,7 @@ contract ERC1155PaymentObligationTest is Test {
         // Verify token transfer
         assertEq(
             token.balanceOf(payee, tokenId),
-            tokenAmount,
+            erc1155TokenAmount,
             "Payee should have received tokens"
         );
         assertEq(
@@ -162,7 +162,7 @@ contract ERC1155PaymentObligationTest is Test {
     }
 
     function testPartialAmount() public {
-        uint256 partialAmount = tokenAmount / 2;
+        uint256 partialAmount = erc1155TokenAmount / 2;
         
         // Approve tokens first
         vm.startPrank(payer);
@@ -190,7 +190,7 @@ contract ERC1155PaymentObligationTest is Test {
         );
         assertEq(
             token.balanceOf(payer, tokenId),
-            tokenAmount - partialAmount,
+            erc1155TokenAmount - partialAmount,
             "Payer should still have remaining tokens"
         );
     }
@@ -203,7 +203,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory data = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -217,7 +217,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory exactDemand = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -232,7 +232,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory lowerDemand = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount - 50,
+            amount: erc1155TokenAmount - 50,
             payee: payee
         });
 
@@ -247,7 +247,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory higherDemand = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount + 50,
+            amount: erc1155TokenAmount + 50,
             payee: payee
         });
 
@@ -262,7 +262,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory differentIdDemand = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId + 1,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -278,7 +278,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory differentTokenDemand = ERC1155PaymentObligation.StatementData({
             token: address(differentToken),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -294,7 +294,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory differentPayeeDemand = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: differentPayee
         });
 
@@ -329,7 +329,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory demand = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -345,13 +345,13 @@ contract ERC1155PaymentObligationTest is Test {
         // Mint a token for a different address that won't approve the transfer
         address otherOwner = makeAddr("otherOwner");
         uint256 otherTokenId = 2;
-        token.mint(otherOwner, otherTokenId, tokenAmount);
+        token.mint(otherOwner, otherTokenId, erc1155TokenAmount);
 
         // Try to create payment with a token that hasn't been approved for transfer
         ERC1155PaymentObligation.StatementData memory data = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: otherTokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -363,8 +363,8 @@ contract ERC1155PaymentObligationTest is Test {
     function testMultipleTokens() public {
         // Mint different token IDs to payer
         uint256 tokenId2 = 2;
-        uint256 tokenAmount2 = 200;
-        token.mint(payer, tokenId2, tokenAmount2);
+        uint256 erc1155TokenAmount2 = 200;
+        token.mint(payer, tokenId2, erc1155TokenAmount2);
         
         // Approve tokens
         vm.startPrank(payer);
@@ -374,7 +374,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory data1 = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             payee: payee
         });
 
@@ -384,7 +384,7 @@ contract ERC1155PaymentObligationTest is Test {
         ERC1155PaymentObligation.StatementData memory data2 = ERC1155PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId2,
-            amount: tokenAmount2,
+            amount: erc1155TokenAmount2,
             payee: payee
         });
 
@@ -398,12 +398,12 @@ contract ERC1155PaymentObligationTest is Test {
         // Verify token transfers for both IDs
         assertEq(
             token.balanceOf(payee, tokenId),
-            tokenAmount,
+            erc1155TokenAmount,
             "Payee should have received first token"
         );
         assertEq(
             token.balanceOf(payee, tokenId2),
-            tokenAmount2,
+            erc1155TokenAmount2,
             "Payee should have received second token"
         );
         assertEq(

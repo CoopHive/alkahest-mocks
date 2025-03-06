@@ -59,7 +59,7 @@ contract ERC1155EscrowObligationTest is Test {
     address internal buyer;
     address internal seller;
     uint256 internal tokenId = 1;
-    uint256 internal tokenAmount = 100;
+    uint256 internal erc1155TokenAmount = 100;
     uint64 constant EXPIRATION_TIME = 365 days;
 
     function setUp() public {
@@ -77,7 +77,7 @@ contract ERC1155EscrowObligationTest is Test {
         seller = makeAddr("seller");
 
         // Mint tokens for the buyer
-        token.mint(buyer, tokenId, tokenAmount);
+        token.mint(buyer, tokenId, erc1155TokenAmount);
     }
 
     function testConstructor() public view {
@@ -104,7 +104,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory data = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: demand
         });
@@ -128,7 +128,7 @@ contract ERC1155EscrowObligationTest is Test {
         // Verify token transfer to escrow
         assertEq(
             token.balanceOf(address(escrowObligation), tokenId),
-            tokenAmount,
+            erc1155TokenAmount,
             "Escrow should hold tokens"
         );
         assertEq(
@@ -148,7 +148,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory data = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: demand
         });
@@ -174,7 +174,7 @@ contract ERC1155EscrowObligationTest is Test {
         // Verify token transfer to escrow
         assertEq(
             token.balanceOf(address(escrowObligation), tokenId),
-            tokenAmount,
+            erc1155TokenAmount,
             "Escrow should hold tokens"
         );
         assertEq(
@@ -193,7 +193,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory data = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: demand
         });
@@ -227,7 +227,7 @@ contract ERC1155EscrowObligationTest is Test {
         // Verify token transfer to seller
         assertEq(
             token.balanceOf(seller, tokenId),
-            tokenAmount,
+            erc1155TokenAmount,
             "Seller should have received tokens"
         );
         assertEq(
@@ -246,7 +246,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory data = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(rejectingArbiter),
             demand: demand
         });
@@ -286,7 +286,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory data = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: demand
         });
@@ -312,7 +312,7 @@ contract ERC1155EscrowObligationTest is Test {
         // Verify token transfer back to buyer
         assertEq(
             token.balanceOf(buyer, tokenId),
-            tokenAmount,
+            erc1155TokenAmount,
             "Buyer should have received tokens back"
         );
         assertEq(
@@ -327,7 +327,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory paymentData = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
         });
@@ -354,7 +354,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory exactDemand = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
         });
@@ -370,7 +370,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory lowerDemand = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount - 50,
+            amount: erc1155TokenAmount - 50,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
         });
@@ -386,7 +386,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory higherDemand = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount + 50,
+            amount: erc1155TokenAmount + 50,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
         });
@@ -402,7 +402,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory differentIdDemand = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId + 1,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
         });
@@ -419,7 +419,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory differentTokenDemand = ERC1155EscrowObligation.StatementData({
             token: address(differentToken),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
         });
@@ -435,7 +435,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory differentArbiterDemand = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(rejectingArbiter),
             demand: abi.encode("specific demand")
         });
@@ -451,7 +451,7 @@ contract ERC1155EscrowObligationTest is Test {
         ERC1155EscrowObligation.StatementData memory differentDemandData = ERC1155EscrowObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
-            amount: tokenAmount,
+            amount: erc1155TokenAmount,
             arbiter: address(mockArbiter),
             demand: abi.encode("different demand")
         });
@@ -466,7 +466,7 @@ contract ERC1155EscrowObligationTest is Test {
 
     function testInvalidEscrowReverts() public {
         // Attempt to create escrow with more tokens than the buyer has
-        uint256 excessAmount = tokenAmount + 100;
+        uint256 excessAmount = erc1155TokenAmount + 100;
         
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);

@@ -29,7 +29,7 @@ contract MockERC20Permit is ERC20Permit {
 contract MockERC721 is ERC721 {
     uint256 private _currentTokenId = 0;
 
-    constructor() ERC721("Mock NFT", "MNFT") {}
+    constructor() ERC721("Mock ERC721", "MERC721") {}
 
     function mint(address to) public returns (uint256) {
         _currentTokenId++;
@@ -58,8 +58,8 @@ contract ERC20BarterCrossTokenTest is Test {
     ERC20BarterCrossToken public barterCross;
 
     MockERC20Permit public bidToken;
-    MockERC721 public nftToken;
-    MockERC1155 public multiToken;
+    MockERC721 public erc721Token;
+    MockERC1155 public erc1155Token;
 
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
@@ -86,8 +86,8 @@ contract ERC20BarterCrossTokenTest is Test {
 
         // Deploy mock tokens
         bidToken = new MockERC20Permit("Bid Token", "BID");
-        nftToken = new MockERC721();
-        multiToken = new MockERC1155();
+        erc721Token = new MockERC721();
+        erc1155Token = new MockERC1155();
 
         // Deploy statements
         escrowStatement = new ERC20EscrowObligation(eas, schemaRegistry);
@@ -114,8 +114,8 @@ contract ERC20BarterCrossTokenTest is Test {
 
         // Setup initial token balances
         bidToken.transfer(alice, 1000 * 10 ** 18);
-        /* uint256 nftId = */ nftToken.mint(bob);
-        multiToken.mint(bob, 1, 100);
+        /* uint256 nftId = */ erc721Token.mint(bob);
+        erc1155Token.mint(bob, 1, 100);
     }
 
     function testBuyERC721WithERC20() public {
@@ -129,7 +129,7 @@ contract ERC20BarterCrossTokenTest is Test {
         bytes32 buyAttestation = barterCross.buyErc721WithErc20(
             address(bidToken),
             bidAmount,
-            address(nftToken),
+            address(erc721Token),
             nftId,
             expiration
         );
@@ -137,10 +137,10 @@ contract ERC20BarterCrossTokenTest is Test {
 
         // Bob accepts by transferring NFT
         vm.startPrank(bob);
-        nftToken.approve(address(erc721Payment), nftId);
+        erc721Token.approve(address(erc721Payment), nftId);
         bytes32 sellAttestation = erc721Payment.makeStatement(
             ERC721PaymentObligation.StatementData({
-                token: address(nftToken),
+                token: address(erc721Token),
                 tokenId: nftId,
                 payee: alice
             })
@@ -154,7 +154,7 @@ contract ERC20BarterCrossTokenTest is Test {
         vm.stopPrank();
 
         assertTrue(success, "Payment collection should succeed");
-        assertEq(nftToken.ownerOf(nftId), alice, "Alice should own the NFT");
+        assertEq(erc721Token.ownerOf(nftId), alice, "Alice should own the ERC721");
         assertEq(
             bidToken.balanceOf(bob),
             bidAmount,
@@ -174,7 +174,7 @@ contract ERC20BarterCrossTokenTest is Test {
         bytes32 buyAttestation = barterCross.buyErc1155WithErc20(
             address(bidToken),
             bidAmount,
-            address(multiToken),
+            address(erc1155Token),
             tokenId,
             amount,
             expiration
@@ -183,10 +183,10 @@ contract ERC20BarterCrossTokenTest is Test {
 
         // Bob accepts by transferring tokens
         vm.startPrank(bob);
-        multiToken.setApprovalForAll(address(erc1155Payment), true);
+        erc1155Token.setApprovalForAll(address(erc1155Payment), true);
         bytes32 sellAttestation = erc1155Payment.makeStatement(
             ERC1155PaymentObligation.StatementData({
-                token: address(multiToken),
+                token: address(erc1155Token),
                 tokenId: tokenId,
                 amount: amount,
                 payee: alice
@@ -202,7 +202,7 @@ contract ERC20BarterCrossTokenTest is Test {
 
         assertTrue(success, "Payment collection should succeed");
         assertEq(
-            multiToken.balanceOf(alice, tokenId),
+            erc1155Token.balanceOf(alice, tokenId),
             amount,
             "Alice should receive tokens"
         );
@@ -233,7 +233,7 @@ contract ERC20BarterCrossTokenTest is Test {
         bytes32 buyAttestation = barterCross.permitAndBuyErc721WithErc20(
             address(bidToken),
             bidAmount,
-            address(nftToken),
+            address(erc721Token),
             nftId,
             expiration,
             deadline,
@@ -244,10 +244,10 @@ contract ERC20BarterCrossTokenTest is Test {
 
         // Bob accepts
         vm.startPrank(bob);
-        nftToken.approve(address(erc721Payment), nftId);
+        erc721Token.approve(address(erc721Payment), nftId);
         bytes32 sellAttestation = erc721Payment.makeStatement(
             ERC721PaymentObligation.StatementData({
-                token: address(nftToken),
+                token: address(erc721Token),
                 tokenId: nftId,
                 payee: alice
             })
@@ -260,7 +260,7 @@ contract ERC20BarterCrossTokenTest is Test {
         vm.stopPrank();
 
         assertTrue(success, "Payment collection should succeed");
-        assertEq(nftToken.ownerOf(nftId), alice, "Alice should own the NFT");
+        assertEq(erc721Token.ownerOf(nftId), alice, "Alice should own the ERC721");
         assertEq(
             bidToken.balanceOf(bob),
             bidAmount,
