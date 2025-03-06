@@ -148,7 +148,9 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             msg.sender
         );
 
-        if (!erc721Escrow.collectPayment(buyAttestation, sellAttestation)) {
+        // Fix: Use erc20Escrow instead of erc721Escrow
+        // The original escrow was made with ERC20EscrowObligation
+        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
             revert CouldntCollectPayment();
         }
 
@@ -165,7 +167,9 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             msg.sender
         );
 
-        if (!erc1155Escrow.collectPayment(buyAttestation, sellAttestation)) {
+        // Fix: Use erc20Escrow instead of erc1155Escrow
+        // The original escrow was made with ERC20EscrowObligation
+        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
             revert CouldntCollectPayment();
         }
 
@@ -182,7 +186,9 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             msg.sender
         );
 
-        if (!bundleEscrow.collectPayment(buyAttestation, sellAttestation)) {
+        // Fix: Use erc20Escrow instead of bundleEscrow
+        // The original escrow was made with ERC20EscrowObligation
+        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
             revert CouldntCollectPayment();
         }
 

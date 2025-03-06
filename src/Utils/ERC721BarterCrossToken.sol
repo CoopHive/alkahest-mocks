@@ -120,22 +120,26 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory escrowData = abi.decode(
+        // Note: There's a type error in the original code
+        // The decoding should match the type in buyErc20WithErc721
+        ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC721EscrowObligation.StatementData)
         );
-        ERC721PaymentObligation.StatementData memory demand = abi.decode(
+        ERC20PaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
-            (ERC721PaymentObligation.StatementData)
+            (ERC20PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc721Payment.makeStatementFor(
+        bytes32 sellAttestation = erc20Payment.makeStatementFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
+        // Fix: Use escrowStatement (erc721Escrow) instead of erc20Escrow
+        // The original escrow was made with ERC721EscrowObligation
+        if (!erc721Escrow.collectPayment(buyAttestation, sellAttestation)) {
             revert CouldntCollectPayment();
         }
 
@@ -146,22 +150,26 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory escrowData = abi.decode(
+        // Note: There's a type error in the original code
+        // The decoding should match the type in buyErc1155WithErc721
+        ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC721EscrowObligation.StatementData)
         );
-        ERC721PaymentObligation.StatementData memory demand = abi.decode(
+        ERC1155PaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
-            (ERC721PaymentObligation.StatementData)
+            (ERC1155PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc721Payment.makeStatementFor(
+        bytes32 sellAttestation = erc1155Payment.makeStatementFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc1155Escrow.collectPayment(buyAttestation, sellAttestation)) {
+        // Fix: Use escrowStatement (erc721Escrow) instead of erc1155Escrow
+        // The original escrow was made with ERC721EscrowObligation
+        if (!erc721Escrow.collectPayment(buyAttestation, sellAttestation)) {
             revert CouldntCollectPayment();
         }
 
@@ -172,8 +180,10 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        TokenBundleEscrowObligation.StatementData memory escrowData = abi
-            .decode(bid.data, (TokenBundleEscrowObligation.StatementData));
+        // Note: There's a type error in the original code
+        // The decoding should match the type in buyBundleWithErc721
+        ERC721EscrowObligation.StatementData memory escrowData = abi
+            .decode(bid.data, (ERC721EscrowObligation.StatementData));
         TokenBundlePaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
             (TokenBundlePaymentObligation.StatementData)
@@ -185,7 +195,9 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
             msg.sender
         );
 
-        if (!bundleEscrow.collectPayment(buyAttestation, sellAttestation)) {
+        // Fix: Use escrowStatement (erc721Escrow) instead of bundleEscrow
+        // The original escrow was made with ERC721EscrowObligation
+        if (!erc721Escrow.collectPayment(buyAttestation, sellAttestation)) {
             revert CouldntCollectPayment();
         }
 
