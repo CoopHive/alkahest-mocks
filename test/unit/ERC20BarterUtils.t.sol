@@ -178,6 +178,194 @@ contract ERC20BarterUtilsUnitTest is Test {
         );
     }
 
+    function testPermitAndBuyWithErc20() public {
+        uint256 amount = 100 * 10 ** 18;
+        address arbiter = address(this);
+        bytes memory demand = abi.encode("test demand");
+        uint64 expiration = uint64(block.timestamp + 1 days);
+        uint256 deadline = block.timestamp + 1;
+
+        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
+            tokenA,
+            ALICE_PRIVATE_KEY,
+            address(escrowStatement),
+            amount,
+            deadline
+        );
+
+        vm.prank(alice);
+        bytes32 escrowId = barterUtils.permitAndBuyWithErc20(
+            address(tokenA),
+            amount,
+            arbiter,
+            demand,
+            expiration,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        assertNotEq(
+            escrowId,
+            bytes32(0),
+            "Escrow attestation should be created"
+        );
+    }
+
+    function testPermitAndPayWithErc20() public {
+        uint256 amount = 100 * 10 ** 18;
+        uint256 deadline = block.timestamp + 1;
+
+        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
+            tokenA,
+            ALICE_PRIVATE_KEY,
+            address(paymentStatement),
+            amount,
+            deadline
+        );
+
+        vm.prank(alice);
+        bytes32 paymentId = barterUtils.permitAndPayWithErc20(
+            address(tokenA),
+            amount,
+            bob,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        assertNotEq(
+            paymentId,
+            bytes32(0),
+            "Payment attestation should be created"
+        );
+    }
+
+    function testPayErc20ForErc20() public {
+        // First create a buy attestation
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 askAmount = 200 * 10 ** 18;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        vm.startPrank(alice);
+        tokenA.approve(address(escrowStatement), bidAmount);
+        bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
+            address(tokenA),
+            bidAmount,
+            address(tokenB),
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Now pay for it
+        vm.startPrank(bob);
+        tokenB.approve(address(paymentStatement), askAmount);
+        bytes32 sellAttestation = barterUtils.payErc20ForErc20(buyAttestation);
+        vm.stopPrank();
+
+        assertNotEq(
+            sellAttestation,
+            bytes32(0),
+            "Sell attestation should be created"
+        );
+
+        // Verify the payment went through
+        assertEq(
+            tokenA.balanceOf(bob),
+            bidAmount,
+            "Bob should have received Token A"
+        );
+        assertEq(
+            tokenB.balanceOf(alice),
+            askAmount,
+            "Alice should have received Token B"
+        );
+    }
+
+    function testPermitAndPayErc20ForErc20() public {
+        // First create a buy attestation
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 askAmount = 200 * 10 ** 18;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        vm.startPrank(alice);
+        tokenA.approve(address(escrowStatement), bidAmount);
+        bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
+            address(tokenA),
+            bidAmount,
+            address(tokenB),
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Now pay for it using permit
+        uint256 deadline = block.timestamp + 1;
+        
+        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
+            tokenB,
+            BOB_PRIVATE_KEY,
+            address(paymentStatement),
+            askAmount,
+            deadline
+        );
+
+        vm.prank(bob);
+        bytes32 sellAttestation = barterUtils.permitAndPayErc20ForErc20(
+            buyAttestation,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        assertNotEq(
+            sellAttestation,
+            bytes32(0),
+            "Sell attestation should be created"
+        );
+
+        // Verify the payment went through
+        assertEq(
+            tokenA.balanceOf(bob),
+            bidAmount,
+            "Bob should have received Token A"
+        );
+        assertEq(
+            tokenB.balanceOf(alice),
+            askAmount,
+            "Alice should have received Token B"
+        );
+    }
+
+    function test_RevertWhen_PaymentCollectionFails() public {
+        // First create a buy attestation with a large amount
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 askAmount = 2000 * 10 ** 18; // More than Bob has
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        vm.startPrank(alice);
+        tokenA.approve(address(escrowStatement), bidAmount);
+        bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
+            address(tokenA),
+            bidAmount,
+            address(tokenB),
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Now try to pay for it, but Bob doesn't have enough tokens
+        vm.startPrank(bob);
+        tokenB.approve(address(paymentStatement), askAmount);
+        vm.expectRevert(); // Should revert as the payment collection will fail
+        barterUtils.payErc20ForErc20(buyAttestation);
+        vm.stopPrank();
+    }
+
     function _getPermitSignature(
         MockERC20Permit token,
         uint256 ownerPrivateKey,

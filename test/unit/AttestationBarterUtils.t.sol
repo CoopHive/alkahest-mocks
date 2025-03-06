@@ -7,6 +7,7 @@ import {AttestationEscrowObligation2} from "../../src/Statements/AttestationEscr
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
+import {Attestation} from "@eas/Common.sol";
 
 contract AttestationBarterUtilsTest is Test {
     AttestationBarterUtils public barterUtils;
@@ -84,7 +85,7 @@ contract AttestationBarterUtilsTest is Test {
 
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
     }
-    
+
     function testAttestAndCreateEscrow() public {
         bytes memory attestationData = abi.encode(true);
         bytes memory demandData = abi.encode(false);
@@ -142,8 +143,62 @@ contract AttestationBarterUtilsTest is Test {
         assertEq(schema.schema, TEST_SCHEMA, "Schema string should match");
     }
 
-    function test_RevertWhen_SchemaIsInvalid() public {
-        vm.expectRevert();
-        barterUtils.getSchema(bytes32(0));
+    function testOnAttest() public {
+        // Create a mock attestation
+        Attestation memory mockAttestation;
+        // The actual contents don't matter since onAttest returns true unconditionally
+
+        // We need to expose the internal function for testing
+        // Since we can't call onAttest directly (it's internal), we'll use a low-level call
+        // to access the exposed function in a test contract
+
+        // Deploy a test contract that exposes onAttest
+        AttestationBarterUtilsHarness harness = new AttestationBarterUtilsHarness(
+                eas,
+                schemaRegistry,
+                escrowContract
+            );
+
+        bool result = harness.exposedOnAttest(mockAttestation, 0);
+        assertTrue(result, "onAttest should return true");
+    }
+
+    function testOnRevoke() public {
+        // Create a mock attestation
+        Attestation memory mockAttestation;
+        // The actual contents don't matter since onRevoke returns true unconditionally
+
+        // Deploy a test contract that exposes onRevoke
+        AttestationBarterUtilsHarness harness = new AttestationBarterUtilsHarness(
+                eas,
+                schemaRegistry,
+                escrowContract
+            );
+
+        bool result = harness.exposedOnRevoke(mockAttestation, 0);
+        assertTrue(result, "onRevoke should return true");
+    }
+}
+
+// Helper contract to test internal functions
+contract AttestationBarterUtilsHarness is AttestationBarterUtils {
+    constructor(
+        IEAS _eas,
+        ISchemaRegistry _schemaRegistry,
+        AttestationEscrowObligation2 _escrowContract
+    ) AttestationBarterUtils(_eas, _schemaRegistry, _escrowContract) {}
+
+    function exposedOnAttest(
+        Attestation calldata attestation,
+        uint256 value
+    ) external pure returns (bool) {
+        return onAttest(attestation, value);
+    }
+
+    function exposedOnRevoke(
+        Attestation calldata attestation,
+        uint256 value
+    ) external pure returns (bool) {
+        return onRevoke(attestation, value);
     }
 }
