@@ -12,7 +12,7 @@ import {ERC1155EscrowObligation} from "../Statements/ERC1155EscrowObligation.sol
 import {ERC1155PaymentObligation} from "../Statements/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "../Statements/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "../Statements/TokenBundlePaymentObligation.sol";
-import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
+import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 contract ERC20BarterCrossToken is ERC20BarterUtils {
     ERC721EscrowObligation internal erc721Escrow;

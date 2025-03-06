@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ERC721EscrowObligation} from "../Statements/ERC721EscrowObligation.sol";
 import {ERC721PaymentObligation} from "../Statements/ERC721PaymentObligation.sol";
-import {IERC721} from "@openzeppelin/token/ERC721/IERC721.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract ERC721BarterUtils {
     IEAS internal eas;
