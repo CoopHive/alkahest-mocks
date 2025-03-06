@@ -6,7 +6,7 @@ import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, Rev
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {BaseStatement} from "../../BaseStatement.sol";
-import {StringResultObligation} from "../../Statements/example/StringResultObligation.sol";
+import {StringResultObligation} from "../../obligations/example/StringResultObligation.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
 contract OptimisticStringValidator is BaseStatement, IArbiter {

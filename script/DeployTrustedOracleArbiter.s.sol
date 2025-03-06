@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 import "forge-std/Script.sol";
 import {IEAS} from "@eas/IEAS.sol";
 
-import {TrustedOracleArbiter} from "../src/Validators/TrustedOracleArbiter.sol";
+import {TrustedOracleArbiter} from "../src/arbiters/TrustedOracleArbiter.sol";
 
 contract DeployCrossTokenBarter is Script {
     function run() external {

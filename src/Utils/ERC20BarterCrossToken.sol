@@ -4,14 +4,14 @@ pragma solidity 0.8.26;
 import {ERC20BarterUtils} from "./ERC20BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {Attestation} from "@eas/Common.sol";
-import {ERC20EscrowObligation} from "../Statements/ERC20EscrowObligation.sol";
-import {ERC20PaymentObligation} from "../Statements/ERC20PaymentObligation.sol";
-import {ERC721EscrowObligation} from "../Statements/ERC721EscrowObligation.sol";
-import {ERC721PaymentObligation} from "../Statements/ERC721PaymentObligation.sol";
-import {ERC1155EscrowObligation} from "../Statements/ERC1155EscrowObligation.sol";
-import {ERC1155PaymentObligation} from "../Statements/ERC1155PaymentObligation.sol";
-import {TokenBundleEscrowObligation} from "../Statements/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "../Statements/TokenBundlePaymentObligation.sol";
+import {ERC20EscrowObligation} from "../obligations/ERC20EscrowObligation.sol";
+import {ERC20PaymentObligation} from "../obligations/ERC20PaymentObligation.sol";
+import {ERC721EscrowObligation} from "../obligations/ERC721EscrowObligation.sol";
+import {ERC721PaymentObligation} from "../obligations/ERC721PaymentObligation.sol";
+import {ERC1155EscrowObligation} from "../obligations/ERC1155EscrowObligation.sol";
+import {ERC1155PaymentObligation} from "../obligations/ERC1155PaymentObligation.sol";
+import {TokenBundleEscrowObligation} from "../obligations/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "../obligations/TokenBundlePaymentObligation.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 contract ERC20BarterCrossToken is ERC20BarterUtils {

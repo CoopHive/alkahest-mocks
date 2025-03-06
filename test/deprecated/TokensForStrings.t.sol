@@ -3,9 +3,9 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import {ERC20EscrowObligation} from "../../src/Statements/ERC20EscrowObligation.sol";
-import {StringResultObligation} from "../../src/Statements/example/StringResultObligation.sol";
-import {OptimisticStringValidator} from "../../src/Validators/example/OptimisticStringValidator.sol";
+import {ERC20EscrowObligation} from "../../src/obligations/ERC20EscrowObligation.sol";
+import {StringResultObligation} from "../../src/obligations/example/StringResultObligation.sol";
+import {OptimisticStringValidator} from "../../src/arbiters/example/OptimisticStringValidator.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";

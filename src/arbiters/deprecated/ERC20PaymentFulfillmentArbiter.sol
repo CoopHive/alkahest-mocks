@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {ERC20EscrowObligation} from "../../Statements/ERC20EscrowObligation.sol";
+import {ERC20EscrowObligation} from "../../obligations/ERC20EscrowObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 import {SpecificAttestationArbiter} from "../SpecificAttestationArbiter.sol";

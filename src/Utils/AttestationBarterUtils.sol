@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
-import {AttestationEscrowObligation2} from "../Statements/AttestationEscrowObligation2.sol";
+import {AttestationEscrowObligation2} from "../obligations/AttestationEscrowObligation2.sol";
 
 contract AttestationBarterUtils is SchemaResolver {
     IEAS public immutable eas;

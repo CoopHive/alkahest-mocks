@@ -3,10 +3,10 @@ pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
-import {ERC20PaymentFulfillmentArbiter} from "../../Validators/deprecated/ERC20PaymentFulfillmentArbiter.sol";
-import {ERC20EscrowObligation} from "../../Statements/ERC20EscrowObligation.sol";
+import {ERC20PaymentFulfillmentArbiter} from "../../arbiters/deprecated/ERC20PaymentFulfillmentArbiter.sol";
+import {ERC20EscrowObligation} from "../../obligations/ERC20EscrowObligation.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
-import {SpecificAttestationArbiter} from "../../Validators/SpecificAttestationArbiter.sol";
+import {SpecificAttestationArbiter} from "../../arbiters/SpecificAttestationArbiter.sol";
 
 contract ERC20EscrowBarterUtils {
     IEAS internal eas;

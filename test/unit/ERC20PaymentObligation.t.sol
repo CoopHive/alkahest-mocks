@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20PaymentObligation} from "../../src/Statements/ERC20PaymentObligation.sol";
+import {ERC20PaymentObligation} from "../../src/obligations/ERC20PaymentObligation.sol";
 import {IEAS, Attestation} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";

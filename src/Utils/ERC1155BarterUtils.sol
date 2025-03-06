@@ -3,8 +3,8 @@ pragma solidity 0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
-import {ERC1155EscrowObligation} from "../Statements/ERC1155EscrowObligation.sol";
-import {ERC1155PaymentObligation} from "../Statements/ERC1155PaymentObligation.sol";
+import {ERC1155EscrowObligation} from "../obligations/ERC1155EscrowObligation.sol";
+import {ERC1155PaymentObligation} from "../obligations/ERC1155PaymentObligation.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 contract ERC1155BarterUtils {

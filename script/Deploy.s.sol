@@ -6,43 +6,43 @@ import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 
 // ERC20 Contracts
-import {ERC20EscrowObligation} from "../src/Statements/ERC20EscrowObligation.sol";
-import {ERC20PaymentObligation} from "../src/Statements/ERC20PaymentObligation.sol";
-import {ERC20BarterUtils} from "../src/Utils/ERC20BarterUtils.sol";
-import {ERC20PaymentFulfillmentArbiter} from "../src/Validators/deprecated/ERC20PaymentFulfillmentArbiter.sol";
-import {ERC20EscrowBarterUtils} from "../src/Utils/deprecated/ERC20EscrowBarterUtils.sol";
-import {ERC20BarterCrossToken} from "../src/Utils/ERC20BarterCrossToken.sol";
+import {ERC20EscrowObligation} from "../src/obligations/ERC20EscrowObligation.sol";
+import {ERC20PaymentObligation} from "../src/obligations/ERC20PaymentObligation.sol";
+import {ERC20BarterUtils} from "../src/utils/ERC20BarterUtils.sol";
+import {ERC20PaymentFulfillmentArbiter} from "../src/arbiters/deprecated/ERC20PaymentFulfillmentArbiter.sol";
+import {ERC20EscrowBarterUtils} from "../src/utils/deprecated/ERC20EscrowBarterUtils.sol";
+import {ERC20BarterCrossToken} from "../src/utils/ERC20BarterCrossToken.sol";
 
 // ERC721 Contracts
-import {ERC721EscrowObligation} from "../src/Statements/ERC721EscrowObligation.sol";
-import {ERC721PaymentObligation} from "../src/Statements/ERC721PaymentObligation.sol";
-import {ERC721BarterUtils} from "../src/Utils/ERC721BarterUtils.sol";
-import {ERC721PaymentFulfillmentArbiter} from "../src/Validators/deprecated/ERC721PaymentFulfillmentArbiter.sol";
-// import {ERC721EscrowBarterUtils} from "../src/Utils/ERC721EscrowBarterUtils.sol";
-import {ERC721BarterCrossToken} from "../src/Utils/ERC721BarterCrossToken.sol";
+import {ERC721EscrowObligation} from "../src/obligations/ERC721EscrowObligation.sol";
+import {ERC721PaymentObligation} from "../src/obligations/ERC721PaymentObligation.sol";
+import {ERC721BarterUtils} from "../src/utils/ERC721BarterUtils.sol";
+import {ERC721PaymentFulfillmentArbiter} from "../src/arbiters/deprecated/ERC721PaymentFulfillmentArbiter.sol";
+// import {ERC721EscrowBarterUtils} from "../src/utils/ERC721EscrowBarterUtils.sol";
+import {ERC721BarterCrossToken} from "../src/utils/ERC721BarterCrossToken.sol";
 
 // ERC1155 Contracts
-import {ERC1155EscrowObligation} from "../src/Statements/ERC1155EscrowObligation.sol";
-import {ERC1155PaymentObligation} from "../src/Statements/ERC1155PaymentObligation.sol";
-import {ERC1155BarterUtils} from "../src/Utils/ERC1155BarterUtils.sol";
-import {ERC1155PaymentFulfillmentArbiter} from "../src/Validators/deprecated/ERC1155PaymentFulfillmentArbiter.sol";
-// import {ERC1155EscrowBarterUtils} from "../src/Utils/ERC1155EscrowBarterUtils.sol";
-import {ERC1155BarterCrossToken} from "../src/Utils/ERC1155BarterCrossToken.sol";
+import {ERC1155EscrowObligation} from "../src/obligations/ERC1155EscrowObligation.sol";
+import {ERC1155PaymentObligation} from "../src/obligations/ERC1155PaymentObligation.sol";
+import {ERC1155BarterUtils} from "../src/utils/ERC1155BarterUtils.sol";
+import {ERC1155PaymentFulfillmentArbiter} from "../src/arbiters/deprecated/ERC1155PaymentFulfillmentArbiter.sol";
+// import {ERC1155EscrowBarterUtils} from "../src/utils/ERC1155EscrowBarterUtils.sol";
+import {ERC1155BarterCrossToken} from "../src/utils/ERC1155BarterCrossToken.sol";
 
 // TokenBundle Contracts
-import {TokenBundleEscrowObligation} from "../src/Statements/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "../src/Statements/TokenBundlePaymentObligation.sol";
-import {TokenBundleBarterUtils} from "../src/Utils/TokenBundleBarterUtils.sol";
-import {TokenBundlePaymentFulfillmentArbiter} from "../src/Validators/deprecated/TokenBundlePaymentFulfillmentArbiter.sol";
-// import {TokenBundleEscrowBarterUtils} from "../src/Utils/TokenBundleEscrowBarterUtils.sol";
+import {TokenBundleEscrowObligation} from "../src/obligations/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "../src/obligations/TokenBundlePaymentObligation.sol";
+import {TokenBundleBarterUtils} from "../src/utils/TokenBundleBarterUtils.sol";
+import {TokenBundlePaymentFulfillmentArbiter} from "../src/arbiters/deprecated/TokenBundlePaymentFulfillmentArbiter.sol";
+// import {TokenBundleEscrowBarterUtils} from "../src/utils/TokenBundleEscrowBarterUtils.sol";
 
 // Attestation Contracts
-import {AttestationEscrowObligation} from "../src/Statements/AttestationEscrowObligation.sol";
-import {AttestationEscrowObligation2} from "../src/Statements/AttestationEscrowObligation2.sol";
-import {AttestationBarterUtils} from "../src/Utils/AttestationBarterUtils.sol";
+import {AttestationEscrowObligation} from "../src/obligations/AttestationEscrowObligation.sol";
+import {AttestationEscrowObligation2} from "../src/obligations/AttestationEscrowObligation2.sol";
+import {AttestationBarterUtils} from "../src/utils/AttestationBarterUtils.sol";
 
 // Common
-import {SpecificAttestationArbiter} from "../src/Validators/SpecificAttestationArbiter.sol";
+import {SpecificAttestationArbiter} from "../src/arbiters/SpecificAttestationArbiter.sol";
 
 contract Deploy is Script {
     function run() external {
