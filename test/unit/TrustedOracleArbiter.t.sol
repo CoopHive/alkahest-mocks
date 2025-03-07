@@ -5,40 +5,40 @@ import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
 import {IArbiter} from "../../src/IArbiter.sol";
 import {TrustedOracleArbiter} from "../../src/arbiters/TrustedOracleArbiter.sol";
-import {IEAS} from "@eas/IEAS.sol";
+import {IEAS, AttestationRequest, DelegatedAttestationRequest, RevocationRequest, DelegatedRevocationRequest} from "@eas/IEAS.sol";
 
 contract MockEAS is IEAS {
-    function attest(IEAS.AttestationRequest calldata request) external payable returns (bytes32) {
+    function attest(AttestationRequest calldata request) external payable returns (bytes32) {
         return bytes32(0);
     }
 
-    function attestByDelegation(IEAS.DelegatedAttestationRequest calldata request) external payable returns (bytes32) {
+    function attestByDelegation(DelegatedAttestationRequest calldata request) external payable returns (bytes32) {
         return bytes32(0);
     }
 
-    function revoke(IEAS.RevocationRequest calldata request) external payable {
+    function revoke(RevocationRequest calldata request) external payable {
         // Do nothing
     }
 
-    function revokeByDelegation(IEAS.DelegatedRevocationRequest calldata request) external payable {
+    function revokeByDelegation(DelegatedRevocationRequest calldata request) external payable {
         // Do nothing
     }
 
-    function multiAttest(IEAS.AttestationRequest[] calldata requests) external payable returns (bytes32[] memory) {
+    function multiAttest(AttestationRequest[] calldata requests) external payable returns (bytes32[] memory) {
         bytes32[] memory uids = new bytes32[](requests.length);
         return uids;
     }
 
-    function multiAttestByDelegation(IEAS.DelegatedAttestationRequest[] calldata requests) external payable returns (bytes32[] memory) {
+    function multiAttestByDelegation(DelegatedAttestationRequest[] calldata requests) external payable returns (bytes32[] memory) {
         bytes32[] memory uids = new bytes32[](requests.length);
         return uids;
     }
 
-    function multiRevoke(IEAS.RevocationRequest[] calldata requests) external payable {
+    function multiRevoke(RevocationRequest[] calldata requests) external payable {
         // Do nothing
     }
 
-    function multiRevokeByDelegation(IEAS.DelegatedRevocationRequest[] calldata requests) external payable {
+    function multiRevokeByDelegation(DelegatedRevocationRequest[] calldata requests) external payable {
         // Do nothing
     }
 
@@ -176,7 +176,7 @@ contract TrustedOracleArbiterTest is Test {
         // Set up two different oracles with different decisions
         address oracle1 = address(0x123);
         address oracle2 = address(0x456);
-        bytes32 statementUid = bytes32(uint256(1));
+        // Use the class-level statementUid
         
         // Oracle 1 makes a positive decision
         vm.prank(oracle1);
@@ -222,7 +222,7 @@ contract TrustedOracleArbiterTest is Test {
     function testCheckStatementWithNoDecision() public {
         // Test with an oracle that hasn't made a decision
         address newOracle = address(0x789);
-        bytes32 statementUid = bytes32(uint256(1));
+        // Use the class-level statementUid
         
         // Create the attestation
         Attestation memory attestation = Attestation({
