@@ -27,4 +27,15 @@
 - [ ] ERC20BarterUtils.t.sol
 - [ ] ERC721BarterCrossToken.t.sol
 - [ ] ERC721BarterUtils.t.sol
-- [ ] TokenBundleBarterUtils.t.sol
+- [ ] TokenBundleBarterUtils.t.sol# Test Progress Tracking
+
+## Obligations Tests
+- [ ] ERC1155EscrowObligation.t.sol
+- [ ] ERC1155PaymentObligation.t.sol
+- [ ] ERC20EscrowObligation.t.sol
+- [ ] ERC20PaymentObligation.t.sol
+- [ ] ERC721EscrowObligation.t.sol
+- [ ] TokenBundlePaymentObligation.t.sol
+
+## Arbiters Tests
+- [ ] TrustedOracleArbiter.t.sol
