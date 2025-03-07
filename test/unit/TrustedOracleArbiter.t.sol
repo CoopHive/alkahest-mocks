@@ -14,8 +14,8 @@ contract TrustedOracleArbiterTest is Test {
     bytes32 statementUid = bytes32(uint256(1));
     
     function setUp() public {
-        // Use the EAS contract from mainnet
-        eas = IEAS(0xC2679fBD37d54388Ce493F1DB75320D236e1815e); // Sepolia EAS address
+        // Use the EAS contract from Base Sepolia
+        eas = IEAS(0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587); // Base Sepolia EAS address
         arbiter = new TrustedOracleArbiter(eas);
     }
     
