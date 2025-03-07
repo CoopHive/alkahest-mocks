@@ -3,7 +3,7 @@ pragma solidity 0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
-import {TrivialArbiter} from "../../src/arbiters/TrivialArbiter.sol";
+import {TrivialArbiter} from "@src/arbiters/TrivialArbiter.sol";
 
 contract TrivialArbiterTest is Test {
     TrivialArbiter arbiter;

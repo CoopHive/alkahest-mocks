@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {StringObligation} from "../../src/obligations/StringObligation.sol";
+import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IEAS, Attestation} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 

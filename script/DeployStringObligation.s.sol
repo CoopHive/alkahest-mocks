@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {StringObligation} from "../src/obligations/StringObligation.sol";
+import {StringObligation} from "@src/obligations/StringObligation.sol";
 
 contract DeployStringObligation is Script {
     function run() external {

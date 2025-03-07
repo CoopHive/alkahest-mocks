@@ -4,18 +4,18 @@ pragma solidity 0.8.26;
 import "forge-std/Script.sol";
 import {IEAS} from "@eas/IEAS.sol";
 
-import {ERC20BarterCrossToken} from "../src/utils/ERC20BarterCrossToken.sol";
-import {ERC721BarterCrossToken} from "../src/utils/ERC721BarterCrossToken.sol";
-import {ERC1155BarterCrossToken} from "../src/utils/ERC1155BarterCrossToken.sol";
+import {ERC20BarterCrossToken} from "@src/utils/ERC20BarterCrossToken.sol";
+import {ERC721BarterCrossToken} from "@src/utils/ERC721BarterCrossToken.sol";
+import {ERC1155BarterCrossToken} from "@src/utils/ERC1155BarterCrossToken.sol";
 
-import {ERC20EscrowObligation} from "../src/obligations/ERC20EscrowObligation.sol";
-import {ERC20PaymentObligation} from "../src/obligations/ERC20PaymentObligation.sol";
-import {ERC721EscrowObligation} from "../src/obligations/ERC721EscrowObligation.sol";
-import {ERC721PaymentObligation} from "../src/obligations/ERC721PaymentObligation.sol";
-import {ERC1155EscrowObligation} from "../src/obligations/ERC1155EscrowObligation.sol";
-import {ERC1155PaymentObligation} from "../src/obligations/ERC1155PaymentObligation.sol";
-import {TokenBundleEscrowObligation} from "../src/obligations/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "../src/obligations/TokenBundlePaymentObligation.sol";
+import {ERC20EscrowObligation} from "@src/obligations/ERC20EscrowObligation.sol";
+import {ERC20PaymentObligation} from "@src/obligations/ERC20PaymentObligation.sol";
+import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
+import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
+import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.sol";
+import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
+import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
 
 contract DeployCrossTokenBarter is Script {
     function run() external {

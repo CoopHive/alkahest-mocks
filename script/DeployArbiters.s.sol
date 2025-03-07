@@ -3,8 +3,8 @@ pragma solidity 0.8.26;
 
 import "forge-std/Script.sol";
 
-import {TrustedPartyArbiter} from "../src/arbiters/TrustedPartyArbiter.sol";
-import {TrivialArbiter} from "../src/arbiters/TrivialArbiter.sol";
+import {TrustedPartyArbiter} from "@src/arbiters/TrustedPartyArbiter.sol";
+import {TrivialArbiter} from "@src/arbiters/TrivialArbiter.sol";
 
 contract DeployArbiters is Script {
     function run() external {

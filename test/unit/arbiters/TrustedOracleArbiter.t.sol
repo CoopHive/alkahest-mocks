@@ -3,8 +3,8 @@ pragma solidity 0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
-import {IArbiter} from "../../src/IArbiter.sol";
-import {TrustedOracleArbiter} from "../../src/arbiters/TrustedOracleArbiter.sol";
+import {IArbiter} from "@src/IArbiter.sol";
+import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 
 contract TrustedOracleArbiterTest is Test {

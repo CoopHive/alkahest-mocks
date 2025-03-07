@@ -2,9 +2,9 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC20EscrowObligation} from "../../src/obligations/ERC20EscrowObligation.sol";
-import {ERC20PaymentFulfillmentArbiter} from "../../src/arbiters/deprecated/ERC20PaymentFulfillmentArbiter.sol";
-import {SpecificAttestationArbiter} from "../../src/arbiters/SpecificAttestationArbiter.sol";
+import {ERC20EscrowObligation} from "@src/obligations/ERC20EscrowObligation.sol";
+import {ERC20PaymentFulfillmentArbiter} from "@src/arbiters/deprecated/ERC20PaymentFulfillmentArbiter.sol";
+import {SpecificAttestationArbiter} from "@src/arbiters/SpecificAttestationArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";

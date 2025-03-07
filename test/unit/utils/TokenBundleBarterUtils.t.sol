@@ -2,9 +2,9 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {TokenBundleEscrowObligation} from "../../src/obligations/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "../../src/obligations/TokenBundlePaymentObligation.sol";
-import {TokenBundleBarterUtils} from "../../src/utils/TokenBundleBarterUtils.sol";
+import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {TokenBundleBarterUtils} from "@src/utils/TokenBundleBarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";

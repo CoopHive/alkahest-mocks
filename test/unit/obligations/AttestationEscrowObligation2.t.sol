@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {AttestationEscrowObligation2} from "../../src/obligations/AttestationEscrowObligation2.sol";
-import {IArbiter} from "../../src/IArbiter.sol";
+import {AttestationEscrowObligation2} from "@src/obligations/AttestationEscrowObligation2.sol";
+import {IArbiter} from "@src/IArbiter.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {ISchemaResolver} from "@eas/resolver/ISchemaResolver.sol";

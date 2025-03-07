@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseStatement} from "../../src/BaseStatement.sol";
+import {BaseStatement} from "@src/BaseStatement.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {IEAS, Attestation} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";

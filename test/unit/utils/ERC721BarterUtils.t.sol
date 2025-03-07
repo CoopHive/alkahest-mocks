@@ -2,9 +2,9 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {ERC721EscrowObligation} from "../../src/obligations/ERC721EscrowObligation.sol";
-import {ERC721PaymentObligation} from "../../src/obligations/ERC721PaymentObligation.sol";
-import {ERC721BarterUtils} from "../../src/utils/ERC721BarterUtils.sol";
+import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
+import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
+import {ERC721BarterUtils} from "@src/utils/ERC721BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";
