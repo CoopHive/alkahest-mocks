@@ -5,93 +5,23 @@ import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
 import {IArbiter} from "../../src/IArbiter.sol";
 import {TrustedOracleArbiter} from "../../src/arbiters/TrustedOracleArbiter.sol";
-import {IEAS, AttestationRequest, DelegatedAttestationRequest, RevocationRequest, DelegatedRevocationRequest} from "@eas/IEAS.sol";
-
-contract MockEAS is IEAS {
-    function attest(AttestationRequest calldata request) external payable returns (bytes32) {
-        return bytes32(0);
-    }
-
-    function attestByDelegation(DelegatedAttestationRequest calldata request) external payable returns (bytes32) {
-        return bytes32(0);
-    }
-
-    function revoke(RevocationRequest calldata request) external payable {
-        // Do nothing
-    }
-
-    function revokeByDelegation(DelegatedRevocationRequest calldata request) external payable {
-        // Do nothing
-    }
-
-    function multiAttest(AttestationRequest[] calldata requests) external payable returns (bytes32[] memory) {
-        bytes32[] memory uids = new bytes32[](requests.length);
-        return uids;
-    }
-
-    function multiAttestByDelegation(DelegatedAttestationRequest[] calldata requests) external payable returns (bytes32[] memory) {
-        bytes32[] memory uids = new bytes32[](requests.length);
-        return uids;
-    }
-
-    function multiRevoke(RevocationRequest[] calldata requests) external payable {
-        // Do nothing
-    }
-
-    function multiRevokeByDelegation(DelegatedRevocationRequest[] calldata requests) external payable {
-        // Do nothing
-    }
-
-    function getAttestation(bytes32 uid) external view returns (Attestation memory) {
-        return Attestation({
-            uid: uid,
-            schema: bytes32(0),
-            time: uint64(block.timestamp),
-            expirationTime: uint64(0),
-            revocationTime: uint64(0),
-            refUID: bytes32(0),
-            recipient: address(0),
-            attester: address(0),
-            revocable: true,
-            data: bytes("")
-        });
-    }
-
-    function getTimestamp() external view returns (uint64) {
-        return uint64(block.timestamp);
-    }
-
-    function getRevokeOffchain(address revoker, bytes32 data) external pure returns (bytes32) {
-        return keccak256(abi.encodePacked(revoker, data));
-    }
-
-    function getSchemaRegistry() external view returns (address) {
-        return address(0);
-    }
-
-    function getAttestTypeHash() external pure returns (bytes32) {
-        return keccak256("AttestationRequest(bytes32 schema,address recipient,uint64 expirationTime,bool revocable,bytes32 refUID,bytes data,uint256 value)");
-    }
-
-    function getRevokeTypeHash() external pure returns (bytes32) {
-        return keccak256("RevocationRequest(bytes32 schema,bytes32 uid,uint256 value)");
-    }
-}
+import {IEAS} from "@eas/IEAS.sol";
 
 contract TrustedOracleArbiterTest is Test {
     TrustedOracleArbiter arbiter;
-    MockEAS mockEAS;
+    IEAS eas;
     address oracle = address(0x123);
     bytes32 statementUid = bytes32(uint256(1));
     
     function setUp() public {
-        mockEAS = new MockEAS();
-        arbiter = new TrustedOracleArbiter(mockEAS);
+        // Use the EAS contract from mainnet
+        eas = IEAS(0xC2679fBD37d54388Ce493F1DB75320D236e1815e); // Sepolia EAS address
+        arbiter = new TrustedOracleArbiter(eas);
     }
     
     function testConstructor() public {
         // Create a new arbiter to test constructor
-        TrustedOracleArbiter newArbiter = new TrustedOracleArbiter(mockEAS);
+        TrustedOracleArbiter newArbiter = new TrustedOracleArbiter(eas);
         
         // Verify that the EAS address is set correctly
         // This is an indirect test since the eas variable is private
