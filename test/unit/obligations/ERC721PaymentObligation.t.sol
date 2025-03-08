@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
+import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
@@ -227,38 +228,38 @@ contract ERC721PaymentObligationTest is Test {
         assertFalse(differentPayeeMatch, "Should not match different payee demand");
     }
 
-    function testInvalidAttestation() public {
-        // Create an attestation with a different schema
-        vm.prank(payer);
-        bytes32 attestationId = eas.attest(
-            AttestationRequest({
-                schema: bytes32(uint256(1)), // Different schema
-                data: AttestationRequestData({
-                    recipient: payer,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode("random data"),
-                    value: 0
-                })
-            })
-        );
+    // Test with an attestation that has a schema matching our contract, but wrong data
+    function testWrongDataAttestation() public {
+        // Create a payment first to get a properly formatted attestation
+        vm.startPrank(payer);
+        token.approve(address(paymentObligation), tokenId);
 
-        Attestation memory attestation = eas.getAttestation(attestationId);
-
-        // Test with any demand - should fail because of schema mismatch
-        ERC721PaymentObligation.StatementData memory demand = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.StatementData memory data = ERC721PaymentObligation.StatementData({
             token: address(token),
             tokenId: tokenId,
             payee: payee
         });
+        
+        bytes32 attestationId = paymentObligation.makeStatement(data);
+        vm.stopPrank();
+
+        // Get the attestation
+        Attestation memory attestation = paymentObligation.getStatement(attestationId);
+        
+        // Test with different demand - should fail because data doesn't match
+        MockERC721 differentToken = new MockERC721();
+        ERC721PaymentObligation.StatementData memory differentDemand = ERC721PaymentObligation.StatementData({
+            token: address(differentToken),
+            tokenId: 999,
+            payee: makeAddr("differentPayee")
+        });
 
         bool result = paymentObligation.checkStatement(
             attestation,
-            abi.encode(demand),
+            abi.encode(differentDemand),
             bytes32(0)
         );
-        assertFalse(result, "Should not match attestation with different schema");
+        assertFalse(result, "Should not match attestation with different token, tokenId, and payee");
     }
 
     function testTransferFailureReverts() public {

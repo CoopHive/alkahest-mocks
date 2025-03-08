@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
+import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
@@ -311,20 +312,14 @@ contract TokenBundleEscrowObligationTest is Test {
         bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
         vm.stopPrank();
 
-        // Create a fulfillment attestation from the seller
+        // Create a fulfillment attestation using StringObligation
+        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
         vm.prank(seller);
-        bytes32 fulfillmentUid = eas.attest(
-            AttestationRequest({
-                schema: escrowObligation.ATTESTATION_SCHEMA(),
-                data: AttestationRequestData({
-                    recipient: seller,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode("fulfillment data"),
-                    value: 0
-                })
-            })
+        bytes32 fulfillmentUid = stringObligation.makeStatement(
+            StringObligation.StatementData({
+                item: "fulfillment data"
+            }),
+            bytes32(0)
         );
 
         // Collect payment
@@ -427,20 +422,14 @@ contract TokenBundleEscrowObligationTest is Test {
         bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
         vm.stopPrank();
 
-        // Create a fulfillment attestation from the seller
+        // Create a fulfillment attestation using StringObligation
+        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
         vm.prank(seller);
-        bytes32 fulfillmentUid = eas.attest(
-            AttestationRequest({
-                schema: escrowObligation.ATTESTATION_SCHEMA(),
-                data: AttestationRequestData({
-                    recipient: seller,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode("fulfillment data"),
-                    value: 0
-                })
-            })
+        bytes32 fulfillmentUid = stringObligation.makeStatement(
+            StringObligation.StatementData({
+                item: "fulfillment data"
+            }),
+            bytes32(0)
         );
 
         // Try to collect payment, should revert with InvalidFulfillment
