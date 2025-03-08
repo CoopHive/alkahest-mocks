@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
+import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
@@ -189,20 +190,15 @@ contract ERC721EscrowObligationTest is Test {
         bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
         vm.stopPrank();
 
-        // Create a fulfillment attestation from the seller
+        // Create a fulfillment attestation using a StringObligation
+        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
+        
         vm.prank(seller);
-        bytes32 fulfillmentUid = eas.attest(
-            AttestationRequest({
-                schema: escrowObligation.ATTESTATION_SCHEMA(),
-                data: AttestationRequestData({
-                    recipient: seller,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode("fulfillment data"),
-                    value: 0
-                })
-            })
+        bytes32 fulfillmentUid = stringObligation.makeStatement(
+            StringObligation.StatementData({
+                item: "fulfillment data"
+            }),
+            bytes32(0)
         );
 
         // Collect payment
@@ -236,20 +232,15 @@ contract ERC721EscrowObligationTest is Test {
         bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
         vm.stopPrank();
 
-        // Create a fulfillment attestation from the seller
+        // Create a fulfillment attestation using a StringObligation
+        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
+        
         vm.prank(seller);
-        bytes32 fulfillmentUid = eas.attest(
-            AttestationRequest({
-                schema: escrowObligation.ATTESTATION_SCHEMA(),
-                data: AttestationRequestData({
-                    recipient: seller,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode("fulfillment data"),
-                    value: 0
-                })
-            })
+        bytes32 fulfillmentUid = stringObligation.makeStatement(
+            StringObligation.StatementData({
+                item: "fulfillment data"
+            }),
+            bytes32(0)
         );
 
         // Try to collect payment, should revert with InvalidFulfillment
@@ -306,21 +297,14 @@ contract ERC721EscrowObligationTest is Test {
             demand: abi.encode("specific demand")
         });
 
-        // Create an attestation from the buyer
-        vm.prank(buyer);
-        bytes32 attestationId = eas.attest(
-            AttestationRequest({
-                schema: escrowObligation.ATTESTATION_SCHEMA(),
-                data: AttestationRequestData({
-                    recipient: buyer,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(paymentData),
-                    value: 0
-                })
-            })
+        // Use the obligation contract to create a valid attestation
+        vm.startPrank(buyer);
+        token.approve(address(escrowObligation), tokenId);
+        bytes32 attestationId = escrowObligation.makeStatement(
+            paymentData,
+            uint64(block.timestamp + EXPIRATION_TIME)
         );
+        vm.stopPrank();
 
         Attestation memory attestation = eas.getAttestation(attestationId);
 
