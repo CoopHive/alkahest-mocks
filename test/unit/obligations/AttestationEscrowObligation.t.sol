@@ -5,31 +5,11 @@ import "forge-std/Test.sol";
 import {AttestationEscrowObligation} from "@src/obligations/AttestationEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
+import {MockArbiter} from "./MockArbiter.sol";
 import {ArbiterUtils} from "@src/ArbiterUtils.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {ISchemaResolver} from "@eas/resolver/ISchemaResolver.sol";
-
-// Mock Arbiter for testing
-contract MockArbiter is IArbiter {
-    bool private shouldAccept;
-
-    constructor(bool _shouldAccept) {
-        shouldAccept = _shouldAccept;
-    }
-
-    function setShouldAccept(bool _shouldAccept) public {
-        shouldAccept = _shouldAccept;
-    }
-
-    function checkStatement(
-        Attestation memory,
-        bytes memory,
-        bytes32
-    ) public view override returns (bool) {
-        return shouldAccept;
-    }
-}
 
 contract AttestationEscrowObligationTest is Test {
     AttestationEscrowObligation public escrowObligation;

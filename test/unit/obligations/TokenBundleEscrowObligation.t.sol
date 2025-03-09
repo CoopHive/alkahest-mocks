@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
+import {MockArbiter} from "./MockArbiter.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -59,27 +60,6 @@ contract MockERC1155 is ERC1155 {
         uint256[] memory amounts
     ) public {
         _mintBatch(to, ids, amounts, "");
-    }
-}
-
-// Mock Arbiter for testing
-contract MockArbiter is IArbiter {
-    bool private shouldAccept;
-
-    constructor(bool _shouldAccept) {
-        shouldAccept = _shouldAccept;
-    }
-
-    function setShouldAccept(bool _shouldAccept) public {
-        shouldAccept = _shouldAccept;
-    }
-
-    function checkStatement(
-        Attestation memory,
-        bytes memory,
-        bytes32
-    ) public view override returns (bool) {
-        return shouldAccept;
     }
 }
 

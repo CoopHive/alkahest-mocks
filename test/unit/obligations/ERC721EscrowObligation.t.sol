@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
+import {MockArbiter} from "./MockArbiter.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -20,27 +21,6 @@ contract MockERC721 is ERC721 {
         uint256 tokenId = _nextTokenId++;
         _mint(to, tokenId);
         return tokenId;
-    }
-}
-
-// Mock Arbiter for testing
-contract MockArbiter is IArbiter {
-    bool private shouldAccept;
-    
-    constructor(bool _shouldAccept) {
-        shouldAccept = _shouldAccept;
-    }
-    
-    function setShouldAccept(bool _shouldAccept) public {
-        shouldAccept = _shouldAccept;
-    }
-    
-    function checkStatement(
-        Attestation memory, 
-        bytes memory, 
-        bytes32
-    ) public view override returns (bool) {
-        return shouldAccept;
     }
 }
 
