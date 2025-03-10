@@ -22,8 +22,8 @@ contract ERC20BarterUtilsUnitTest is Test {
     ERC20EscrowObligation public escrowStatement;
     ERC20PaymentObligation public paymentStatement;
     ERC20BarterUtils public barterUtils;
-    MockERC20Permit public erc1155TokenA;
-    MockERC20Permit public erc1155TokenB;
+    MockERC20Permit public erc20TokenA;
+    MockERC20Permit public erc20TokenB;
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
@@ -46,8 +46,8 @@ contract ERC20BarterUtilsUnitTest is Test {
         alice = vm.addr(ALICE_PRIVATE_KEY);
         bob = vm.addr(BOB_PRIVATE_KEY);
 
-        erc1155TokenA = new MockERC20Permit("Token A", "TKA");
-        erc1155TokenB = new MockERC20Permit("Token B", "TKB");
+        erc20TokenA = new MockERC20Permit("Token A", "TKA");
+        erc20TokenB = new MockERC20Permit("Token B", "TKB");
 
         escrowStatement = new ERC20EscrowObligation(eas, schemaRegistry);
         paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
@@ -57,8 +57,8 @@ contract ERC20BarterUtilsUnitTest is Test {
             paymentStatement
         );
 
-        erc1155TokenA.transfer(alice, 1000 * 10 ** 18);
-        erc1155TokenB.transfer(bob, 1000 * 10 ** 18);
+        erc20TokenA.transfer(alice, 1000 * 10 ** 18);
+        erc20TokenB.transfer(bob, 1000 * 10 ** 18);
     }
 
     function testBuyErc20ForErc20() public {
@@ -67,11 +67,11 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        erc1155TokenA.approve(address(escrowStatement), bidAmount);
+        erc20TokenA.approve(address(escrowStatement), bidAmount);
         bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             bidAmount,
-            address(erc1155TokenB),
+            address(erc20TokenB),
             askAmount,
             expiration
         );
@@ -91,7 +91,7 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint256 deadline = block.timestamp + 1;
 
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            erc1155TokenA,
+            erc20TokenA,
             ALICE_PRIVATE_KEY,
             address(escrowStatement),
             bidAmount,
@@ -100,9 +100,9 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         vm.prank(alice);
         bytes32 buyAttestation = barterUtils.permitAndBuyErc20ForErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             bidAmount,
-            address(erc1155TokenB),
+            address(erc20TokenB),
             askAmount,
             expiration,
             deadline,
@@ -123,14 +123,14 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint256 deadline = block.timestamp + 1;
 
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            erc1155TokenA,
+            erc20TokenA,
             ALICE_PRIVATE_KEY,
             address(escrowStatement),
             amount,
             deadline
         );
 
-        erc1155TokenA.permit(
+        erc20TokenA.permit(
             alice,
             address(escrowStatement),
             amount,
@@ -141,7 +141,7 @@ contract ERC20BarterUtilsUnitTest is Test {
         );
 
         assertEq(
-            erc1155TokenA.allowance(alice, address(escrowStatement)),
+            erc20TokenA.allowance(alice, address(escrowStatement)),
             amount,
             "Permit should have set allowance"
         );
@@ -154,7 +154,7 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint256 deadline = block.timestamp + 1;
 
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            erc1155TokenA,
+            erc20TokenA,
             ALICE_PRIVATE_KEY,
             address(escrowStatement),
             bidAmount,
@@ -166,9 +166,9 @@ contract ERC20BarterUtilsUnitTest is Test {
         vm.prank(alice);
         vm.expectRevert();
         barterUtils.permitAndBuyErc20ForErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             bidAmount,
-            address(erc1155TokenB),
+            address(erc20TokenB),
             askAmount,
             expiration,
             deadline,
@@ -186,7 +186,7 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint256 deadline = block.timestamp + 1;
 
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            erc1155TokenA,
+            erc20TokenA,
             ALICE_PRIVATE_KEY,
             address(escrowStatement),
             amount,
@@ -195,7 +195,7 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         vm.prank(alice);
         bytes32 escrowId = barterUtils.permitAndBuyWithErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             amount,
             arbiter,
             demand,
@@ -218,7 +218,7 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint256 deadline = block.timestamp + 1;
 
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            erc1155TokenA,
+            erc20TokenA,
             ALICE_PRIVATE_KEY,
             address(paymentStatement),
             amount,
@@ -227,7 +227,7 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         vm.prank(alice);
         bytes32 paymentId = barterUtils.permitAndPayWithErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             amount,
             bob,
             deadline,
@@ -250,11 +250,11 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        erc1155TokenA.approve(address(escrowStatement), bidAmount);
+        erc20TokenA.approve(address(escrowStatement), bidAmount);
         bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             bidAmount,
-            address(erc1155TokenB),
+            address(erc20TokenB),
             askAmount,
             expiration
         );
@@ -262,7 +262,7 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         // Now pay for it
         vm.startPrank(bob);
-        erc1155TokenB.approve(address(paymentStatement), askAmount);
+        erc20TokenB.approve(address(paymentStatement), askAmount);
         bytes32 sellAttestation = barterUtils.payErc20ForErc20(buyAttestation);
         vm.stopPrank();
 
@@ -274,12 +274,12 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         // Verify the payment went through
         assertEq(
-            erc1155TokenA.balanceOf(bob),
+            erc20TokenA.balanceOf(bob),
             bidAmount,
             "Bob should have received Token A"
         );
         assertEq(
-            erc1155TokenB.balanceOf(alice),
+            erc20TokenB.balanceOf(alice),
             askAmount,
             "Alice should have received Token B"
         );
@@ -292,11 +292,11 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        erc1155TokenA.approve(address(escrowStatement), bidAmount);
+        erc20TokenA.approve(address(escrowStatement), bidAmount);
         bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             bidAmount,
-            address(erc1155TokenB),
+            address(erc20TokenB),
             askAmount,
             expiration
         );
@@ -304,9 +304,9 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         // Now pay for it using permit
         uint256 deadline = block.timestamp + 1;
-        
+
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
-            erc1155TokenB,
+            erc20TokenB,
             BOB_PRIVATE_KEY,
             address(paymentStatement),
             askAmount,
@@ -330,12 +330,12 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         // Verify the payment went through
         assertEq(
-            erc1155TokenA.balanceOf(bob),
+            erc20TokenA.balanceOf(bob),
             bidAmount,
             "Bob should have received Token A"
         );
         assertEq(
-            erc1155TokenB.balanceOf(alice),
+            erc20TokenB.balanceOf(alice),
             askAmount,
             "Alice should have received Token B"
         );
@@ -348,11 +348,11 @@ contract ERC20BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        erc1155TokenA.approve(address(escrowStatement), bidAmount);
+        erc20TokenA.approve(address(escrowStatement), bidAmount);
         bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
-            address(erc1155TokenA),
+            address(erc20TokenA),
             bidAmount,
-            address(erc1155TokenB),
+            address(erc20TokenB),
             askAmount,
             expiration
         );
@@ -360,7 +360,7 @@ contract ERC20BarterUtilsUnitTest is Test {
 
         // Now try to pay for it, but Bob doesn't have enough tokens
         vm.startPrank(bob);
-        erc1155TokenB.approve(address(paymentStatement), askAmount);
+        erc20TokenB.approve(address(paymentStatement), askAmount);
         vm.expectRevert(); // Should revert as the payment collection will fail
         barterUtils.payErc20ForErc20(buyAttestation);
         vm.stopPrank();
