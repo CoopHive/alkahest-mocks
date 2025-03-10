@@ -1,0 +1,564 @@
+Compiling 74 files with Solc 0.8.26
+Solc 0.8.26 finished in 12.94s
+Compiler run successful!
+Traces:
+  [23079955] Deploy::run()
+    ├─ [0] VM::envAddress("EAS_ADDRESS") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("EAS_SR_ADDRESS") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envUint("DEPLOYMENT_KEY") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::startBroadcast(<pk>)
+    │   └─ ← [Return] 
+    ├─ [126778] → new SpecificAttestationArbiter@0x6B19cfe622384663aeB8F886Fe3646629caCE375
+    │   └─ ← [Return] 633 bytes of code
+    ├─ [234682] → new TrustedPartyArbiter@0x550c511f456f8f30A7357e204B83874bD0dF2566
+    │   └─ ← [Return] 1172 bytes of code
+    ├─ [112165] → new TrivialArbiter@0x862F7E9961B518316260Fe2B45c1110D7f4b9b4e
+    │   └─ ← [Return] 560 bytes of code
+    ├─ [178743] → new TrustedOracleArbiter@0x77154e8F4204e484e12fAA68d50964e793224d02
+    │   └─ ← [Return] 781 bytes of code
+    ├─ [754744] → new StringObligation@0x0E8591645144EBaBdbCE518DA75DC3254b29B708
+    │   ├─ [77112] 0x4200000000000000000000000000000000000020::register("string item", StringObligation: [0x0E8591645144EBaBdbCE518DA75DC3254b29B708], true)
+    │   │   ├─ [72105] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("string item", StringObligation: [0x0E8591645144EBaBdbCE518DA75DC3254b29B708], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019, registerer: StringObligation: [0x0E8591645144EBaBdbCE518DA75DC3254b29B708], schema: SchemaRecord({ uid: 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019, resolver: 0x0E8591645144EBaBdbCE518DA75DC3254b29B708, revocable: true, schema: "string item" }))
+    │   │   │   └─ ← [Return] 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019
+    │   │   └─ ← [Return] 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019
+    │   └─ ← [Return] 3366 bytes of code
+    ├─ [1328369] → new ERC20EscrowObligation@0x4996749214CC20911B9c3169C9eE12cf73686224
+    │   ├─ [117414] 0x4200000000000000000000000000000000000020::register("address token, uint256 amount, address arbiter, bytes demand", ERC20EscrowObligation: [0x4996749214CC20911B9c3169C9eE12cf73686224], true)
+    │   │   ├─ [116901] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 amount, address arbiter, bytes demand", ERC20EscrowObligation: [0x4996749214CC20911B9c3169C9eE12cf73686224], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7, registerer: ERC20EscrowObligation: [0x4996749214CC20911B9c3169C9eE12cf73686224], schema: SchemaRecord({ uid: 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7, resolver: 0x4996749214CC20911B9c3169C9eE12cf73686224, revocable: true, schema: "address token, uint256 amount, address arbiter, bytes demand" }))
+    │   │   │   └─ ← [Return] 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7
+    │   │   └─ ← [Return] 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7
+    │   └─ ← [Return] 6042 bytes of code
+    ├─ [989572] → new ERC20PaymentObligation@0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D
+    │   ├─ [117411] 0x4200000000000000000000000000000000000020::register("address token, uint256 amount, address payee", ERC20PaymentObligation: [0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D], true)
+    │   │   ├─ [116898] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 amount, address payee", ERC20PaymentObligation: [0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23, registerer: ERC20PaymentObligation: [0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D], schema: SchemaRecord({ uid: 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23, resolver: 0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D, revocable: true, schema: "address token, uint256 amount, address payee" }))
+    │   │   │   └─ ← [Return] 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23
+    │   │   └─ ← [Return] 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23
+    │   └─ ← [Return] 4350 bytes of code
+    ├─ [711204] → new ERC20BarterUtils@0xeC23990E0c0Cd5f69E25553953014fC8Ebc8F1F7
+    │   └─ ← [Return] 3219 bytes of code
+    ├─ [1313956] → new ERC721EscrowObligation@0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9
+    │   ├─ [117414] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, address arbiter, bytes demand", ERC721EscrowObligation: [0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9], true)
+    │   │   ├─ [116901] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, address arbiter, bytes demand", ERC721EscrowObligation: [0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541, registerer: ERC721EscrowObligation: [0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9], schema: SchemaRecord({ uid: 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541, resolver: 0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9, revocable: true, schema: "address token, uint256 tokenId, address arbiter, bytes demand" }))
+    │   │   │   └─ ← [Return] 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541
+    │   │   └─ ← [Return] 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541
+    │   └─ ← [Return] 5970 bytes of code
+    ├─ [981366] → new ERC721PaymentObligation@0x1018c085a32772E93Fd13e282ba3F22E3365C642
+    │   ├─ [117411] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, address payee", ERC721PaymentObligation: [0x1018c085a32772E93Fd13e282ba3F22E3365C642], true)
+    │   │   ├─ [116898] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, address payee", ERC721PaymentObligation: [0x1018c085a32772E93Fd13e282ba3F22E3365C642], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef, registerer: ERC721PaymentObligation: [0x1018c085a32772E93Fd13e282ba3F22E3365C642], schema: SchemaRecord({ uid: 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef, resolver: 0x1018c085a32772E93Fd13e282ba3F22E3365C642, revocable: true, schema: "address token, uint256 tokenId, address payee" }))
+    │   │   │   └─ ← [Return] 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef
+    │   │   └─ ← [Return] 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef
+    │   └─ ← [Return] 4309 bytes of code
+    ├─ [402101] → new ERC721BarterUtils@0x550870671f3394623bc7CE6FF3Aa1c35c2F3F25f
+    │   └─ ← [Return] 1675 bytes of code
+    ├─ [1454910] → new ERC1155EscrowObligation@0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e
+    │   ├─ [140010] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, uint256 amount, address arbiter, bytes demand", ERC1155EscrowObligation: [0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e], true)
+    │   │   ├─ [139491] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, uint256 amount, address arbiter, bytes demand", ERC1155EscrowObligation: [0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe, registerer: ERC1155EscrowObligation: [0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e], schema: SchemaRecord({ uid: 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe, resolver: 0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e, revocable: true, schema: "address token, uint256 tokenId, uint256 amount, address arbiter, bytes demand" }))
+    │   │   │   └─ ← [Return] 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe
+    │   │   └─ ← [Return] 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe
+    │   └─ ← [Return] 6561 bytes of code
+    ├─ [991176] → new ERC1155PaymentObligation@0xDe16FC7692161ef4656dB85f0815f7fFB535403A
+    │   ├─ [117414] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, uint256 amount, address payee", ERC1155PaymentObligation: [0xDe16FC7692161ef4656dB85f0815f7fFB535403A], true)
+    │   │   ├─ [116901] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, uint256 amount, address payee", ERC1155PaymentObligation: [0xDe16FC7692161ef4656dB85f0815f7fFB535403A], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690, registerer: ERC1155PaymentObligation: [0xDe16FC7692161ef4656dB85f0815f7fFB535403A], schema: SchemaRecord({ uid: 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690, resolver: 0xDe16FC7692161ef4656dB85f0815f7fFB535403A, revocable: true, schema: "address token, uint256 tokenId, uint256 amount, address payee" }))
+    │   │   │   └─ ← [Return] 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690
+    │   │   └─ ← [Return] 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690
+    │   └─ ← [Return] 4358 bytes of code
+    ├─ [415113] → new ERC1155BarterUtils@0x27B6fDCc2E7B604446dbd68Ea3f786f184baD750
+    │   └─ ← [Return] 1740 bytes of code
+    ├─ [1992079] → new TokenBundleEscrowObligation@0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40
+    │   ├─ [230407] 0x4200000000000000000000000000000000000020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand", TokenBundleEscrowObligation: [0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40], true)
+    │   │   ├─ [229864] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand", TokenBundleEscrowObligation: [0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa, registerer: TokenBundleEscrowObligation: [0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40], schema: SchemaRecord({ uid: 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa, resolver: 0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40, revocable: true, schema: "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand" }))
+    │   │   │   └─ ← [Return] 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa
+    │   │   └─ ← [Return] 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa
+    │   └─ ← [Return] 8792 bytes of code
+    ├─ [1513311] → new TokenBundlePaymentObligation@0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4
+    │   ├─ [207811] 0x4200000000000000000000000000000000000020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee", TokenBundlePaymentObligation: [0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4], true)
+    │   │   ├─ [207274] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee", TokenBundlePaymentObligation: [0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429, registerer: TokenBundlePaymentObligation: [0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4], schema: SchemaRecord({ uid: 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429, resolver: 0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4, revocable: true, schema: "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee" }))
+    │   │   │   └─ ← [Return] 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429
+    │   │   └─ ← [Return] 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429
+    │   └─ ← [Return] 6514 bytes of code
+    ├─ [1409727] → new TokenBundleBarterUtils@0x8AF31c90E7bDbf8cc78548Bfe8983aa7822eFf55
+    │   └─ ← [Return] 6708 bytes of code
+    ├─ [1588754] → new ERC20BarterCrossToken@0x07E6Cb3Cb45fa35fb364cA24Fd1BfcD19556757A
+    │   └─ ← [Return] 6937 bytes of code
+    ├─ [1158706] → new ERC721BarterCrossToken@0x58d04aED5debaD571f728c5aBa0e7856a2e19F7f
+    │   └─ ← [Return] 4789 bytes of code
+    ├─ [1150094] → new ERC1155BarterCrossToken@0xcbDEBC0033Aa1fFedfbdec853AE3862165790a91
+    │   └─ ← [Return] 4746 bytes of code
+    ├─ [1373794] → new AttestationEscrowObligation@0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3
+    │   ├─ [207808] 0x4200000000000000000000000000000000000020::register("tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand", AttestationEscrowObligation: [0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3], true)
+    │   │   ├─ [207271] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand", AttestationEscrowObligation: [0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47, registerer: AttestationEscrowObligation: [0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3], schema: SchemaRecord({ uid: 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47, resolver: 0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3, revocable: true, schema: "tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand" }))
+    │   │   │   └─ ← [Return] 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47
+    │   │   └─ ← [Return] 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47
+    │   └─ ← [Return] 5817 bytes of code
+    ├─ [1306378] → new AttestationEscrowObligation2@0x0433792a2e7481AE696f7b2EE6326C0f3670d100
+    │   ├─ [117411] 0x4200000000000000000000000000000000000020::register("bytes32 attestationUid, address arbiter, bytes demand", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true)
+    │   │   ├─ [116898] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("bytes32 attestationUid, address arbiter, bytes demand", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235, registerer: AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], schema: SchemaRecord({ uid: 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235, resolver: 0x0433792a2e7481AE696f7b2EE6326C0f3670d100, revocable: true, schema: "bytes32 attestationUid, address arbiter, bytes demand" }))
+    │   │   │   └─ ← [Return] 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235
+    │   │   └─ ← [Return] 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235
+    │   ├─ [72621] 0x4200000000000000000000000000000000000020::register("bytes32 validatedAttestationUid", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true)
+    │   │   ├─ [72114] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("bytes32 validatedAttestationUid", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true) [delegatecall]
+    │   │   │   ├─ emit Registered(uid: 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f, registerer: AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], schema: SchemaRecord({ uid: 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f, resolver: 0x0433792a2e7481AE696f7b2EE6326C0f3670d100, revocable: true, schema: "bytes32 validatedAttestationUid" }))
+    │   │   │   └─ ← [Return] 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f
+    │   │   └─ ← [Return] 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f
+    │   └─ ← [Return] 5567 bytes of code
+    ├─ [805461] → new AttestationBarterUtils@0xADB9439413BCe4d720b2892abcF568B3BE3d5684
+    │   └─ ← [Return] 4020 bytes of code
+    ├─ [0] VM::stopBroadcast()
+    │   └─ ← [Return] 
+    ├─ [0] console::log("\nArbiters:") [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("SpecificAttestationArbiter:", SpecificAttestationArbiter: [0x6B19cfe622384663aeB8F886Fe3646629caCE375]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("TrustedPartyArbiter:", TrustedPartyArbiter: [0x550c511f456f8f30A7357e204B83874bD0dF2566]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("TrivialArbiter:", TrivialArbiter: [0x862F7E9961B518316260Fe2B45c1110D7f4b9b4e]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("TrustedOracleArbiter:", TrustedOracleArbiter: [0x77154e8F4204e484e12fAA68d50964e793224d02]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("\nString Obligation:") [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("StringObligation:", StringObligation: [0x0E8591645144EBaBdbCE518DA75DC3254b29B708]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("\nERC20 Contracts:") [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC20EscrowObligation:", ERC20EscrowObligation: [0x4996749214CC20911B9c3169C9eE12cf73686224]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC20PaymentObligation:", ERC20PaymentObligation: [0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC20BarterUtils:", ERC20BarterUtils: [0xeC23990E0c0Cd5f69E25553953014fC8Ebc8F1F7]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC20BarterCrossToken:", ERC20BarterCrossToken: [0x07E6Cb3Cb45fa35fb364cA24Fd1BfcD19556757A]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("\nERC721 Contracts:") [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC721EscrowObligation:", ERC721EscrowObligation: [0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC721PaymentObligation:", ERC721PaymentObligation: [0x1018c085a32772E93Fd13e282ba3F22E3365C642]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC721BarterUtils:", ERC721BarterUtils: [0x550870671f3394623bc7CE6FF3Aa1c35c2F3F25f]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC721BarterCrossToken:", ERC721BarterCrossToken: [0x58d04aED5debaD571f728c5aBa0e7856a2e19F7f]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("\nERC1155 Contracts:") [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC1155EscrowObligation:", ERC1155EscrowObligation: [0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC1155PaymentObligation:", ERC1155PaymentObligation: [0xDe16FC7692161ef4656dB85f0815f7fFB535403A]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC1155BarterUtils:", ERC1155BarterUtils: [0x27B6fDCc2E7B604446dbd68Ea3f786f184baD750]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("ERC1155BarterCrossToken:", ERC1155BarterCrossToken: [0xcbDEBC0033Aa1fFedfbdec853AE3862165790a91]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("\nTokenBundle Contracts:") [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("TokenBundleEscrowObligation:", TokenBundleEscrowObligation: [0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("TokenBundlePaymentObligation:", TokenBundlePaymentObligation: [0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("TokenBundleBarterUtils:", TokenBundleBarterUtils: [0x8AF31c90E7bDbf8cc78548Bfe8983aa7822eFf55]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("\nAttestation Barter Contracts:") [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("AttestationEscrowObligation:", AttestationEscrowObligation: [0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("AttestationEscrowObligation2:", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100]) [staticcall]
+    │   └─ ← [Stop] 
+    ├─ [0] console::log("AttestationBarterUtils:", AttestationBarterUtils: [0xADB9439413BCe4d720b2892abcF568B3BE3d5684]) [staticcall]
+    │   └─ ← [Stop] 
+    └─ ← [Return] 
+
+
+Script ran successfully.
+
+== Logs ==
+  
+Arbiters:
+  SpecificAttestationArbiter: 0x6B19cfe622384663aeB8F886Fe3646629caCE375
+  TrustedPartyArbiter: 0x550c511f456f8f30A7357e204B83874bD0dF2566
+  TrivialArbiter: 0x862F7E9961B518316260Fe2B45c1110D7f4b9b4e
+  TrustedOracleArbiter: 0x77154e8F4204e484e12fAA68d50964e793224d02
+  
+String Obligation:
+  StringObligation: 0x0E8591645144EBaBdbCE518DA75DC3254b29B708
+  
+ERC20 Contracts:
+  ERC20EscrowObligation: 0x4996749214CC20911B9c3169C9eE12cf73686224
+  ERC20PaymentObligation: 0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D
+  ERC20BarterUtils: 0xeC23990E0c0Cd5f69E25553953014fC8Ebc8F1F7
+  ERC20BarterCrossToken: 0x07E6Cb3Cb45fa35fb364cA24Fd1BfcD19556757A
+  
+ERC721 Contracts:
+  ERC721EscrowObligation: 0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9
+  ERC721PaymentObligation: 0x1018c085a32772E93Fd13e282ba3F22E3365C642
+  ERC721BarterUtils: 0x550870671f3394623bc7CE6FF3Aa1c35c2F3F25f
+  ERC721BarterCrossToken: 0x58d04aED5debaD571f728c5aBa0e7856a2e19F7f
+  
+ERC1155 Contracts:
+  ERC1155EscrowObligation: 0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e
+  ERC1155PaymentObligation: 0xDe16FC7692161ef4656dB85f0815f7fFB535403A
+  ERC1155BarterUtils: 0x27B6fDCc2E7B604446dbd68Ea3f786f184baD750
+  ERC1155BarterCrossToken: 0xcbDEBC0033Aa1fFedfbdec853AE3862165790a91
+  
+TokenBundle Contracts:
+  TokenBundleEscrowObligation: 0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40
+  TokenBundlePaymentObligation: 0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4
+  TokenBundleBarterUtils: 0x8AF31c90E7bDbf8cc78548Bfe8983aa7822eFf55
+  
+Attestation Barter Contracts:
+  AttestationEscrowObligation: 0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3
+  AttestationEscrowObligation2: 0x0433792a2e7481AE696f7b2EE6326C0f3670d100
+  AttestationBarterUtils: 0xADB9439413BCe4d720b2892abcF568B3BE3d5684
+
+## Setting up 1 EVM.
+==========================
+Simulated On-chain Traces:
+
+  [126778] → new SpecificAttestationArbiter@0x6B19cfe622384663aeB8F886Fe3646629caCE375
+    └─ ← [Return] 633 bytes of code
+
+  [234682] → new TrustedPartyArbiter@0x550c511f456f8f30A7357e204B83874bD0dF2566
+    └─ ← [Return] 1172 bytes of code
+
+  [112165] → new TrivialArbiter@0x862F7E9961B518316260Fe2B45c1110D7f4b9b4e
+    └─ ← [Return] 560 bytes of code
+
+  [178743] → new TrustedOracleArbiter@0x77154e8F4204e484e12fAA68d50964e793224d02
+    └─ ← [Return] 781 bytes of code
+
+  [754744] → new StringObligation@0x0E8591645144EBaBdbCE518DA75DC3254b29B708
+    ├─ [77112] 0x4200000000000000000000000000000000000020::register("string item", StringObligation: [0x0E8591645144EBaBdbCE518DA75DC3254b29B708], true)
+    │   ├─ [72105] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("string item", StringObligation: [0x0E8591645144EBaBdbCE518DA75DC3254b29B708], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019, registerer: StringObligation: [0x0E8591645144EBaBdbCE518DA75DC3254b29B708], schema: SchemaRecord({ uid: 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019, resolver: 0x0E8591645144EBaBdbCE518DA75DC3254b29B708, revocable: true, schema: "string item" }))
+    │   │   └─ ← [Return] 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019
+    │   └─ ← [Return] 0x017f0b4b8862955580691432c64b6c85c699fc273d9a5ef1f5b8c957fbef2019
+    └─ ← [Return] 3366 bytes of code
+
+  [1335369] → new ERC20EscrowObligation@0x4996749214CC20911B9c3169C9eE12cf73686224
+    ├─ [121914] 0x4200000000000000000000000000000000000020::register("address token, uint256 amount, address arbiter, bytes demand", ERC20EscrowObligation: [0x4996749214CC20911B9c3169C9eE12cf73686224], true)
+    │   ├─ [116901] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 amount, address arbiter, bytes demand", ERC20EscrowObligation: [0x4996749214CC20911B9c3169C9eE12cf73686224], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7, registerer: ERC20EscrowObligation: [0x4996749214CC20911B9c3169C9eE12cf73686224], schema: SchemaRecord({ uid: 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7, resolver: 0x4996749214CC20911B9c3169C9eE12cf73686224, revocable: true, schema: "address token, uint256 amount, address arbiter, bytes demand" }))
+    │   │   └─ ← [Return] 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7
+    │   └─ ← [Return] 0x0570b9116f2b1bc2fa587b69f982ee3666cd2a4bc60bd12a6f26c55bc68555f7
+    └─ ← [Return] 6042 bytes of code
+
+  [996572] → new ERC20PaymentObligation@0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D
+    ├─ [121911] 0x4200000000000000000000000000000000000020::register("address token, uint256 amount, address payee", ERC20PaymentObligation: [0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D], true)
+    │   ├─ [116898] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 amount, address payee", ERC20PaymentObligation: [0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23, registerer: ERC20PaymentObligation: [0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D], schema: SchemaRecord({ uid: 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23, resolver: 0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D, revocable: true, schema: "address token, uint256 amount, address payee" }))
+    │   │   └─ ← [Return] 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23
+    │   └─ ← [Return] 0x2f7b5aacfa327f6aefd0881cb1637b57a4dcff32e44b269ca9f1f1abd8e06b23
+    └─ ← [Return] 4350 bytes of code
+
+  [711204] → new ERC20BarterUtils@0xeC23990E0c0Cd5f69E25553953014fC8Ebc8F1F7
+    └─ ← [Return] 3219 bytes of code
+
+  [1320956] → new ERC721EscrowObligation@0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9
+    ├─ [121914] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, address arbiter, bytes demand", ERC721EscrowObligation: [0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9], true)
+    │   ├─ [116901] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, address arbiter, bytes demand", ERC721EscrowObligation: [0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541, registerer: ERC721EscrowObligation: [0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9], schema: SchemaRecord({ uid: 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541, resolver: 0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9, revocable: true, schema: "address token, uint256 tokenId, address arbiter, bytes demand" }))
+    │   │   └─ ← [Return] 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541
+    │   └─ ← [Return] 0x00c905ca7dc2bb03d33640e978fa952c0ed12e22a77f73dc24ea8fee37632541
+    └─ ← [Return] 5970 bytes of code
+
+  [988366] → new ERC721PaymentObligation@0x1018c085a32772E93Fd13e282ba3F22E3365C642
+    ├─ [121911] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, address payee", ERC721PaymentObligation: [0x1018c085a32772E93Fd13e282ba3F22E3365C642], true)
+    │   ├─ [116898] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, address payee", ERC721PaymentObligation: [0x1018c085a32772E93Fd13e282ba3F22E3365C642], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef, registerer: ERC721PaymentObligation: [0x1018c085a32772E93Fd13e282ba3F22E3365C642], schema: SchemaRecord({ uid: 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef, resolver: 0x1018c085a32772E93Fd13e282ba3F22E3365C642, revocable: true, schema: "address token, uint256 tokenId, address payee" }))
+    │   │   └─ ← [Return] 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef
+    │   └─ ← [Return] 0xa62b60cf76ed268ae695fc6b67dbbc22bd9d9c014104580ddb2e3d0ebb3b44ef
+    └─ ← [Return] 4309 bytes of code
+
+  [402101] → new ERC721BarterUtils@0x550870671f3394623bc7CE6FF3Aa1c35c2F3F25f
+    └─ ← [Return] 1675 bytes of code
+
+  [1461910] → new ERC1155EscrowObligation@0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e
+    ├─ [144510] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, uint256 amount, address arbiter, bytes demand", ERC1155EscrowObligation: [0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e], true)
+    │   ├─ [139491] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, uint256 amount, address arbiter, bytes demand", ERC1155EscrowObligation: [0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe, registerer: ERC1155EscrowObligation: [0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e], schema: SchemaRecord({ uid: 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe, resolver: 0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e, revocable: true, schema: "address token, uint256 tokenId, uint256 amount, address arbiter, bytes demand" }))
+    │   │   └─ ← [Return] 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe
+    │   └─ ← [Return] 0x7f15d0a2c5adf10d9b1e7b69ff6c0a53762e7ced6df9c583d6442cef32089abe
+    └─ ← [Return] 6561 bytes of code
+
+  [998176] → new ERC1155PaymentObligation@0xDe16FC7692161ef4656dB85f0815f7fFB535403A
+    ├─ [121914] 0x4200000000000000000000000000000000000020::register("address token, uint256 tokenId, uint256 amount, address payee", ERC1155PaymentObligation: [0xDe16FC7692161ef4656dB85f0815f7fFB535403A], true)
+    │   ├─ [116901] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address token, uint256 tokenId, uint256 amount, address payee", ERC1155PaymentObligation: [0xDe16FC7692161ef4656dB85f0815f7fFB535403A], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690, registerer: ERC1155PaymentObligation: [0xDe16FC7692161ef4656dB85f0815f7fFB535403A], schema: SchemaRecord({ uid: 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690, resolver: 0xDe16FC7692161ef4656dB85f0815f7fFB535403A, revocable: true, schema: "address token, uint256 tokenId, uint256 amount, address payee" }))
+    │   │   └─ ← [Return] 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690
+    │   └─ ← [Return] 0x8db098c29ca20b2099602836bd7335ead39694614635cbb02610c35737e47690
+    └─ ← [Return] 4358 bytes of code
+
+  [415113] → new ERC1155BarterUtils@0x27B6fDCc2E7B604446dbd68Ea3f786f184baD750
+    └─ ← [Return] 1740 bytes of code
+
+  [1999079] → new TokenBundleEscrowObligation@0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40
+    ├─ [234907] 0x4200000000000000000000000000000000000020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand", TokenBundleEscrowObligation: [0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40], true)
+    │   ├─ [229864] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand", TokenBundleEscrowObligation: [0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa, registerer: TokenBundleEscrowObligation: [0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40], schema: SchemaRecord({ uid: 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa, resolver: 0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40, revocable: true, schema: "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand" }))
+    │   │   └─ ← [Return] 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa
+    │   └─ ← [Return] 0x8df62e45441da53610fd68e1189ecb17f913472736a2ec5dd09e905390e9d6aa
+    └─ ← [Return] 8792 bytes of code
+
+  [1520311] → new TokenBundlePaymentObligation@0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4
+    ├─ [212311] 0x4200000000000000000000000000000000000020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee", TokenBundlePaymentObligation: [0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4], true)
+    │   ├─ [207274] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee", TokenBundlePaymentObligation: [0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429, registerer: TokenBundlePaymentObligation: [0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4], schema: SchemaRecord({ uid: 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429, resolver: 0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4, revocable: true, schema: "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee" }))
+    │   │   └─ ← [Return] 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429
+    │   └─ ← [Return] 0x8a2526644b41326db2e6d9aca00b7586c53838c322376425505ba2353d240429
+    └─ ← [Return] 6514 bytes of code
+
+  [1409727] → new TokenBundleBarterUtils@0x8AF31c90E7bDbf8cc78548Bfe8983aa7822eFf55
+    └─ ← [Return] 6708 bytes of code
+
+  [1588754] → new ERC20BarterCrossToken@0x07E6Cb3Cb45fa35fb364cA24Fd1BfcD19556757A
+    └─ ← [Return] 6937 bytes of code
+
+  [1158706] → new ERC721BarterCrossToken@0x58d04aED5debaD571f728c5aBa0e7856a2e19F7f
+    └─ ← [Return] 4789 bytes of code
+
+  [1150094] → new ERC1155BarterCrossToken@0xcbDEBC0033Aa1fFedfbdec853AE3862165790a91
+    └─ ← [Return] 4746 bytes of code
+
+  [1380794] → new AttestationEscrowObligation@0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3
+    ├─ [212308] 0x4200000000000000000000000000000000000020::register("tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand", AttestationEscrowObligation: [0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3], true)
+    │   ├─ [207271] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand", AttestationEscrowObligation: [0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47, registerer: AttestationEscrowObligation: [0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3], schema: SchemaRecord({ uid: 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47, resolver: 0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3, revocable: true, schema: "tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand" }))
+    │   │   └─ ← [Return] 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47
+    │   └─ ← [Return] 0x7781ef5dfc7e76e07a3edaac97ab48fa0dad120e0c895f44f9a5fdd6e8383f47
+    └─ ← [Return] 5817 bytes of code
+
+  [1313378] → new AttestationEscrowObligation2@0x0433792a2e7481AE696f7b2EE6326C0f3670d100
+    ├─ [121911] 0x4200000000000000000000000000000000000020::register("bytes32 attestationUid, address arbiter, bytes demand", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true)
+    │   ├─ [116898] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("bytes32 attestationUid, address arbiter, bytes demand", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235, registerer: AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], schema: SchemaRecord({ uid: 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235, resolver: 0x0433792a2e7481AE696f7b2EE6326C0f3670d100, revocable: true, schema: "bytes32 attestationUid, address arbiter, bytes demand" }))
+    │   │   └─ ← [Return] 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235
+    │   └─ ← [Return] 0x32c26e3a2f37c6f9cb6b8f0708b9d4a1045306f92915ca89d2e33aff84eb5235
+    ├─ [72621] 0x4200000000000000000000000000000000000020::register("bytes32 validatedAttestationUid", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true)
+    │   ├─ [72114] 0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020::register("bytes32 validatedAttestationUid", AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], true) [delegatecall]
+    │   │   ├─ emit Registered(uid: 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f, registerer: AttestationEscrowObligation2: [0x0433792a2e7481AE696f7b2EE6326C0f3670d100], schema: SchemaRecord({ uid: 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f, resolver: 0x0433792a2e7481AE696f7b2EE6326C0f3670d100, revocable: true, schema: "bytes32 validatedAttestationUid" }))
+    │   │   └─ ← [Return] 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f
+    │   └─ ← [Return] 0xc05f9ebdcec658036547b80b1eebbeb0a8e350a00d27e92a48ac7eca815f838f
+    └─ ← [Return] 5567 bytes of code
+
+  [805461] → new AttestationBarterUtils@0xADB9439413BCe4d720b2892abcF568B3BE3d5684
+    └─ ← [Return] 4020 bytes of code
+
+
+==========================
+
+Chain 84532
+
+Estimated gas price: 0.01 gwei
+
+Estimated total gas used for script: 32850633
+
+Estimated amount required: 0.00032850633 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+##
+Start verification for (23) contracts
+Start verifying contract `0x6B19cfe622384663aeB8F886Fe3646629caCE375` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [SpecificAttestationArbiter] "0x6B19cfe622384663aeB8F886Fe3646629caCE375".
+Contract successfully verified
+Start verifying contract `0x550c511f456f8f30A7357e204B83874bD0dF2566` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [TrustedPartyArbiter] "0x550c511f456f8f30A7357e204B83874bD0dF2566".
+Contract successfully verified
+Start verifying contract `0x862F7E9961B518316260Fe2B45c1110D7f4b9b4e` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [TrivialArbiter] "0x862F7E9961B518316260Fe2B45c1110D7f4b9b4e".
+Contract successfully verified
+Start verifying contract `0x77154e8F4204e484e12fAA68d50964e793224d02` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 0000000000000000000000004200000000000000000000000000000000000021
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [TrustedOracleArbiter] "0x77154e8F4204e484e12fAA68d50964e793224d02".
+Contract successfully verified
+Start verifying contract `0x0E8591645144EBaBdbCE518DA75DC3254b29B708` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [StringObligation] "0x0E8591645144EBaBdbCE518DA75DC3254b29B708".
+Contract successfully verified
+Start verifying contract `0x4996749214CC20911B9c3169C9eE12cf73686224` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC20EscrowObligation] "0x4996749214CC20911B9c3169C9eE12cf73686224".
+Contract successfully verified
+Start verifying contract `0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC20PaymentObligation] "0x85A8BA268F72eb3c820719Aa298a9d6D156C1d5D".
+Contract successfully verified
+Start verifying contract `0xeC23990E0c0Cd5f69E25553953014fC8Ebc8F1F7` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004996749214cc20911b9c3169c9ee12cf7368622400000000000000000000000085a8ba268f72eb3c820719aa298a9d6d156c1d5d
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC20BarterUtils] "0xeC23990E0c0Cd5f69E25553953014fC8Ebc8F1F7".
+Contract successfully verified
+Start verifying contract `0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC721EscrowObligation] "0xe3eAeeD9438Bd1Db5954eFBd95027cE0259180e9".
+Contract successfully verified
+Start verifying contract `0x1018c085a32772E93Fd13e282ba3F22E3365C642` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC721PaymentObligation] "0x1018c085a32772E93Fd13e282ba3F22E3365C642".
+Contract successfully verified
+Start verifying contract `0x550870671f3394623bc7CE6FF3Aa1c35c2F3F25f` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 0000000000000000000000004200000000000000000000000000000000000021000000000000000000000000e3eaeed9438bd1db5954efbd95027ce0259180e90000000000000000000000001018c085a32772e93fd13e282ba3f22e3365c642
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC721BarterUtils] "0x550870671f3394623bc7CE6FF3Aa1c35c2F3F25f".
+Contract successfully verified
+Start verifying contract `0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC1155EscrowObligation] "0x4EC4374e730FCF6c7Aceef49da0c82ea0987298e".
+Contract successfully verified
+Start verifying contract `0xDe16FC7692161ef4656dB85f0815f7fFB535403A` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC1155PaymentObligation] "0xDe16FC7692161ef4656dB85f0815f7fFB535403A".
+Contract successfully verified
+Start verifying contract `0x27B6fDCc2E7B604446dbd68Ea3f786f184baD750` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004ec4374e730fcf6c7aceef49da0c82ea0987298e000000000000000000000000de16fc7692161ef4656db85f0815f7ffb535403a
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC1155BarterUtils] "0x27B6fDCc2E7B604446dbd68Ea3f786f184baD750".
+Contract successfully verified
+Start verifying contract `0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [TokenBundleEscrowObligation] "0x0f6D03bd26BEB9f2b6eDe69f1e6AefF7DA9E7e40".
+Contract successfully verified
+Start verifying contract `0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [TokenBundlePaymentObligation] "0xF643fD0259b34fFF9cFe2AfC0086163c961c2bB4".
+Contract successfully verified
+Start verifying contract `0x8AF31c90E7bDbf8cc78548Bfe8983aa7822eFf55` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000000f6d03bd26beb9f2b6ede69f1e6aeff7da9e7e40000000000000000000000000f643fd0259b34fff9cfe2afc0086163c961c2bb4
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [TokenBundleBarterUtils] "0x8AF31c90E7bDbf8cc78548Bfe8983aa7822eFf55".
+Contract successfully verified
+Start verifying contract `0x07E6Cb3Cb45fa35fb364cA24Fd1BfcD19556757A` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004996749214cc20911b9c3169c9ee12cf7368622400000000000000000000000085a8ba268f72eb3c820719aa298a9d6d156c1d5d000000000000000000000000e3eaeed9438bd1db5954efbd95027ce0259180e90000000000000000000000001018c085a32772e93fd13e282ba3f22e3365c6420000000000000000000000004ec4374e730fcf6c7aceef49da0c82ea0987298e000000000000000000000000de16fc7692161ef4656db85f0815f7ffb535403a0000000000000000000000000f6d03bd26beb9f2b6ede69f1e6aeff7da9e7e40000000000000000000000000f643fd0259b34fff9cfe2afc0086163c961c2bb4
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC20BarterCrossToken] "0x07E6Cb3Cb45fa35fb364cA24Fd1BfcD19556757A".
+Contract successfully verified
+Start verifying contract `0x58d04aED5debaD571f728c5aBa0e7856a2e19F7f` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004996749214cc20911b9c3169c9ee12cf7368622400000000000000000000000085a8ba268f72eb3c820719aa298a9d6d156c1d5d000000000000000000000000e3eaeed9438bd1db5954efbd95027ce0259180e90000000000000000000000001018c085a32772e93fd13e282ba3f22e3365c6420000000000000000000000004ec4374e730fcf6c7aceef49da0c82ea0987298e000000000000000000000000de16fc7692161ef4656db85f0815f7ffb535403a0000000000000000000000000f6d03bd26beb9f2b6ede69f1e6aeff7da9e7e40000000000000000000000000f643fd0259b34fff9cfe2afc0086163c961c2bb4
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC721BarterCrossToken] "0x58d04aED5debaD571f728c5aBa0e7856a2e19F7f".
+Contract successfully verified
+Start verifying contract `0xcbDEBC0033Aa1fFedfbdec853AE3862165790a91` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004996749214cc20911b9c3169c9ee12cf7368622400000000000000000000000085a8ba268f72eb3c820719aa298a9d6d156c1d5d000000000000000000000000e3eaeed9438bd1db5954efbd95027ce0259180e90000000000000000000000001018c085a32772e93fd13e282ba3f22e3365c6420000000000000000000000004ec4374e730fcf6c7aceef49da0c82ea0987298e000000000000000000000000de16fc7692161ef4656db85f0815f7ffb535403a0000000000000000000000000f6d03bd26beb9f2b6ede69f1e6aeff7da9e7e40000000000000000000000000f643fd0259b34fff9cfe2afc0086163c961c2bb4
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [ERC1155BarterCrossToken] "0xcbDEBC0033Aa1fFedfbdec853AE3862165790a91".
+Contract successfully verified
+Start verifying contract `0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [AttestationEscrowObligation] "0x3b58003a160C75D44fc42cABDb8b4F299e53a8F3".
+Contract successfully verified
+Start verifying contract `0x0433792a2e7481AE696f7b2EE6326C0f3670d100` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 00000000000000000000000042000000000000000000000000000000000000210000000000000000000000004200000000000000000000000000000000000020
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [AttestationEscrowObligation2] "0x0433792a2e7481AE696f7b2EE6326C0f3670d100".
+Contract successfully verified
+Start verifying contract `0xADB9439413BCe4d720b2892abcF568B3BE3d5684` deployed on base-sepolia
+Compiler version: 0.8.26
+Optimizations:    200
+Constructor args: 000000000000000000000000420000000000000000000000000000000000002100000000000000000000000042000000000000000000000000000000000000200000000000000000000000000433792a2e7481ae696f7b2ee6326c0f3670d100
+Attempting to verify on Sourcify, pass the --etherscan-api-key <API_KEY> to verify on Etherscan OR use the --verifier flag to verify on any other provider
+
+Submitting verification for [AttestationBarterUtils] "0xADB9439413BCe4d720b2892abcF568B3BE3d5684".
+Contract successfully verified
+All (23) contracts were verified!
+
+Transactions saved to: /Users/mlegls/dev/hive/alkahest-mocks/broadcast/Deploy.s.sol/84532/run-latest.json
+
+Sensitive values saved to: /Users/mlegls/dev/hive/alkahest-mocks/cache/Deploy.s.sol/84532/run-latest.json
+
