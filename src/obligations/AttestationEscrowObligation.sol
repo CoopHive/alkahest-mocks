@@ -68,12 +68,28 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         return makeStatementFor(data, expirationTime, msg.sender);
     }
 
+    error AttestationNotFound(bytes32 attestationId);
+    error RevocationFailed(bytes32 attestationId);
+    error AttestationCreationFailed();
+
     function collectPayment(
         bytes32 _escrow,
         bytes32 _fulfillment
     ) public returns (bytes32) {
-        Attestation memory escrow = eas.getAttestation(_escrow);
-        Attestation memory fulfillment = eas.getAttestation(_fulfillment);
+        Attestation memory escrow;
+        Attestation memory fulfillment;
+        
+        try eas.getAttestation(_escrow) returns (Attestation memory _escrow) {
+            escrow = _escrow;
+        } catch {
+            revert AttestationNotFound(_escrow);
+        }
+        
+        try eas.getAttestation(_fulfillment) returns (Attestation memory _fulfillment) {
+            fulfillment = _fulfillment;
+        } catch {
+            revert AttestationNotFound(_fulfillment);
+        }
 
         if (!escrow._checkIntrinsic()) revert InvalidEscrowAttestation();
 
@@ -90,14 +106,22 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
             )
         ) revert InvalidFulfillment();
 
-        eas.revoke(
+        try eas.revoke(
             RevocationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: RevocationRequestData({uid: _escrow, value: 0})
             })
-        );
+        ) {} catch {
+            revert RevocationFailed(_escrow);
+        }
 
-        bytes32 attestationUid = eas.attest(escrowData.attestation);
+        bytes32 attestationUid;
+        try eas.attest(escrowData.attestation) returns (bytes32 uid) {
+            attestationUid = uid;
+        } catch {
+            revert AttestationCreationFailed();
+        }
+        
         emit EscrowClaimed(_escrow, _fulfillment, fulfillment.recipient);
         return attestationUid;
     }

@@ -21,6 +21,9 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     ERC1155PaymentObligation internal erc1155Payment;
     TokenBundleEscrowObligation internal bundleEscrow;
     TokenBundlePaymentObligation internal bundlePayment;
+    
+    error PermitFailed(address token, string reason);
+    error AttestationNotFound(bytes32 attestationId);
 
     constructor(
         IEAS _eas,
@@ -51,7 +54,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     ) internal {
         IERC20Permit askTokenC = IERC20Permit(demand.token);
 
-        askTokenC.permit(
+        try askTokenC.permit(
             msg.sender,
             address(erc20Payment),
             demand.amount,
@@ -59,7 +62,11 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             v,
             r,
             s
-        );
+        ) {} catch Error(string memory reason) {
+            revert PermitFailed(demand.token, reason);
+        } catch {
+            revert PermitFailed(demand.token, "Unknown error");
+        }
     }
 
     function _buyErc721WithErc20(
@@ -225,7 +232,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         bytes32 s
     ) external returns (bytes32) {
         IERC20Permit bidTokenC = IERC20Permit(bidToken);
-        bidTokenC.permit(
+        try bidTokenC.permit(
             msg.sender,
             address(erc20Escrow),
             bidAmount,
@@ -233,7 +240,12 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             v,
             r,
             s
-        );
+        ) {} catch Error(string memory reason) {
+            revert PermitFailed(bidToken, reason);
+        } catch {
+            revert PermitFailed(bidToken, "Unknown error");
+        }
+        
         return
             _buyErc721WithErc20(
                 bidToken,
@@ -277,7 +289,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         bytes32 s
     ) external returns (bytes32) {
         IERC20Permit bidTokenC = IERC20Permit(bidToken);
-        bidTokenC.permit(
+        try bidTokenC.permit(
             msg.sender,
             address(erc20Escrow),
             bidAmount,
@@ -285,7 +297,12 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             v,
             r,
             s
-        );
+        ) {} catch Error(string memory reason) {
+            revert PermitFailed(bidToken, reason);
+        } catch {
+            revert PermitFailed(bidToken, "Unknown error");
+        }
+        
         return
             _buyErc1155WithErc20(
                 bidToken,
@@ -318,7 +335,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         bytes32 s
     ) external returns (bytes32) {
         IERC20Permit bidTokenC = IERC20Permit(bidToken);
-        bidTokenC.permit(
+        try bidTokenC.permit(
             msg.sender,
             address(erc20Escrow),
             bidAmount,
@@ -326,14 +343,25 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
             v,
             r,
             s
-        );
+        ) {} catch Error(string memory reason) {
+            revert PermitFailed(bidToken, reason);
+        } catch {
+            revert PermitFailed(bidToken, "Unknown error");
+        }
+        
         return _buyBundleWithErc20(bidToken, bidAmount, askData, expiration);
     }
 
     function payErc20ForErc721(
         bytes32 buyAttestation
     ) external returns (bytes32) {
-        Attestation memory bid = eas.getAttestation(buyAttestation);
+        Attestation memory bid;
+        try eas.getAttestation(buyAttestation) returns (Attestation memory _bid) {
+            bid = _bid;
+        } catch {
+            revert AttestationNotFound(buyAttestation);
+        }
+        
         ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
             bid.data,
             (ERC721EscrowObligation.StatementData)
@@ -349,7 +377,13 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function payErc20ForErc1155(
         bytes32 buyAttestation
     ) external returns (bytes32) {
-        Attestation memory bid = eas.getAttestation(buyAttestation);
+        Attestation memory bid;
+        try eas.getAttestation(buyAttestation) returns (Attestation memory _bid) {
+            bid = _bid;
+        } catch {
+            revert AttestationNotFound(buyAttestation);
+        }
+        
         ERC1155EscrowObligation.StatementData memory escrowData = abi.decode(
             bid.data,
             (ERC1155EscrowObligation.StatementData)
@@ -365,7 +399,13 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
     function payErc20ForBundle(
         bytes32 buyAttestation
     ) external returns (bytes32) {
-        Attestation memory bid = eas.getAttestation(buyAttestation);
+        Attestation memory bid;
+        try eas.getAttestation(buyAttestation) returns (Attestation memory _bid) {
+            bid = _bid;
+        } catch {
+            revert AttestationNotFound(buyAttestation);
+        }
+        
         TokenBundleEscrowObligation.StatementData memory escrowData = abi
             .decode(bid.data, (TokenBundleEscrowObligation.StatementData));
         ERC20PaymentObligation.StatementData memory demand = abi.decode(

@@ -30,6 +30,15 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
     error InvalidEscrowAttestation();
     error InvalidFulfillment();
     error UnauthorizedCall();
+    error ERC20TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 amount
+    );
+    error AttestationNotFound(bytes32 attestationId);
+    error AttestationCreateFailed();
+    error RevocationFailed(bytes32 attestationId);
 
     constructor(
         IEAS _eas,
@@ -49,23 +58,48 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
-        if (!IERC20(data.token).transferFrom(payer, address(this), data.amount))
-            revert InvalidEscrow();
+        // Try token transfer and handle potential failures
+        bool success;
+        try
+            IERC20(data.token).transferFrom(payer, address(this), data.amount)
+        returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
 
-        uid_ = eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: expirationTime,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(data),
-                    value: 0
+        if (!success) {
+            revert ERC20TransferFailed(
+                data.token,
+                payer,
+                address(this),
+                data.amount
+            );
+        }
+
+        // Create attestation with try/catch for potential EAS failures
+        try
+            eas.attest(
+                AttestationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: AttestationRequestData({
+                        recipient: recipient,
+                        expirationTime: expirationTime,
+                        revocable: true,
+                        refUID: bytes32(0),
+                        data: abi.encode(data),
+                        value: 0
+                    })
                 })
-            })
-        );
-        emit EscrowMade(uid_, recipient);
+            )
+        returns (bytes32 uid) {
+            uid_ = uid;
+            emit EscrowMade(uid_, recipient);
+        } catch {
+            // If attestation fails, return the tokens
+            try IERC20(data.token).transfer(payer, data.amount) {} catch {}
+            revert AttestationCreateFailed();
+        }
     }
 
     function makeStatement(
@@ -79,8 +113,24 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
         bytes32 _payment,
         bytes32 _fulfillment
     ) public returns (bool) {
-        Attestation memory payment = eas.getAttestation(_payment);
-        Attestation memory fulfillment = eas.getAttestation(_fulfillment);
+        Attestation memory payment;
+        Attestation memory fulfillment;
+
+        // Get payment attestation with error handling
+        try eas.getAttestation(_payment) returns (Attestation memory result) {
+            payment = result;
+        } catch {
+            revert AttestationNotFound(_payment);
+        }
+
+        // Get fulfillment attestation with error handling
+        try eas.getAttestation(_fulfillment) returns (
+            Attestation memory result
+        ) {
+            fulfillment = result;
+        } catch {
+            revert AttestationNotFound(_fulfillment);
+        }
 
         if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
 
@@ -97,24 +147,53 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
             )
         ) revert InvalidFulfillment();
 
-        eas.revoke(
-            RevocationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: _payment, value: 0})
-            })
-        );
+        // Revoke attestation with error handling
+        try
+            eas.revoke(
+                RevocationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: RevocationRequestData({uid: _payment, value: 0})
+                })
+            )
+        {} catch {
+            revert RevocationFailed(_payment);
+        }
 
-        IERC20(paymentData.token).transfer(
-            fulfillment.recipient,
-            paymentData.amount
-        );
+        // Transfer tokens with error handling
+        bool success;
+        try
+            IERC20(paymentData.token).transfer(
+                fulfillment.recipient,
+                paymentData.amount
+            )
+        returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
+
+        if (!success) {
+            revert ERC20TransferFailed(
+                paymentData.token,
+                address(this),
+                fulfillment.recipient,
+                paymentData.amount
+            );
+        }
 
         emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
         return true;
     }
 
     function collectExpired(bytes32 uid) public returns (bool) {
-        Attestation memory attestation = eas.getAttestation(uid);
+        Attestation memory attestation;
+
+        // Get attestation with error handling
+        try eas.getAttestation(uid) returns (Attestation memory result) {
+            attestation = result;
+        } catch {
+            revert AttestationNotFound(uid);
+        }
 
         if (block.timestamp < attestation.expirationTime)
             revert UnauthorizedCall();
@@ -124,7 +203,26 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
             (StatementData)
         );
 
-        return IERC20(data.token).transfer(attestation.recipient, data.amount);
+        // Transfer tokens with error handling
+        bool success;
+        try
+            IERC20(data.token).transfer(attestation.recipient, data.amount)
+        returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
+
+        if (!success) {
+            revert ERC20TransferFailed(
+                data.token,
+                address(this),
+                attestation.recipient,
+                data.amount
+            );
+        }
+
+        return true;
     }
 
     function checkStatement(

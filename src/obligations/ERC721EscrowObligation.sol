@@ -30,6 +30,15 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
     error InvalidEscrowAttestation();
     error InvalidFulfillment();
     error UnauthorizedCall();
+    error ERC721TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 tokenId
+    );
+    error AttestationNotFound(bytes32 attestationId);
+    error AttestationCreateFailed();
+    error RevocationFailed(bytes32 attestationId);
 
     constructor(
         IEAS _eas,
@@ -49,22 +58,49 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
-        IERC721(data.token).transferFrom(payer, address(this), data.tokenId);
+        // Try token transfer with error handling
+        try
+            IERC721(data.token).transferFrom(payer, address(this), data.tokenId)
+        {
+            // Transfer succeeded
+        } catch {
+            revert ERC721TransferFailed(
+                data.token,
+                payer,
+                address(this),
+                data.tokenId
+            );
+        }
 
-        uid_ = eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: expirationTime,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(data),
-                    value: 0
+        // Create attestation with try/catch for potential EAS failures
+        try
+            eas.attest(
+                AttestationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: AttestationRequestData({
+                        recipient: recipient,
+                        expirationTime: expirationTime,
+                        revocable: true,
+                        refUID: bytes32(0),
+                        data: abi.encode(data),
+                        value: 0
+                    })
                 })
-            })
-        );
-        emit EscrowMade(uid_, recipient);
+            )
+        returns (bytes32 uid) {
+            uid_ = uid;
+            emit EscrowMade(uid_, recipient);
+        } catch {
+            // If attestation fails, return the token
+            try
+                IERC721(data.token).transferFrom(
+                    address(this),
+                    payer,
+                    data.tokenId
+                )
+            {} catch {}
+            revert AttestationCreateFailed();
+        }
     }
 
     function makeStatement(
@@ -78,8 +114,24 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         bytes32 _payment,
         bytes32 _fulfillment
     ) public returns (bool) {
-        Attestation memory payment = eas.getAttestation(_payment);
-        Attestation memory fulfillment = eas.getAttestation(_fulfillment);
+        Attestation memory payment;
+        Attestation memory fulfillment;
+
+        // Get payment attestation with error handling
+        try eas.getAttestation(_payment) returns (Attestation memory result) {
+            payment = result;
+        } catch {
+            revert AttestationNotFound(_payment);
+        }
+
+        // Get fulfillment attestation with error handling
+        try eas.getAttestation(_fulfillment) returns (
+            Attestation memory result
+        ) {
+            fulfillment = result;
+        } catch {
+            revert AttestationNotFound(_fulfillment);
+        }
 
         if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
 
@@ -96,25 +148,47 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
             )
         ) revert InvalidFulfillment();
 
-        eas.revoke(
-            RevocationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: _payment, value: 0})
-            })
-        );
+        // Revoke attestation with error handling
+        try
+            eas.revoke(
+                RevocationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: RevocationRequestData({uid: _payment, value: 0})
+                })
+            )
+        {} catch {
+            revert RevocationFailed(_payment);
+        }
 
-        IERC721(paymentData.token).transferFrom(
-            address(this),
-            fulfillment.recipient,
-            paymentData.tokenId
-        );
+        // Transfer ERC721 token with error handling
+        try
+            IERC721(paymentData.token).transferFrom(
+                address(this),
+                fulfillment.recipient,
+                paymentData.tokenId
+            )
+        {} catch {
+            revert ERC721TransferFailed(
+                paymentData.token,
+                address(this),
+                fulfillment.recipient,
+                paymentData.tokenId
+            );
+        }
 
         emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
         return true;
     }
 
     function collectExpired(bytes32 uid) public returns (bool) {
-        Attestation memory attestation = eas.getAttestation(uid);
+        Attestation memory attestation;
+
+        // Get attestation with error handling
+        try eas.getAttestation(uid) returns (Attestation memory result) {
+            attestation = result;
+        } catch {
+            revert AttestationNotFound(uid);
+        }
 
         if (block.timestamp < attestation.expirationTime)
             revert UnauthorizedCall();
@@ -124,11 +198,22 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
             (StatementData)
         );
 
-        IERC721(data.token).transferFrom(
-            address(this),
-            attestation.recipient,
-            data.tokenId
-        );
+        // Transfer ERC721 token with error handling
+        try
+            IERC721(data.token).transferFrom(
+                address(this),
+                attestation.recipient,
+                data.tokenId
+            )
+        {} catch {
+            revert ERC721TransferFailed(
+                data.token,
+                address(this),
+                attestation.recipient,
+                data.tokenId
+            );
+        }
+
         return true;
     }
 

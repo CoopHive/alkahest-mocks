@@ -32,6 +32,10 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     error InvalidEscrowAttestation();
     error InvalidFulfillment();
     error UnauthorizedCall();
+    error ERC1155TransferFailed(address token, address from, address to, uint256 tokenId, uint256 amount);
+    error AttestationNotFound(bytes32 attestationId);
+    error AttestationCreateFailed();
+    error RevocationFailed(bytes32 attestationId);
 
     constructor(
         IEAS _eas,
@@ -51,15 +55,27 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
-        IERC1155(data.token).safeTransferFrom(
+        // Try ERC1155 token transfer with error handling
+        try IERC1155(data.token).safeTransferFrom(
             payer,
             address(this),
             data.tokenId,
             data.amount,
             ""
-        );
+        ) {
+            // Transfer succeeded
+        } catch {
+            revert ERC1155TransferFailed(
+                data.token, 
+                payer, 
+                address(this), 
+                data.tokenId, 
+                data.amount
+            );
+        }
 
-        uid_ = eas.attest(
+        // Create attestation with try/catch for potential EAS failures
+        try eas.attest(
             AttestationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
@@ -71,8 +87,20 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
                     value: 0
                 })
             })
-        );
-        emit EscrowMade(uid_, recipient);
+        ) returns (bytes32 uid) {
+            uid_ = uid;
+            emit EscrowMade(uid_, recipient);
+        } catch {
+            // If attestation fails, return the tokens
+            try IERC1155(data.token).safeTransferFrom(
+                address(this),
+                payer,
+                data.tokenId,
+                data.amount,
+                ""
+            ) {} catch {}
+            revert AttestationCreateFailed();
+        }
     }
 
     function makeStatement(
@@ -86,8 +114,22 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         bytes32 _payment,
         bytes32 _fulfillment
     ) public returns (bool) {
-        Attestation memory payment = eas.getAttestation(_payment);
-        Attestation memory fulfillment = eas.getAttestation(_fulfillment);
+        Attestation memory payment;
+        Attestation memory fulfillment;
+        
+        // Get payment attestation with error handling
+        try eas.getAttestation(_payment) returns (Attestation memory result) {
+            payment = result;
+        } catch {
+            revert AttestationNotFound(_payment);
+        }
+        
+        // Get fulfillment attestation with error handling
+        try eas.getAttestation(_fulfillment) returns (Attestation memory result) {
+            fulfillment = result;
+        } catch {
+            revert AttestationNotFound(_fulfillment);
+        }
 
         if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
 
@@ -104,27 +146,46 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
             )
         ) revert InvalidFulfillment();
 
-        eas.revoke(
+        // Revoke attestation with error handling
+        try eas.revoke(
             RevocationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: RevocationRequestData({uid: _payment, value: 0})
             })
-        );
+        ) {} catch {
+            revert RevocationFailed(_payment);
+        }
 
-        IERC1155(paymentData.token).safeTransferFrom(
+        // Transfer ERC1155 token with error handling
+        try IERC1155(paymentData.token).safeTransferFrom(
             address(this),
             fulfillment.recipient,
             paymentData.tokenId,
             paymentData.amount,
             ""
-        );
+        ) {} catch {
+            revert ERC1155TransferFailed(
+                paymentData.token, 
+                address(this), 
+                fulfillment.recipient, 
+                paymentData.tokenId,
+                paymentData.amount
+            );
+        }
 
         emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
         return true;
     }
 
     function collectExpired(bytes32 uid) public returns (bool) {
-        Attestation memory attestation = eas.getAttestation(uid);
+        Attestation memory attestation;
+        
+        // Get attestation with error handling
+        try eas.getAttestation(uid) returns (Attestation memory result) {
+            attestation = result;
+        } catch {
+            revert AttestationNotFound(uid);
+        }
 
         if (block.timestamp < attestation.expirationTime)
             revert UnauthorizedCall();
@@ -134,13 +195,23 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
             (StatementData)
         );
 
-        IERC1155(data.token).safeTransferFrom(
+        // Transfer ERC1155 token with error handling
+        try IERC1155(data.token).safeTransferFrom(
             address(this),
             attestation.recipient,
             data.tokenId,
             data.amount,
             ""
-        );
+        ) {} catch {
+            revert ERC1155TransferFailed(
+                data.token, 
+                address(this), 
+                attestation.recipient, 
+                data.tokenId,
+                data.amount
+            );
+        }
+        
         return true;
     }
 
