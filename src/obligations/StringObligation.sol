@@ -9,6 +9,8 @@ contract StringObligation is BaseStatement {
     struct StatementData {
         string item;
     }
+    
+    error AttestationCreateFailed();
 
     constructor(
         IEAS _eas,
@@ -19,19 +21,23 @@ contract StringObligation is BaseStatement {
         StatementData calldata data,
         bytes32 refUID
     ) public returns (bytes32) {
-        return
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: msg.sender,
-                        expirationTime: 0,
-                        revocable: false,
-                        refUID: refUID,
-                        data: abi.encode(data),
-                        value: 0
-                    })
+        // Create attestation with try/catch for potential EAS failures
+        try eas.attest(
+            AttestationRequest({
+                schema: ATTESTATION_SCHEMA,
+                data: AttestationRequestData({
+                    recipient: msg.sender,
+                    expirationTime: 0,
+                    revocable: false,
+                    refUID: refUID,
+                    data: abi.encode(data),
+                    value: 0
                 })
-            );
+            })
+        ) returns (bytes32 uid) {
+            return uid;
+        } catch {
+            revert AttestationCreateFailed();
+        }
     }
 }

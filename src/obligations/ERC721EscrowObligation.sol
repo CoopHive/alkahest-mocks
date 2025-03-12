@@ -91,14 +91,7 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
             uid_ = uid;
             emit EscrowMade(uid_, recipient);
         } catch {
-            // If attestation fails, return the token
-            try
-                IERC721(data.token).transferFrom(
-                    address(this),
-                    payer,
-                    data.tokenId
-                )
-            {} catch {}
+            // The revert will automatically revert all state changes including token transfers
             revert AttestationCreateFailed();
         }
     }

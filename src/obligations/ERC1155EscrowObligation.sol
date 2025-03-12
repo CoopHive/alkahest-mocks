@@ -91,14 +91,7 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
             uid_ = uid;
             emit EscrowMade(uid_, recipient);
         } catch {
-            // If attestation fails, return the tokens
-            try IERC1155(data.token).safeTransferFrom(
-                address(this),
-                payer,
-                data.tokenId,
-                data.amount,
-                ""
-            ) {} catch {}
+            // The revert will automatically revert all state changes including token transfers
             revert AttestationCreateFailed();
         }
     }

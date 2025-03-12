@@ -22,6 +22,8 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
     event PaymentMade(bytes32 indexed payment, address indexed buyer);
 
     error InvalidPayment();
+    error ERC1155TransferFailed(address token, address from, address to, uint256 tokenId, uint256 amount);
+    error AttestationCreateFailed();
 
     constructor(
         IEAS _eas,
@@ -40,15 +42,27 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
-        IERC1155(data.token).safeTransferFrom(
+        // Try token transfer with error handling
+        try IERC1155(data.token).safeTransferFrom(
             payer,
             data.payee,
             data.tokenId,
             data.amount,
             ""
-        );
+        ) {
+            // Transfer succeeded
+        } catch {
+            revert ERC1155TransferFailed(
+                data.token, 
+                payer, 
+                data.payee, 
+                data.tokenId,
+                data.amount
+            );
+        }
 
-        uid_ = eas.attest(
+        // Create attestation with try/catch for potential EAS failures
+        try eas.attest(
             AttestationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
@@ -60,8 +74,13 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
                     value: 0
                 })
             })
-        );
-        emit PaymentMade(uid_, recipient);
+        ) returns (bytes32 uid) {
+            uid_ = uid;
+            emit PaymentMade(uid_, recipient);
+        } catch {
+            // Note: We can't refund the tokens here as they're already sent to payee
+            revert AttestationCreateFailed();
+        }
     }
 
     function makeStatement(

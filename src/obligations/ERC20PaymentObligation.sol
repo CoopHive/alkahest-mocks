@@ -21,6 +21,8 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
     event PaymentMade(bytes32 indexed payment, address indexed buyer);
 
     error InvalidPayment();
+    error ERC20TransferFailed(address token, address from, address to, uint256 amount);
+    error AttestationCreateFailed();
 
     constructor(
         IEAS _eas,
@@ -39,10 +41,20 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
-        if (!IERC20(data.token).transferFrom(payer, data.payee, data.amount))
-            revert InvalidPayment();
+        // Try token transfer with error handling
+        bool success;
+        try IERC20(data.token).transferFrom(payer, data.payee, data.amount) returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
+        
+        if (!success) {
+            revert ERC20TransferFailed(data.token, payer, data.payee, data.amount);
+        }
 
-        uid_ = eas.attest(
+        // Create attestation with try/catch for potential EAS failures
+        try eas.attest(
             AttestationRequest({
                 schema: ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
@@ -54,8 +66,13 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
                     value: 0
                 })
             })
-        );
-        emit PaymentMade(uid_, recipient);
+        ) returns (bytes32 uid) {
+            uid_ = uid;
+            emit PaymentMade(uid_, recipient);
+        } catch {
+            // Note: We can't refund the tokens here as they're already sent to payee
+            revert AttestationCreateFailed();
+        }
     }
 
     function makeStatement(

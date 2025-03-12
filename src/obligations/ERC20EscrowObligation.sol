@@ -96,8 +96,7 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
             uid_ = uid;
             emit EscrowMade(uid_, recipient);
         } catch {
-            // If attestation fails, return the tokens
-            try IERC20(data.token).transfer(payer, data.amount) {} catch {}
+            // The revert will automatically revert all state changes including token transfers
             revert AttestationCreateFailed();
         }
     }
