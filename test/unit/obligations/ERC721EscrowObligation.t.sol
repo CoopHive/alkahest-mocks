@@ -413,8 +413,16 @@ contract ERC721EscrowObligationTest is Test {
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
 
-        // Should revert because the token transfer will fail
-        vm.expectRevert();
+        // Should revert with our custom ERC721TransferFailed error
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ERC721EscrowObligation.ERC721TransferFailed.selector,
+                address(token),
+                otherOwner,
+                address(escrowObligation),
+                otherTokenId
+            )
+        );
         escrowObligation.makeStatementFor(
             data,
             expiration,

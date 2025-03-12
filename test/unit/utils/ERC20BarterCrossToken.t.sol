@@ -376,7 +376,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         vm.warp(block.timestamp + 2 hours);
 
         vm.prank(alice);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(ERC20BarterCrossToken.PermitFailed.selector, address(bidToken), "Permit expired"));
         barterCross.permitAndBuyErc721WithErc20(
             address(bidToken),
             bidAmount,
@@ -414,7 +414,9 @@ contract ERC20BarterCrossTokenUnitTest is Test {
 
         // Bob tries to sell ERC721 he no longer owns
         vm.startPrank(bob);
-        vm.expectRevert(); // ERC721: caller is not token owner or approved
+        // This still might revert with an underlying ERC721 error or with our custom error
+        // The exact error can vary depending on implementation details
+        vm.expectRevert();
         barterCross.payErc20ForErc721(buyAttestation);
         vm.stopPrank();
     }

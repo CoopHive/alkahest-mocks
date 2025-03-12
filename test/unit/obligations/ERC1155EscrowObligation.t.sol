@@ -483,8 +483,17 @@ contract ERC1155EscrowObligationTest is Test {
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
 
-        // Should revert because buyer doesn't have enough tokens
-        vm.expectRevert();
+        // Should revert with our custom ERC1155TransferFailed error
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ERC1155EscrowObligation.ERC1155TransferFailed.selector,
+                address(token),
+                buyer,
+                address(escrowObligation),
+                tokenId,
+                excessAmount
+            )
+        );
         escrowObligation.makeStatement(data, expiration);
         vm.stopPrank();
     }

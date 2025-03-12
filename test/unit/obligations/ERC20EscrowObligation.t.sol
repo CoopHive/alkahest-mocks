@@ -445,9 +445,16 @@ contract ERC20EscrowObligationTest is Test {
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
 
-        // OpenZeppelin 5.0 returns ERC20InsufficientBalance error
-        // We just test that it reverts with any error related to insufficient balance
-        vm.expectRevert();
+        // The contract will now revert with our custom ERC20TransferFailed error
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ERC20EscrowObligation.ERC20TransferFailed.selector,
+                address(token),
+                buyer,
+                address(escrowObligation),
+                largeAmount
+            )
+        );
         escrowObligation.makeStatement(data, expiration);
         vm.stopPrank();
     }

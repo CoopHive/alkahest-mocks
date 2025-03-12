@@ -513,9 +513,8 @@ contract AttestationEscrowObligationTest is Test {
         vm.stopPrank();
 
         // Try to collect payment with an invalid escrow attestation ID
-        // The contract reverts but doesn't include error data, so we'll use a generic expectRevert
         vm.startPrank(attester);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(AttestationEscrowObligation.AttestationNotFound.selector, invalidAttestationId));
         escrowObligation.collectPayment(invalidAttestationId, fulfillmentUid);
         vm.stopPrank();
     }
