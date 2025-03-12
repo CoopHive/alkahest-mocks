@@ -1,5 +1,5 @@
 const LICENSE: &str = "// SPDX-License-Identifier: UNLICENSED";
-const PRAGMA: &str = "pragma solidity 0.8.26;";
+const PRAGMA: &str = "pragma solidity ^0.8.26;";
 
 fn gen_imports(imports: impl IntoIterator<Item = impl ToString>) -> String {
     let imports = imports

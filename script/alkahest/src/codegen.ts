@@ -1,5 +1,5 @@
 const license = "// SPDX-License-Identifier: UNLICENSED";
-const pragma = "pragma solidity 0.8.26;";
+const pragma = "pragma solidity ^0.8.26;";
 
 const genImports = (imports: string[]) => {
   const imports_ = new Set(imports);

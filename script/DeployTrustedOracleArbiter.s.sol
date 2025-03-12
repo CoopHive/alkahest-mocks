@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import "forge-std/Script.sol";
 import {IEAS} from "@eas/IEAS.sol";

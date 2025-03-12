@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import "forge-std/Script.sol";
 import {IEAS} from "@eas/IEAS.sol";
@@ -112,13 +112,13 @@ contract Deploy is Script {
 
         // Deploy TokenBundle contracts
         TokenBundleEscrowObligation bundleEscrow = new TokenBundleEscrowObligation(
-            IEAS(easAddress),
-            ISchemaRegistry(schemaRegistryAddress)
-        );
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
         TokenBundlePaymentObligation bundlePayment = new TokenBundlePaymentObligation(
-            IEAS(easAddress),
-            ISchemaRegistry(schemaRegistryAddress)
-        );
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
         TokenBundleBarterUtils bundleBarterUtils = new TokenBundleBarterUtils(
             IEAS(easAddress),
             bundleEscrow,
@@ -139,43 +139,43 @@ contract Deploy is Script {
         );
 
         ERC721BarterCrossToken erc721BarterCrossToken = new ERC721BarterCrossToken(
-            IEAS(easAddress),
-            erc20Escrow,
-            erc20Payment,
-            erc721Escrow,
-            erc721Payment,
-            erc1155Escrow,
-            erc1155Payment,
-            bundleEscrow,
-            bundlePayment
-        );
+                IEAS(easAddress),
+                erc20Escrow,
+                erc20Payment,
+                erc721Escrow,
+                erc721Payment,
+                erc1155Escrow,
+                erc1155Payment,
+                bundleEscrow,
+                bundlePayment
+            );
 
         ERC1155BarterCrossToken erc1155BarterCrossToken = new ERC1155BarterCrossToken(
-            IEAS(easAddress),
-            erc20Escrow,
-            erc20Payment,
-            erc721Escrow,
-            erc721Payment,
-            erc1155Escrow,
-            erc1155Payment,
-            bundleEscrow,
-            bundlePayment
-        );
+                IEAS(easAddress),
+                erc20Escrow,
+                erc20Payment,
+                erc721Escrow,
+                erc721Payment,
+                erc1155Escrow,
+                erc1155Payment,
+                bundleEscrow,
+                bundlePayment
+            );
 
         // Deploy attestation barter contracts
         AttestationEscrowObligation attestationEscrow = new AttestationEscrowObligation(
-            IEAS(easAddress),
-            ISchemaRegistry(schemaRegistryAddress)
-        );
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
         AttestationEscrowObligation2 attestationEscrow2 = new AttestationEscrowObligation2(
-            IEAS(easAddress),
-            ISchemaRegistry(schemaRegistryAddress)
-        );
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
         AttestationBarterUtils attestationBarterUtils = new AttestationBarterUtils(
-            IEAS(easAddress),
-            ISchemaRegistry(schemaRegistryAddress),
-            attestationEscrow2
-        );
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress),
+                attestationEscrow2
+            );
 
         vm.stopBroadcast();
 
@@ -205,7 +205,10 @@ contract Deploy is Script {
         console.log("ERC1155EscrowObligation:", address(erc1155Escrow));
         console.log("ERC1155PaymentObligation:", address(erc1155Payment));
         console.log("ERC1155BarterUtils:", address(erc1155BarterUtils));
-        console.log("ERC1155BarterCrossToken:", address(erc1155BarterCrossToken));
+        console.log(
+            "ERC1155BarterCrossToken:",
+            address(erc1155BarterCrossToken)
+        );
 
         console.log("\nTokenBundle Contracts:");
         console.log("TokenBundleEscrowObligation:", address(bundleEscrow));
@@ -214,7 +217,10 @@ contract Deploy is Script {
 
         console.log("\nAttestation Barter Contracts:");
         console.log("AttestationEscrowObligation:", address(attestationEscrow));
-        console.log("AttestationEscrowObligation2:", address(attestationEscrow2));
+        console.log(
+            "AttestationEscrowObligation2:",
+            address(attestationEscrow2)
+        );
         console.log("AttestationBarterUtils:", address(attestationBarterUtils));
     }
 }
