@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
@@ -7,11 +7,11 @@ import {TrivialArbiter} from "@src/arbiters/TrivialArbiter.sol";
 
 contract TrivialArbiterTest is Test {
     TrivialArbiter arbiter;
-    
+
     function setUp() public {
         arbiter = new TrivialArbiter();
     }
-    
+
     function testCheckStatementAlwaysReturnsTrue() public {
         // Create a test attestation (values don't matter for TrivialArbiter)
         Attestation memory attestation = Attestation({
@@ -26,19 +26,26 @@ contract TrivialArbiterTest is Test {
             revocable: true,
             data: bytes("")
         });
-        
+
         // Empty demand data
         bytes memory demand = bytes("");
-        
+
         // Check statement should always return true
         bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
         assertTrue(result, "TrivialArbiter should always return true");
-        
+
         // Try with different values, should still return true
         attestation.uid = bytes32(uint256(1));
         demand = abi.encode("some data");
-        
-        result = arbiter.checkStatement(attestation, demand, bytes32(uint256(42)));
-        assertTrue(result, "TrivialArbiter should always return true regardless of inputs");
+
+        result = arbiter.checkStatement(
+            attestation,
+            demand,
+            bytes32(uint256(42))
+        );
+        assertTrue(
+            result,
+            "TrivialArbiter should always return true regardless of inputs"
+        );
     }
 }

@@ -9,6 +9,7 @@ import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract MockERC721 is ERC721 {
     uint256 private _currentTokenId = 0;
@@ -33,11 +34,6 @@ contract ERC721BarterUtilsUnitTest is Test {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     uint256 internal constant ALICE_PRIVATE_KEY = 0xa11ce;
     uint256 internal constant BOB_PRIVATE_KEY = 0xb0b;
 
@@ -48,10 +44,8 @@ contract ERC721BarterUtilsUnitTest is Test {
     uint256 public bobErc721Id;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         alice = vm.addr(ALICE_PRIVATE_KEY);
         bob = vm.addr(BOB_PRIVATE_KEY);
@@ -105,23 +99,39 @@ contract ERC721BarterUtilsUnitTest is Test {
             bid.data,
             (ERC721EscrowObligation.StatementData)
         );
-        
+
         assertEq(escrowData.token, address(erc721TokenA), "Token should match");
         assertEq(escrowData.tokenId, aliceErc721Id, "TokenId should match");
-        assertEq(escrowData.arbiter, address(paymentStatement), "Arbiter should be payment statement");
-        
+        assertEq(
+            escrowData.arbiter,
+            address(paymentStatement),
+            "Arbiter should be payment statement"
+        );
+
         // Extract the demand data
         ERC721PaymentObligation.StatementData memory demandData = abi.decode(
             escrowData.demand,
             (ERC721PaymentObligation.StatementData)
         );
-        
-        assertEq(demandData.token, address(erc721TokenB), "Demand token should match");
-        assertEq(demandData.tokenId, bobErc721Id, "Demand tokenId should match");
+
+        assertEq(
+            demandData.token,
+            address(erc721TokenB),
+            "Demand token should match"
+        );
+        assertEq(
+            demandData.tokenId,
+            bobErc721Id,
+            "Demand tokenId should match"
+        );
         assertEq(demandData.payee, alice, "Payee should be Alice");
 
         // Verify that Alice's ERC721 token is now escrowed
-        assertEq(erc721TokenA.ownerOf(aliceErc721Id), address(escrowStatement), "ERC721 should be in escrow");
+        assertEq(
+            erc721TokenA.ownerOf(aliceErc721Id),
+            address(escrowStatement),
+            "ERC721 should be in escrow"
+        );
     }
 
     function testPayErc721ForErc721() public {
@@ -152,8 +162,16 @@ contract ERC721BarterUtilsUnitTest is Test {
         );
 
         // Verify the exchange happened
-        assertEq(erc721TokenA.ownerOf(aliceErc721Id), bob, "Bob should now own Alice's ERC721 token");
-        assertEq(erc721TokenB.ownerOf(bobErc721Id), alice, "Alice should now own Bob's ERC721 token");
+        assertEq(
+            erc721TokenA.ownerOf(aliceErc721Id),
+            bob,
+            "Bob should now own Alice's ERC721 token"
+        );
+        assertEq(
+            erc721TokenB.ownerOf(bobErc721Id),
+            alice,
+            "Alice should now own Bob's ERC721 token"
+        );
     }
 
     // Test that we can extract the demand data correctly
@@ -177,12 +195,12 @@ contract ERC721BarterUtilsUnitTest is Test {
             bid.data,
             (ERC721EscrowObligation.StatementData)
         );
-        
+
         ERC721PaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
             (ERC721PaymentObligation.StatementData)
         );
-        
+
         // Verify the demand data matches what we expect
         assertEq(demand.token, address(erc721TokenB), "Token should match");
         assertEq(demand.tokenId, bobErc721Id, "TokenId should match");

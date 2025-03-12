@@ -14,6 +14,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 // Mock ERC20 token for testing
 contract MockERC20 is ERC20 {
@@ -78,11 +79,6 @@ contract TokenBundleEscrowObligationTest is Test {
     MockArbiter public mockArbiter;
     MockArbiter public rejectingArbiter;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     address internal buyer;
     address internal seller;
 
@@ -103,10 +99,8 @@ contract TokenBundleEscrowObligationTest is Test {
     uint64 constant EXPIRATION_TIME = 365 days;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         escrowObligation = new TokenBundleEscrowObligation(eas, schemaRegistry);
 
@@ -293,12 +287,13 @@ contract TokenBundleEscrowObligationTest is Test {
         vm.stopPrank();
 
         // Create a fulfillment attestation using StringObligation
-        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
+        StringObligation stringObligation = new StringObligation(
+            eas,
+            schemaRegistry
+        );
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.makeStatement(
-            StringObligation.StatementData({
-                item: "fulfillment data"
-            }),
+            StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -403,12 +398,13 @@ contract TokenBundleEscrowObligationTest is Test {
         vm.stopPrank();
 
         // Create a fulfillment attestation using StringObligation
-        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
+        StringObligation stringObligation = new StringObligation(
+            eas,
+            schemaRegistry
+        );
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.makeStatement(
-            StringObligation.StatementData({
-                item: "fulfillment data"
-            }),
+            StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
 

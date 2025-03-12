@@ -10,6 +10,7 @@ import {ArbiterUtils} from "@src/ArbiterUtils.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {ISchemaResolver} from "@eas/resolver/ISchemaResolver.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract AttestationEscrowObligationTest is Test {
     AttestationEscrowObligation public escrowObligation;
@@ -17,11 +18,6 @@ contract AttestationEscrowObligationTest is Test {
     ISchemaRegistry public schemaRegistry;
     MockArbiter public mockArbiter;
     MockArbiter public rejectingArbiter;
-
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
 
     address internal requester;
     address internal attester;
@@ -33,10 +29,12 @@ contract AttestationEscrowObligationTest is Test {
     uint64 constant EXPIRATION_TIME = 365 days;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
+        // Set block and time to something reasonable, or expiration won't work
+        vm.warp(10 << 12);
+        vm.roll(10 << 4);
 
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         escrowObligation = new AttestationEscrowObligation(eas, schemaRegistry);
         mockArbiter = new MockArbiter(true);
@@ -199,21 +197,34 @@ contract AttestationEscrowObligationTest is Test {
         // First setup the test
         bytes32 fulfillmentUid;
         bytes32 escrowUid;
-        (fulfillmentUid, escrowUid) = createFulfillmentAndEscrow(address(mockArbiter));
-        
+        (fulfillmentUid, escrowUid) = createFulfillmentAndEscrow(
+            address(mockArbiter)
+        );
+
         // Make sure arbiter accepts the fulfillment
         mockArbiter.setShouldAccept(true);
-        
+
         // Collect payment
         vm.prank(attester);
-        bytes32 attestationUid = escrowObligation.collectPayment(escrowUid, fulfillmentUid);
-        
+        bytes32 attestationUid = escrowObligation.collectPayment(
+            escrowUid,
+            fulfillmentUid
+        );
+
         // Verify the payment attestation was created
-        assertNotEq(attestationUid, bytes32(0), "Payment attestation should be created");
-        
+        assertNotEq(
+            attestationUid,
+            bytes32(0),
+            "Payment attestation should be created"
+        );
+
         // Get and verify the original escrow attestation is revoked
         Attestation memory escrow = eas.getAttestation(escrowUid);
-        assertGt(escrow.revocationTime, 0, "Escrow attestation should be revoked");
+        assertGt(
+            escrow.revocationTime,
+            0,
+            "Escrow attestation should be revoked"
+        );
     }
 
     // Test payment collection with rejected fulfillment
@@ -330,7 +341,7 @@ contract AttestationEscrowObligationTest is Test {
         expiredAttestation.expirationTime = uint64(block.timestamp - 1); // Expired
 
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        escrowObligation.checkStatement(
+        bool result = escrowObligation.checkStatement(
             expiredAttestation,
             abi.encode(exactDemand),
             bytes32(0)

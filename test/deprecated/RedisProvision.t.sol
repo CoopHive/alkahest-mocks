@@ -6,27 +6,22 @@ import {RedisProvisionObligation} from "@src/obligations/example/RedisProvisionO
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {Attestation} from "@eas/Common.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract RedisProvisionObligationTest is Test {
     RedisProvisionObligation public provisionObligation;
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     address public alice = address(0x1);
     address public bob = address(0x2);
 
     function setUp() public {
         // Fork Ethereum mainnet to test in a real environment
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         // Set the actual EAS and Schema Registry addresses
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
 
         // Deploy RedisProvisionObligation contract
         provisionObligation = new RedisProvisionObligation(eas, schemaRegistry);

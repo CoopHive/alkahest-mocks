@@ -9,6 +9,7 @@ import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract MockERC1155 is ERC1155 {
     constructor() ERC1155("") {}
@@ -29,11 +30,6 @@ contract ERC1155BarterUtilsUnitTest is Test {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     uint256 internal constant ALICE_PRIVATE_KEY = 0xa11ce;
     uint256 internal constant BOB_PRIVATE_KEY = 0xb0b;
 
@@ -47,10 +43,8 @@ contract ERC1155BarterUtilsUnitTest is Test {
     uint256 public bobTokenAmount = 25;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         alice = vm.addr(ALICE_PRIVATE_KEY);
         bob = vm.addr(BOB_PRIVATE_KEY);
@@ -103,32 +97,52 @@ contract ERC1155BarterUtilsUnitTest is Test {
             bid.data,
             (ERC1155EscrowObligation.StatementData)
         );
-        
-        assertEq(escrowData.token, address(erc1155TokenA), "Token should match");
+
+        assertEq(
+            escrowData.token,
+            address(erc1155TokenA),
+            "Token should match"
+        );
         assertEq(escrowData.tokenId, aliceTokenId, "TokenId should match");
-        assertEq(escrowData.amount, aliceTokenAmount, "Token amount should match");
-        assertEq(escrowData.arbiter, address(paymentStatement), "Arbiter should be payment statement");
-        
+        assertEq(
+            escrowData.amount,
+            aliceTokenAmount,
+            "Token amount should match"
+        );
+        assertEq(
+            escrowData.arbiter,
+            address(paymentStatement),
+            "Arbiter should be payment statement"
+        );
+
         // Extract the demand data
         ERC1155PaymentObligation.StatementData memory demandData = abi.decode(
             escrowData.demand,
             (ERC1155PaymentObligation.StatementData)
         );
-        
-        assertEq(demandData.token, address(erc1155TokenB), "Demand token should match");
+
+        assertEq(
+            demandData.token,
+            address(erc1155TokenB),
+            "Demand token should match"
+        );
         assertEq(demandData.tokenId, bobTokenId, "Demand tokenId should match");
-        assertEq(demandData.amount, bobTokenAmount, "Demand token amount should match");
+        assertEq(
+            demandData.amount,
+            bobTokenAmount,
+            "Demand token amount should match"
+        );
         assertEq(demandData.payee, alice, "Payee should be Alice");
 
         // Verify that Alice's tokens are now escrowed
         assertEq(
-            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId), 
-            aliceTokenAmount, 
+            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId),
+            aliceTokenAmount,
             "Tokens should be in escrow"
         );
         assertEq(
-            erc1155TokenA.balanceOf(alice, aliceTokenId), 
-            0, 
+            erc1155TokenA.balanceOf(alice, aliceTokenId),
+            0,
             "Alice should have no tokens left"
         );
     }
@@ -152,14 +166,19 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Initial token balances (after escrow)
         assertEq(erc1155TokenA.balanceOf(alice, aliceTokenId), 0);
-        assertEq(erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId), aliceTokenAmount);
+        assertEq(
+            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId),
+            aliceTokenAmount
+        );
         assertEq(erc1155TokenB.balanceOf(bob, bobTokenId), bobTokenAmount);
         assertEq(erc1155TokenB.balanceOf(alice, bobTokenId), 0);
 
         // Now Bob fulfills the request
         vm.startPrank(bob);
         erc1155TokenB.setApprovalForAll(address(paymentStatement), true);
-        bytes32 payAttestation = barterUtils.payErc1155ForErc1155(buyAttestation);
+        bytes32 payAttestation = barterUtils.payErc1155ForErc1155(
+            buyAttestation
+        );
         vm.stopPrank();
 
         assertNotEq(
@@ -170,23 +189,23 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Verify the exchange happened
         assertEq(
-            erc1155TokenA.balanceOf(bob, aliceTokenId), 
-            aliceTokenAmount, 
+            erc1155TokenA.balanceOf(bob, aliceTokenId),
+            aliceTokenAmount,
             "Bob should now have Alice's tokens"
         );
         assertEq(
-            erc1155TokenB.balanceOf(alice, bobTokenId), 
-            bobTokenAmount, 
+            erc1155TokenB.balanceOf(alice, bobTokenId),
+            bobTokenAmount,
             "Alice should now have Bob's tokens"
         );
         assertEq(
-            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId), 
-            0, 
+            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId),
+            0,
             "Escrow should have released tokens"
         );
         assertEq(
-            erc1155TokenB.balanceOf(bob, bobTokenId), 
-            0, 
+            erc1155TokenB.balanceOf(bob, bobTokenId),
+            0,
             "Bob should have no tokens left"
         );
     }
@@ -213,12 +232,12 @@ contract ERC1155BarterUtilsUnitTest is Test {
             bid.data,
             (ERC1155EscrowObligation.StatementData)
         );
-        
+
         ERC1155PaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
             (ERC1155PaymentObligation.StatementData)
         );
-        
+
         // Verify the demand data matches what we expect
         assertEq(demand.token, address(erc1155TokenB), "Token should match");
         assertEq(demand.tokenId, bobTokenId, "TokenId should match");
@@ -283,7 +302,13 @@ contract ERC1155BarterUtilsUnitTest is Test {
         // Bob transfers his tokens to someone else
         address thirdParty = makeAddr("third-party");
         vm.startPrank(bob);
-        erc1155TokenB.safeTransferFrom(bob, thirdParty, bobTokenId, bobTokenAmount, "");
+        erc1155TokenB.safeTransferFrom(
+            bob,
+            thirdParty,
+            bobTokenId,
+            bobTokenAmount,
+            ""
+        );
         vm.stopPrank();
 
         // Bob tries to fulfill request with tokens he no longer owns

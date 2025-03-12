@@ -7,6 +7,7 @@ import {IArbiter} from "@src/IArbiter.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract MockArbiter is IArbiter {
     bool public shouldPass;
@@ -31,11 +32,6 @@ contract AttestationEscrowObligationTest is Test {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     uint256 internal constant ALICE_PRIVATE_KEY = 0xa11ce;
     uint256 internal constant BOB_PRIVATE_KEY = 0xb0b;
 
@@ -43,10 +39,8 @@ contract AttestationEscrowObligationTest is Test {
     address public bob;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         alice = vm.addr(ALICE_PRIVATE_KEY);
         bob = vm.addr(BOB_PRIVATE_KEY);

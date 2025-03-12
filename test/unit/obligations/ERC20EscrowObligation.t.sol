@@ -11,6 +11,8 @@ import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
+
 // Mock ERC20 token for testing
 contract MockERC20 is ERC20 {
     constructor() ERC20("Mock Token", "MCK") {
@@ -30,21 +32,14 @@ contract ERC20EscrowObligationTest is Test {
     MockArbiter public mockArbiter;
     MockArbiter public rejectingArbiter;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     address internal buyer;
     address internal seller;
     uint256 constant AMOUNT = 100 * 10 ** 18;
     uint64 constant EXPIRATION_TIME = 365 days;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         escrowObligation = new ERC20EscrowObligation(eas, schemaRegistry);
         token = new MockERC20();
@@ -191,13 +186,14 @@ contract ERC20EscrowObligationTest is Test {
 
         // Create a fulfillment attestation using a separate obligation (can be any other contract)
         // We'll use a simple string obligation for this purpose
-        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
-        
+        StringObligation stringObligation = new StringObligation(
+            eas,
+            schemaRegistry
+        );
+
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.makeStatement(
-            StringObligation.StatementData({
-                item: "fulfillment data"
-            }),
+            StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -242,13 +238,14 @@ contract ERC20EscrowObligationTest is Test {
         vm.stopPrank();
 
         // Create a fulfillment attestation using a separate obligation
-        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
-        
+        StringObligation stringObligation = new StringObligation(
+            eas,
+            schemaRegistry
+        );
+
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.makeStatement(
-            StringObligation.StatementData({
-                item: "fulfillment data"
-            }),
+            StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -447,7 +444,7 @@ contract ERC20EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        
+
         // OpenZeppelin 5.0 returns ERC20InsufficientBalance error
         // We just test that it reverts with any error related to insufficient balance
         vm.expectRevert();

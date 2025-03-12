@@ -17,12 +17,10 @@ import {Attestation} from "@eas/Common.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract MockERC20 is ERC20 {
-    constructor(
-        string memory name,
-        string memory symbol
-    ) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
         _mint(msg.sender, 1000000 * 10 ** 18);
     }
 }
@@ -66,11 +64,6 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     uint256 internal constant ALICE_PRIVATE_KEY = 0xa11ce;
     uint256 internal constant BOB_PRIVATE_KEY = 0xb0b;
 
@@ -81,14 +74,12 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
     uint256 public erc1155TokenAAmount = 100;
     uint256 public erc1155TokenBId = 2;
     uint256 public erc1155TokenBAmount = 50;
-    uint256 public erc20Amount = 500 * 10**18;
+    uint256 public erc20Amount = 500 * 10 ** 18;
     uint256 public erc721TokenId;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         alice = vm.addr(ALICE_PRIVATE_KEY);
         bob = vm.addr(BOB_PRIVATE_KEY);
@@ -124,10 +115,10 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Setup initial token balances
         erc20Token.transfer(bob, erc20Amount);
-        
+
         vm.prank(bob);
         erc721TokenId = erc721Token.mint(bob); // Bob has an ERC721 token
-        
+
         erc1155TokenA.mint(alice, erc1155TokenAId, erc1155TokenAAmount); // Alice has erc1155TokenA
         erc1155TokenB.mint(bob, erc1155TokenBId, erc1155TokenBAmount); // Bob has erc1155TokenB
     }
@@ -160,19 +151,31 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             bid.data,
             (ERC1155EscrowObligation.StatementData)
         );
-        
-        assertEq(escrowData.token, address(erc1155TokenA), "Token should match");
+
+        assertEq(
+            escrowData.token,
+            address(erc1155TokenA),
+            "Token should match"
+        );
         assertEq(escrowData.tokenId, erc1155TokenAId, "TokenId should match");
         assertEq(escrowData.amount, erc1155TokenAAmount, "Amount should match");
-        assertEq(escrowData.arbiter, address(erc20Payment), "Arbiter should be erc20Payment");
-        
+        assertEq(
+            escrowData.arbiter,
+            address(erc20Payment),
+            "Arbiter should be erc20Payment"
+        );
+
         // Extract the demand data
         ERC20PaymentObligation.StatementData memory demandData = abi.decode(
             escrowData.demand,
             (ERC20PaymentObligation.StatementData)
         );
-        
-        assertEq(demandData.token, address(erc20Token), "ERC20 token should match");
+
+        assertEq(
+            demandData.token,
+            address(erc20Token),
+            "ERC20 token should match"
+        );
         assertEq(demandData.amount, erc20Amount, "ERC20 amount should match");
         assertEq(demandData.payee, alice, "Payee should be Alice");
 
@@ -268,19 +271,31 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             bid.data,
             (ERC1155EscrowObligation.StatementData)
         );
-        
-        assertEq(escrowData.token, address(erc1155TokenA), "Token should match");
+
+        assertEq(
+            escrowData.token,
+            address(erc1155TokenA),
+            "Token should match"
+        );
         assertEq(escrowData.tokenId, erc1155TokenAId, "TokenId should match");
         assertEq(escrowData.amount, erc1155TokenAAmount, "Amount should match");
-        assertEq(escrowData.arbiter, address(erc721Payment), "Arbiter should be erc721Payment");
-        
+        assertEq(
+            escrowData.arbiter,
+            address(erc721Payment),
+            "Arbiter should be erc721Payment"
+        );
+
         // Extract the demand data
         ERC721PaymentObligation.StatementData memory demandData = abi.decode(
             escrowData.demand,
             (ERC721PaymentObligation.StatementData)
         );
-        
-        assertEq(demandData.token, address(erc721Token), "ERC721 token should match");
+
+        assertEq(
+            demandData.token,
+            address(erc721Token),
+            "ERC721 token should match"
+        );
         assertEq(demandData.tokenId, erc721TokenId, "ERC721 ID should match");
         assertEq(demandData.payee, alice, "Payee should be Alice");
 
@@ -316,7 +331,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         // Bob fulfills Alice's bid
         vm.startPrank(bob);
         erc721Token.approve(address(erc721Payment), erc721TokenId);
-        bytes32 payAttestation = barterCross.payErc1155ForErc721(buyAttestation);
+        bytes32 payAttestation = barterCross.payErc1155ForErc721(
+            buyAttestation
+        );
         vm.stopPrank();
 
         assertNotEq(
@@ -348,16 +365,17 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create bundle data
-        TokenBundlePaymentObligation.StatementData memory bundleData = TokenBundlePaymentObligation.StatementData({
-            erc20Tokens: new address[](1),
-            erc20Amounts: new uint256[](1),
-            erc721Tokens: new address[](1),
-            erc721TokenIds: new uint256[](1),
-            erc1155Tokens: new address[](1),
-            erc1155TokenIds: new uint256[](1),
-            erc1155Amounts: new uint256[](1),
-            payee: alice
-        });
+        TokenBundlePaymentObligation.StatementData
+            memory bundleData = TokenBundlePaymentObligation.StatementData({
+                erc20Tokens: new address[](1),
+                erc20Amounts: new uint256[](1),
+                erc721Tokens: new address[](1),
+                erc721TokenIds: new uint256[](1),
+                erc1155Tokens: new address[](1),
+                erc1155TokenIds: new uint256[](1),
+                erc1155Amounts: new uint256[](1),
+                payee: alice
+            });
 
         bundleData.erc20Tokens[0] = address(erc20Token);
         bundleData.erc20Amounts[0] = erc20Amount / 2;
@@ -390,22 +408,43 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
             bid.data,
             (ERC1155EscrowObligation.StatementData)
         );
-        
-        assertEq(escrowData.token, address(erc1155TokenA), "Token should match");
+
+        assertEq(
+            escrowData.token,
+            address(erc1155TokenA),
+            "Token should match"
+        );
         assertEq(escrowData.tokenId, erc1155TokenAId, "TokenId should match");
         assertEq(escrowData.amount, erc1155TokenAAmount, "Amount should match");
-        assertEq(escrowData.arbiter, address(bundlePayment), "Arbiter should be bundlePayment");
-        
-        // Extract the demand data - we'll just verify it's correctly decodable
-        TokenBundlePaymentObligation.StatementData memory demandData = abi.decode(
-            escrowData.demand,
-            (TokenBundlePaymentObligation.StatementData)
+        assertEq(
+            escrowData.arbiter,
+            address(bundlePayment),
+            "Arbiter should be bundlePayment"
         );
-        
+
+        // Extract the demand data - we'll just verify it's correctly decodable
+        TokenBundlePaymentObligation.StatementData memory demandData = abi
+            .decode(
+                escrowData.demand,
+                (TokenBundlePaymentObligation.StatementData)
+            );
+
         assertEq(demandData.payee, alice, "Payee should be Alice");
-        assertEq(demandData.erc20Tokens[0], address(erc20Token), "ERC20 token should match");
-        assertEq(demandData.erc721Tokens[0], address(erc721Token), "ERC721 token should match");
-        assertEq(demandData.erc1155Tokens[0], address(erc1155TokenB), "ERC1155 token should match");
+        assertEq(
+            demandData.erc20Tokens[0],
+            address(erc20Token),
+            "ERC20 token should match"
+        );
+        assertEq(
+            demandData.erc721Tokens[0],
+            address(erc721Token),
+            "ERC721 token should match"
+        );
+        assertEq(
+            demandData.erc1155Tokens[0],
+            address(erc1155TokenB),
+            "ERC1155 token should match"
+        );
 
         // Verify that Alice's tokens are now escrowed
         assertEq(
@@ -424,16 +463,17 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create bundle data
-        TokenBundlePaymentObligation.StatementData memory bundleData = TokenBundlePaymentObligation.StatementData({
-            erc20Tokens: new address[](1),
-            erc20Amounts: new uint256[](1),
-            erc721Tokens: new address[](1),
-            erc721TokenIds: new uint256[](1),
-            erc1155Tokens: new address[](1),
-            erc1155TokenIds: new uint256[](1),
-            erc1155Amounts: new uint256[](1),
-            payee: alice
-        });
+        TokenBundlePaymentObligation.StatementData
+            memory bundleData = TokenBundlePaymentObligation.StatementData({
+                erc20Tokens: new address[](1),
+                erc20Amounts: new uint256[](1),
+                erc721Tokens: new address[](1),
+                erc721TokenIds: new uint256[](1),
+                erc1155Tokens: new address[](1),
+                erc1155TokenIds: new uint256[](1),
+                erc1155Amounts: new uint256[](1),
+                payee: alice
+            });
 
         bundleData.erc20Tokens[0] = address(erc20Token);
         bundleData.erc20Amounts[0] = erc20Amount / 2;
@@ -459,7 +499,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         erc20Token.approve(address(bundlePayment), erc20Amount / 2);
         erc721Token.approve(address(bundlePayment), erc721TokenId);
         erc1155TokenB.setApprovalForAll(address(bundlePayment), true);
-        bytes32 payAttestation = barterCross.payErc1155ForBundle(buyAttestation);
+        bytes32 payAttestation = barterCross.payErc1155ForBundle(
+            buyAttestation
+        );
         vm.stopPrank();
 
         assertNotEq(

@@ -17,6 +17,7 @@ import {Attestation} from "@eas/Common.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract MockERC20Permit is ERC20Permit {
     constructor(
@@ -65,11 +66,6 @@ contract ERC20BarterCrossTokenUnitTest is Test {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     uint256 internal constant ALICE_PRIVATE_KEY = 0xa11ce;
     uint256 internal constant BOB_PRIVATE_KEY = 0xb0b;
 
@@ -77,10 +73,8 @@ contract ERC20BarterCrossTokenUnitTest is Test {
     address public bob;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         alice = vm.addr(ALICE_PRIVATE_KEY);
         bob = vm.addr(BOB_PRIVATE_KEY);
@@ -148,18 +142,26 @@ contract ERC20BarterCrossTokenUnitTest is Test {
             bid.data,
             (ERC20EscrowObligation.StatementData)
         );
-        
+
         assertEq(escrowData.token, address(bidToken), "Token should match");
         assertEq(escrowData.amount, bidAmount, "Amount should match");
-        assertEq(escrowData.arbiter, address(erc721Payment), "Arbiter should be erc721Payment");
-        
+        assertEq(
+            escrowData.arbiter,
+            address(erc721Payment),
+            "Arbiter should be erc721Payment"
+        );
+
         // Extract the demand data
         ERC721PaymentObligation.StatementData memory demandData = abi.decode(
             escrowData.demand,
             (ERC721PaymentObligation.StatementData)
         );
-        
-        assertEq(demandData.token, address(askErc721Token), "ERC721 token should match");
+
+        assertEq(
+            demandData.token,
+            address(askErc721Token),
+            "ERC721 token should match"
+        );
         assertEq(demandData.tokenId, erc721TokenId, "ERC721 ID should match");
         assertEq(demandData.payee, alice, "Payee should be Alice");
     }
@@ -266,17 +268,18 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create token bundle statement data
-        TokenBundlePaymentObligation.StatementData memory bundleData = TokenBundlePaymentObligation.StatementData({
-            erc20Tokens: new address[](1),
-            erc20Amounts: new uint256[](1),
-            erc721Tokens: new address[](1),
-            erc721TokenIds: new uint256[](1),
-            erc1155Tokens: new address[](1),
-            erc1155TokenIds: new uint256[](1),
-            erc1155Amounts: new uint256[](1),
-            payee: alice
-        });
-        
+        TokenBundlePaymentObligation.StatementData
+            memory bundleData = TokenBundlePaymentObligation.StatementData({
+                erc20Tokens: new address[](1),
+                erc20Amounts: new uint256[](1),
+                erc721Tokens: new address[](1),
+                erc721TokenIds: new uint256[](1),
+                erc1155Tokens: new address[](1),
+                erc1155TokenIds: new uint256[](1),
+                erc1155Amounts: new uint256[](1),
+                payee: alice
+            });
+
         bundleData.erc20Tokens[0] = address(0);
         bundleData.erc20Amounts[0] = 0;
         bundleData.erc721Tokens[0] = address(askErc721Token);
@@ -308,17 +311,18 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint256 deadline = block.timestamp + 1 days;
 
         // Create token bundle statement data
-        TokenBundlePaymentObligation.StatementData memory bundleData = TokenBundlePaymentObligation.StatementData({
-            erc20Tokens: new address[](1),
-            erc20Amounts: new uint256[](1),
-            erc721Tokens: new address[](1),
-            erc721TokenIds: new uint256[](1),
-            erc1155Tokens: new address[](1),
-            erc1155TokenIds: new uint256[](1),
-            erc1155Amounts: new uint256[](1),
-            payee: alice
-        });
-        
+        TokenBundlePaymentObligation.StatementData
+            memory bundleData = TokenBundlePaymentObligation.StatementData({
+                erc20Tokens: new address[](1),
+                erc20Amounts: new uint256[](1),
+                erc721Tokens: new address[](1),
+                erc721TokenIds: new uint256[](1),
+                erc1155Tokens: new address[](1),
+                erc1155TokenIds: new uint256[](1),
+                erc1155Amounts: new uint256[](1),
+                payee: alice
+            });
+
         bundleData.erc20Tokens[0] = address(0);
         bundleData.erc20Amounts[0] = 0;
         bundleData.erc721Tokens[0] = address(askErc721Token);

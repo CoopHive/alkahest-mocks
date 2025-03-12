@@ -6,6 +6,7 @@ import {BaseStatement} from "@src/BaseStatement.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {IEAS, Attestation} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 // Mock implementation of BaseStatement for testing
 contract MockBaseStatement is BaseStatement {
@@ -36,16 +37,9 @@ contract BaseStatementTest is Test {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         baseStatement = new MockBaseStatement(eas, schemaRegistry);
     }
@@ -150,7 +144,7 @@ contract BaseStatementTest is Test {
 
         // Mock getAttestation to return a valid attestation
         vm.mockCall(
-            EAS_ADDRESS,
+            address(eas),
             abi.encodeWithSelector(IEAS.getAttestation.selector, validSchema),
             abi.encode(
                 Attestation({
@@ -170,7 +164,7 @@ contract BaseStatementTest is Test {
 
         // Mock getAttestation to return an invalid attestation
         vm.mockCall(
-            EAS_ADDRESS,
+            address(eas),
             abi.encodeWithSelector(IEAS.getAttestation.selector, invalidSchema),
             abi.encode(
                 Attestation({

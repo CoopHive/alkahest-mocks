@@ -9,7 +9,7 @@ import {MockArbiter} from "./MockArbiter.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {ISchemaResolver} from "@eas/resolver/ISchemaResolver.sol";
-
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 contract AttestationEscrowObligation2Test is Test {
     AttestationEscrowObligation2 public escrowObligation;
     StringObligation public stringObligation;
@@ -18,8 +18,6 @@ contract AttestationEscrowObligation2Test is Test {
     MockArbiter public mockArbiter;
     MockArbiter public rejectingArbiter;
 
-    address public constant EAS_ADDRESS = 0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS = 0xA7b39296258348C78294F95B872b282326A97BDF;
 
     address internal requester;
     address internal attester;
@@ -33,10 +31,9 @@ contract AttestationEscrowObligation2Test is Test {
     uint64 constant EXPIRATION_TIME = 365 days;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
 
         escrowObligation = new AttestationEscrowObligation2(eas, schemaRegistry);
         stringObligation = new StringObligation(eas, schemaRegistry);

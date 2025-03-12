@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract MockERC20Permit is ERC20Permit {
     constructor(
@@ -52,18 +53,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     uint256 internal constant ALICE_PRIVATE_KEY = 0xa11ce;
     uint256 internal constant BOB_PRIVATE_KEY = 0xb0b;
     address public alice;
     address public bob;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         _setupContracts();
         _setupTestAccounts();
@@ -71,9 +68,6 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     }
 
     function _setupContracts() internal {
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
-
         erc20TokenA = new MockERC20Permit("Token A", "TKA");
         erc20TokenB = new MockERC20Permit("Token B", "TKB");
         askErc721TokenA = new MockERC721();
@@ -249,8 +243,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Alice creates buy order with manual approvals
         vm.startPrank(alice);
-        erc20TokenA.approve(address(escrowStatement), bidBundle.erc20Amounts[0]);
-        askErc721TokenA.approve(address(escrowStatement), bidBundle.erc721TokenIds[0]);
+        erc20TokenA.approve(
+            address(escrowStatement),
+            bidBundle.erc20Amounts[0]
+        );
+        askErc721TokenA.approve(
+            address(escrowStatement),
+            bidBundle.erc721TokenIds[0]
+        );
         askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
 
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
@@ -287,8 +287,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Bob fulfills the order with manual approvals
         vm.startPrank(bob);
-        erc20TokenB.approve(address(paymentStatement), askBundle.erc20Amounts[0]);
-        askErc721TokenB.approve(address(paymentStatement), askBundle.erc721TokenIds[0]);
+        erc20TokenB.approve(
+            address(paymentStatement),
+            askBundle.erc20Amounts[0]
+        );
+        askErc721TokenB.approve(
+            address(paymentStatement),
+            askBundle.erc721TokenIds[0]
+        );
         askErc1155TokenB.setApprovalForAll(address(paymentStatement), true);
 
         bytes32 sellAttestation = barterUtils.payBundleForBundle(
@@ -422,8 +428,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         bidBundle.demand = abi.encode(askBundle);
 
         vm.startPrank(alice);
-        erc20TokenA.approve(address(escrowStatement), bidBundle.erc20Amounts[0]);
-        askErc721TokenA.approve(address(escrowStatement), bidBundle.erc721TokenIds[0]);
+        erc20TokenA.approve(
+            address(escrowStatement),
+            bidBundle.erc20Amounts[0]
+        );
+        askErc721TokenA.approve(
+            address(escrowStatement),
+            bidBundle.erc721TokenIds[0]
+        );
         askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
 
         vm.expectRevert();
@@ -468,8 +480,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Alice creates buy order
         vm.startPrank(alice);
-        erc20TokenA.approve(address(escrowStatement), bidBundle.erc20Amounts[0]);
-        askErc721TokenA.approve(address(escrowStatement), bidBundle.erc721TokenIds[0]);
+        erc20TokenA.approve(
+            address(escrowStatement),
+            bidBundle.erc20Amounts[0]
+        );
+        askErc721TokenA.approve(
+            address(escrowStatement),
+            bidBundle.erc721TokenIds[0]
+        );
         askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
 
         bytes32 buyAttestation = barterUtils.permitAndEscrowBundleForBundle(
@@ -495,8 +513,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Bob fulfills the order
         vm.startPrank(bob);
-        erc20TokenB.approve(address(paymentStatement), askBundle.erc20Amounts[0]);
-        askErc721TokenB.approve(address(paymentStatement), askBundle.erc721TokenIds[0]);
+        erc20TokenB.approve(
+            address(paymentStatement),
+            askBundle.erc20Amounts[0]
+        );
+        askErc721TokenB.approve(
+            address(paymentStatement),
+            askBundle.erc721TokenIds[0]
+        );
         askErc1155TokenB.setApprovalForAll(address(paymentStatement), true);
 
         bytes32 sellAttestation = barterUtils.permitAndPayBundleForBundle(
@@ -545,8 +569,16 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         );
 
         // Check ERC721 ownership
-        assertEq(askErc721TokenA.ownerOf(1), bob, "ERC721 A #1 ownership incorrect");
-        assertEq(askErc721TokenB.ownerOf(1), alice, "ERC721 B #1 ownership incorrect");
+        assertEq(
+            askErc721TokenA.ownerOf(1),
+            bob,
+            "ERC721 A #1 ownership incorrect"
+        );
+        assertEq(
+            askErc721TokenB.ownerOf(1),
+            alice,
+            "ERC721 B #1 ownership incorrect"
+        );
 
         // Check ERC1155 balances
         assertEq(

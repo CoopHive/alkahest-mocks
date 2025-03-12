@@ -7,6 +7,7 @@ import {IEAS, Attestation} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 // Mock ERC20 token for testing
 contract MockERC20 is ERC20 {
@@ -25,19 +26,12 @@ contract ERC20PaymentObligationTest is Test {
     ISchemaRegistry public schemaRegistry;
     MockERC20 public token;
 
-    address public constant EAS_ADDRESS =
-        0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587;
-    address public constant SCHEMA_REGISTRY_ADDRESS =
-        0xA7b39296258348C78294F95B872b282326A97BDF;
-
     address internal payer;
     address internal payee;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl(vm.envString("RPC_URL_MAINNET")));
-
-        eas = IEAS(EAS_ADDRESS);
-        schemaRegistry = ISchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
 
         paymentObligation = new ERC20PaymentObligation(eas, schemaRegistry);
         token = new MockERC20();
