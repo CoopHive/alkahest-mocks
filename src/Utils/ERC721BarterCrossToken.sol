@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {ERC721BarterUtils} from "./ERC721BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
@@ -182,8 +182,10 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
         Attestation memory bid = eas.getAttestation(buyAttestation);
         // Note: There's a type error in the original code
         // The decoding should match the type in buyBundleWithErc721
-        ERC721EscrowObligation.StatementData memory escrowData = abi
-            .decode(bid.data, (ERC721EscrowObligation.StatementData));
+        ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
+            bid.data,
+            (ERC721EscrowObligation.StatementData)
+        );
         TokenBundlePaymentObligation.StatementData memory demand = abi.decode(
             escrowData.demand,
             (TokenBundlePaymentObligation.StatementData)

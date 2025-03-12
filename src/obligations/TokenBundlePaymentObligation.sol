@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
@@ -11,10 +11,7 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract TokenBundlePaymentObligation is
-    BaseStatement,
-    IArbiter
-{
+contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
@@ -184,5 +181,4 @@ contract TokenBundlePaymentObligation is
 
         return true;
     }
-
 }

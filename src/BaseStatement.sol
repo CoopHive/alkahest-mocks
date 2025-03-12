@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {IArbiter} from "./IArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";

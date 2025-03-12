@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
@@ -13,10 +13,10 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
-        address token;
-        uint256 tokenId;
         address arbiter;
         bytes demand;
+        address token;
+        uint256 tokenId;
     }
 
     event EscrowMade(bytes32 indexed payment, address indexed buyer);

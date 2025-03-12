@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {ERC721EscrowObligation} from "../../obligations/ERC721EscrowObligation.sol";

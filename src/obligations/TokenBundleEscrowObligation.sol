@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
@@ -12,14 +12,12 @@ import {BaseStatement} from "../BaseStatement.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract TokenBundleEscrowObligation is
-    BaseStatement,
-    IArbiter,
-    ERC1155Holder
-{
+contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     using ArbiterUtils for Attestation;
 
     struct StatementData {
+        address arbiter;
+        bytes demand;
         // ERC20
         address[] erc20Tokens;
         uint256[] erc20Amounts;
@@ -30,8 +28,6 @@ contract TokenBundleEscrowObligation is
         address[] erc1155Tokens;
         uint256[] erc1155TokenIds;
         uint256[] erc1155Amounts;
-        address arbiter;
-        bytes demand;
     }
 
     event EscrowMade(bytes32 indexed payment, address indexed buyer);
@@ -275,5 +271,4 @@ contract TokenBundleEscrowObligation is
 
         return true;
     }
-
 }

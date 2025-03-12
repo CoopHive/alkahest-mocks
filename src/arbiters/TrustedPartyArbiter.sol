@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IArbiter} from "../IArbiter.sol";
@@ -9,9 +9,9 @@ contract TrustedPartyArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
-        address creator;
         address baseArbiter;
         bytes baseDemand;
+        address creator;
     }
 
     error NotTrustedParty();

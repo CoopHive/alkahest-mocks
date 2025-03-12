@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
@@ -14,9 +14,9 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
     bytes32 public immutable VALIDATION_SCHEMA;
 
     struct StatementData {
-        bytes32 attestationUid; // Reference to the pre-made attestation
         address arbiter;
         bytes demand;
+        bytes32 attestationUid; // Reference to the pre-made attestation
     }
 
     event EscrowMade(bytes32 indexed payment, address indexed buyer);
