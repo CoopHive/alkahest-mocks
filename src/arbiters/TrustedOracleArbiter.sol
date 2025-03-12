@@ -4,7 +4,6 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
-import {IEAS} from "@eas/IEAS.sol";
 
 contract TrustedOracleArbiter is IArbiter {
     using ArbiterUtils for Attestation;
@@ -19,12 +18,7 @@ contract TrustedOracleArbiter is IArbiter {
         bool decision
     );
 
-    IEAS eas;
     mapping(address => mapping(bytes32 => bool)) decisions;
-
-    constructor(IEAS _eas) {
-        eas = _eas;
-    }
 
     function arbitrate(bytes32 statement, bool decision) public {
         decisions[msg.sender][statement] = decision;

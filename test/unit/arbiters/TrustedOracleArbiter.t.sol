@@ -5,26 +5,19 @@ import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
-import {IEAS} from "@eas/IEAS.sol";
-import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract TrustedOracleArbiterTest is Test {
     TrustedOracleArbiter arbiter;
-    IEAS eas;
-    ISchemaRegistry schemaRegistry;
     address oracle = address(0x123);
     bytes32 statementUid = bytes32(uint256(1));
 
     function setUp() public {
-        EASDeployer easDeployer = new EASDeployer();
-        (eas, schemaRegistry) = easDeployer.deployEAS();
-        arbiter = new TrustedOracleArbiter(eas);
+        arbiter = new TrustedOracleArbiter();
     }
 
     function testConstructor() public {
         // Create a new arbiter to test constructor
-        TrustedOracleArbiter newArbiter = new TrustedOracleArbiter(eas);
+        TrustedOracleArbiter newArbiter = new TrustedOracleArbiter();
 
         // Verify that the EAS address is set correctly
         // This is an indirect test since the eas variable is private
