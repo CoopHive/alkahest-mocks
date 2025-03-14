@@ -9,15 +9,12 @@ import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
 contract DeployCrossTokenBarter is Script {
     function run() external {
         // Load environment variables
-        address easAddress = vm.envAddress("EAS_ADDRESS");
         uint256 deployerPrivateKey = vm.envUint("DEPLOYMENT_KEY");
 
         // deploy
         vm.startBroadcast(deployerPrivateKey);
 
-        TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter(
-            IEAS(easAddress)
-        );
+        TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter();
 
         vm.stopBroadcast();
 

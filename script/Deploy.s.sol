@@ -55,9 +55,7 @@ contract Deploy is Script {
         SpecificAttestationArbiter specificArbiter = new SpecificAttestationArbiter();
         TrustedPartyArbiter trustedPartyArbiter = new TrustedPartyArbiter();
         TrivialArbiter trivialArbiter = new TrivialArbiter();
-        TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter(
-            IEAS(easAddress)
-        );
+        TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter();
 
         // Deploy StringObligation
         StringObligation stringObligation = new StringObligation(
