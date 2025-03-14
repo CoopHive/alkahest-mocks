@@ -56,7 +56,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address arbiter, bytes demand",
+            "address arbiter, bytes demand, address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts",
             true
         )
     {}

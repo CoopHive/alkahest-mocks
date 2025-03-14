@@ -35,7 +35,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand",
+            "address arbiter, bytes demand, tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation",
             true
         )
     {}

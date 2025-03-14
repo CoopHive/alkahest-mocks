@@ -44,7 +44,7 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address token, uint256 tokenId, uint256 amount, address arbiter, bytes demand",
+            "address arbiter, bytes demand, address token, uint256 tokenId, uint256 amount",
             true
         )
     {}

@@ -47,7 +47,7 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "address token, uint256 tokenId, address arbiter, bytes demand",
+            "address arbiter, bytes demand, address token, uint256 tokenId",
             true
         )
     {}

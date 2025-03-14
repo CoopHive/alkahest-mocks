@@ -37,7 +37,7 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
         BaseStatement(
             _eas,
             _schemaRegistry,
-            "bytes32 attestationUid, address arbiter, bytes demand",
+            "address arbiter, bytes demand, bytes32 attestationUid",
             true
         )
     {
