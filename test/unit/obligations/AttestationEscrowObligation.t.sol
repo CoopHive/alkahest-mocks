@@ -63,7 +63,7 @@ contract AttestationEscrowObligationTest is Test {
         assertEq(schema.uid, schemaId, "Schema UID should match");
         assertEq(
             schema.schema,
-            "tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation, address arbiter, bytes demand",
+            "address arbiter, bytes demand, tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation",
             "Schema string should match"
         );
     }

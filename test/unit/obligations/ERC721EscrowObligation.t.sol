@@ -65,7 +65,7 @@ contract ERC721EscrowObligationTest is Test {
         assertEq(schema.uid, schemaId, "Schema UID should match");
         assertEq(
             schema.schema,
-            "address token, uint256 tokenId, address arbiter, bytes demand",
+            "address arbiter, bytes demand, address token, uint256 tokenId",
             "Schema string should match"
         );
     }

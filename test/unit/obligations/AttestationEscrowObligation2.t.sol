@@ -75,7 +75,7 @@ contract AttestationEscrowObligation2Test is Test {
         assertEq(schema.uid, schemaId, "Schema UID should match");
         assertEq(
             schema.schema,
-            "bytes32 attestationUid, address arbiter, bytes demand",
+            "address arbiter, bytes demand, bytes32 attestationUid",
             "Schema string should match"
         );
         
