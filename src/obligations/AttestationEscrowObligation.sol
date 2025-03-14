@@ -79,14 +79,14 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         Attestation memory escrow;
         Attestation memory fulfillment;
         
-        try eas.getAttestation(_escrow) returns (Attestation memory _escrow) {
-            escrow = _escrow;
+        try eas.getAttestation(_escrow) returns (Attestation memory escrow_) {
+            escrow = escrow_;
         } catch {
             revert AttestationNotFound(_escrow);
         }
         
-        try eas.getAttestation(_fulfillment) returns (Attestation memory _fulfillment) {
-            fulfillment = _fulfillment;
+        try eas.getAttestation(_fulfillment) returns (Attestation memory fulfillment_) {
+            fulfillment = fulfillment_;
         } catch {
             revert AttestationNotFound(_fulfillment);
         }
