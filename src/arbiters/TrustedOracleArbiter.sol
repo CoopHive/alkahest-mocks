@@ -33,4 +33,10 @@ contract TrustedOracleArbiter is IArbiter {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
         return decisions[demand_.oracle][statement.uid];
     }
+
+    function decodeDemandData(
+        bytes calldata data
+    ) public pure returns (DemandData memory) {
+        return abi.decode(data, (DemandData));
+    }
 }

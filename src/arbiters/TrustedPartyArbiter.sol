@@ -31,4 +31,10 @@ contract TrustedPartyArbiter is IArbiter {
                 counteroffer
             );
     }
+
+    function decodeDemandData(
+        bytes calldata data
+    ) public pure returns (DemandData memory) {
+        return abi.decode(data, (DemandData));
+    }
 }

@@ -20,4 +20,10 @@ contract SpecificAttestationArbiter is IArbiter {
         if (statement.uid != demand_.uid) revert NotDemandedAttestation();
         return true;
     }
+
+    function decodeDemandData(
+        bytes calldata data
+    ) public pure returns (DemandData memory) {
+        return abi.decode(data, (DemandData));
+    }
 }
