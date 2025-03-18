@@ -372,4 +372,12 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
 
         return true;
     }
+
+    function getStatementData(
+        bytes32 uid
+    ) public view returns (StatementData memory) {
+        Attestation memory attestation = eas.getAttestation(uid);
+        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidEscrowAttestation();
+        return abi.decode(attestation.data, (StatementData));
+    }
 }

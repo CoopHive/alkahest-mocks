@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
+import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {BaseStatement} from "../BaseStatement.sol";
@@ -9,7 +10,7 @@ contract StringObligation is BaseStatement {
     struct StatementData {
         string item;
     }
-    
+
     error AttestationCreateFailed();
 
     constructor(
@@ -22,22 +23,32 @@ contract StringObligation is BaseStatement {
         bytes32 refUID
     ) public returns (bytes32) {
         // Create attestation with try/catch for potential EAS failures
-        try eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: msg.sender,
-                    expirationTime: 0,
-                    revocable: false,
-                    refUID: refUID,
-                    data: abi.encode(data),
-                    value: 0
+        try
+            eas.attest(
+                AttestationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: AttestationRequestData({
+                        recipient: msg.sender,
+                        expirationTime: 0,
+                        revocable: false,
+                        refUID: refUID,
+                        data: abi.encode(data),
+                        value: 0
+                    })
                 })
-            })
-        ) returns (bytes32 uid) {
+            )
+        returns (bytes32 uid) {
             return uid;
         } catch {
             revert AttestationCreateFailed();
         }
+    }
+
+    function getStatementData(
+        bytes32 uid
+    ) public view returns (StatementData memory) {
+        Attestation memory attestation = eas.getAttestation(uid);
+        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
+        return abi.decode(attestation.data, (StatementData));
     }
 }

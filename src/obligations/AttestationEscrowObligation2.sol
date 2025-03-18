@@ -144,4 +144,12 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
             escrow.arbiter == demandData.arbiter &&
             keccak256(escrow.demand) == keccak256(demandData.demand);
     }
+
+    function getStatementData(
+        bytes32 uid
+    ) public view returns (StatementData memory) {
+        Attestation memory attestation = eas.getAttestation(uid);
+        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidEscrowAttestation();
+        return abi.decode(attestation.data, (StatementData));
+    }
 }
