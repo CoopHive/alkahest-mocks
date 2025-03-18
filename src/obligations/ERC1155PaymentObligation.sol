@@ -22,7 +22,13 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
     event PaymentMade(bytes32 indexed payment, address indexed buyer);
 
     error InvalidPayment();
-    error ERC1155TransferFailed(address token, address from, address to, uint256 tokenId, uint256 amount);
+    error ERC1155TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount
+    );
     error AttestationCreateFailed();
 
     constructor(
@@ -43,38 +49,42 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
         address recipient
     ) public returns (bytes32 uid_) {
         // Try token transfer with error handling
-        try IERC1155(data.token).safeTransferFrom(
-            payer,
-            data.payee,
-            data.tokenId,
-            data.amount,
-            ""
-        ) {
+        try
+            IERC1155(data.token).safeTransferFrom(
+                payer,
+                data.payee,
+                data.tokenId,
+                data.amount,
+                ""
+            )
+        {
             // Transfer succeeded
         } catch {
             revert ERC1155TransferFailed(
-                data.token, 
-                payer, 
-                data.payee, 
+                data.token,
+                payer,
+                data.payee,
                 data.tokenId,
                 data.amount
             );
         }
 
         // Create attestation with try/catch for potential EAS failures
-        try eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(data),
-                    value: 0
+        try
+            eas.attest(
+                AttestationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: AttestationRequestData({
+                        recipient: recipient,
+                        expirationTime: 0,
+                        revocable: true,
+                        refUID: bytes32(0),
+                        data: abi.encode(data),
+                        value: 0
+                    })
                 })
-            })
-        ) returns (bytes32 uid) {
+            )
+        returns (bytes32 uid) {
             uid_ = uid;
             emit PaymentMade(uid_, recipient);
         } catch {
@@ -115,5 +125,11 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidPayment();
         return abi.decode(attestation.data, (StatementData));
+    }
+
+    function decodeStatementData(
+        bytes calldata data
+    ) public pure returns (StatementData memory) {
+        return abi.decode(data, (StatementData));
     }
 }

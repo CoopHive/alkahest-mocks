@@ -248,7 +248,14 @@ contract ERC20EscrowObligation is BaseStatement, IArbiter {
         bytes32 uid
     ) public view returns (StatementData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidEscrowAttestation();
+        if (attestation.schema != ATTESTATION_SCHEMA)
+            revert InvalidEscrowAttestation();
         return abi.decode(attestation.data, (StatementData));
+    }
+
+    function decodeStatementData(
+        bytes calldata data
+    ) public pure returns (StatementData memory) {
+        return abi.decode(data, (StatementData));
     }
 }

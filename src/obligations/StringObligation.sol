@@ -51,4 +51,10 @@ contract StringObligation is BaseStatement {
         if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
         return abi.decode(attestation.data, (StatementData));
     }
+
+    function decodeStatementData(
+        bytes calldata data
+    ) public pure returns (StatementData memory) {
+        return abi.decode(data, (StatementData));
+    }
 }

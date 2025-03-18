@@ -21,7 +21,12 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
     event PaymentMade(bytes32 indexed payment, address indexed buyer);
 
     error InvalidPayment();
-    error ERC721TransferFailed(address token, address from, address to, uint256 tokenId);
+    error ERC721TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 tokenId
+    );
     error AttestationCreateFailed();
 
     constructor(
@@ -45,23 +50,30 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
         try IERC721(data.token).transferFrom(payer, data.payee, data.tokenId) {
             // Transfer succeeded
         } catch {
-            revert ERC721TransferFailed(data.token, payer, data.payee, data.tokenId);
+            revert ERC721TransferFailed(
+                data.token,
+                payer,
+                data.payee,
+                data.tokenId
+            );
         }
 
         // Create attestation with try/catch for potential EAS failures
-        try eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(data),
-                    value: 0
+        try
+            eas.attest(
+                AttestationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: AttestationRequestData({
+                        recipient: recipient,
+                        expirationTime: 0,
+                        revocable: true,
+                        refUID: bytes32(0),
+                        data: abi.encode(data),
+                        value: 0
+                    })
                 })
-            })
-        ) returns (bytes32 uid) {
+            )
+        returns (bytes32 uid) {
             uid_ = uid;
             emit PaymentMade(uid_, recipient);
         } catch {
@@ -101,5 +113,11 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidPayment();
         return abi.decode(attestation.data, (StatementData));
+    }
+
+    function decodeStatementData(
+        bytes calldata data
+    ) public pure returns (StatementData memory) {
+        return abi.decode(data, (StatementData));
     }
 }

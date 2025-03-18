@@ -78,14 +78,16 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
     ) public returns (bytes32) {
         Attestation memory escrow;
         Attestation memory fulfillment;
-        
+
         try eas.getAttestation(_escrow) returns (Attestation memory escrow_) {
             escrow = escrow_;
         } catch {
             revert AttestationNotFound(_escrow);
         }
-        
-        try eas.getAttestation(_fulfillment) returns (Attestation memory fulfillment_) {
+
+        try eas.getAttestation(_fulfillment) returns (
+            Attestation memory fulfillment_
+        ) {
             fulfillment = fulfillment_;
         } catch {
             revert AttestationNotFound(_fulfillment);
@@ -106,12 +108,14 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
             )
         ) revert InvalidFulfillment();
 
-        try eas.revoke(
-            RevocationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: _escrow, value: 0})
-            })
-        ) {} catch {
+        try
+            eas.revoke(
+                RevocationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: RevocationRequestData({uid: _escrow, value: 0})
+                })
+            )
+        {} catch {
             revert RevocationFailed(_escrow);
         }
 
@@ -121,7 +125,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         } catch {
             revert AttestationCreationFailed();
         }
-        
+
         emit EscrowClaimed(_escrow, _fulfillment, fulfillment.recipient);
         return attestationUid;
     }
@@ -150,7 +154,14 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         bytes32 uid
     ) public view returns (StatementData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidEscrowAttestation();
+        if (attestation.schema != ATTESTATION_SCHEMA)
+            revert InvalidEscrowAttestation();
         return abi.decode(attestation.data, (StatementData));
+    }
+
+    function decodeStatementData(
+        bytes calldata data
+    ) public pure returns (StatementData memory) {
+        return abi.decode(data, (StatementData));
     }
 }

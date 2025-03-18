@@ -21,7 +21,12 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
     event PaymentMade(bytes32 indexed payment, address indexed buyer);
 
     error InvalidPayment();
-    error ERC20TransferFailed(address token, address from, address to, uint256 amount);
+    error ERC20TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 amount
+    );
     error AttestationCreateFailed();
 
     constructor(
@@ -43,30 +48,39 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
     ) public returns (bytes32 uid_) {
         // Try token transfer with error handling
         bool success;
-        try IERC20(data.token).transferFrom(payer, data.payee, data.amount) returns (bool result) {
+        try
+            IERC20(data.token).transferFrom(payer, data.payee, data.amount)
+        returns (bool result) {
             success = result;
         } catch {
             success = false;
         }
-        
+
         if (!success) {
-            revert ERC20TransferFailed(data.token, payer, data.payee, data.amount);
+            revert ERC20TransferFailed(
+                data.token,
+                payer,
+                data.payee,
+                data.amount
+            );
         }
 
         // Create attestation with try/catch for potential EAS failures
-        try eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(data),
-                    value: 0
+        try
+            eas.attest(
+                AttestationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: AttestationRequestData({
+                        recipient: recipient,
+                        expirationTime: 0,
+                        revocable: true,
+                        refUID: bytes32(0),
+                        data: abi.encode(data),
+                        value: 0
+                    })
                 })
-            })
-        ) returns (bytes32 uid) {
+            )
+        returns (bytes32 uid) {
             uid_ = uid;
             emit PaymentMade(uid_, recipient);
         } catch {
@@ -106,5 +120,11 @@ contract ERC20PaymentObligation is BaseStatement, IArbiter {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidPayment();
         return abi.decode(attestation.data, (StatementData));
+    }
+
+    function decodeStatementData(
+        bytes calldata data
+    ) public pure returns (StatementData memory) {
+        return abi.decode(data, (StatementData));
     }
 }

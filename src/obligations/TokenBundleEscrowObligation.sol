@@ -42,9 +42,25 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     error InvalidFulfillment();
     error UnauthorizedCall();
     error ArrayLengthMismatch();
-    error ERC20TransferFailed(address token, address from, address to, uint256 amount);
-    error ERC721TransferFailed(address token, address from, address to, uint256 tokenId);
-    error ERC1155TransferFailed(address token, address from, address to, uint256 tokenId, uint256 amount);
+    error ERC20TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 amount
+    );
+    error ERC721TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 tokenId
+    );
+    error ERC1155TransferFailed(
+        address token,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount
+    );
     error AttestationNotFound(bytes32 attestationId);
     error AttestationCreateFailed();
     error RevocationFailed(bytes32 attestationId);
@@ -79,16 +95,18 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         // Transfer ERC20s
         for (uint i = 0; i < data.erc20Tokens.length; i++) {
             bool success;
-            try IERC20(data.erc20Tokens[i]).transferFrom(
-                from,
-                address(this),
-                data.erc20Amounts[i]
-            ) returns (bool result) {
+            try
+                IERC20(data.erc20Tokens[i]).transferFrom(
+                    from,
+                    address(this),
+                    data.erc20Amounts[i]
+                )
+            returns (bool result) {
                 success = result;
             } catch {
                 success = false;
             }
-            
+
             if (!success) {
                 revert ERC20TransferFailed(
                     data.erc20Tokens[i],
@@ -101,11 +119,13 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
 
         // Transfer ERC721s
         for (uint i = 0; i < data.erc721Tokens.length; i++) {
-            try IERC721(data.erc721Tokens[i]).transferFrom(
-                from,
-                address(this),
-                data.erc721TokenIds[i]
-            ) {
+            try
+                IERC721(data.erc721Tokens[i]).transferFrom(
+                    from,
+                    address(this),
+                    data.erc721TokenIds[i]
+                )
+            {
                 // Transfer succeeded
             } catch {
                 revert ERC721TransferFailed(
@@ -119,13 +139,15 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
 
         // Transfer ERC1155s
         for (uint i = 0; i < data.erc1155Tokens.length; i++) {
-            try IERC1155(data.erc1155Tokens[i]).safeTransferFrom(
-                from,
-                address(this),
-                data.erc1155TokenIds[i],
-                data.erc1155Amounts[i],
-                ""
-            ) {
+            try
+                IERC1155(data.erc1155Tokens[i]).safeTransferFrom(
+                    from,
+                    address(this),
+                    data.erc1155TokenIds[i],
+                    data.erc1155Amounts[i],
+                    ""
+                )
+            {
                 // Transfer succeeded
             } catch {
                 revert ERC1155TransferFailed(
@@ -146,12 +168,14 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         // Transfer ERC20s
         for (uint i = 0; i < data.erc20Tokens.length; i++) {
             bool success;
-            try IERC20(data.erc20Tokens[i]).transfer(to, data.erc20Amounts[i]) returns (bool result) {
+            try
+                IERC20(data.erc20Tokens[i]).transfer(to, data.erc20Amounts[i])
+            returns (bool result) {
                 success = result;
             } catch {
                 success = false;
             }
-            
+
             if (!success) {
                 revert ERC20TransferFailed(
                     data.erc20Tokens[i],
@@ -164,11 +188,13 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
 
         // Transfer ERC721s
         for (uint i = 0; i < data.erc721Tokens.length; i++) {
-            try IERC721(data.erc721Tokens[i]).transferFrom(
-                address(this),
-                to,
-                data.erc721TokenIds[i]
-            ) {
+            try
+                IERC721(data.erc721Tokens[i]).transferFrom(
+                    address(this),
+                    to,
+                    data.erc721TokenIds[i]
+                )
+            {
                 // Transfer succeeded
             } catch {
                 revert ERC721TransferFailed(
@@ -182,13 +208,15 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
 
         // Transfer ERC1155s
         for (uint i = 0; i < data.erc1155Tokens.length; i++) {
-            try IERC1155(data.erc1155Tokens[i]).safeTransferFrom(
-                address(this),
-                to,
-                data.erc1155TokenIds[i],
-                data.erc1155Amounts[i],
-                ""
-            ) {
+            try
+                IERC1155(data.erc1155Tokens[i]).safeTransferFrom(
+                    address(this),
+                    to,
+                    data.erc1155TokenIds[i],
+                    data.erc1155Amounts[i],
+                    ""
+                )
+            {
                 // Transfer succeeded
             } catch {
                 revert ERC1155TransferFailed(
@@ -212,19 +240,21 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         transferInTokenBundle(data, payer);
 
         // Create attestation with try/catch for potential EAS failures
-        try eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: expirationTime,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(data),
-                    value: 0
+        try
+            eas.attest(
+                AttestationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: AttestationRequestData({
+                        recipient: recipient,
+                        expirationTime: expirationTime,
+                        revocable: true,
+                        refUID: bytes32(0),
+                        data: abi.encode(data),
+                        value: 0
+                    })
                 })
-            })
-        ) returns (bytes32 uid) {
+            )
+        returns (bytes32 uid) {
             uid_ = uid;
             emit EscrowMade(uid_, recipient);
         } catch {
@@ -246,16 +276,18 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     ) public returns (bool) {
         Attestation memory payment;
         Attestation memory fulfillment;
-        
+
         // Get payment attestation with error handling
         try eas.getAttestation(_payment) returns (Attestation memory result) {
             payment = result;
         } catch {
             revert AttestationNotFound(_payment);
         }
-        
+
         // Get fulfillment attestation with error handling
-        try eas.getAttestation(_fulfillment) returns (Attestation memory result) {
+        try eas.getAttestation(_fulfillment) returns (
+            Attestation memory result
+        ) {
             fulfillment = result;
         } catch {
             revert AttestationNotFound(_fulfillment);
@@ -277,12 +309,14 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         ) revert InvalidFulfillment();
 
         // Revoke attestation with error handling
-        try eas.revoke(
-            RevocationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: _payment, value: 0})
-            })
-        ) {} catch {
+        try
+            eas.revoke(
+                RevocationRequest({
+                    schema: ATTESTATION_SCHEMA,
+                    data: RevocationRequestData({uid: _payment, value: 0})
+                })
+            )
+        {} catch {
             revert RevocationFailed(_payment);
         }
 
@@ -295,7 +329,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
 
     function collectExpired(bytes32 uid) public returns (bool) {
         Attestation memory attestation;
-        
+
         // Get attestation with error handling
         try eas.getAttestation(uid) returns (Attestation memory result) {
             attestation = result;
@@ -377,7 +411,14 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         bytes32 uid
     ) public view returns (StatementData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidEscrowAttestation();
+        if (attestation.schema != ATTESTATION_SCHEMA)
+            revert InvalidEscrowAttestation();
         return abi.decode(attestation.data, (StatementData));
+    }
+
+    function decodeStatementData(
+        bytes calldata data
+    ) public pure returns (StatementData memory) {
+        return abi.decode(data, (StatementData));
     }
 }
