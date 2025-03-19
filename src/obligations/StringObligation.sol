@@ -21,7 +21,7 @@ contract StringObligation is BaseStatement {
     function makeStatement(
         StatementData calldata data,
         bytes32 refUID
-    ) public returns (bytes32) {
+    ) public returns (bytes32 uid_) {
         // Create attestation with try/catch for potential EAS failures
         try
             eas.attest(
@@ -38,7 +38,7 @@ contract StringObligation is BaseStatement {
                 })
             )
         returns (bytes32 uid) {
-            return uid;
+            uid_ = uid;
         } catch {
             revert AttestationCreateFailed();
         }
