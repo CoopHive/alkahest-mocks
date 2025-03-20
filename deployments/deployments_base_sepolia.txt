@@ -1,0 +1,233 @@
+[⠊] Compiling...
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+
+EAS:
+  EAS: 0x4200000000000000000000000000000000000021
+  Schema Registry: 0x4200000000000000000000000000000000000020
+
+Arbiters:
+  SpecificAttestationArbiter: 0xdE5eCFC92E3da87865CD29C196aA5cebFdC4D9C6
+  TrustedPartyArbiter: 0x3895398C46da88b75eE3ca3092F7714BEbE795a5
+  TrivialArbiter: 0x7D4bCD84901cEC903105564f63BE70432448B222
+  TrustedOracleArbiter: 0x361E0950534F4a54A39F8C4f1f642C323f6e66B9
+
+String Obligation:
+  StringObligation: 0x4edEa259C8E014eeEd583D1a863e020190B21Db7
+
+ERC20 Contracts:
+  ERC20EscrowObligation: 0xFa76421cEe6aee41adc7f6a475b9Ef3776d500F0
+  ERC20PaymentObligation: 0xE95d3931E15E4d96cE1d2Dd336DcEad35A708bdB
+  ERC20BarterCrossToken: 0x5C624f8FbbB377378cDfE8B627384A917FE839db
+
+ERC721 Contracts:
+  ERC721EscrowObligation: 0xF3C3dC387e00FE76CCF7549634aa694D466de5AA
+  ERC721PaymentObligation: 0x9DFe20Ded52D0F9e535F546f87d83B473DefC5B2
+  ERC721BarterCrossToken: 0x01414CC4a4c7b7fa9F551907ee89c867c7a74d29
+
+ERC1155 Contracts:
+  ERC1155EscrowObligation: 0x4e7d759Df6204d901fb6FD82248FEa64f129bfa3
+  ERC1155PaymentObligation: 0x799048b0772381A095aa37305C1D85f26b8445C7
+  ERC1155BarterCrossToken: 0x70a9Ce33CF0f7487A8a33B1447455047A90F3998
+
+TokenBundle Contracts:
+  TokenBundleEscrowObligation: 0xf63e97217f71C4cdbA643c8EFc9F152486560542
+  TokenBundlePaymentObligation: 0xd192685E79F760fA769614d22916528254FD4937
+  TokenBundleBarterUtils: 0xb03633005C763feAD6993541Cab2a10FA79828c1
+
+Attestation Barter Contracts:
+  AttestationEscrowObligation: 0x021d28E9eBc935Bf21fe5Ff48cAAbE126Ed706aB
+  AttestationEscrowObligation2: 0x5f177293F46d938316229A07E31bC65d64D58c9b
+  AttestationBarterUtils: 0xfFA2bf5Fc4270e9AFd20Aa2C87b3B100489DF97a
+
+Saving addresses to ./deployments/deployment_1742448700.json
+
+Deployment complete!
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 84532
+
+Estimated gas price: 0.00100058 gwei
+
+Estimated total gas used for script: 33658141
+
+Estimated amount required: 0.00003367766272178 ETH
+
+==========================
+
+##### base-sepolia
+✅  [Success] Hash: 0x30f925144bd860631f61d622c67cc122aff33cabee56db13ba316542aed81317
+Contract Address: 0x4edEa259C8E014eeEd583D1a863e020190B21Db7
+Block: 23340257
+Paid: 0.00000100456724004 ETH (1004276 gas * 0.00100029 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x6344daf028c0cd3181fdd4921fa82891cfa16b341426b09b2f89a5c4e51b5d19
+Contract Address: 0xdE5eCFC92E3da87865CD29C196aA5cebFdC4D9C6
+Block: 23340257
+Paid: 0.00000022166826516 ETH (221604 gas * 0.00100029 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xe0cc5d0b8cc02ea52d8a5c973de520a84113295731f39bcdc202e4dcde936dfa
+Contract Address: 0xE95d3931E15E4d96cE1d2Dd336DcEad35A708bdB
+Block: 23340258
+Paid: 0.000001250369751746 ETH (1250006 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x74f707b6b4be5f41e2e521b679d68495fbcc43cd033e0e4139d7ce086638d9b2
+Contract Address: 0x3895398C46da88b75eE3ca3092F7714BEbE795a5
+Block: 23340257
+Paid: 0.00000037914792102 ETH (379038 gas * 0.00100029 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x39a51a234bb9db7f34bf56129b9ac4c0df9a7bb3455985f0b55b3905ed8d86b0
+Contract Address: 0x361E0950534F4a54A39F8C4f1f642C323f6e66B9
+Block: 23340257
+Paid: 0.00000025667541429 ETH (256601 gas * 0.00100029 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xa170a57534a209f1cdbf97661ad3ad9cacd00bd317cac6d8127605558bc88133
+Contract Address: 0x9DFe20Ded52D0F9e535F546f87d83B473DefC5B2
+Block: 23340258
+Paid: 0.000001245636374734 ETH (1245274 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x3bd5aa8fef99e2a197d388cb29f146a9749d7a69893987bc46b51eb7400d97b1
+Contract Address: 0xFa76421cEe6aee41adc7f6a475b9Ef3776d500F0
+Block: 23340258
+Paid: 0.000001683958889479 ETH (1683469 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xf79f80b92020572c8848925840b172be66b4322e55703efd64e366269e7acf5e
+Contract Address: 0xF3C3dC387e00FE76CCF7549634aa694D466de5AA
+Block: 23340258
+Paid: 0.000001673181754245 ETH (1672695 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x3d3f5bd46f74e8fe3e4e353e413362979cf20569aa21391fdb14074fbb9e6c34
+Contract Address: 0x799048b0772381A095aa37305C1D85f26b8445C7
+Block: 23340259
+Paid: 0.000001263740641543 ETH (1263373 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xe178f360d7af50ff6669e638af3f6a0234e3fd29c4b37fa877800ff3fc209a42
+Contract Address: 0xb03633005C763feAD6993541Cab2a10FA79828c1
+Block: 23340259
+Paid: 0.000001574204960377 ETH (1573747 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x19f6bfda9c3b87e6c790db75f8e37721026fe634e2440880e8b71bba3c0546cd
+Contract Address: 0x7D4bCD84901cEC903105564f63BE70432448B222
+Block: 23340257
+Paid: 0.00000017449758963 ETH (174447 gas * 0.00100029 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x5ad0e3d0417baa1e7156ccb445864a1a2a1fb7d8e79f818ce81a157c0e5c64d3
+Contract Address: 0x021d28E9eBc935Bf21fe5Ff48cAAbE126Ed706aB
+Block: 23340259
+Paid: 0.00000174105650005 ETH (1740550 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xd1e214ee22f3e69ca80bfa652e3fdbe9f79bfe61d73af71bfff94009c5646c96
+Contract Address: 0xd192685E79F760fA769614d22916528254FD4937
+Block: 23340259
+Paid: 0.000001957788550729 ETH (1957219 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x52f0d7be8cd66f140920dcd0965ecc781431fec02ecdaabff3086873eb59d840
+Contract Address: 0x01414CC4a4c7b7fa9F551907ee89c867c7a74d29
+Block: 23340259
+Paid: 0.000001299860149262 ETH (1299482 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x4568d16f0cad7302bddbd9822caa577095984408043a796f479685e1b51ffbdc
+Contract Address: 0x70a9Ce33CF0f7487A8a33B1447455047A90F3998
+Block: 23340259
+Paid: 0.000001291589743274 ETH (1291214 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xb58b695726288ca5c5291025e9f3592a5868350e3143a92dd260acd9d8fb1ece
+Contract Address: 0x5f177293F46d938316229A07E31bC65d64D58c9b
+Block: 23340259
+Paid: 0.000001579395470376 ETH (1578936 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x538b93164b34c11c1c1f799d921734d7bdca3062b963b79dbb6e035eb8ffed94
+Contract Address: 0x4e7d759Df6204d901fb6FD82248FEa64f129bfa3
+Block: 23340259
+Paid: 0.000001837266489012 ETH (1836732 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xc562b98822db11e48982f238f16f7e9fa05fb1799263af4c95a1408bfe28099f
+Contract Address: 0xf63e97217f71C4cdbA643c8EFc9F152486560542
+Block: 23340259
+Paid: 0.000002619599081567 ETH (2618837 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0xc4a5c974aff8b49c8c726b5fe094435ec03437a9cd491c4ee820124d911e6ab1
+Contract Address: 0x5C624f8FbbB377378cDfE8B627384A917FE839db
+Block: 23340259
+Paid: 0.000001938007796204 ETH (1937444 gas * 0.001000291 gwei)
+
+
+##### base-sepolia
+✅  [Success] Hash: 0x089467602e31a6d00f905b8988d67ff92d5fbcef2f188ed98e1dd82058db2361
+Contract Address: 0xfFA2bf5Fc4270e9AFd20Aa2C87b3B100489DF97a
+Block: 23340259
+Paid: 0.00000090620362854 ETH (905940 gas * 0.001000291 gwei)
+
+✅ Sequence #1 on base-sepolia | Total Paid: 0.000025898416211278 ETH (25890884 gas * avg 0.00100029 gwei)
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+JSONs:
+{
+  "attestationBarterUtils": "0xfFA2bf5Fc4270e9AFd20Aa2C87b3B100489DF97a",
+  "attestationEscrowObligation": "0x021d28E9eBc935Bf21fe5Ff48cAAbE126Ed706aB",
+  "attestationEscrowObligation2": "0x5f177293F46d938316229A07E31bC65d64D58c9b",
+  "eas": "0x4200000000000000000000000000000000000021",
+  "easSchemaRegistry": "0x4200000000000000000000000000000000000020",
+  "erc1155BarterUtils": "0x70a9Ce33CF0f7487A8a33B1447455047A90F3998",
+  "erc1155EscrowObligation": "0x4e7d759Df6204d901fb6FD82248FEa64f129bfa3",
+  "erc1155PaymentObligation": "0x799048b0772381A095aa37305C1D85f26b8445C7",
+  "erc20BarterUtils": "0x5C624f8FbbB377378cDfE8B627384A917FE839db",
+  "erc20EscrowObligation": "0xFa76421cEe6aee41adc7f6a475b9Ef3776d500F0",
+  "erc20PaymentObligation": "0xE95d3931E15E4d96cE1d2Dd336DcEad35A708bdB",
+  "erc721BarterUtils": "0x01414CC4a4c7b7fa9F551907ee89c867c7a74d29",
+  "erc721EscrowObligation": "0xF3C3dC387e00FE76CCF7549634aa694D466de5AA",
+  "erc721PaymentObligation": "0x9DFe20Ded52D0F9e535F546f87d83B473DefC5B2",
+  "specificAttestationArbiter": "0xdE5eCFC92E3da87865CD29C196aA5cebFdC4D9C6",
+  "stringObligation": "0x4edEa259C8E014eeEd583D1a863e020190B21Db7",
+  "tokenBundleBarterUtils": "0xb03633005C763feAD6993541Cab2a10FA79828c1",
+  "tokenBundleEscrowObligation": "0xf63e97217f71C4cdbA643c8EFc9F152486560542",
+  "tokenBundlePaymentObligation": "0xd192685E79F760fA769614d22916528254FD4937",
+  "trivialArbiter": "0x7D4bCD84901cEC903105564f63BE70432448B222",
+  "trustedOracleArbiter": "0x361E0950534F4a54A39F8C4f1f642C323f6e66B9",
+  "trustedPartyArbiter": "0x3895398C46da88b75eE3ca3092F7714BEbE795a5"
+}

@@ -8,7 +8,7 @@ import {
   nonceManager,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { filecoinCalibration, mainnet } from "viem/chains";
+import { baseSepolia, filecoinCalibration, mainnet } from "viem/chains";
 import { parseArgs } from "node:util";
 
 // Import contract artifacts
@@ -98,12 +98,12 @@ async function main() {
 
   const client = createWalletClient({
     account,
-    chain: filecoinCalibration,
+    chain: baseSepolia,
     transport: http(),
   }).extend(publicActions);
 
   const publicClient = createPublicClient({
-    chain: filecoinCalibration,
+    chain: baseSepolia,
     transport: http(),
   });
 

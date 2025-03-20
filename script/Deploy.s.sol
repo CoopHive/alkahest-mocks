@@ -46,19 +46,19 @@ import {StringObligation} from "@src/obligations/StringObligation.sol";
 contract Deploy is Script {
     function run() external {
         // Load environment variables
-        // address easAddress = vm.envAddress("EAS_ADDRESS");
-        // address schemaRegistryAddress = vm.envAddress("EAS_SR_ADDRESS");
+        address easAddress = vm.envAddress("EAS_ADDRESS");
+        address schemaRegistryAddress = vm.envAddress("EAS_SR_ADDRESS");
         uint256 deployerPrivateKey = vm.envUint("DEPLOYMENT_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy EAS and schema registry
-        IEAS eas;
-        ISchemaRegistry schemaRegistry;
-        EASDeployer easDeployer = new EASDeployer();
-        (eas, schemaRegistry) = easDeployer.deployEAS();
-        address easAddress = address(eas);
-        address schemaRegistryAddress = address(schemaRegistry);
+        // IEAS eas;
+        // ISchemaRegistry schemaRegistry;
+        // EASDeployer easDeployer = new EASDeployer();
+        // (eas, schemaRegistry) = easDeployer.deployEAS();
+        // address easAddress = address(eas);
+        // address schemaRegistryAddress = address(schemaRegistry);
 
         // Deploy arbiters
         SpecificAttestationArbiter specificArbiter = new SpecificAttestationArbiter();
@@ -188,8 +188,8 @@ contract Deploy is Script {
 
         // Print all deployed addresses
         console.log("\nEAS:");
-        console.log("EAS:", address(eas));
-        console.log("Schema Registry:", address(schemaRegistry));
+        console.log("EAS:", easAddress);
+        console.log("Schema Registry:", schemaRegistryAddress);
 
         console.log("\nArbiters:");
         console.log("SpecificAttestationArbiter:", address(specificArbiter));
@@ -233,5 +233,146 @@ contract Deploy is Script {
             address(attestationEscrow2)
         );
         console.log("AttestationBarterUtils:", address(attestationBarterUtils));
+
+        // Create JSON with deployed addresses
+        string memory deploymentJson = "deploymentJson";
+
+        // Add EAS addresses
+        vm.serializeAddress(deploymentJson, "eas", easAddress);
+        vm.serializeAddress(
+            deploymentJson,
+            "easSchemaRegistry",
+            schemaRegistryAddress
+        );
+
+        // Add arbiter addresses
+        vm.serializeAddress(
+            deploymentJson,
+            "specificAttestationArbiter",
+            address(specificArbiter)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "trustedPartyArbiter",
+            address(trustedPartyArbiter)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "trivialArbiter",
+            address(trivialArbiter)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "trustedOracleArbiter",
+            address(trustedOracleArbiter)
+        );
+
+        // Add string obligation
+        vm.serializeAddress(
+            deploymentJson,
+            "stringObligation",
+            address(stringObligation)
+        );
+
+        // Add ERC20 addresses
+        vm.serializeAddress(
+            deploymentJson,
+            "erc20EscrowObligation",
+            address(erc20Escrow)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "erc20PaymentObligation",
+            address(erc20Payment)
+        );
+
+        // Add ERC721 addresses
+        vm.serializeAddress(
+            deploymentJson,
+            "erc721EscrowObligation",
+            address(erc721Escrow)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "erc721PaymentObligation",
+            address(erc721Payment)
+        );
+
+        // Add ERC1155 addresses
+        vm.serializeAddress(
+            deploymentJson,
+            "erc1155EscrowObligation",
+            address(erc1155Escrow)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "erc1155PaymentObligation",
+            address(erc1155Payment)
+        );
+
+        // Add TokenBundle addresses
+        vm.serializeAddress(
+            deploymentJson,
+            "tokenBundleEscrowObligation",
+            address(bundleEscrow)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "tokenBundlePaymentObligation",
+            address(bundlePayment)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "tokenBundleBarterUtils",
+            address(bundleBarterUtils)
+        );
+
+        // Add BarterUtils addresses (using CrossToken contracts)
+        vm.serializeAddress(
+            deploymentJson,
+            "erc20BarterUtils",
+            address(erc20BarterCrossToken)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "erc721BarterUtils",
+            address(erc721BarterCrossToken)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "erc1155BarterUtils",
+            address(erc1155BarterCrossToken)
+        );
+
+        // Add Attestation addresses
+        vm.serializeAddress(
+            deploymentJson,
+            "attestationEscrowObligation",
+            address(attestationEscrow)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "attestationEscrowObligation2",
+            address(attestationEscrow2)
+        );
+        string memory finalJson = vm.serializeAddress(
+            deploymentJson,
+            "attestationBarterUtils",
+            address(attestationBarterUtils)
+        );
+
+        // Generate timestamp for filename
+        uint256 timestamp = block.timestamp;
+        string memory filename = string.concat(
+            "./deployments/deployment_",
+            vm.toString(timestamp),
+            ".json"
+        );
+
+        // Write JSON to file
+        vm.writeJson(finalJson, filename);
+        console.log("\nSaving addresses to", filename);
+
+        console.log("\nDeployment complete!");
     }
 }
