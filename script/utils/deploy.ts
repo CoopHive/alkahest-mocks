@@ -52,25 +52,25 @@ import StringObligation from "../../out/StringObligation.sol/StringObligation.js
 interface Addresses {
   eas: `0x${string}`;
   schemaRegistry: `0x${string}`;
-  specificArbiter: `0x${string}`;
+  specificAttestationArbiter: `0x${string}`;
   trustedPartyArbiter: `0x${string}`;
   trivialArbiter: `0x${string}`;
   trustedOracleArbiter: `0x${string}`;
   stringObligation: `0x${string}`;
-  erc20Escrow: `0x${string}`;
-  erc20Payment: `0x${string}`;
-  erc721Escrow: `0x${string}`;
-  erc721Payment: `0x${string}`;
-  erc1155Escrow: `0x${string}`;
-  erc1155Payment: `0x${string}`;
-  bundleEscrow: `0x${string}`;
-  bundlePayment: `0x${string}`;
-  bundleBarterUtils: `0x${string}`;
-  erc20BarterCrossToken: `0x${string}`;
-  erc721BarterCrossToken: `0x${string}`;
-  erc1155BarterCrossToken: `0x${string}`;
-  attestationEscrow: `0x${string}`;
-  attestationEscrow2: `0x${string}`;
+  erc20EscrowObligation: `0x${string}`;
+  erc20PaymentObligation: `0x${string}`;
+  erc721EscrowObligation: `0x${string}`;
+  erc721PaymentObligation: `0x${string}`;
+  erc1155EscrowObligation: `0x${string}`;
+  erc1155PaymentObligation: `0x${string}`;
+  tokenBundleEscrowObligation: `0x${string}`;
+  tokenBundlePaymentObligation: `0x${string}`;
+  tokenBundleBarterUtils: `0x${string}`;
+  erc20BarterUtils: `0x${string}`;
+  erc721BarterUtils: `0x${string}`;
+  erc1155BarterUtils: `0x${string}`;
+  attestationEscrowObligation: `0x${string}`;
+  attestationEscrowObligation2: `0x${string}`;
   attestationBarterUtils: `0x${string}`;
 }
 
@@ -115,25 +115,25 @@ async function main() {
   const addresses: Addresses = {
     eas: "0x" as `0x${string}`,
     schemaRegistry: "0x" as `0x${string}`,
-    specificArbiter: "0x" as `0x${string}`,
+    specificAttestationArbiter: "0x" as `0x${string}`,
     trustedPartyArbiter: "0x" as `0x${string}`,
     trivialArbiter: "0x" as `0x${string}`,
     trustedOracleArbiter: "0x" as `0x${string}`,
     stringObligation: "0x" as `0x${string}`,
-    erc20Escrow: "0x" as `0x${string}`,
-    erc20Payment: "0x" as `0x${string}`,
-    erc721Escrow: "0x" as `0x${string}`,
-    erc721Payment: "0x" as `0x${string}`,
-    erc1155Escrow: "0x" as `0x${string}`,
-    erc1155Payment: "0x" as `0x${string}`,
-    bundleEscrow: "0x" as `0x${string}`,
-    bundlePayment: "0x" as `0x${string}`,
-    bundleBarterUtils: "0x" as `0x${string}`,
-    erc20BarterCrossToken: "0x" as `0x${string}`,
-    erc721BarterCrossToken: "0x" as `0x${string}`,
-    erc1155BarterCrossToken: "0x" as `0x${string}`,
-    attestationEscrow: "0x" as `0x${string}`,
-    attestationEscrow2: "0x" as `0x${string}`,
+    erc20EscrowObligation: "0x" as `0x${string}`,
+    erc20PaymentObligation: "0x" as `0x${string}`,
+    erc721EscrowObligation: "0x" as `0x${string}`,
+    erc721PaymentObligation: "0x" as `0x${string}`,
+    erc1155EscrowObligation: "0x" as `0x${string}`,
+    erc1155PaymentObligation: "0x" as `0x${string}`,
+    tokenBundleEscrowObligation: "0x" as `0x${string}`,
+    tokenBundlePaymentObligation: "0x" as `0x${string}`,
+    tokenBundleBarterUtils: "0x" as `0x${string}`,
+    erc20BarterUtils: "0x" as `0x${string}`,
+    erc721BarterUtils: "0x" as `0x${string}`,
+    erc1155BarterUtils: "0x" as `0x${string}`,
+    attestationEscrowObligation: "0x" as `0x${string}`,
+    attestationEscrowObligation2: "0x" as `0x${string}`,
     attestationBarterUtils: "0x" as `0x${string}`,
   };
 
@@ -203,7 +203,7 @@ async function main() {
   const specificArbiterReceipt = await publicClient.waitForTransactionReceipt({
     hash: specificArbiterHash,
   });
-  addresses.specificArbiter =
+  addresses.specificAttestationArbiter =
     specificArbiterReceipt.contractAddress as `0x${string}`;
 
   // Deploy TrustedPartyArbiter
@@ -280,7 +280,8 @@ async function main() {
   const erc20EscrowReceipt = await publicClient.waitForTransactionReceipt({
     hash: erc20EscrowHash,
   });
-  addresses.erc20Escrow = erc20EscrowReceipt.contractAddress as `0x${string}`;
+  addresses.erc20EscrowObligation =
+    erc20EscrowReceipt.contractAddress as `0x${string}`;
 
   const erc20PaymentHash = await client.deployContract({
     abi: ERC20PaymentObligation.abi,
@@ -293,7 +294,8 @@ async function main() {
   const erc20PaymentReceipt = await publicClient.waitForTransactionReceipt({
     hash: erc20PaymentHash,
   });
-  addresses.erc20Payment = erc20PaymentReceipt.contractAddress as `0x${string}`;
+  addresses.erc20PaymentObligation =
+    erc20PaymentReceipt.contractAddress as `0x${string}`;
 
   // Deploy ERC721 contracts
   console.log("\nDeploying ERC721 contracts...");
@@ -308,7 +310,8 @@ async function main() {
   const erc721EscrowReceipt = await publicClient.waitForTransactionReceipt({
     hash: erc721EscrowHash,
   });
-  addresses.erc721Escrow = erc721EscrowReceipt.contractAddress as `0x${string}`;
+  addresses.erc721EscrowObligation =
+    erc721EscrowReceipt.contractAddress as `0x${string}`;
 
   const erc721PaymentHash = await client.deployContract({
     abi: ERC721PaymentObligation.abi,
@@ -321,7 +324,7 @@ async function main() {
   const erc721PaymentReceipt = await publicClient.waitForTransactionReceipt({
     hash: erc721PaymentHash,
   });
-  addresses.erc721Payment =
+  addresses.erc721PaymentObligation =
     erc721PaymentReceipt.contractAddress as `0x${string}`;
 
   // Deploy ERC1155 contracts
@@ -337,7 +340,7 @@ async function main() {
   const erc1155EscrowReceipt = await publicClient.waitForTransactionReceipt({
     hash: erc1155EscrowHash,
   });
-  addresses.erc1155Escrow =
+  addresses.erc1155EscrowObligation =
     erc1155EscrowReceipt.contractAddress as `0x${string}`;
 
   const erc1155PaymentHash = await client.deployContract({
@@ -351,7 +354,7 @@ async function main() {
   const erc1155PaymentReceipt = await publicClient.waitForTransactionReceipt({
     hash: erc1155PaymentHash,
   });
-  addresses.erc1155Payment =
+  addresses.erc1155PaymentObligation =
     erc1155PaymentReceipt.contractAddress as `0x${string}`;
 
   // Deploy TokenBundle contracts
@@ -367,7 +370,8 @@ async function main() {
   const bundleEscrowReceipt = await publicClient.waitForTransactionReceipt({
     hash: bundleEscrowHash,
   });
-  addresses.bundleEscrow = bundleEscrowReceipt.contractAddress as `0x${string}`;
+  addresses.tokenBundleEscrowObligation =
+    bundleEscrowReceipt.contractAddress as `0x${string}`;
 
   const bundlePaymentHash = await client.deployContract({
     abi: TokenBundlePaymentObligation.abi,
@@ -380,13 +384,17 @@ async function main() {
   const bundlePaymentReceipt = await publicClient.waitForTransactionReceipt({
     hash: bundlePaymentHash,
   });
-  addresses.bundlePayment =
+  addresses.tokenBundlePaymentObligation =
     bundlePaymentReceipt.contractAddress as `0x${string}`;
 
   const bundleBarterUtilsHash = await client.deployContract({
     abi: TokenBundleBarterUtils.abi,
     bytecode: TokenBundleBarterUtils.bytecode.object as `0x${string}`,
-    args: [addresses.eas, addresses.bundleEscrow, addresses.bundlePayment],
+    args: [
+      addresses.eas,
+      addresses.tokenBundleEscrowObligation,
+      addresses.tokenBundlePaymentObligation,
+    ],
   });
   console.log(
     `TokenBundleBarterUtils deployment transaction: ${bundleBarterUtilsHash}`,
@@ -396,7 +404,7 @@ async function main() {
       hash: bundleBarterUtilsHash,
     },
   );
-  addresses.bundleBarterUtils =
+  addresses.tokenBundleBarterUtils =
     bundleBarterUtilsReceipt.contractAddress as `0x${string}`;
 
   // Deploy cross token barter contracts
@@ -406,14 +414,14 @@ async function main() {
     bytecode: ERC20BarterCrossToken.bytecode.object as `0x${string}`,
     args: [
       addresses.eas,
-      addresses.erc20Escrow,
-      addresses.erc20Payment,
-      addresses.erc721Escrow,
-      addresses.erc721Payment,
-      addresses.erc1155Escrow,
-      addresses.erc1155Payment,
-      addresses.bundleEscrow,
-      addresses.bundlePayment,
+      addresses.erc20EscrowObligation,
+      addresses.erc20PaymentObligation,
+      addresses.erc721EscrowObligation,
+      addresses.erc721PaymentObligation,
+      addresses.erc1155EscrowObligation,
+      addresses.erc1155PaymentObligation,
+      addresses.tokenBundleEscrowObligation,
+      addresses.tokenBundlePaymentObligation,
     ],
   });
   console.log(
@@ -423,7 +431,7 @@ async function main() {
     await publicClient.waitForTransactionReceipt({
       hash: erc20BarterCrossTokenHash,
     });
-  addresses.erc20BarterCrossToken =
+  addresses.erc20BarterUtils =
     erc20BarterCrossTokenReceipt.contractAddress as `0x${string}`;
 
   const erc721BarterCrossTokenHash = await client.deployContract({
@@ -431,14 +439,14 @@ async function main() {
     bytecode: ERC721BarterCrossToken.bytecode.object as `0x${string}`,
     args: [
       addresses.eas,
-      addresses.erc20Escrow,
-      addresses.erc20Payment,
-      addresses.erc721Escrow,
-      addresses.erc721Payment,
-      addresses.erc1155Escrow,
-      addresses.erc1155Payment,
-      addresses.bundleEscrow,
-      addresses.bundlePayment,
+      addresses.erc20EscrowObligation,
+      addresses.erc20PaymentObligation,
+      addresses.erc721EscrowObligation,
+      addresses.erc721PaymentObligation,
+      addresses.erc1155EscrowObligation,
+      addresses.erc1155PaymentObligation,
+      addresses.tokenBundleEscrowObligation,
+      addresses.tokenBundlePaymentObligation,
     ],
   });
   console.log(
@@ -448,7 +456,7 @@ async function main() {
     await publicClient.waitForTransactionReceipt({
       hash: erc721BarterCrossTokenHash,
     });
-  addresses.erc721BarterCrossToken =
+  addresses.erc721BarterUtils =
     erc721BarterCrossTokenReceipt.contractAddress as `0x${string}`;
 
   const erc1155BarterCrossTokenHash = await client.deployContract({
@@ -456,14 +464,14 @@ async function main() {
     bytecode: ERC1155BarterCrossToken.bytecode.object as `0x${string}`,
     args: [
       addresses.eas,
-      addresses.erc20Escrow,
-      addresses.erc20Payment,
-      addresses.erc721Escrow,
-      addresses.erc721Payment,
-      addresses.erc1155Escrow,
-      addresses.erc1155Payment,
-      addresses.bundleEscrow,
-      addresses.bundlePayment,
+      addresses.erc20EscrowObligation,
+      addresses.erc20PaymentObligation,
+      addresses.erc721EscrowObligation,
+      addresses.erc721PaymentObligation,
+      addresses.erc1155EscrowObligation,
+      addresses.erc1155PaymentObligation,
+      addresses.tokenBundleEscrowObligation,
+      addresses.tokenBundlePaymentObligation,
     ],
   });
   console.log(
@@ -473,7 +481,7 @@ async function main() {
     await publicClient.waitForTransactionReceipt({
       hash: erc1155BarterCrossTokenHash,
     });
-  addresses.erc1155BarterCrossToken =
+  addresses.erc1155BarterUtils =
     erc1155BarterCrossTokenReceipt.contractAddress as `0x${string}`;
 
   // Deploy attestation barter contracts
@@ -491,7 +499,7 @@ async function main() {
       hash: attestationEscrowHash,
     },
   );
-  addresses.attestationEscrow =
+  addresses.attestationEscrowObligation =
     attestationEscrowReceipt.contractAddress as `0x${string}`;
 
   const attestationEscrow2Hash = await client.deployContract({
@@ -506,7 +514,7 @@ async function main() {
     await publicClient.waitForTransactionReceipt({
       hash: attestationEscrow2Hash,
     });
-  addresses.attestationEscrow2 =
+  addresses.attestationEscrowObligation2 =
     attestationEscrow2Receipt.contractAddress as `0x${string}`;
 
   const attestationBarterUtilsHash = await client.deployContract({
@@ -515,7 +523,7 @@ async function main() {
     args: [
       addresses.eas,
       addresses.schemaRegistry,
-      addresses.attestationEscrow2,
+      addresses.attestationEscrowObligation2,
     ],
   });
   console.log(
@@ -535,7 +543,9 @@ async function main() {
   console.log(`Schema Registry: ${addresses.schemaRegistry}`);
 
   console.log("\nArbiters:");
-  console.log(`SpecificAttestationArbiter: ${addresses.specificArbiter}`);
+  console.log(
+    `SpecificAttestationArbiter: ${addresses.specificAttestationArbiter}`,
+  );
   console.log(`TrustedPartyArbiter: ${addresses.trustedPartyArbiter}`);
   console.log(`TrivialArbiter: ${addresses.trivialArbiter}`);
   console.log(`TrustedOracleArbiter: ${addresses.trustedOracleArbiter}`);
@@ -544,28 +554,38 @@ async function main() {
   console.log(`StringObligation: ${addresses.stringObligation}`);
 
   console.log("\nERC20 Contracts:");
-  console.log(`ERC20EscrowObligation: ${addresses.erc20Escrow}`);
-  console.log(`ERC20PaymentObligation: ${addresses.erc20Payment}`);
-  console.log(`ERC20BarterCrossToken: ${addresses.erc20BarterCrossToken}`);
+  console.log(`ERC20EscrowObligation: ${addresses.erc20EscrowObligation}`);
+  console.log(`ERC20PaymentObligation: ${addresses.erc20PaymentObligation}`);
+  console.log(`ERC20BarterCrossToken: ${addresses.erc20BarterUtils}`);
 
   console.log("\nERC721 Contracts:");
-  console.log(`ERC721EscrowObligation: ${addresses.erc721Escrow}`);
-  console.log(`ERC721PaymentObligation: ${addresses.erc721Payment}`);
-  console.log(`ERC721BarterCrossToken: ${addresses.erc721BarterCrossToken}`);
+  console.log(`ERC721EscrowObligation: ${addresses.erc721EscrowObligation}`);
+  console.log(`ERC721PaymentObligation: ${addresses.erc721PaymentObligation}`);
+  console.log(`ERC721BarterCrossToken: ${addresses.erc721BarterUtils}`);
 
   console.log("\nERC1155 Contracts:");
-  console.log(`ERC1155EscrowObligation: ${addresses.erc1155Escrow}`);
-  console.log(`ERC1155PaymentObligation: ${addresses.erc1155Payment}`);
-  console.log(`ERC1155BarterCrossToken: ${addresses.erc1155BarterCrossToken}`);
+  console.log(`ERC1155EscrowObligation: ${addresses.erc1155EscrowObligation}`);
+  console.log(
+    `ERC1155PaymentObligation: ${addresses.erc1155PaymentObligation}`,
+  );
+  console.log(`ERC1155BarterCrossToken: ${addresses.erc1155BarterUtils}`);
 
   console.log("\nTokenBundle Contracts:");
-  console.log(`TokenBundleEscrowObligation: ${addresses.bundleEscrow}`);
-  console.log(`TokenBundlePaymentObligation: ${addresses.bundlePayment}`);
-  console.log(`TokenBundleBarterUtils: ${addresses.bundleBarterUtils}`);
+  console.log(
+    `TokenBundleEscrowObligation: ${addresses.tokenBundleEscrowObligation}`,
+  );
+  console.log(
+    `TokenBundlePaymentObligation: ${addresses.tokenBundlePaymentObligation}`,
+  );
+  console.log(`TokenBundleBarterUtils: ${addresses.tokenBundleBarterUtils}`);
 
   console.log("\nAttestation Barter Contracts:");
-  console.log(`AttestationEscrowObligation: ${addresses.attestationEscrow}`);
-  console.log(`AttestationEscrowObligation2: ${addresses.attestationEscrow2}`);
+  console.log(
+    `AttestationEscrowObligation: ${addresses.attestationEscrowObligation}`,
+  );
+  console.log(
+    `AttestationEscrowObligation2: ${addresses.attestationEscrowObligation2}`,
+  );
   console.log(`AttestationBarterUtils: ${addresses.attestationBarterUtils}`);
 
   // Save addresses to a file with timestamp
