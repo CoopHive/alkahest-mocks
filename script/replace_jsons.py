@@ -2,7 +2,7 @@
 import os
 import shutil
 
-dir = "alkahest-ts"
+dir = "alkahest-rs"
 current_contracts = os.listdir(f"{dir}/src/contracts")
 
 #%%

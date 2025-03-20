@@ -4,23 +4,24 @@ pragma solidity ^0.8.26;
 import "forge-std/Script.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {EASDeployer} from "test/utils/EASDeployer.sol";
 
 // ERC20 Contracts
 import {ERC20EscrowObligation} from "@src/obligations/ERC20EscrowObligation.sol";
 import {ERC20PaymentObligation} from "@src/obligations/ERC20PaymentObligation.sol";
-import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
+// import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
 import {ERC20BarterCrossToken} from "@src/utils/ERC20BarterCrossToken.sol";
 
 // ERC721 Contracts
 import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
 import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
-import {ERC721BarterUtils} from "@src/utils/ERC721BarterUtils.sol";
+// import {ERC721BarterUtils} from "@src/utils/ERC721BarterUtils.sol";
 import {ERC721BarterCrossToken} from "@src/utils/ERC721BarterCrossToken.sol";
 
 // ERC1155 Contracts
 import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.sol";
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
-import {ERC1155BarterUtils} from "@src/utils/ERC1155BarterUtils.sol";
+// import {ERC1155BarterUtils} from "@src/utils/ERC1155BarterUtils.sol";
 import {ERC1155BarterCrossToken} from "@src/utils/ERC1155BarterCrossToken.sol";
 
 // TokenBundle Contracts
@@ -45,11 +46,19 @@ import {StringObligation} from "@src/obligations/StringObligation.sol";
 contract Deploy is Script {
     function run() external {
         // Load environment variables
-        address easAddress = vm.envAddress("EAS_ADDRESS");
-        address schemaRegistryAddress = vm.envAddress("EAS_SR_ADDRESS");
+        // address easAddress = vm.envAddress("EAS_ADDRESS");
+        // address schemaRegistryAddress = vm.envAddress("EAS_SR_ADDRESS");
         uint256 deployerPrivateKey = vm.envUint("DEPLOYMENT_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
+
+        // Deploy EAS and schema registry
+        IEAS eas;
+        ISchemaRegistry schemaRegistry;
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
+        address easAddress = address(eas);
+        address schemaRegistryAddress = address(schemaRegistry);
 
         // Deploy arbiters
         SpecificAttestationArbiter specificArbiter = new SpecificAttestationArbiter();
@@ -72,11 +81,11 @@ contract Deploy is Script {
             IEAS(easAddress),
             ISchemaRegistry(schemaRegistryAddress)
         );
-        ERC20BarterUtils erc20BarterUtils = new ERC20BarterUtils(
-            IEAS(easAddress),
-            erc20Escrow,
-            erc20Payment
-        );
+        // ERC20BarterUtils erc20BarterUtils = new ERC20BarterUtils(
+        //     IEAS(easAddress),
+        //     erc20Escrow,
+        //     erc20Payment
+        // );
 
         // Deploy ERC721 contracts
         ERC721EscrowObligation erc721Escrow = new ERC721EscrowObligation(
@@ -87,11 +96,11 @@ contract Deploy is Script {
             IEAS(easAddress),
             ISchemaRegistry(schemaRegistryAddress)
         );
-        ERC721BarterUtils erc721BarterUtils = new ERC721BarterUtils(
-            IEAS(easAddress),
-            erc721Escrow,
-            erc721Payment
-        );
+        // ERC721BarterUtils erc721BarterUtils = new ERC721BarterUtils(
+        //     IEAS(easAddress),
+        //     erc721Escrow,
+        //     erc721Payment
+        // );
 
         // Deploy ERC1155 contracts
         ERC1155EscrowObligation erc1155Escrow = new ERC1155EscrowObligation(
@@ -102,11 +111,11 @@ contract Deploy is Script {
             IEAS(easAddress),
             ISchemaRegistry(schemaRegistryAddress)
         );
-        ERC1155BarterUtils erc1155BarterUtils = new ERC1155BarterUtils(
-            IEAS(easAddress),
-            erc1155Escrow,
-            erc1155Payment
-        );
+        // ERC1155BarterUtils erc1155BarterUtils = new ERC1155BarterUtils(
+        //     IEAS(easAddress),
+        //     erc1155Escrow,
+        //     erc1155Payment
+        // );
 
         // Deploy TokenBundle contracts
         TokenBundleEscrowObligation bundleEscrow = new TokenBundleEscrowObligation(
@@ -178,6 +187,10 @@ contract Deploy is Script {
         vm.stopBroadcast();
 
         // Print all deployed addresses
+        console.log("\nEAS:");
+        console.log("EAS:", address(eas));
+        console.log("Schema Registry:", address(schemaRegistry));
+
         console.log("\nArbiters:");
         console.log("SpecificAttestationArbiter:", address(specificArbiter));
         console.log("TrustedPartyArbiter:", address(trustedPartyArbiter));
@@ -190,19 +203,19 @@ contract Deploy is Script {
         console.log("\nERC20 Contracts:");
         console.log("ERC20EscrowObligation:", address(erc20Escrow));
         console.log("ERC20PaymentObligation:", address(erc20Payment));
-        console.log("ERC20BarterUtils:", address(erc20BarterUtils));
+        // console.log("ERC20BarterUtils:", address(erc20BarterUtils));
         console.log("ERC20BarterCrossToken:", address(erc20BarterCrossToken));
 
         console.log("\nERC721 Contracts:");
         console.log("ERC721EscrowObligation:", address(erc721Escrow));
         console.log("ERC721PaymentObligation:", address(erc721Payment));
-        console.log("ERC721BarterUtils:", address(erc721BarterUtils));
+        // console.log("ERC721BarterUtils:", address(erc721BarterUtils));
         console.log("ERC721BarterCrossToken:", address(erc721BarterCrossToken));
 
         console.log("\nERC1155 Contracts:");
         console.log("ERC1155EscrowObligation:", address(erc1155Escrow));
         console.log("ERC1155PaymentObligation:", address(erc1155Payment));
-        console.log("ERC1155BarterUtils:", address(erc1155BarterUtils));
+        // console.log("ERC1155BarterUtils:", address(erc1155BarterUtils));
         console.log(
             "ERC1155BarterCrossToken:",
             address(erc1155BarterCrossToken)

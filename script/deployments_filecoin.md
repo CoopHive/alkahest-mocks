@@ -1,0 +1,114 @@
+Starting deployment...
+Deploying with account: 0x51A257aAF108c9b0A3e140519bD14e5B4bf15e47
+Account balance: 204.999937291018440335 ETH
+Deploying EAS and schema registry...
+SchemaRegistry deployment transaction: 0xaf671af8f41caf303086026e1762ea2360bd81e55527504133c978ec0796cd2d
+SchemaRegistry deployed at: 0x2bb94a4e6ec0d81de7f81007b572ac09a5be37b4
+EAS deployment transaction: 0xdd6047d3f76873a2ca3f2184c9148a13365330bcd20d558e120e9f1d5ab3ef0f
+EAS deployed at: 0x3c79a0225380fb6f3cb990ffc4e3d5af4546b524
+
+Deploying arbiters...
+SpecificAttestationArbiter deployment transaction: 0x66819beb2a6919819a5020b239b9a0c5e829b731ec29cacc06d706675c0008af
+TrustedPartyArbiter deployment transaction: 0xb781662b5037a48427e17a777eb7d62f9d9d467bc39d30b2463f2d34dbaf63ab
+TrivialArbiter deployment transaction: 0x0ef10361d70bef2d2c0d1ea535ce0bfb9267a8f781597ffdd8fccf838f6a18ee
+TrustedOracleArbiter deployment transaction: 0xa5a507daad7ac4defc83a3a007053031551c0c8354d0adbaf74ffc9c9f6737ec
+
+Deploying StringObligation...
+StringObligation deployment transaction: 0xed36cfa6c39c1a844e20ded15b5d43856f4f09327d4c1fa4d40d611ffee0d628
+
+Deploying ERC20 contracts...
+ERC20EscrowObligation deployment transaction: 0xf0b4c11e074c0dd5e178d180bd0d30f57cc8daaea686df9fa5b3a8fb7f6fd392
+ERC20PaymentObligation deployment transaction: 0x53b1f8a9990aafb17117526eb95a158e5d2df316b9a96ca4bdcfe8f572de09ba
+
+Deploying ERC721 contracts...
+ERC721EscrowObligation deployment transaction: 0xc94c2cd97006f1a8bbf0a8bb2d9137e655724b14e78cd45d8ca2029b6af202d2
+ERC721PaymentObligation deployment transaction: 0xf72e7b184414b53224eae410220375b1cfbfd979c796d062a0ed6f5497a3d5e3
+
+Deploying ERC1155 contracts...
+ERC1155EscrowObligation deployment transaction: 0x05081ec78dca6137f0de79f5afa86a9dc9ff0db2467c0090ec348f6d89a6b281
+ERC1155PaymentObligation deployment transaction: 0x797b64f8b215f0292e41c7fa8eea853de44d1c6cdc3738a237365fb5ef4381f1
+
+Deploying TokenBundle contracts...
+TokenBundleEscrowObligation deployment transaction: 0x72f21396642efbe621859c9a2e9dabd474d42310726204f167dd1d2916e8237d
+TokenBundlePaymentObligation deployment transaction: 0x925baa117f8574868fb56d030e0edcd73b3cc3c7805ac9f36a888d6166060f4c
+TokenBundleBarterUtils deployment transaction: 0xd65a2c31b847058112b7034d76dc78f2d7304e021b277013a05c2bb1b244176c
+
+Deploying cross token barter contracts...
+ERC20BarterCrossToken deployment transaction: 0xb7e535bba199c73e0f9e40cb198701dbd28ca13f52132a95101881f60ea52e46
+ERC721BarterCrossToken deployment transaction: 0x72d13d0d7595215930cf2c22ca9ad56b30020853e24e9e87a26f99be6805c377
+ERC1155BarterCrossToken deployment transaction: 0xc2d12a8ba0ccc22ad03ba49e50b0b2d9378a9014956f20d4b47ee193d3695055
+
+Deploying attestation barter contracts...
+AttestationEscrowObligation deployment transaction: 0x3bee754cbffb8770fa60fec68ee45b298e92ebc2346b0d993221c00389e6dc5f
+AttestationEscrowObligation2 deployment transaction: 0xe8a6cafc518f6c5ea6e75d85c66f5a6c27e44bf8375fbe7ab68410e8ec55fe74
+AttestationBarterUtils deployment transaction: 0xc267834ee1b16a83c75ec1bdcf888fc0280d64a77eafd82bc2644db03425f276
+
+======== DEPLOYED ADDRESSES ========
+
+EAS:
+EAS: 0x3c79a0225380fb6f3cb990ffc4e3d5af4546b524
+Schema Registry: 0x2bb94a4e6ec0d81de7f81007b572ac09a5be37b4
+
+Arbiters:
+SpecificAttestationArbiter: 0x10788ba2c4c65d1e97bc6005436b61c2c2e51572
+TrustedPartyArbiter: 0xed550301b3258612509615bbddd4b2383cf32df4
+TrivialArbiter: 0x6e9bc0d34fff16140401fc51653347be0a1f0ec0
+TrustedOracleArbiter: 0x5f1db54dbc5006894ef6c43b2174c05ccaa250ec
+
+String Obligation:
+StringObligation: 0xbb022fc36d0cc97b6cae5a2e15d45b7a9ad46f99
+
+ERC20 Contracts:
+ERC20EscrowObligation: 0x235792a6d077a04fb190a19f362acecab7866ab5
+ERC20PaymentObligation: 0xd8b6199aa91992f5d3bafddc3372b391e46c92ce
+ERC20BarterCrossToken: 0xaeeddd0a2f24f7286eae7e7fa5cea746fcf064fc
+
+ERC721 Contracts:
+ERC721EscrowObligation: 0x336f2f91b093001edd90e49216422b33b8b4e03b
+ERC721PaymentObligation: 0x4b9b6ff4a7c2bc89eee6f28355b9a94e6649bbf8
+ERC721BarterCrossToken: 0x2129f46737135fe4ebb3c49953487122088bc739
+
+ERC1155 Contracts:
+ERC1155EscrowObligation: 0x96c14b182cd99a09ddddc6b755ba0c4ed3d6991c
+ERC1155PaymentObligation: 0x903caa028b1848ab8fdd15c4ccd20c4e7be2b1c0
+ERC1155BarterCrossToken: 0x66b7398b2bb322bb4a480ae370142c02c52b886a
+
+TokenBundle Contracts:
+TokenBundleEscrowObligation: 0xdcc1104325d9d99c6bd5faa0804a7d743f3d0c20
+TokenBundlePaymentObligation: 0xab43cce34a7b831fa7ab134bcdc21a6ba20882b6
+TokenBundleBarterUtils: 0xb63cf08c6623f69d2ad34e37b8a68cca6c125d49
+
+Attestation Barter Contracts:
+AttestationEscrowObligation: 0x553e4de0916074201a9d32123efcc8f734ee5675
+AttestationEscrowObligation2: 0x11c3931f2715d8fca8ea5ca79fac4bbbcdbe9903
+AttestationBarterUtils: 0x0c19138441e1bee2964e65e0edf1702d59a2e786
+
+Saving addresses to deployment_1742440266.json
+
+Deployment complete!
+
+Addresses JSON:
+{
+"eas": "0x3c79a0225380fb6f3cb990ffc4e3d5af4546b524",
+"schemaRegistry": "0x2bb94a4e6ec0d81de7f81007b572ac09a5be37b4",
+"specificArbiter": "0x10788ba2c4c65d1e97bc6005436b61c2c2e51572",
+"trustedPartyArbiter": "0xed550301b3258612509615bbddd4b2383cf32df4",
+"trivialArbiter": "0x6e9bc0d34fff16140401fc51653347be0a1f0ec0",
+"trustedOracleArbiter": "0x5f1db54dbc5006894ef6c43b2174c05ccaa250ec",
+"stringObligation": "0xbb022fc36d0cc97b6cae5a2e15d45b7a9ad46f99",
+"erc20Escrow": "0x235792a6d077a04fb190a19f362acecab7866ab5",
+"erc20Payment": "0xd8b6199aa91992f5d3bafddc3372b391e46c92ce",
+"erc721Escrow": "0x336f2f91b093001edd90e49216422b33b8b4e03b",
+"erc721Payment": "0x4b9b6ff4a7c2bc89eee6f28355b9a94e6649bbf8",
+"erc1155Escrow": "0x96c14b182cd99a09ddddc6b755ba0c4ed3d6991c",
+"erc1155Payment": "0x903caa028b1848ab8fdd15c4ccd20c4e7be2b1c0",
+"bundleEscrow": "0xdcc1104325d9d99c6bd5faa0804a7d743f3d0c20",
+"bundlePayment": "0xab43cce34a7b831fa7ab134bcdc21a6ba20882b6",
+"bundleBarterUtils": "0xb63cf08c6623f69d2ad34e37b8a68cca6c125d49",
+"erc20BarterCrossToken": "0xaeeddd0a2f24f7286eae7e7fa5cea746fcf064fc",
+"erc721BarterCrossToken": "0x2129f46737135fe4ebb3c49953487122088bc739",
+"erc1155BarterCrossToken": "0x66b7398b2bb322bb4a480ae370142c02c52b886a",
+"attestationEscrow": "0x553e4de0916074201a9d32123efcc8f734ee5675",
+"attestationEscrow2": "0x11c3931f2715d8fca8ea5ca79fac4bbbcdbe9903",
+"attestationBarterUtils": "0x0c19138441e1bee2964e65e0edf1702d59a2e786"
+}
