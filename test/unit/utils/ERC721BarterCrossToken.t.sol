@@ -183,23 +183,33 @@ contract ERC721BarterCrossTokenUnitTest is Test {
     }
 
     function testPayErc721ForErc20() public {
-        // First create a bid from Alice
+        // First create a bid from Bob for ERC721 tokens, offering ERC20
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        vm.startPrank(alice);
-        erc721TokenA.approve(address(erc721Escrow), aliceErc721Id);
-        bytes32 buyAttestation = barterCross.buyErc20WithErc721(
-            address(erc721TokenA),
-            aliceErc721Id,
-            address(erc20Token),
-            erc20Amount,
-            expiration
+        vm.startPrank(bob);
+        erc20Token.approve(address(erc20Escrow), erc20Amount);
+        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
+            ERC20EscrowObligation.StatementData({
+                token: address(erc20Token),
+                amount: erc20Amount,
+                arbiter: address(erc721Payment),
+                demand: abi.encode(
+                    ERC721PaymentObligation.StatementData({
+                        token: address(erc721TokenA),
+                        tokenId: aliceErc721Id,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
         );
         vm.stopPrank();
 
-        // Bob fulfills Alice's bid
-        vm.startPrank(bob);
-        erc20Token.approve(address(erc20Payment), erc20Amount);
+        // Alice fulfills Bob's bid
+        vm.startPrank(alice);
+        erc721TokenA.approve(address(erc721Payment), aliceErc721Id);
         bytes32 payAttestation = barterCross.payErc721ForErc20(buyAttestation);
         vm.stopPrank();
 
@@ -296,24 +306,34 @@ contract ERC721BarterCrossTokenUnitTest is Test {
     }
 
     function testPayErc721ForErc1155() public {
-        // First create a bid from Alice
+        // First create a bid from Bob, offering ERC1155 for ERC721
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        vm.startPrank(alice);
-        erc721TokenA.approve(address(erc721Escrow), aliceErc721Id);
-        bytes32 buyAttestation = barterCross.buyErc1155WithErc721(
-            address(erc721TokenA),
-            aliceErc721Id,
-            address(erc1155Token),
-            erc1155TokenId,
-            erc1155TokenAmount,
-            expiration
+        vm.startPrank(bob);
+        erc1155Token.setApprovalForAll(address(erc1155Escrow), true);
+        bytes32 buyAttestation = erc1155Escrow.makeStatementFor(
+            ERC1155EscrowObligation.StatementData({
+                token: address(erc1155Token),
+                tokenId: erc1155TokenId,
+                amount: erc1155TokenAmount,
+                arbiter: address(erc721Payment),
+                demand: abi.encode(
+                    ERC721PaymentObligation.StatementData({
+                        token: address(erc721TokenA),
+                        tokenId: aliceErc721Id,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
         );
         vm.stopPrank();
 
-        // Bob fulfills Alice's bid
-        vm.startPrank(bob);
-        erc1155Token.setApprovalForAll(address(erc1155Payment), true);
+        // Alice fulfills Bob's bid
+        vm.startPrank(alice);
+        erc721TokenA.approve(address(erc721Payment), aliceErc721Id);
         bytes32 payAttestation = barterCross.payErc721ForErc1155(
             buyAttestation
         );
@@ -434,9 +454,9 @@ contract ERC721BarterCrossTokenUnitTest is Test {
     function testPayErc721ForBundle() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        // Create bundle data
-        TokenBundlePaymentObligation.StatementData
-            memory bundleData = TokenBundlePaymentObligation.StatementData({
+        // Create bundle data for Bob to escrow
+        TokenBundleEscrowObligation.StatementData
+            memory bundleData = TokenBundleEscrowObligation.StatementData({
                 erc20Tokens: new address[](1),
                 erc20Amounts: new uint256[](1),
                 erc721Tokens: new address[](1),
@@ -444,7 +464,14 @@ contract ERC721BarterCrossTokenUnitTest is Test {
                 erc1155Tokens: new address[](1),
                 erc1155TokenIds: new uint256[](1),
                 erc1155Amounts: new uint256[](1),
-                payee: alice
+                arbiter: address(erc721Payment),
+                demand: abi.encode(
+                    ERC721PaymentObligation.StatementData({
+                        token: address(erc721TokenA),
+                        tokenId: aliceErc721Id,
+                        payee: bob
+                    })
+                )
             });
 
         bundleData.erc20Tokens[0] = address(erc20Token);
@@ -455,21 +482,21 @@ contract ERC721BarterCrossTokenUnitTest is Test {
         bundleData.erc1155TokenIds[0] = erc1155TokenId;
         bundleData.erc1155Amounts[0] = erc1155TokenAmount / 2;
 
-        vm.startPrank(alice);
-        erc721TokenA.approve(address(erc721Escrow), aliceErc721Id);
-        bytes32 buyAttestation = barterCross.buyBundleWithErc721(
-            address(erc721TokenA),
-            aliceErc721Id,
+        vm.startPrank(bob);
+        erc20Token.approve(address(bundleEscrow), erc20Amount / 2);
+        erc721TokenB.approve(address(bundleEscrow), bobErc721Id);
+        erc1155Token.setApprovalForAll(address(bundleEscrow), true);
+        bytes32 buyAttestation = bundleEscrow.makeStatementFor(
             bundleData,
-            expiration
+            expiration,
+            bob,
+            bob
         );
         vm.stopPrank();
 
-        // Bob approves and fulfills
-        vm.startPrank(bob);
-        erc20Token.approve(address(bundlePayment), erc20Amount / 2);
-        erc721TokenB.approve(address(bundlePayment), bobErc721Id);
-        erc1155Token.setApprovalForAll(address(bundlePayment), true);
+        // Alice fulfills with her ERC721
+        vm.startPrank(alice);
+        erc721TokenA.approve(address(erc721Payment), aliceErc721Id);
         bytes32 payAttestation = barterCross.payErc721ForBundle(buyAttestation);
         vm.stopPrank();
 
@@ -522,21 +549,31 @@ contract ERC721BarterCrossTokenUnitTest is Test {
     function test_RevertWhen_PaymentFails() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        // Alice makes bid
-        vm.startPrank(alice);
-        erc721TokenA.approve(address(erc721Escrow), aliceErc721Id);
-        bytes32 buyAttestation = barterCross.buyErc20WithErc721(
-            address(erc721TokenA),
-            aliceErc721Id,
-            address(erc20Token),
-            erc20Amount,
-            expiration
+        // Bob makes bid with ERC20
+        vm.startPrank(bob);
+        erc20Token.approve(address(erc20Escrow), erc20Amount);
+        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
+            ERC20EscrowObligation.StatementData({
+                token: address(erc20Token),
+                amount: erc20Amount,
+                arbiter: address(erc721Payment),
+                demand: abi.encode(
+                    ERC721PaymentObligation.StatementData({
+                        token: address(erc721TokenA),
+                        tokenId: aliceErc721Id,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
         );
         vm.stopPrank();
 
-        // Bob tries to fulfill without approving tokens
-        vm.startPrank(bob);
-        vm.expectRevert(); // ERC20: insufficient allowance
+        // Alice tries to fulfill without approving her ERC721 token
+        vm.startPrank(alice);
+        vm.expectRevert(); // ERC721: caller is not token owner or approved
         barterCross.payErc721ForErc20(buyAttestation);
         vm.stopPrank();
     }
@@ -545,23 +582,34 @@ contract ERC721BarterCrossTokenUnitTest is Test {
         // Create a bid with short expiration
         uint64 expiration = uint64(block.timestamp + 10 minutes);
 
-        vm.startPrank(alice);
-        erc721TokenA.approve(address(erc721Escrow), aliceErc721Id);
-        bytes32 buyAttestation = barterCross.buyErc20WithErc721(
-            address(erc721TokenA),
-            aliceErc721Id,
-            address(erc20Token),
-            erc20Amount,
-            expiration
+        // Bob makes bid with ERC20
+        vm.startPrank(bob);
+        erc20Token.approve(address(erc20Escrow), erc20Amount);
+        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
+            ERC20EscrowObligation.StatementData({
+                token: address(erc20Token),
+                amount: erc20Amount,
+                arbiter: address(erc721Payment),
+                demand: abi.encode(
+                    ERC721PaymentObligation.StatementData({
+                        token: address(erc721TokenA),
+                        tokenId: aliceErc721Id,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
         );
         vm.stopPrank();
 
         // Warp time past expiration
         vm.warp(block.timestamp + 20 minutes);
 
-        // Bob tries to fulfill expired bid
-        vm.startPrank(bob);
-        erc20Token.approve(address(erc20Payment), erc20Amount);
+        // Alice tries to fulfill expired bid
+        vm.startPrank(alice);
+        erc721TokenA.approve(address(erc721Payment), aliceErc721Id);
         vm.expectRevert();
         barterCross.payErc721ForErc20(buyAttestation);
         vm.stopPrank();
