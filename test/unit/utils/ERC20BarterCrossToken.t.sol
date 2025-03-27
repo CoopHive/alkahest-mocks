@@ -391,6 +391,430 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         );
     }
 
+    // Testing payErc20ForErc721 function
+    function testPayErc20ForErc721() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 erc721TokenId = 1;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Bob makes a bid with his ERC721
+        vm.startPrank(bob);
+        askErc721Token.approve(address(erc721Escrow), erc721TokenId);
+        bytes32 buyAttestation = erc721Escrow.makeStatementFor(
+            ERC721EscrowObligation.StatementData({
+                token: address(askErc721Token),
+                tokenId: erc721TokenId,
+                arbiter: address(paymentStatement),
+                demand: abi.encode(
+                    ERC20PaymentObligation.StatementData({
+                        token: address(bidToken),
+                        amount: bidAmount,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice fulfills Bob's bid with her ERC20
+        vm.startPrank(alice);
+        bidToken.approve(address(paymentStatement), bidAmount);
+        bytes32 payAttestation = barterCross.payErc20ForErc721(buyAttestation);
+        vm.stopPrank();
+
+        assertNotEq(
+            payAttestation,
+            bytes32(0),
+            "Pay attestation should be created"
+        );
+
+        // Verify the exchange happened
+        assertEq(
+            askErc721Token.ownerOf(erc721TokenId),
+            alice,
+            "Alice should now own Bob's ERC721 token"
+        );
+        assertEq(
+            bidToken.balanceOf(bob),
+            bidAmount,
+            "Bob should receive ERC20 tokens"
+        );
+        assertEq(
+            bidToken.balanceOf(alice),
+            1000 * 10 ** 18 - bidAmount,
+            "Alice should have spent ERC20 tokens"
+        );
+    }
+
+    // Testing payErc20ForErc1155 function
+    function testPayErc20ForErc1155() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 tokenId = 1;
+        uint256 amount = 50;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Bob makes a bid with his ERC1155
+        vm.startPrank(bob);
+        askErc1155Token.setApprovalForAll(address(erc1155Escrow), true);
+        bytes32 buyAttestation = erc1155Escrow.makeStatementFor(
+            ERC1155EscrowObligation.StatementData({
+                token: address(askErc1155Token),
+                tokenId: tokenId,
+                amount: amount,
+                arbiter: address(paymentStatement),
+                demand: abi.encode(
+                    ERC20PaymentObligation.StatementData({
+                        token: address(bidToken),
+                        amount: bidAmount,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice fulfills Bob's bid with her ERC20
+        vm.startPrank(alice);
+        bidToken.approve(address(paymentStatement), bidAmount);
+        bytes32 payAttestation = barterCross.payErc20ForErc1155(buyAttestation);
+        vm.stopPrank();
+
+        assertNotEq(
+            payAttestation,
+            bytes32(0),
+            "Pay attestation should be created"
+        );
+
+        // Verify the exchange happened
+        assertEq(
+            askErc1155Token.balanceOf(alice, tokenId),
+            amount,
+            "Alice should now have Bob's ERC1155 tokens"
+        );
+        assertEq(
+            askErc1155Token.balanceOf(bob, tokenId),
+            100 - amount,
+            "Bob should have fewer ERC1155 tokens"
+        );
+        assertEq(
+            bidToken.balanceOf(bob),
+            bidAmount,
+            "Bob should receive ERC20 tokens"
+        );
+        assertEq(
+            bidToken.balanceOf(alice),
+            1000 * 10 ** 18 - bidAmount,
+            "Alice should have spent ERC20 tokens"
+        );
+    }
+
+    // Testing payErc20ForBundle function
+    function testPayErc20ForBundle() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Create a bundle escrow
+        TokenBundleEscrowObligation.StatementData memory bundleData = TokenBundleEscrowObligation.StatementData({
+            erc20Tokens: new address[](0),
+            erc20Amounts: new uint256[](0),
+            erc721Tokens: new address[](1),
+            erc721TokenIds: new uint256[](1),
+            erc1155Tokens: new address[](1),
+            erc1155TokenIds: new uint256[](1),
+            erc1155Amounts: new uint256[](1),
+            arbiter: address(paymentStatement),
+            demand: abi.encode(
+                ERC20PaymentObligation.StatementData({
+                    token: address(bidToken),
+                    amount: bidAmount,
+                    payee: bob
+                })
+            )
+        });
+
+        bundleData.erc721Tokens[0] = address(askErc721Token);
+        bundleData.erc721TokenIds[0] = 1;
+        bundleData.erc1155Tokens[0] = address(askErc1155Token);
+        bundleData.erc1155TokenIds[0] = 1;
+        bundleData.erc1155Amounts[0] = 20;
+
+        // Bob creates an escrow with his token bundle
+        vm.startPrank(bob);
+        askErc721Token.approve(address(bundleEscrow), 1);
+        askErc1155Token.setApprovalForAll(address(bundleEscrow), true);
+        bytes32 buyAttestation = bundleEscrow.makeStatementFor(
+            bundleData,
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice fulfills Bob's bid with her ERC20
+        vm.startPrank(alice);
+        bidToken.approve(address(paymentStatement), bidAmount);
+        bytes32 payAttestation = barterCross.payErc20ForBundle(buyAttestation);
+        vm.stopPrank();
+
+        assertNotEq(
+            payAttestation,
+            bytes32(0),
+            "Pay attestation should be created"
+        );
+
+        // Verify the exchange happened
+        assertEq(
+            askErc721Token.ownerOf(1),
+            alice,
+            "Alice should now own Bob's ERC721 token"
+        );
+        assertEq(
+            askErc1155Token.balanceOf(alice, 1),
+            20,
+            "Alice should have received ERC1155 tokens"
+        );
+        assertEq(
+            askErc1155Token.balanceOf(bob, 1),
+            100 - 20,
+            "Bob should have fewer ERC1155 tokens"
+        );
+        assertEq(
+            bidToken.balanceOf(bob),
+            bidAmount,
+            "Bob should receive ERC20 tokens"
+        );
+        assertEq(
+            bidToken.balanceOf(alice),
+            1000 * 10 ** 18 - bidAmount,
+            "Alice should have spent ERC20 tokens"
+        );
+    }
+
+    // Testing permitAndPayErc20ForErc721 function
+    function testPermitAndPayErc20ForErc721() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 erc721TokenId = 1;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // First, bob makes an ERC721 escrow with ERC20 payment demand
+        vm.startPrank(bob);
+        askErc721Token.approve(address(erc721Escrow), erc721TokenId);
+        bytes32 buyAttestation = erc721Escrow.makeStatementFor(
+            ERC721EscrowObligation.StatementData({
+                token: address(askErc721Token),
+                tokenId: erc721TokenId,
+                arbiter: address(paymentStatement),
+                demand: abi.encode(
+                    ERC20PaymentObligation.StatementData({
+                        token: address(bidToken),
+                        amount: bidAmount,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice pays with permit
+        uint256 deadline = block.timestamp + 1 days;
+        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
+            bidToken,
+            ALICE_PRIVATE_KEY,
+            address(paymentStatement),
+            bidAmount,
+            deadline
+        );
+
+        vm.prank(alice);
+        bytes32 payAttestation = barterCross.permitAndPayErc20ForErc721(
+            buyAttestation,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        assertNotEq(
+            payAttestation,
+            bytes32(0),
+            "Pay attestation should be created"
+        );
+
+        // Verify the exchange happened
+        assertEq(
+            askErc721Token.ownerOf(erc721TokenId),
+            alice,
+            "Alice should now own Bob's ERC721 token"
+        );
+        assertEq(
+            bidToken.balanceOf(bob),
+            bidAmount,
+            "Bob should receive ERC20 tokens"
+        );
+    }
+    
+    // Testing permitAndPayErc20ForErc1155 function
+    function testPermitAndPayErc20ForErc1155() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint256 tokenId = 1;
+        uint256 amount = 50;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // First, bob makes an ERC1155 escrow with ERC20 payment demand
+        vm.startPrank(bob);
+        askErc1155Token.setApprovalForAll(address(erc1155Escrow), true);
+        bytes32 buyAttestation = erc1155Escrow.makeStatementFor(
+            ERC1155EscrowObligation.StatementData({
+                token: address(askErc1155Token),
+                tokenId: tokenId,
+                amount: amount,
+                arbiter: address(paymentStatement),
+                demand: abi.encode(
+                    ERC20PaymentObligation.StatementData({
+                        token: address(bidToken),
+                        amount: bidAmount,
+                        payee: bob
+                    })
+                )
+            }),
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice pays with permit
+        uint256 deadline = block.timestamp + 1 days;
+        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
+            bidToken,
+            ALICE_PRIVATE_KEY,
+            address(paymentStatement),
+            bidAmount,
+            deadline
+        );
+
+        vm.prank(alice);
+        bytes32 payAttestation = barterCross.permitAndPayErc20ForErc1155(
+            buyAttestation,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        assertNotEq(
+            payAttestation,
+            bytes32(0),
+            "Pay attestation should be created"
+        );
+
+        // Verify the exchange happened
+        assertEq(
+            askErc1155Token.balanceOf(alice, tokenId),
+            amount,
+            "Alice should now have Bob's ERC1155 tokens"
+        );
+        assertEq(
+            bidToken.balanceOf(bob),
+            bidAmount,
+            "Bob should receive ERC20 tokens"
+        );
+    }
+    
+    // Testing permitAndPayErc20ForBundle function
+    function testPermitAndPayErc20ForBundle() public {
+        uint256 bidAmount = 100 * 10 ** 18;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Create a bundle escrow
+        TokenBundleEscrowObligation.StatementData memory bundleData = TokenBundleEscrowObligation.StatementData({
+            erc20Tokens: new address[](0),
+            erc20Amounts: new uint256[](0),
+            erc721Tokens: new address[](1),
+            erc721TokenIds: new uint256[](1),
+            erc1155Tokens: new address[](1),
+            erc1155TokenIds: new uint256[](1),
+            erc1155Amounts: new uint256[](1),
+            arbiter: address(paymentStatement),
+            demand: abi.encode(
+                ERC20PaymentObligation.StatementData({
+                    token: address(bidToken),
+                    amount: bidAmount,
+                    payee: bob
+                })
+            )
+        });
+
+        bundleData.erc721Tokens[0] = address(askErc721Token);
+        bundleData.erc721TokenIds[0] = 1;
+        bundleData.erc1155Tokens[0] = address(askErc1155Token);
+        bundleData.erc1155TokenIds[0] = 1;
+        bundleData.erc1155Amounts[0] = 20;
+
+        // Bob creates an escrow with his token bundle
+        vm.startPrank(bob);
+        askErc721Token.approve(address(bundleEscrow), 1);
+        askErc1155Token.setApprovalForAll(address(bundleEscrow), true);
+        bytes32 buyAttestation = bundleEscrow.makeStatementFor(
+            bundleData,
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice pays with permit
+        uint256 deadline = block.timestamp + 1 days;
+        (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
+            bidToken,
+            ALICE_PRIVATE_KEY,
+            address(paymentStatement),
+            bidAmount,
+            deadline
+        );
+
+        vm.prank(alice);
+        bytes32 payAttestation = barterCross.permitAndPayErc20ForBundle(
+            buyAttestation,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        assertNotEq(
+            payAttestation,
+            bytes32(0),
+            "Pay attestation should be created"
+        );
+
+        // Verify the exchange happened
+        assertEq(
+            askErc721Token.ownerOf(1),
+            alice,
+            "Alice should now own Bob's ERC721 token"
+        );
+        assertEq(
+            askErc1155Token.balanceOf(alice, 1),
+            20,
+            "Alice should have received ERC1155 tokens"
+        );
+        assertEq(
+            bidToken.balanceOf(bob),
+            bidAmount,
+            "Bob should receive ERC20 tokens"
+        );
+    }
+
     function test_RevertWhen_TransferFails() public {
         uint256 bidAmount = 100 * 10 ** 18;
         uint256 erc721TokenId = 1;
