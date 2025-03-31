@@ -5,11 +5,11 @@ import shutil
 dir = "alkahest-rs"
 current_contracts = os.listdir(f"{dir}/src/contracts")
 
-#%%
+# %%
 contracts = os.listdir("out")
 contracts = [c for c in contracts if c.replace("sol", "json") in current_contracts]
 
-#%%
+# %%
 os.makedirs(f"{dir}/src/contracts/bak", exist_ok=True)
 for contract in contracts:
     json = contract.replace("sol", "json")
