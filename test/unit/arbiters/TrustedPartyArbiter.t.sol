@@ -53,9 +53,9 @@ contract TrustedPartyArbiterTest is Test {
         // Create demand data with the correct creator and a base arbiter that returns true
         TrustedPartyArbiter.DemandData memory demandData = TrustedPartyArbiter
             .DemandData({
-                creator: creator,
                 baseArbiter: address(mockArbiterTrue),
-                baseDemand: bytes("")
+                baseDemand: bytes(""),
+                creator: creator
             });
         bytes memory demand = abi.encode(demandData);
 
