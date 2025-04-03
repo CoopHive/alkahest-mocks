@@ -10,6 +10,7 @@ contract TrustedOracleArbiter is IArbiter {
 
     struct DemandData {
         address oracle;
+        bytes data;
     }
 
     event ArbitrationMade(

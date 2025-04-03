@@ -36,7 +36,7 @@ contract TrustedOracleArbiterTest is Test {
         });
 
         TrustedOracleArbiter.DemandData memory demandData = TrustedOracleArbiter
-            .DemandData({oracle: oracle});
+            .DemandData({oracle: oracle, data: bytes("")});
         bytes memory demand = abi.encode(demandData);
 
         // Should return false initially since no decision has been made
@@ -62,7 +62,12 @@ contract TrustedOracleArbiterTest is Test {
                     revocable: true,
                     data: bytes("")
                 }),
-                abi.encode(TrustedOracleArbiter.DemandData({oracle: oracle})),
+                abi.encode(
+                    TrustedOracleArbiter.DemandData({
+                        oracle: oracle,
+                        data: bytes("")
+                    })
+                ),
                 bytes32(0)
             )
         );
@@ -89,7 +94,12 @@ contract TrustedOracleArbiterTest is Test {
                     revocable: true,
                     data: bytes("")
                 }),
-                abi.encode(TrustedOracleArbiter.DemandData({oracle: oracle})),
+                abi.encode(
+                    TrustedOracleArbiter.DemandData({
+                        oracle: oracle,
+                        data: bytes("")
+                    })
+                ),
                 bytes32(0)
             )
         );
@@ -129,7 +139,12 @@ contract TrustedOracleArbiterTest is Test {
         assertTrue(
             arbiter.checkStatement(
                 attestation,
-                abi.encode(TrustedOracleArbiter.DemandData({oracle: oracle1})),
+                abi.encode(
+                    TrustedOracleArbiter.DemandData({
+                        oracle: oracle1,
+                        data: bytes("")
+                    })
+                ),
                 bytes32(0)
             )
         );
@@ -138,7 +153,12 @@ contract TrustedOracleArbiterTest is Test {
         assertFalse(
             arbiter.checkStatement(
                 attestation,
-                abi.encode(TrustedOracleArbiter.DemandData({oracle: oracle2})),
+                abi.encode(
+                    TrustedOracleArbiter.DemandData({
+                        oracle: oracle2,
+                        data: bytes("")
+                    })
+                ),
                 bytes32(0)
             )
         );
@@ -168,7 +188,10 @@ contract TrustedOracleArbiterTest is Test {
             arbiter.checkStatement(
                 attestation,
                 abi.encode(
-                    TrustedOracleArbiter.DemandData({oracle: newOracle})
+                    TrustedOracleArbiter.DemandData({
+                        oracle: newOracle,
+                        data: bytes("")
+                    })
                 ),
                 bytes32(0)
             )
