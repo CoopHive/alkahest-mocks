@@ -12,12 +12,17 @@ contract AnyArbiter is IArbiter {
         bytes[] demands;
     }
 
+    error MismatchedArrayLengths();
+
     function checkStatement(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
+        if (demand_.arbiters.length != demand_.demands.length)
+            revert MismatchedArrayLengths();
+
         for (uint256 i = 0; i < demand_.arbiters.length; i++) {
             try
                 // can throw, since some arbiters throw with failure case instead of returning false
