@@ -35,7 +35,7 @@ contract TrustedPartyArbiterTest is Test {
         mockArbiterFalse = new MockArbiter(false);
     }
 
-    function testCheckStatementWithCorrectCreator() public {
+    function testCheckStatementWithCorrectCreator() public view {
         // Create a test attestation with the correct recipient (creator)
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -69,6 +69,7 @@ contract TrustedPartyArbiterTest is Test {
 
     function testCheckStatementWithCorrectCreatorButBaseArbiterReturnsFalse()
         public
+        view
     {
         // Create a test attestation with the correct recipient (creator)
         Attestation memory attestation = Attestation({

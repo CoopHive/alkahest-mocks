@@ -156,7 +156,7 @@ contract AllArbiterTest is Test {
         assertTrue(result, "All successful arbiters should return true");
     }
 
-    function testOneArbiterFails() public {
+    function testOneArbiterFails() public view {
         // Create arrays for arbiters and demands with one failing arbiter
         address[] memory arbiters = new address[](2);
         arbiters[0] = address(successArbiter);
@@ -245,7 +245,7 @@ contract AllArbiterTest is Test {
         assertTrue(result, "Multiple valid arbiters should return true");
     }
 
-    function testDecodeDemandData() public {
+    function testDecodeDemandData() public view {
         // Create sample demand data
         address[] memory arbiters = new address[](2);
         arbiters[0] = address(successArbiter);
@@ -317,7 +317,7 @@ contract AllArbiterTest is Test {
         allArbiter.checkStatement(attestation, demandData, bytes32(0));
     }
 
-    function testArbitersWithSpecificDemands() public {
+    function testArbitersWithSpecificDemands() public view {
         // To further test integration with real arbiters, we could create specific
         // demand data for each arbiter if they require it
         // This is a simplified example

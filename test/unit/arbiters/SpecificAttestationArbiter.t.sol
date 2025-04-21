@@ -12,7 +12,7 @@ contract SpecificAttestationArbiterTest is Test {
         arbiter = new SpecificAttestationArbiter();
     }
 
-    function testCheckStatementWithCorrectUID() public {
+    function testCheckStatementWithCorrectUID() public view {
         // Create a test attestation
         bytes32 uid = bytes32(uint256(1));
         Attestation memory attestation = Attestation({

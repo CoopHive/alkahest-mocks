@@ -111,7 +111,7 @@ contract AnyArbiterTest is Test {
         return abi.encode(demandData);
     }
 
-    function testEmptyArbiters() public {
+    function testEmptyArbiters() public view {
         // Create empty arrays for arbiters and demands
         address[] memory arbiters = new address[](0);
         bytes[] memory demands = new bytes[](0);
@@ -131,7 +131,7 @@ contract AnyArbiterTest is Test {
         assertFalse(result, "Empty arbiter array should return false");
     }
 
-    function testSingleSuccessfulArbiter() public {
+    function testSingleSuccessfulArbiter() public view {
         // Create arrays with one successful arbiter
         address[] memory arbiters = new address[](1);
         arbiters[0] = address(successArbiter);
@@ -154,7 +154,7 @@ contract AnyArbiterTest is Test {
         assertTrue(result, "Single successful arbiter should return true");
     }
 
-    function testMultipleArbitersOneSucceeds() public {
+    function testMultipleArbitersOneSucceeds() public view {
         // Create arrays where one arbiter succeeds and others fail
         address[] memory arbiters = new address[](3);
         arbiters[0] = address(failArbiter);
@@ -184,7 +184,7 @@ contract AnyArbiterTest is Test {
         );
     }
 
-    function testAllArbitersFail() public {
+    function testAllArbitersFail() public view {
         // Create arrays where all arbiters fail
         address[] memory arbiters = new address[](2);
         arbiters[0] = address(failArbiter);
@@ -209,7 +209,7 @@ contract AnyArbiterTest is Test {
         assertFalse(result, "Should return false when all arbiters fail");
     }
 
-    function testAllArbitersRevert() public {
+    function testAllArbitersRevert() public view {
         // Create arrays where all arbiters revert
         address[] memory arbiters = new address[](2);
         arbiters[0] = address(revertArbiter);
@@ -234,7 +234,7 @@ contract AnyArbiterTest is Test {
         assertFalse(result, "Should return false when all arbiters revert");
     }
 
-    function testSomeArbitersRevertOthersFail() public {
+    function testSomeArbitersRevertOthersFail() public view {
         // Create arrays where some arbiters revert and others fail
         address[] memory arbiters = new address[](3);
         arbiters[0] = address(revertArbiter);
@@ -264,7 +264,7 @@ contract AnyArbiterTest is Test {
         );
     }
 
-    function testSomeArbitersRevertOneSucceeds() public {
+    function testSomeArbitersRevertOneSucceeds() public view {
         // Create arrays where some arbiters revert and one succeeds
         address[] memory arbiters = new address[](3);
         arbiters[0] = address(revertArbiter);
@@ -294,7 +294,7 @@ contract AnyArbiterTest is Test {
         );
     }
 
-    function testIntrinsicsArbiterWithValidAttestation() public {
+    function testIntrinsicsArbiterWithValidAttestation() public view {
         // Create arrays with IntrinsicsArbiter
         address[] memory arbiters = new address[](1);
         arbiters[0] = address(intrinsicsArbiter);
@@ -320,7 +320,7 @@ contract AnyArbiterTest is Test {
         );
     }
 
-    function testIntrinsicsArbiterWithExpiredAttestation() public {
+    function testIntrinsicsArbiterWithExpiredAttestation() public view {
         // Create arrays with IntrinsicsArbiter
         address[] memory arbiters = new address[](1);
         arbiters[0] = address(intrinsicsArbiter);
@@ -346,7 +346,7 @@ contract AnyArbiterTest is Test {
         );
     }
 
-    function testExpiredAttestationWithSuccessfulBackup() public {
+    function testExpiredAttestationWithSuccessfulBackup() public view {
         // Create arrays with IntrinsicsArbiter first (will revert) and then a success arbiter
         address[] memory arbiters = new address[](2);
         arbiters[0] = address(intrinsicsArbiter);
@@ -374,7 +374,7 @@ contract AnyArbiterTest is Test {
         );
     }
 
-    function testDecodeDemandData() public {
+    function testDecodeDemandData() public view {
         // Create sample demand data
         address[] memory arbiters = new address[](2);
         arbiters[0] = address(successArbiter);
