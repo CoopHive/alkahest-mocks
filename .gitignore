@@ -15,9 +15,10 @@ docs/
 
 .DS_Store
 *.rdb
-alkahest-ts
-alkahest-rs
+# alkahest-ts
+# alkahest-rs
 alkahest-py
 .aider.tags.cache.v3
 .aider.chat.history.md
 .aider.input.history
+summary.txt
