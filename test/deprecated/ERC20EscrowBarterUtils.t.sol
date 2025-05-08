@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import {ERC20EscrowObligation} from "@src/obligations/ERC20EscrowObligation.sol";
 import {ERC20PaymentFulfillmentArbiter} from "@src/arbiters/deprecated/ERC20PaymentFulfillmentArbiter.sol";
 import {ERC20EscrowBarterUtils} from "@src/utils/deprecated/ERC20EscrowBarterUtils.sol";
-import {SpecificAttestationArbiter} from "@src/arbiters/SpecificAttestationArbiter.sol";
+import {SpecificAttestationArbiter} from "@src/arbiters/deprecated/SpecificAttestationArbiter.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";

@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Script.sol";
 
-import {TrustedPartyArbiter} from "@src/arbiters/TrustedPartyArbiter.sol";
+// import {TrustedPartyArbiter} from "@src/arbiters/TrustedPartyArbiter.sol";
 import {TrivialArbiter} from "@src/arbiters/TrivialArbiter.sol";
 
 contract DeployArbiters is Script {
@@ -14,14 +14,14 @@ contract DeployArbiters is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy
-        TrustedPartyArbiter trustedPartyArbiter = new TrustedPartyArbiter();
+        // TrustedPartyArbiter trustedPartyArbiter = new TrustedPartyArbiter();
         TrivialArbiter trivialArbiter = new TrivialArbiter();
 
         vm.stopBroadcast();
 
         // Print deployed addresses
         console.log("\nValidator Contracts:");
-        console.log("TrustedPartyArbiter:", address(trustedPartyArbiter));
+        // console.log("TrustedPartyArbiter:", address(trustedPartyArbiter));
         console.log("TrivialArbiter:", address(trivialArbiter));
     }
 }

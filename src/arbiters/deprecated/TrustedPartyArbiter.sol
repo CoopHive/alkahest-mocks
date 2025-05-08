@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {IArbiter} from "../IArbiter.sol";
-import {ArbiterUtils} from "../ArbiterUtils.sol";
+import {IArbiter} from "../../IArbiter.sol";
+import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
 contract TrustedPartyArbiter is IArbiter {
     using ArbiterUtils for Attestation;

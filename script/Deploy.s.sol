@@ -35,8 +35,8 @@ import {AttestationEscrowObligation2} from "@src/obligations/AttestationEscrowOb
 import {AttestationBarterUtils} from "@src/utils/AttestationBarterUtils.sol";
 
 // Arbiter Contracts
-import {SpecificAttestationArbiter} from "@src/arbiters/SpecificAttestationArbiter.sol";
-import {TrustedPartyArbiter} from "@src/arbiters/TrustedPartyArbiter.sol";
+// import {SpecificAttestationArbiter} from "@src/arbiters/SpecificAttestationArbiter.sol";
+// import {TrustedPartyArbiter} from "@src/arbiters/TrustedPartyArbiter.sol";
 import {TrivialArbiter} from "@src/arbiters/TrivialArbiter.sol";
 import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
 
@@ -61,8 +61,8 @@ contract Deploy is Script {
         // address schemaRegistryAddress = address(schemaRegistry);
 
         // Deploy arbiters
-        SpecificAttestationArbiter specificArbiter = new SpecificAttestationArbiter();
-        TrustedPartyArbiter trustedPartyArbiter = new TrustedPartyArbiter();
+        // SpecificAttestationArbiter specificArbiter = new SpecificAttestationArbiter();
+        // TrustedPartyArbiter trustedPartyArbiter = new TrustedPartyArbiter();
         TrivialArbiter trivialArbiter = new TrivialArbiter();
         TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter();
 
@@ -192,8 +192,8 @@ contract Deploy is Script {
         console.log("Schema Registry:", schemaRegistryAddress);
 
         console.log("\nArbiters:");
-        console.log("SpecificAttestationArbiter:", address(specificArbiter));
-        console.log("TrustedPartyArbiter:", address(trustedPartyArbiter));
+        // console.log("SpecificAttestationArbiter:", address(specificArbiter));
+        // console.log("TrustedPartyArbiter:", address(trustedPartyArbiter));
         console.log("TrivialArbiter:", address(trivialArbiter));
         console.log("TrustedOracleArbiter:", address(trustedOracleArbiter));
 
@@ -246,16 +246,16 @@ contract Deploy is Script {
         );
 
         // Add arbiter addresses
-        vm.serializeAddress(
-            deploymentJson,
-            "specificAttestationArbiter",
-            address(specificArbiter)
-        );
-        vm.serializeAddress(
-            deploymentJson,
-            "trustedPartyArbiter",
-            address(trustedPartyArbiter)
-        );
+        // vm.serializeAddress(
+        //     deploymentJson,
+        //     "specificAttestationArbiter",
+        //     address(specificArbiter)
+        // );
+        // vm.serializeAddress(
+        //     deploymentJson,
+        //     "trustedPartyArbiter",
+        //     address(trustedPartyArbiter)
+        // );
         vm.serializeAddress(
             deploymentJson,
             "trivialArbiter",

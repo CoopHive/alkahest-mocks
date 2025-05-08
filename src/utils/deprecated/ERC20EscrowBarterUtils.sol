@@ -6,7 +6,7 @@ import {IEAS} from "@eas/IEAS.sol";
 import {ERC20PaymentFulfillmentArbiter} from "../../arbiters/deprecated/ERC20PaymentFulfillmentArbiter.sol";
 import {ERC20EscrowObligation} from "../../obligations/ERC20EscrowObligation.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
-import {SpecificAttestationArbiter} from "../../arbiters/SpecificAttestationArbiter.sol";
+import {SpecificAttestationArbiter} from "../../arbiters/deprecated/SpecificAttestationArbiter.sol";
 
 contract ERC20EscrowBarterUtils {
     IEAS internal eas;

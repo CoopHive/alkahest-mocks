@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
-import {SpecificAttestationArbiter} from "@src/arbiters/SpecificAttestationArbiter.sol";
+import {SpecificAttestationArbiter} from "@src/arbiters/deprecated/SpecificAttestationArbiter.sol";
 
 contract SpecificAttestationArbiterTest is Test {
     SpecificAttestationArbiter arbiter;

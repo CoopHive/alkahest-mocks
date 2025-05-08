@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {ERC1155EscrowObligation} from "../../obligations/ERC1155EscrowObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
-import {SpecificAttestationArbiter} from "../../arbiters/SpecificAttestationArbiter.sol";
+import {SpecificAttestationArbiter} from "../deprecated/SpecificAttestationArbiter.sol";
 
 contract ERC1155PaymentFulfillmentArbiter is IArbiter {
     using ArbiterUtils for Attestation;

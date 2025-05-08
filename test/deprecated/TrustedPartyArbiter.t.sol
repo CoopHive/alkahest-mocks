@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
 import {IArbiter} from "@src/IArbiter.sol";
-import {TrustedPartyArbiter} from "@src/arbiters/TrustedPartyArbiter.sol";
+import {TrustedPartyArbiter} from "@src/arbiters/deprecated/TrustedPartyArbiter.sol";
 import {TrivialArbiter} from "@src/arbiters/TrivialArbiter.sol";
 
 contract MockArbiter is IArbiter {

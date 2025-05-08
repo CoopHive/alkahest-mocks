@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {IArbiter} from "../IArbiter.sol";
+import {IArbiter} from "../../IArbiter.sol";
 
 contract SpecificAttestationArbiter is IArbiter {
     struct DemandData {

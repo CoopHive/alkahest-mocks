@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {TokenBundleEscrowObligation} from "../../obligations/TokenBundleEscrowObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
-import {SpecificAttestationArbiter} from "../../arbiters/SpecificAttestationArbiter.sol";
+import {SpecificAttestationArbiter} from "../deprecated/SpecificAttestationArbiter.sol";
 
 contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
     using ArbiterUtils for Attestation;
