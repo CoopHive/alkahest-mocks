@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {IArbiter} from "../../../IArbiter.sol";
 import {ArbiterUtils} from "../../../ArbiterUtils.sol";
 
-contract ExpirationTimeEqualArbiter is IArbiter {
+contract ExpirationTimeBeforeArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     struct DemandData {
