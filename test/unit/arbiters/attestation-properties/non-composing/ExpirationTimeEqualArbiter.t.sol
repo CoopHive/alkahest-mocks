@@ -11,6 +11,8 @@ contract ExpirationTimeEqualArbiterTest is Test {
 
     function setUp() public {
         arbiter = new ExpirationTimeEqualArbiter();
+
+        vm.warp(1000);
         expirationTimeValue = uint64(block.timestamp + 100); // 100 seconds in the future
     }
 
@@ -30,9 +32,10 @@ contract ExpirationTimeEqualArbiterTest is Test {
         });
 
         // Create demand data with matching expiration time
-        ExpirationTimeEqualArbiter.DemandData memory demandData = ExpirationTimeEqualArbiter.DemandData({
-            expirationTime: expirationTimeValue
-        });
+        ExpirationTimeEqualArbiter.DemandData
+            memory demandData = ExpirationTimeEqualArbiter.DemandData({
+                expirationTime: expirationTimeValue
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
@@ -59,25 +62,34 @@ contract ExpirationTimeEqualArbiterTest is Test {
         });
 
         // Create demand data with specific expiration time
-        ExpirationTimeEqualArbiter.DemandData memory demandData = ExpirationTimeEqualArbiter.DemandData({
-            expirationTime: expirationTimeValue
-        });
+        ExpirationTimeEqualArbiter.DemandData
+            memory demandData = ExpirationTimeEqualArbiter.DemandData({
+                expirationTime: expirationTimeValue
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should revert with ExpirationTimeNotEqual
-        vm.expectRevert(ExpirationTimeEqualArbiter.ExpirationTimeNotEqual.selector);
+        vm.expectRevert(
+            ExpirationTimeEqualArbiter.ExpirationTimeNotEqual.selector
+        );
         arbiter.checkStatement(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {
-        ExpirationTimeEqualArbiter.DemandData memory expectedDemandData = ExpirationTimeEqualArbiter.DemandData({
-            expirationTime: expirationTimeValue
-        });
-        
+        ExpirationTimeEqualArbiter.DemandData
+            memory expectedDemandData = ExpirationTimeEqualArbiter.DemandData({
+                expirationTime: expirationTimeValue
+            });
+
         bytes memory encodedData = abi.encode(expectedDemandData);
-        
-        ExpirationTimeEqualArbiter.DemandData memory decodedData = arbiter.decodeDemandData(encodedData);
-        
-        assertEq(decodedData.expirationTime, expectedDemandData.expirationTime, "Expiration time should match");
+
+        ExpirationTimeEqualArbiter.DemandData memory decodedData = arbiter
+            .decodeDemandData(encodedData);
+
+        assertEq(
+            decodedData.expirationTime,
+            expectedDemandData.expirationTime,
+            "Expiration time should match"
+        );
     }
 }

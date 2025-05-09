@@ -11,6 +11,8 @@ contract TimeBeforeArbiterTest is Test {
 
     function setUp() public {
         arbiter = new TimeBeforeArbiter();
+
+        vm.warp(1000);
         timestampThreshold = uint64(block.timestamp + 100); // 100 seconds in the future
     }
 
@@ -30,9 +32,8 @@ contract TimeBeforeArbiterTest is Test {
         });
 
         // Create demand data with time threshold
-        TimeBeforeArbiter.DemandData memory demandData = TimeBeforeArbiter.DemandData({
-            time: timestampThreshold
-        });
+        TimeBeforeArbiter.DemandData memory demandData = TimeBeforeArbiter
+            .DemandData({time: timestampThreshold});
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
@@ -59,9 +60,8 @@ contract TimeBeforeArbiterTest is Test {
         });
 
         // Create demand data with time threshold
-        TimeBeforeArbiter.DemandData memory demandData = TimeBeforeArbiter.DemandData({
-            time: timestampThreshold
-        });
+        TimeBeforeArbiter.DemandData memory demandData = TimeBeforeArbiter
+            .DemandData({time: timestampThreshold});
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should revert with TimeNotBefore
@@ -70,14 +70,20 @@ contract TimeBeforeArbiterTest is Test {
     }
 
     function testDecodeDemandData() public {
-        TimeBeforeArbiter.DemandData memory expectedDemandData = TimeBeforeArbiter.DemandData({
-            time: timestampThreshold
-        });
-        
+        TimeBeforeArbiter.DemandData
+            memory expectedDemandData = TimeBeforeArbiter.DemandData({
+                time: timestampThreshold
+            });
+
         bytes memory encodedData = abi.encode(expectedDemandData);
-        
-        TimeBeforeArbiter.DemandData memory decodedData = arbiter.decodeDemandData(encodedData);
-        
-        assertEq(decodedData.time, expectedDemandData.time, "Time should match");
+
+        TimeBeforeArbiter.DemandData memory decodedData = arbiter
+            .decodeDemandData(encodedData);
+
+        assertEq(
+            decodedData.time,
+            expectedDemandData.time,
+            "Time should match"
+        );
     }
 }

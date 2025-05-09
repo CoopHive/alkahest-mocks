@@ -32,6 +32,8 @@ contract ExpirationTimeBeforeArbiterTest is Test {
         arbiter = new ExpirationTimeBeforeArbiter();
         mockArbiterTrue = new MockArbiter(true);
         mockArbiterFalse = new MockArbiter(false);
+
+        vm.warp(1000);
         expirationTimeThreshold = uint64(block.timestamp + 100); // 100 seconds in the future
     }
 

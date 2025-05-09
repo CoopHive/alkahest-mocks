@@ -11,6 +11,8 @@ contract ExpirationTimeBeforeArbiterTest is Test {
 
     function setUp() public {
         arbiter = new ExpirationTimeBeforeArbiter();
+
+        vm.warp(1000);
         expirationTimeThreshold = uint64(block.timestamp + 100); // 100 seconds in the future
     }
 

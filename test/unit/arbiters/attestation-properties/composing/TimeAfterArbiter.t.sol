@@ -32,6 +32,8 @@ contract TimeAfterArbiterTest is Test {
         arbiter = new TimeAfterArbiter();
         mockArbiterTrue = new MockArbiter(true);
         mockArbiterFalse = new MockArbiter(false);
+
+        vm.warp(1000);
         timestampThreshold = uint64(block.timestamp - 100); // 100 seconds in the past
     }
 
@@ -51,11 +53,12 @@ contract TimeAfterArbiterTest is Test {
         });
 
         // Create demand data with time threshold and a base arbiter that returns true
-        TimeAfterArbiter.DemandData memory demandData = TimeAfterArbiter.DemandData({
-            baseArbiter: address(mockArbiterTrue),
-            baseDemand: bytes(""),
-            time: timestampThreshold
-        });
+        TimeAfterArbiter.DemandData memory demandData = TimeAfterArbiter
+            .DemandData({
+                baseArbiter: address(mockArbiterTrue),
+                baseDemand: bytes(""),
+                time: timestampThreshold
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
@@ -85,11 +88,12 @@ contract TimeAfterArbiterTest is Test {
         });
 
         // Create demand data with time threshold but a base arbiter that returns false
-        TimeAfterArbiter.DemandData memory demandData = TimeAfterArbiter.DemandData({
-            time: timestampThreshold,
-            baseArbiter: address(mockArbiterFalse),
-            baseDemand: bytes("")
-        });
+        TimeAfterArbiter.DemandData memory demandData = TimeAfterArbiter
+            .DemandData({
+                time: timestampThreshold,
+                baseArbiter: address(mockArbiterFalse),
+                baseDemand: bytes("")
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return false
@@ -113,11 +117,12 @@ contract TimeAfterArbiterTest is Test {
         });
 
         // Create demand data with time threshold
-        TimeAfterArbiter.DemandData memory demandData = TimeAfterArbiter.DemandData({
-            time: timestampThreshold,
-            baseArbiter: address(mockArbiterTrue),
-            baseDemand: bytes("")
-        });
+        TimeAfterArbiter.DemandData memory demandData = TimeAfterArbiter
+            .DemandData({
+                time: timestampThreshold,
+                baseArbiter: address(mockArbiterTrue),
+                baseDemand: bytes("")
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should revert with TimeNotAfter
@@ -126,18 +131,32 @@ contract TimeAfterArbiterTest is Test {
     }
 
     function testDecodeDemandData() public {
-        TimeAfterArbiter.DemandData memory expectedDemandData = TimeAfterArbiter.DemandData({
-            time: timestampThreshold,
-            baseArbiter: address(mockArbiterTrue),
-            baseDemand: bytes("test")
-        });
-        
+        TimeAfterArbiter.DemandData memory expectedDemandData = TimeAfterArbiter
+            .DemandData({
+                time: timestampThreshold,
+                baseArbiter: address(mockArbiterTrue),
+                baseDemand: bytes("test")
+            });
+
         bytes memory encodedData = abi.encode(expectedDemandData);
-        
-        TimeAfterArbiter.DemandData memory decodedData = arbiter.decodeDemandData(encodedData);
-        
-        assertEq(decodedData.time, expectedDemandData.time, "Time should match");
-        assertEq(decodedData.baseArbiter, expectedDemandData.baseArbiter, "Base arbiter should match");
-        assertEq(keccak256(decodedData.baseDemand), keccak256(expectedDemandData.baseDemand), "Base demand should match");
+
+        TimeAfterArbiter.DemandData memory decodedData = arbiter
+            .decodeDemandData(encodedData);
+
+        assertEq(
+            decodedData.time,
+            expectedDemandData.time,
+            "Time should match"
+        );
+        assertEq(
+            decodedData.baseArbiter,
+            expectedDemandData.baseArbiter,
+            "Base arbiter should match"
+        );
+        assertEq(
+            keccak256(decodedData.baseDemand),
+            keccak256(expectedDemandData.baseDemand),
+            "Base demand should match"
+        );
     }
 }

@@ -32,6 +32,8 @@ contract TimeEqualArbiterTest is Test {
         arbiter = new TimeEqualArbiter();
         mockArbiterTrue = new MockArbiter(true);
         mockArbiterFalse = new MockArbiter(false);
+
+        vm.warp(1000);
         timestampValue = uint64(block.timestamp);
     }
 
@@ -51,11 +53,12 @@ contract TimeEqualArbiterTest is Test {
         });
 
         // Create demand data with matching time and a base arbiter that returns true
-        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter.DemandData({
-            baseArbiter: address(mockArbiterTrue),
-            baseDemand: bytes(""),
-            time: timestampValue
-        });
+        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter
+            .DemandData({
+                baseArbiter: address(mockArbiterTrue),
+                baseDemand: bytes(""),
+                time: timestampValue
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
@@ -85,11 +88,12 @@ contract TimeEqualArbiterTest is Test {
         });
 
         // Create demand data with matching time but a base arbiter that returns false
-        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter.DemandData({
-            time: timestampValue,
-            baseArbiter: address(mockArbiterFalse),
-            baseDemand: bytes("")
-        });
+        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter
+            .DemandData({
+                time: timestampValue,
+                baseArbiter: address(mockArbiterFalse),
+                baseDemand: bytes("")
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return false
@@ -113,11 +117,12 @@ contract TimeEqualArbiterTest is Test {
         });
 
         // Create demand data with a specific time
-        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter.DemandData({
-            time: timestampValue,
-            baseArbiter: address(mockArbiterTrue),
-            baseDemand: bytes("")
-        });
+        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter
+            .DemandData({
+                time: timestampValue,
+                baseArbiter: address(mockArbiterTrue),
+                baseDemand: bytes("")
+            });
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should revert with TimeNotEqual
@@ -126,18 +131,32 @@ contract TimeEqualArbiterTest is Test {
     }
 
     function testDecodeDemandData() public {
-        TimeEqualArbiter.DemandData memory expectedDemandData = TimeEqualArbiter.DemandData({
-            time: timestampValue,
-            baseArbiter: address(mockArbiterTrue),
-            baseDemand: bytes("test")
-        });
-        
+        TimeEqualArbiter.DemandData memory expectedDemandData = TimeEqualArbiter
+            .DemandData({
+                time: timestampValue,
+                baseArbiter: address(mockArbiterTrue),
+                baseDemand: bytes("test")
+            });
+
         bytes memory encodedData = abi.encode(expectedDemandData);
-        
-        TimeEqualArbiter.DemandData memory decodedData = arbiter.decodeDemandData(encodedData);
-        
-        assertEq(decodedData.time, expectedDemandData.time, "Time should match");
-        assertEq(decodedData.baseArbiter, expectedDemandData.baseArbiter, "Base arbiter should match");
-        assertEq(keccak256(decodedData.baseDemand), keccak256(expectedDemandData.baseDemand), "Base demand should match");
+
+        TimeEqualArbiter.DemandData memory decodedData = arbiter
+            .decodeDemandData(encodedData);
+
+        assertEq(
+            decodedData.time,
+            expectedDemandData.time,
+            "Time should match"
+        );
+        assertEq(
+            decodedData.baseArbiter,
+            expectedDemandData.baseArbiter,
+            "Base arbiter should match"
+        );
+        assertEq(
+            keccak256(decodedData.baseDemand),
+            keccak256(expectedDemandData.baseDemand),
+            "Base demand should match"
+        );
     }
 }

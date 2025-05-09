@@ -11,6 +11,8 @@ contract TimeEqualArbiterTest is Test {
 
     function setUp() public {
         arbiter = new TimeEqualArbiter();
+
+        vm.warp(1000);
         timestampValue = uint64(block.timestamp);
     }
 
@@ -30,17 +32,13 @@ contract TimeEqualArbiterTest is Test {
         });
 
         // Create demand data with matching time
-        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter.DemandData({
-            time: timestampValue
-        });
+        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter
+            .DemandData({time: timestampValue});
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
         bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
-        assertTrue(
-            result,
-            "Should accept attestation with equal time"
-        );
+        assertTrue(result, "Should accept attestation with equal time");
     }
 
     function testCheckStatementWithTimeDifferentThanRequired() public {
@@ -59,9 +57,8 @@ contract TimeEqualArbiterTest is Test {
         });
 
         // Create demand data with a specific time
-        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter.DemandData({
-            time: timestampValue
-        });
+        TimeEqualArbiter.DemandData memory demandData = TimeEqualArbiter
+            .DemandData({time: timestampValue});
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should revert with TimeNotEqual
@@ -70,14 +67,18 @@ contract TimeEqualArbiterTest is Test {
     }
 
     function testDecodeDemandData() public {
-        TimeEqualArbiter.DemandData memory expectedDemandData = TimeEqualArbiter.DemandData({
-            time: timestampValue
-        });
-        
+        TimeEqualArbiter.DemandData memory expectedDemandData = TimeEqualArbiter
+            .DemandData({time: timestampValue});
+
         bytes memory encodedData = abi.encode(expectedDemandData);
-        
-        TimeEqualArbiter.DemandData memory decodedData = arbiter.decodeDemandData(encodedData);
-        
-        assertEq(decodedData.time, expectedDemandData.time, "Time should match");
+
+        TimeEqualArbiter.DemandData memory decodedData = arbiter
+            .decodeDemandData(encodedData);
+
+        assertEq(
+            decodedData.time,
+            expectedDemandData.time,
+            "Time should match"
+        );
     }
 }
