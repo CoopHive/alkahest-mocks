@@ -37,7 +37,7 @@ import {TimeBeforeArbiter as NonComposingTimeBeforeArbiter} from "@src/arbiters/
 import {TimeEqualArbiter as NonComposingTimeEqualArbiter} from "@src/arbiters/attestation-properties/non-composing/TimeEqualArbiter.sol";
 import {UidArbiter as NonComposingUidArbiter} from "@src/arbiters/attestation-properties/non-composing/UidArbiter.sol";
 
-contract DeployAttestationArbiters is Script {
+contract DeployNewArbiters is Script {
     function run() external {
         // Load environment variables
         uint256 deployerPrivateKey = vm.envUint("DEPLOYMENT_KEY");
