@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
-import {AnyArbiter} from "@src/arbiters/AnyArbiter.sol";
+import {AnyArbiter} from "@src/arbiters/logical/AnyArbiter.sol";
 import {IntrinsicsArbiter} from "@src/arbiters/IntrinsicsArbiter.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {ArbiterUtils} from "@src/ArbiterUtils.sol";

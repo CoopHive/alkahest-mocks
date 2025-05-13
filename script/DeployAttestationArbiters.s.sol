@@ -4,8 +4,8 @@ pragma solidity ^0.8.26;
 import "forge-std/Script.sol";
 
 // Additional Arbiters
-import {AllArbiter} from "@src/arbiters/AllArbiter.sol";
-import {AnyArbiter} from "@src/arbiters/AnyArbiter.sol";
+import {AllArbiter} from "@src/arbiters/logical/AllArbiter.sol";
+import {AnyArbiter} from "@src/arbiters/logical/AnyArbiter.sol";
 import {IntrinsicsArbiter} from "@src/arbiters/IntrinsicsArbiter.sol";
 import {IntrinsicsArbiter2} from "@src/arbiters/IntrinsicsArbiter2.sol";
 

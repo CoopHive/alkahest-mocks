@@ -2,11 +2,11 @@
 pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
-import {IArbiter} from "../IArbiter.sol";
-import {ArbiterUtils} from "../ArbiterUtils.sol";
+import {IArbiter} from "../../IArbiter.sol";
+import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
-contract AllArbiter is IArbiter {
-    // validates all base arbiters arbitrate true
+contract AnyArbiter is IArbiter {
+    // validates any base arbiter arbitrates true
     struct DemandData {
         address[] arbiters;
         bytes[] demands;
@@ -24,19 +24,23 @@ contract AllArbiter is IArbiter {
             revert MismatchedArrayLengths();
 
         for (uint256 i = 0; i < demand_.arbiters.length; i++) {
-            if (
+            try
                 // can throw, since some arbiters throw with failure case instead of returning false
-                // error must be checked against all base arbiters
-                !IArbiter(demand_.arbiters[i]).checkStatement(
+                IArbiter(demand_.arbiters[i]).checkStatement(
                     statement,
                     demand_.demands[i],
                     counteroffer
                 )
-            ) {
-                return false;
+            returns (bool result) {
+                if (result) {
+                    return true;
+                }
+            } catch {
+                // ignore base errors, since future arbiter might pass
+                continue;
             }
         }
-        return true;
+        return false;
     }
 
     function decodeDemandData(
