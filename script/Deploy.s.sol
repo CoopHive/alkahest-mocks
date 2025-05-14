@@ -99,7 +99,9 @@ contract Deploy is Script {
         // SpecificAttestationArbiter specificArbiter = new SpecificAttestationArbiter();
         // TrustedPartyArbiter trustedPartyArbiter = new TrustedPartyArbiter();
         TrivialArbiter trivialArbiter = new TrivialArbiter();
-        TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter();
+        TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter(
+            IEAS(easAddress)
+        );
 
         // Deploy Additional Arbiters
         AllArbiter allArbiter = new AllArbiter();

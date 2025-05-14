@@ -3,21 +3,28 @@ pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {Attestation} from "@eas/Common.sol";
+import {IEAS} from "@eas/IEAS.sol";
+import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
+import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract TrustedOracleArbiterTest is Test {
     TrustedOracleArbiter arbiter;
+    IEAS public eas;
+    ISchemaRegistry public schemaRegistry;
     address oracle = address(0x123);
     bytes32 statementUid = bytes32(uint256(1));
 
     function setUp() public {
-        arbiter = new TrustedOracleArbiter();
+        EASDeployer easDeployer = new EASDeployer();
+        (eas, schemaRegistry) = easDeployer.deployEAS();
+        arbiter = new TrustedOracleArbiter(eas);
     }
 
     function testConstructor() public {
         // Create a new arbiter to test constructor
-        TrustedOracleArbiter newArbiter = new TrustedOracleArbiter();
+        TrustedOracleArbiter newArbiter = new TrustedOracleArbiter(eas);
 
         // Verify that the EAS address is set correctly
         // This is an indirect test since the eas variable is private

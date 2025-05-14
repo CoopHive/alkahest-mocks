@@ -2,6 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Script.sol";
+import {IEAS} from "@eas/IEAS.sol";
 
 // Additional Arbiters
 import {AllArbiter} from "@src/arbiters/logical/AllArbiter.sol";
@@ -9,6 +10,7 @@ import {AnyArbiter} from "@src/arbiters/logical/AnyArbiter.sol";
 import {NotArbiter} from "@src/arbiters/logical/NotArbiter.sol";
 import {IntrinsicsArbiter} from "@src/arbiters/IntrinsicsArbiter.sol";
 import {IntrinsicsArbiter2} from "@src/arbiters/IntrinsicsArbiter2.sol";
+import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
 
 // Composing Arbiters
 import {AttesterArbiter as ComposingAttesterArbiter} from "@src/arbiters/attestation-properties/composing/AttesterArbiter.sol";
@@ -42,6 +44,7 @@ contract DeployNewArbiters is Script {
     function run() external {
         // Load environment variables
         uint256 deployerPrivateKey = vm.envUint("DEPLOYMENT_KEY");
+        address easAddress = vm.envAddress("EAS_ADDRESS");
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -51,6 +54,9 @@ contract DeployNewArbiters is Script {
         NotArbiter notArbiter = new NotArbiter();
         IntrinsicsArbiter intrinsicsArbiter = new IntrinsicsArbiter();
         IntrinsicsArbiter2 intrinsicsArbiter2 = new IntrinsicsArbiter2();
+        TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter(
+            IEAS(easAddress)
+        );
 
         // Deploy Composing Arbiters
         ComposingAttesterArbiter composingAttesterArbiter = new ComposingAttesterArbiter();
@@ -89,6 +95,7 @@ contract DeployNewArbiters is Script {
         console.log("NotArbiter:", address(notArbiter));
         console.log("IntrinsicsArbiter:", address(intrinsicsArbiter));
         console.log("IntrinsicsArbiter2:", address(intrinsicsArbiter2));
+        console.log("TrustedOracleArbiter:", address(trustedOracleArbiter));
 
         console.log("\nComposing Attestation Arbiters:");
         console.log(
@@ -194,6 +201,11 @@ contract DeployNewArbiters is Script {
             deploymentJson,
             "intrinsicsArbiter2",
             address(intrinsicsArbiter2)
+        );
+        vm.serializeAddress(
+            deploymentJson,
+            "trustedOracleArbiter",
+            address(trustedOracleArbiter)
         );
 
         // Add Composing Arbiters to JSON
