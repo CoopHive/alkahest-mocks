@@ -15,13 +15,13 @@ contract TrustedOracleArbiter is IArbiter {
     }
 
     event ArbitrationMade(
-        address indexed oracle,
         bytes32 indexed statement,
+        address indexed oracle,
         bool decision
     );
     event ArbitrationRequested(
-        address indexed oracle,
-        bytes32 indexed statement
+        bytes32 indexed statement,
+        address indexed oracle
     );
 
     error UnauthorizedArbitrationRequest();
@@ -35,17 +35,17 @@ contract TrustedOracleArbiter is IArbiter {
 
     function arbitrate(bytes32 statement, bool decision) public {
         decisions[msg.sender][statement] = decision;
-        emit ArbitrationMade(msg.sender, statement, decision);
+        emit ArbitrationMade(statement, msg.sender, decision);
     }
 
-    function requestArbitration(bytes32 _statement) public {
+    function requestArbitration(bytes32 _statement, address oracle) public {
         Attestation memory statement = eas.getAttestation(_statement);
         if (
             statement.attester != msg.sender &&
             statement.recipient != msg.sender
         ) revert UnauthorizedArbitrationRequest();
 
-        emit ArbitrationRequested(msg.sender, _statement);
+        emit ArbitrationRequested(_statement, oracle);
     }
 
     function checkStatement(

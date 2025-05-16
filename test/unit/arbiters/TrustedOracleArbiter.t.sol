@@ -81,7 +81,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Expect the ArbitrationMade event to be emitted
         vm.expectEmit(true, true, false, true);
-        emit TrustedOracleArbiter.ArbitrationMade(oracle, statementUid, true);
+        emit TrustedOracleArbiter.ArbitrationMade(statementUid, oracle, true);
 
         // Make a positive arbitration decision
         arbiter.arbitrate(statementUid, true);
