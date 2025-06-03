@@ -1,9 +1,18 @@
 [submodule "lib/forge-std"]
-	path = lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
+    path = lib/forge-std
+    url = https://github.com/foundry-rs/forge-std
 [submodule "lib/eas-contracts"]
-	path = lib/eas-contracts
-	url = https://github.com/ethereum-attestation-service/eas-contracts
+    path = lib/eas-contracts
+    url = https://github.com/ethereum-attestation-service/eas-contracts
 [submodule "lib/openzeppelin-contracts"]
-	path = lib/openzeppelin-contracts
-	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+    path = lib/openzeppelin-contracts
+    url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "alkahest-rs"]
+    path = alkahest-rs
+    url = https://github.com/CoopHive/alkahest-rs
+[submodule "alkahest-ts"]
+    path = alkahest-ts
+    url = https://github.com/CoopHive/alkahest-ts
+[submodule "alkahest-docs"]
+    path = alkahest-docs
+    url = https://github.com/CoopHive/alkahest-docs
