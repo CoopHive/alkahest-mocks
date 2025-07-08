@@ -61,20 +61,20 @@ contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
             revert InvalidStatement();
         if (statement._checkExpired()) revert InvalidStatement();
 
-        TokenBundleEscrowObligation.StatementData memory statementData = abi
+        TokenBundleEscrowObligation.ObligationData memory obligationData = abi
             .decode(
                 statement.data,
-                (TokenBundleEscrowObligation.StatementData)
+                (TokenBundleEscrowObligation.ObligationData)
             );
 
-        if (!_validateTokens(statementData, validationData))
+        if (!_validateTokens(obligationData, validationData))
             revert InvalidValidation();
 
-        if (statementData.arbiter != address(specificAttestation))
+        if (obligationData.arbiter != address(specificAttestation))
             revert InvalidValidation();
 
         SpecificAttestationArbiter.DemandData memory demandData = abi.decode(
-            statementData.demand,
+            obligationData.demand,
             (SpecificAttestationArbiter.DemandData)
         );
 
@@ -84,7 +84,7 @@ contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
     }
 
     function _validateTokens(
-        TokenBundleEscrowObligation.StatementData memory statement,
+        TokenBundleEscrowObligation.ObligationData memory statement,
         DemandData memory validation
     ) internal pure returns (bool) {
         // Validate ERC20s

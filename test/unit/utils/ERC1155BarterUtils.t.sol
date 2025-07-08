@@ -93,9 +93,9 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Validate the attestation data
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC1155EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC1155EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC1155EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.ObligationData)
         );
 
         assertEq(
@@ -116,9 +116,9 @@ contract ERC1155BarterUtilsUnitTest is Test {
         );
 
         // Extract the demand data
-        ERC1155PaymentObligation.StatementData memory demandData = abi.decode(
+        ERC1155PaymentObligation.ObligationData memory demandData = abi.decode(
             escrowData.demand,
-            (ERC1155PaymentObligation.StatementData)
+            (ERC1155PaymentObligation.ObligationData)
         );
 
         assertEq(
@@ -228,14 +228,14 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Extract the attestation and manually decode it
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC1155EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC1155EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC1155EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.ObligationData)
         );
 
-        ERC1155PaymentObligation.StatementData memory demand = abi.decode(
+        ERC1155PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC1155PaymentObligation.StatementData)
+            (ERC1155PaymentObligation.ObligationData)
         );
 
         // Verify the demand data matches what we expect

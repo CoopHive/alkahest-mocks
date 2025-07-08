@@ -56,7 +56,7 @@ async function createObligation(args: string[]) {
     isArbiter: false,
     isRevocable: false,
     finalizationTerms: 0,
-    statementData: "",
+    obligationData: "",
     demandData: "",
   };
 
@@ -74,7 +74,7 @@ async function createObligation(args: string[]) {
   );
   process.stderr.write("> ");
   for await (const line of console) {
-    opts.statementData = line ? line : "address token, uint256 amount";
+    opts.obligationData = line ? line : "address token, uint256 amount";
     break;
   }
   console.error(
@@ -87,11 +87,11 @@ async function createObligation(args: string[]) {
   }
   if (opts.isArbiter) {
     console.error(
-      `What's the demand schema for \`checkObligation\`? [${opts.statementData}]`,
+      `What's the demand schema for \`checkObligation\`? [${opts.obligationData}]`,
     );
     process.stderr.write("> ");
     for await (const line of console) {
-      opts.demandData = line ? line : opts.statementData;
+      opts.demandData = line ? line : opts.obligationData;
       break;
     }
   }

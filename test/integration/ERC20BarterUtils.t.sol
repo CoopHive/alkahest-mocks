@@ -188,8 +188,8 @@ contract ERC20BarterUtilsIntegrationTest is Test {
             deadline
         );
 
-        ERC20PaymentObligation.StatementData
-            memory demand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory demand = ERC20PaymentObligation.ObligationData({
                 token: address(erc1155TokenB),
                 amount: askAmount,
                 payee: alice

@@ -11,7 +11,7 @@ import {ArbiterUtils} from "../../ArbiterUtils.sol";
 contract RedisProvisionObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         address user;
         uint256 capacity; // bytes
         uint256 egress; // bytes
@@ -54,7 +54,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
     {}
 
     function doObligation(
-        StatementData calldata data,
+        ObligationData calldata data,
         uint64 expirationTime
     ) public returns (bytes32) {
         return
@@ -78,24 +78,24 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         ChangeData calldata changeData
     ) public returns (bytes32) {
         Attestation memory statement = eas.getAttestation(statementUID);
-        StatementData memory statementData = abi.decode(
+        ObligationData memory obligationData = abi.decode(
             statement.data,
-            (StatementData)
+            (ObligationData)
         );
 
         if (statement.recipient != msg.sender) revert UnauthorizedCall();
 
         statement.expirationTime += changeData.addedDuration;
-        statementData.capacity += changeData.addedCapacity;
-        statementData.egress += changeData.addedEgress;
-        statementData.cpus += changeData.addedCpus;
+        obligationData.capacity += changeData.addedCapacity;
+        obligationData.egress += changeData.addedEgress;
+        obligationData.cpus += changeData.addedCpus;
 
         if (bytes(changeData.newUrl).length != 0) {
-            statementData.url = changeData.newUrl;
+            obligationData.url = changeData.newUrl;
         }
 
         if (bytes(changeData.newServerName).length != 0) {
-            statementData.serverName = changeData.newServerName;
+            obligationData.serverName = changeData.newServerName;
         }
 
         eas.revoke(
@@ -114,7 +114,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
                         expirationTime: statement.expirationTime,
                         revocable: true,
                         refUID: statementUID,
-                        data: abi.encode(statementData),
+                        data: abi.encode(obligationData),
                         value: 0
                     })
                 })
@@ -129,19 +129,19 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         DemandData memory demandData = abi.decode(demand, (DemandData));
-        StatementData memory statementData = abi.decode(
+        ObligationData memory obligationData = abi.decode(
             statement.data,
-            (StatementData)
+            (ObligationData)
         );
 
         return
             demandData.replaces == statement.refUID &&
             demandData.expiration <= statement.expirationTime &&
-            demandData.user == statementData.user &&
-            demandData.capacity <= statementData.capacity &&
-            demandData.egress <= statementData.egress &&
-            demandData.cpus <= statementData.cpus &&
+            demandData.user == obligationData.user &&
+            demandData.capacity <= obligationData.capacity &&
+            demandData.egress <= obligationData.egress &&
+            demandData.cpus <= obligationData.cpus &&
             keccak256(bytes(demandData.serverName)) ==
-            keccak256(bytes(statementData.serverName));
+            keccak256(bytes(obligationData.serverName));
     }
 }

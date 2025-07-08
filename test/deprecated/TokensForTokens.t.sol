@@ -146,8 +146,8 @@ contract ERC20EscrowObligationTest is Test {
     {
         vm.startPrank(alice);
         erc1155TokenA.approve(address(paymentStatement), 100 * 10 ** 18);
-        ERC20EscrowObligation.StatementData
-            memory alicePaymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory alicePaymentData = ERC20EscrowObligation.ObligationData({
                 token: address(erc1155TokenA),
                 amount: 100 * 10 ** 18,
                 arbiter: address(erc20PaymentFulfillment),
@@ -163,8 +163,8 @@ contract ERC20EscrowObligationTest is Test {
 
         vm.startPrank(bob);
         erc1155TokenB.approve(address(paymentStatement), 200 * 10 ** 18);
-        ERC20EscrowObligation.StatementData
-            memory bobPaymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory bobPaymentData = ERC20EscrowObligation.ObligationData({
                 token: address(erc1155TokenB),
                 amount: 200 * 10 ** 18,
                 arbiter: address(specificAttestation),

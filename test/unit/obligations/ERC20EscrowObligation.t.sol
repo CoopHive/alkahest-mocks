@@ -74,8 +74,8 @@ contract ERC20EscrowObligationTest is Test {
         token.approve(address(escrowObligation), AMOUNT);
 
         bytes memory demand = abi.encode("test demand");
-        ERC20EscrowObligation.StatementData memory data = ERC20EscrowObligation
-            .StatementData({
+        ERC20EscrowObligation.ObligationData memory data = ERC20EscrowObligation
+            .ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -118,8 +118,8 @@ contract ERC20EscrowObligationTest is Test {
         vm.stopPrank();
 
         bytes memory demand = abi.encode("test demand");
-        ERC20EscrowObligation.StatementData memory data = ERC20EscrowObligation
-            .StatementData({
+        ERC20EscrowObligation.ObligationData memory data = ERC20EscrowObligation
+            .ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -172,8 +172,8 @@ contract ERC20EscrowObligationTest is Test {
         token.approve(address(escrowObligation), AMOUNT);
 
         bytes memory demand = abi.encode("test demand");
-        ERC20EscrowObligation.StatementData memory data = ERC20EscrowObligation
-            .StatementData({
+        ERC20EscrowObligation.ObligationData memory data = ERC20EscrowObligation
+            .ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -193,7 +193,7 @@ contract ERC20EscrowObligationTest is Test {
 
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.doObligation(
-            StringObligation.StatementData({item: "fulfillment data"}),
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -225,8 +225,8 @@ contract ERC20EscrowObligationTest is Test {
         token.approve(address(escrowObligation), AMOUNT);
 
         bytes memory demand = abi.encode("test demand");
-        ERC20EscrowObligation.StatementData memory data = ERC20EscrowObligation
-            .StatementData({
+        ERC20EscrowObligation.ObligationData memory data = ERC20EscrowObligation
+            .ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(rejectingArbiter),
@@ -245,7 +245,7 @@ contract ERC20EscrowObligationTest is Test {
 
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.doObligation(
-            StringObligation.StatementData({item: "fulfillment data"}),
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -261,8 +261,8 @@ contract ERC20EscrowObligationTest is Test {
         token.approve(address(escrowObligation), AMOUNT);
 
         bytes memory demand = abi.encode("test demand");
-        ERC20EscrowObligation.StatementData memory data = ERC20EscrowObligation
-            .StatementData({
+        ERC20EscrowObligation.ObligationData memory data = ERC20EscrowObligation
+            .ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -302,8 +302,8 @@ contract ERC20EscrowObligationTest is Test {
 
     function testCheckObligation() public {
         // Create statement data
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -322,8 +322,8 @@ contract ERC20EscrowObligationTest is Test {
         Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match
-        ERC20EscrowObligation.StatementData
-            memory exactDemand = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory exactDemand = ERC20EscrowObligation.ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -338,8 +338,8 @@ contract ERC20EscrowObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test lower amount demand (should succeed)
-        ERC20EscrowObligation.StatementData
-            memory lowerDemand = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory lowerDemand = ERC20EscrowObligation.ObligationData({
                 token: address(token),
                 amount: AMOUNT - 50 * 10 ** 18,
                 arbiter: address(mockArbiter),
@@ -354,8 +354,8 @@ contract ERC20EscrowObligationTest is Test {
         assertTrue(lowerMatch, "Should match lower amount demand");
 
         // Test higher amount demand (should fail)
-        ERC20EscrowObligation.StatementData
-            memory higherDemand = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory higherDemand = ERC20EscrowObligation.ObligationData({
                 token: address(token),
                 amount: AMOUNT + 50 * 10 ** 18,
                 arbiter: address(mockArbiter),
@@ -371,8 +371,8 @@ contract ERC20EscrowObligationTest is Test {
 
         // Test different token (should fail)
         MockERC20 differentToken = new MockERC20();
-        ERC20EscrowObligation.StatementData
-            memory differentTokenDemand = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory differentTokenDemand = ERC20EscrowObligation.ObligationData({
                 token: address(differentToken),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -390,9 +390,9 @@ contract ERC20EscrowObligationTest is Test {
         );
 
         // Test different arbiter (should fail)
-        ERC20EscrowObligation.StatementData
+        ERC20EscrowObligation.ObligationData
             memory differentArbiterDemand = ERC20EscrowObligation
-                .StatementData({
+                .ObligationData({
                     token: address(token),
                     amount: AMOUNT,
                     arbiter: address(rejectingArbiter),
@@ -410,8 +410,8 @@ contract ERC20EscrowObligationTest is Test {
         );
 
         // Test different demand (should fail)
-        ERC20EscrowObligation.StatementData
-            memory differentDemandData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory differentDemandData = ERC20EscrowObligation.ObligationData({
                 token: address(token),
                 amount: AMOUNT,
                 arbiter: address(mockArbiter),
@@ -435,8 +435,8 @@ contract ERC20EscrowObligationTest is Test {
 
         // Try to create escrow with insufficient balance
         bytes memory demand = abi.encode("test demand");
-        ERC20EscrowObligation.StatementData memory data = ERC20EscrowObligation
-            .StatementData({
+        ERC20EscrowObligation.ObligationData memory data = ERC20EscrowObligation
+            .ObligationData({
                 token: address(token),
                 amount: largeAmount,
                 arbiter: address(mockArbiter),

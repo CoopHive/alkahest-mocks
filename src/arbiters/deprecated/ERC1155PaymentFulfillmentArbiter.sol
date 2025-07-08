@@ -41,23 +41,23 @@ contract ERC1155PaymentFulfillmentArbiter is IArbiter {
             revert InvalidStatement();
         if (statement._checkExpired()) revert InvalidStatement();
 
-        ERC1155EscrowObligation.StatementData memory statementData = abi.decode(
+        ERC1155EscrowObligation.ObligationData memory obligationData = abi.decode(
             statement.data,
-            (ERC1155EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.ObligationData)
         );
 
-        if (statementData.token != validationData.token)
+        if (obligationData.token != validationData.token)
             revert InvalidValidation();
-        if (statementData.tokenId != validationData.tokenId)
+        if (obligationData.tokenId != validationData.tokenId)
             revert InvalidValidation();
-        if (statementData.amount < validationData.amount)
+        if (obligationData.amount < validationData.amount)
             revert InvalidValidation();
 
-        if (statementData.arbiter != address(specificAttestation))
+        if (obligationData.arbiter != address(specificAttestation))
             revert InvalidValidation();
 
         SpecificAttestationArbiter.DemandData memory demandData = abi.decode(
-            statementData.demand,
+            obligationData.demand,
             (SpecificAttestationArbiter.DemandData)
         );
 

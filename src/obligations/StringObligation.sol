@@ -7,7 +7,7 @@ import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {BaseStatement} from "../BaseStatement.sol";
 
 contract StringObligation is BaseStatement {
-    struct StatementData {
+    struct ObligationData {
         string item;
     }
 
@@ -19,7 +19,7 @@ contract StringObligation is BaseStatement {
     ) BaseStatement(_eas, _schemaRegistry, "string item", true) {}
 
     function doObligation(
-        StatementData calldata data,
+        ObligationData calldata data,
         bytes32 refUID
     ) public returns (bytes32 uid_) {
         // Create attestation with try/catch for potential EAS failures
@@ -44,17 +44,17 @@ contract StringObligation is BaseStatement {
         }
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
-        return abi.decode(attestation.data, (StatementData));
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

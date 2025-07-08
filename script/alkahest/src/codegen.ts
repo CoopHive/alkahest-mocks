@@ -36,7 +36,7 @@ const genObligation = (
     isArbiter: boolean;
     isRevocable: boolean;
     finalizationTerms: number;
-    statementData: string;
+    obligationData: string;
     demandData?: string;
   },
 ) => {
@@ -58,14 +58,14 @@ const genObligation = (
   // contract
   out += `contract ${name} is BaseStatement${opts.isArbiter ? ", IArbiter" : ""} {\n`;
   if (opts.isArbiter) out += "  using ArbiterUtils for Attestation;\n\n";
-  out += `  struct StatementData {\n    ${opts.statementData.split(",").join(";\n   ")};\n  }\n\n`;
+  out += `  struct ObligationData {\n    ${opts.obligationData.split(",").join(";\n   ")};\n  }\n\n`;
   if (opts.demandData)
     out += `  struct DemandData {\n    ${opts.demandData.split(",").join(";\n   ")};\n  }\n\n`;
-  out += `  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) BaseStatement(_eas, _schemaRegistry, "${opts.statementData}", ${opts.isRevocable}) {}\n\n`;
+  out += `  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) BaseStatement(_eas, _schemaRegistry, "${opts.obligationData}", ${opts.isRevocable}) {}\n\n`;
 
   // makeStatement
   out +=
-    "  function makeStatement(StatementData calldata data, uint64 expirationTime, bytes32 fulfilling) public returns (bytes32) {\n";
+    "  function makeStatement(ObligationData calldata data, uint64 expirationTime, bytes32 fulfilling) public returns (bytes32) {\n";
   out += "    // implement custom statement logic here\n    //...\n";
   out += `    return eas.attest(AttestationRequest({
       schema: ATTESTATION_SCHEMA,
@@ -95,7 +95,7 @@ const genObligation = (
     out += `  function checkObligation(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
     if (!statement._checkIntrinsic()) return false;
 
-    StatementData memory data_ = abi.decode(statement.data, (StatementData));
+    ObligationData memory data_ = abi.decode(statement.data, (ObligationData));
     DemandData memory demand_ = abi.decode(demand, (DemandData));
 
     // implement custom statement verification logic here

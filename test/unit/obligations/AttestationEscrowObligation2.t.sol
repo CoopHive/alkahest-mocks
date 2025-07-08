@@ -96,7 +96,7 @@ contract AttestationEscrowObligation2Test is Test {
         vm.startPrank(requester);
         
         // Create the statement data
-        AttestationEscrowObligation2.StatementData memory data = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
             demand: abi.encode("test demand")
@@ -119,9 +119,9 @@ contract AttestationEscrowObligation2Test is Test {
         assertEq(attestation.recipient, requester, "Recipient should be the requester");
         
         // Verify attestation data
-        AttestationEscrowObligation2.StatementData memory storedData = abi.decode(
+        AttestationEscrowObligation2.ObligationData memory storedData = abi.decode(
             attestation.data,
-            (AttestationEscrowObligation2.StatementData)
+            (AttestationEscrowObligation2.ObligationData)
         );
         assertEq(storedData.attestationUid, preExistingAttestationId, "Attestation UID should match");
         assertEq(storedData.arbiter, address(mockArbiter), "Arbiter should match");
@@ -129,7 +129,7 @@ contract AttestationEscrowObligation2Test is Test {
 
     function testDoObligationFor() public {
         // Create the statement data
-        AttestationEscrowObligation2.StatementData memory data = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
             demand: abi.encode("test demand")
@@ -153,9 +153,9 @@ contract AttestationEscrowObligation2Test is Test {
         assertEq(attestation.recipient, recipient, "Recipient should be the specified recipient");
         
         // Verify attestation data
-        AttestationEscrowObligation2.StatementData memory storedData = abi.decode(
+        AttestationEscrowObligation2.ObligationData memory storedData = abi.decode(
             attestation.data,
-            (AttestationEscrowObligation2.StatementData)
+            (AttestationEscrowObligation2.ObligationData)
         );
         assertEq(storedData.attestationUid, preExistingAttestationId, "Attestation UID should match");
         assertEq(storedData.arbiter, address(mockArbiter), "Arbiter should match");
@@ -166,7 +166,7 @@ contract AttestationEscrowObligation2Test is Test {
         vm.startPrank(requester);
         
         // Create the statement data
-        AttestationEscrowObligation2.StatementData memory data = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
             demand: abi.encode("test demand")
@@ -178,7 +178,7 @@ contract AttestationEscrowObligation2Test is Test {
 
         // Create a fulfillment attestation from the attester using StringObligation
         vm.prank(attester);
-        StringObligation.StatementData memory stringData = StringObligation.StatementData({
+        StringObligation.ObligationData memory stringData = StringObligation.ObligationData({
             item: "fulfillment data"
         });
         
@@ -218,7 +218,7 @@ contract AttestationEscrowObligation2Test is Test {
         vm.startPrank(requester);
         
         // Create the statement data with rejecting arbiter
-        AttestationEscrowObligation2.StatementData memory data = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(rejectingArbiter),
             demand: abi.encode("test demand")
@@ -230,7 +230,7 @@ contract AttestationEscrowObligation2Test is Test {
 
         // Create a fulfillment attestation from the attester using StringObligation
         vm.prank(attester);
-        StringObligation.StatementData memory stringData = StringObligation.StatementData({
+        StringObligation.ObligationData memory stringData = StringObligation.ObligationData({
             item: "fulfillment data"
         });
         
@@ -244,7 +244,7 @@ contract AttestationEscrowObligation2Test is Test {
 
     function testCheckObligation() public {
         // Create statement data
-        AttestationEscrowObligation2.StatementData memory escrowData = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory escrowData = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
@@ -257,7 +257,7 @@ contract AttestationEscrowObligation2Test is Test {
         Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match
-        AttestationEscrowObligation2.StatementData memory exactDemand = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory exactDemand = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
@@ -287,7 +287,7 @@ contract AttestationEscrowObligation2Test is Test {
             })
         );
         
-        AttestationEscrowObligation2.StatementData memory differentUidDemand = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory differentUidDemand = AttestationEscrowObligation2.ObligationData({
             attestationUid: differentAttestationId,
             arbiter: address(mockArbiter),
             demand: abi.encode("specific demand")
@@ -301,7 +301,7 @@ contract AttestationEscrowObligation2Test is Test {
         assertFalse(differentUidMatch, "Should not match different attestation UID");
 
         // Test different arbiter (should fail)
-        AttestationEscrowObligation2.StatementData memory differentArbiterDemand = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory differentArbiterDemand = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(rejectingArbiter),
             demand: abi.encode("specific demand")
@@ -315,7 +315,7 @@ contract AttestationEscrowObligation2Test is Test {
         assertFalse(differentArbiterMatch, "Should not match different arbiter");
 
         // Test different demand (should fail)
-        AttestationEscrowObligation2.StatementData memory differentDemandData = AttestationEscrowObligation2.StatementData({
+        AttestationEscrowObligation2.ObligationData memory differentDemandData = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
             demand: abi.encode("different demand")
@@ -335,7 +335,7 @@ contract AttestationEscrowObligation2Test is Test {
 
         // Create a fulfillment attestation using StringObligation
         vm.prank(attester);
-        StringObligation.StatementData memory stringData = StringObligation.StatementData({
+        StringObligation.ObligationData memory stringData = StringObligation.ObligationData({
             item: "fulfillment data"
         });
         

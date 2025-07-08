@@ -157,7 +157,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Token2.setApprovalForAll(address(escrowObligation), true);
 
         // Create the bundle data
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory data = createBundleData();
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
@@ -192,7 +192,7 @@ contract TokenBundleEscrowObligationTest is Test {
         vm.stopPrank();
 
         // Create the bundle data
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory data = createBundleData();
 
         address recipient = makeAddr("recipient");
@@ -246,8 +246,8 @@ contract TokenBundleEscrowObligationTest is Test {
         uint256[] memory erc1155TokenIds = new uint256[](0);
         uint256[] memory erc1155Amounts = new uint256[](0);
 
-        TokenBundleEscrowObligation.StatementData
-            memory data = TokenBundleEscrowObligation.StatementData({
+        TokenBundleEscrowObligation.ObligationData
+            memory data = TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -279,7 +279,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Token1.setApprovalForAll(address(escrowObligation), true);
         erc1155Token2.setApprovalForAll(address(escrowObligation), true);
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory data = createBundleData();
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
@@ -293,7 +293,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.doObligation(
-            StringObligation.StatementData({item: "fulfillment data"}),
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -350,7 +350,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Token2.setApprovalForAll(address(escrowObligation), true);
 
         // Create bundle with rejecting arbiter
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory data = createBundleData();
         // Replace arbiter with rejecting one
         address[] memory erc20Tokens = new address[](2);
@@ -381,7 +381,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[0] = ERC1155_AMOUNT_1;
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
-        data = TokenBundleEscrowObligation.StatementData({
+        data = TokenBundleEscrowObligation.ObligationData({
             erc20Tokens: erc20Tokens,
             erc20Amounts: erc20Amounts,
             erc721Tokens: erc721Tokens,
@@ -404,7 +404,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.doObligation(
-            StringObligation.StatementData({item: "fulfillment data"}),
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -426,7 +426,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Token1.setApprovalForAll(address(escrowObligation), true);
         erc1155Token2.setApprovalForAll(address(escrowObligation), true);
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory data = createBundleData();
 
         uint64 expiration = uint64(block.timestamp + 100); // Short expiration
@@ -482,7 +482,7 @@ contract TokenBundleEscrowObligationTest is Test {
 
     function testCheckObligation() public {
         // Create statement data
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory paymentData = createBundleData();
 
         // Create an attestation using the bundle data
@@ -506,7 +506,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
 
         // Test exact match
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory exactDemand = createBundleData();
         bool exactMatch = escrowObligation.checkObligation(
             attestation,
@@ -516,7 +516,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test subset of ERC20 tokens (should succeed)
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory erc20SubsetDemand = createSubsetERC20Demand();
         bool erc20SubsetMatch = escrowObligation.checkObligation(
             attestation,
@@ -526,7 +526,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertTrue(erc20SubsetMatch, "Should match subset of ERC20 tokens");
 
         // Test subset of ERC721 tokens (should succeed)
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory erc721SubsetDemand = createSubsetERC721Demand();
         bool erc721SubsetMatch = escrowObligation.checkObligation(
             attestation,
@@ -536,7 +536,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertTrue(erc721SubsetMatch, "Should match subset of ERC721 tokens");
 
         // Test subset of ERC1155 tokens (should succeed)
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory erc1155SubsetDemand = createSubsetERC1155Demand();
         bool erc1155SubsetMatch = escrowObligation.checkObligation(
             attestation,
@@ -546,7 +546,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertTrue(erc1155SubsetMatch, "Should match subset of ERC1155 tokens");
 
         // Test different arbiter (should fail)
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory differentArbiterDemand = createDifferentArbiterDemand();
         bool differentArbiterMatch = escrowObligation.checkObligation(
             attestation,
@@ -559,7 +559,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
 
         // Test different demand data (should fail)
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory differentDemandData = createDifferentDemandData();
         bool differentDemandMatch = escrowObligation.checkObligation(
             attestation,
@@ -572,7 +572,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
 
         // Test more ERC20 tokens than in the escrow (should fail)
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory moreERC20Demand = createMoreERC20Demand();
         bool moreERC20Match = escrowObligation.checkObligation(
             attestation,
@@ -585,7 +585,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
 
         // Test higher ERC20 amount than in the escrow (should fail)
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory higherERC20AmountDemand = createHigherERC20AmountDemand();
         bool higherERC20AmountMatch = escrowObligation.checkObligation(
             attestation,
@@ -602,7 +602,7 @@ contract TokenBundleEscrowObligationTest is Test {
     function createBundleData()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -633,7 +633,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -650,7 +650,7 @@ contract TokenBundleEscrowObligationTest is Test {
     function createSubsetERC20Demand()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         erc20Tokens[0] = address(erc20Token1);
@@ -679,7 +679,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -696,7 +696,7 @@ contract TokenBundleEscrowObligationTest is Test {
     function createSubsetERC721Demand()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -725,7 +725,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -742,7 +742,7 @@ contract TokenBundleEscrowObligationTest is Test {
     function createSubsetERC1155Demand()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -770,7 +770,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[0] = ERC1155_AMOUNT_1;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -787,7 +787,7 @@ contract TokenBundleEscrowObligationTest is Test {
     function createDifferentArbiterDemand()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -818,7 +818,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -835,7 +835,7 @@ contract TokenBundleEscrowObligationTest is Test {
     function createDifferentDemandData()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -866,7 +866,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -882,7 +882,7 @@ contract TokenBundleEscrowObligationTest is Test {
     // Helper function to create a demand with more ERC20 tokens
     function createMoreERC20Demand()
         internal
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](3); // More tokens
         erc20Tokens[0] = address(erc20Token1);
@@ -915,7 +915,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -932,7 +932,7 @@ contract TokenBundleEscrowObligationTest is Test {
     function createHigherERC20AmountDemand()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -963,7 +963,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,

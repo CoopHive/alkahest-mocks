@@ -66,8 +66,8 @@ contract ERC20PaymentObligationTest is Test {
         token.approve(address(paymentObligation), amount);
 
         // Make payment
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
@@ -113,8 +113,8 @@ contract ERC20PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Make payment on behalf of payer
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
@@ -166,8 +166,8 @@ contract ERC20PaymentObligationTest is Test {
         token.approve(address(paymentObligation), amount);
 
         // Make payment
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
@@ -182,8 +182,8 @@ contract ERC20PaymentObligationTest is Test {
         );
 
         // Test exact match demand
-        ERC20PaymentObligation.StatementData
-            memory exactDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory exactDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
@@ -197,8 +197,8 @@ contract ERC20PaymentObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test lower amount demand
-        ERC20PaymentObligation.StatementData
-            memory lowerDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory lowerDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount - 50 * 10 ** 18,
                 payee: payee
@@ -212,8 +212,8 @@ contract ERC20PaymentObligationTest is Test {
         assertTrue(lowerMatch, "Should match lower amount demand");
 
         // Test higher amount demand (should fail)
-        ERC20PaymentObligation.StatementData
-            memory higherDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory higherDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount + 50 * 10 ** 18,
                 payee: payee
@@ -228,8 +228,8 @@ contract ERC20PaymentObligationTest is Test {
 
         // Test different token demand (should fail)
         MockERC20 differentToken = new MockERC20();
-        ERC20PaymentObligation.StatementData
-            memory differentTokenDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory differentTokenDemand = ERC20PaymentObligation.ObligationData({
                 token: address(differentToken),
                 amount: amount,
                 payee: payee
@@ -246,8 +246,8 @@ contract ERC20PaymentObligationTest is Test {
         );
 
         // Test different payee demand (should fail)
-        ERC20PaymentObligation.StatementData
-            memory differentPayeeDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory differentPayeeDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: makeAddr("differentPayee")
@@ -272,8 +272,8 @@ contract ERC20PaymentObligationTest is Test {
         token.approve(address(paymentObligation), amount);
 
         // Try to make payment with insufficient balance
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee

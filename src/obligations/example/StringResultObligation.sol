@@ -11,7 +11,7 @@ import {ArbiterUtils} from "../../ArbiterUtils.sol";
 contract StringResultObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         string result;
     }
 
@@ -28,7 +28,7 @@ contract StringResultObligation is BaseStatement, IArbiter {
     ) BaseStatement(_eas, _schemaRegistry, "string result", true) {}
 
     function doObligation(
-        StatementData calldata data,
+        ObligationData calldata data,
         bytes32 refUID
     ) public returns (bytes32) {
         return
@@ -58,9 +58,9 @@ contract StringResultObligation is BaseStatement, IArbiter {
         if (statement.refUID != bytes32(0) && statement.refUID != counteroffer)
             return false;
 
-        StatementData memory result = abi.decode(
+        ObligationData memory result = abi.decode(
             statement.data,
-            (StatementData)
+            (ObligationData)
         );
         DemandData memory demandData = abi.decode(demand, (DemandData));
 

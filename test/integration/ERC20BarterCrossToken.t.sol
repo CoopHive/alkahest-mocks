@@ -133,7 +133,7 @@ contract ERC20BarterCrossTokenTest is Test {
         vm.startPrank(bob);
         erc721Token.approve(address(erc721Payment), nftId);
         bytes32 sellAttestation = erc721Payment.doObligation(
-            ERC721PaymentObligation.StatementData({
+            ERC721PaymentObligation.ObligationData({
                 token: address(erc721Token),
                 tokenId: nftId,
                 payee: alice
@@ -183,7 +183,7 @@ contract ERC20BarterCrossTokenTest is Test {
         vm.startPrank(bob);
         erc1155Token.setApprovalForAll(address(erc1155Payment), true);
         bytes32 sellAttestation = erc1155Payment.doObligation(
-            ERC1155PaymentObligation.StatementData({
+            ERC1155PaymentObligation.ObligationData({
                 token: address(erc1155Token),
                 tokenId: tokenId,
                 amount: amount,
@@ -244,7 +244,7 @@ contract ERC20BarterCrossTokenTest is Test {
         vm.startPrank(bob);
         erc721Token.approve(address(erc721Payment), nftId);
         bytes32 sellAttestation = erc721Payment.doObligation(
-            ERC721PaymentObligation.StatementData({
+            ERC721PaymentObligation.ObligationData({
                 token: address(erc721Token),
                 tokenId: nftId,
                 payee: alice

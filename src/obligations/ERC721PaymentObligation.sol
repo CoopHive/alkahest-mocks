@@ -12,7 +12,7 @@ import {ArbiterUtils} from "../ArbiterUtils.sol";
 contract ERC721PaymentObligation is BaseStatement, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         address token;
         uint256 tokenId;
         address payee;
@@ -42,7 +42,7 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
     {}
 
     function doObligationFor(
-        StatementData calldata data,
+        ObligationData calldata data,
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
@@ -83,7 +83,7 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
     }
 
     function doObligation(
-        StatementData calldata data
+        ObligationData calldata data
     ) public returns (bytes32 uid_) {
         return doObligationFor(data, msg.sender, msg.sender);
     }
@@ -95,11 +95,11 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
     ) public view override returns (bool) {
         if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
-        StatementData memory payment = abi.decode(
+        ObligationData memory payment = abi.decode(
             statement.data,
-            (StatementData)
+            (ObligationData)
         );
-        StatementData memory demandData = abi.decode(demand, (StatementData));
+        ObligationData memory demandData = abi.decode(demand, (ObligationData));
 
         return
             payment.token == demandData.token &&
@@ -107,17 +107,17 @@ contract ERC721PaymentObligation is BaseStatement, IArbiter {
             payment.payee == demandData.payee;
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidPayment();
-        return abi.decode(attestation.data, (StatementData));
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

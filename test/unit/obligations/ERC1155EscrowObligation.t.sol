@@ -80,8 +80,8 @@ contract ERC1155EscrowObligationTest is Test {
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -125,8 +125,8 @@ contract ERC1155EscrowObligationTest is Test {
         vm.stopPrank();
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -180,8 +180,8 @@ contract ERC1155EscrowObligationTest is Test {
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -201,7 +201,7 @@ contract ERC1155EscrowObligationTest is Test {
 
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.doObligation(
-            StringObligation.StatementData({item: "fulfillment data"}),
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -233,8 +233,8 @@ contract ERC1155EscrowObligationTest is Test {
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -254,7 +254,7 @@ contract ERC1155EscrowObligationTest is Test {
 
         vm.prank(seller);
         bytes32 fulfillmentUid = stringObligation.doObligation(
-            StringObligation.StatementData({item: "fulfillment data"}),
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -270,8 +270,8 @@ contract ERC1155EscrowObligationTest is Test {
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -312,8 +312,8 @@ contract ERC1155EscrowObligationTest is Test {
 
     function testCheckObligation() public {
         // Create statement data
-        ERC1155EscrowObligation.StatementData
-            memory paymentData = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory paymentData = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -333,8 +333,8 @@ contract ERC1155EscrowObligationTest is Test {
         Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match
-        ERC1155EscrowObligation.StatementData
-            memory exactDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory exactDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -350,8 +350,8 @@ contract ERC1155EscrowObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test lower amount demand (should succeed)
-        ERC1155EscrowObligation.StatementData
-            memory lowerDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory lowerDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount - 50,
@@ -367,8 +367,8 @@ contract ERC1155EscrowObligationTest is Test {
         assertTrue(lowerMatch, "Should match lower amount demand");
 
         // Test higher amount demand (should fail)
-        ERC1155EscrowObligation.StatementData
-            memory higherDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory higherDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount + 50,
@@ -384,8 +384,8 @@ contract ERC1155EscrowObligationTest is Test {
         assertFalse(higherMatch, "Should not match higher amount demand");
 
         // Test different token ID (should fail)
-        ERC1155EscrowObligation.StatementData
-            memory differentIdDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory differentIdDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId + 1,
                 amount: erc1155TokenAmount,
@@ -405,9 +405,9 @@ contract ERC1155EscrowObligationTest is Test {
 
         // Test different token (should fail)
         MockERC1155 differentToken = new MockERC1155();
-        ERC1155EscrowObligation.StatementData
+        ERC1155EscrowObligation.ObligationData
             memory differentTokenDemand = ERC1155EscrowObligation
-                .StatementData({
+                .ObligationData({
                     token: address(differentToken),
                     tokenId: tokenId,
                     amount: erc1155TokenAmount,
@@ -426,9 +426,9 @@ contract ERC1155EscrowObligationTest is Test {
         );
 
         // Test different arbiter (should fail)
-        ERC1155EscrowObligation.StatementData
+        ERC1155EscrowObligation.ObligationData
             memory differentArbiterDemand = ERC1155EscrowObligation
-                .StatementData({
+                .ObligationData({
                     token: address(token),
                     tokenId: tokenId,
                     amount: erc1155TokenAmount,
@@ -447,8 +447,8 @@ contract ERC1155EscrowObligationTest is Test {
         );
 
         // Test different demand (should fail)
-        ERC1155EscrowObligation.StatementData
-            memory differentDemandData = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory differentDemandData = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -472,8 +472,8 @@ contract ERC1155EscrowObligationTest is Test {
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: excessAmount,

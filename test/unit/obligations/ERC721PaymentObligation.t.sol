@@ -70,8 +70,8 @@ contract ERC721PaymentObligationTest is Test {
         token.approve(address(paymentObligation), tokenId);
 
         // Make payment
-        ERC721PaymentObligation.StatementData
-            memory data = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.ObligationData
+            memory data = ERC721PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 payee: payee
@@ -109,8 +109,8 @@ contract ERC721PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Make payment on behalf of payer
-        ERC721PaymentObligation.StatementData
-            memory data = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.ObligationData
+            memory data = ERC721PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 payee: payee
@@ -156,8 +156,8 @@ contract ERC721PaymentObligationTest is Test {
         vm.startPrank(payer);
         token.approve(address(paymentObligation), tokenId);
 
-        ERC721PaymentObligation.StatementData
-            memory data = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.ObligationData
+            memory data = ERC721PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 payee: payee
@@ -172,8 +172,8 @@ contract ERC721PaymentObligationTest is Test {
         );
 
         // Test exact match demand
-        ERC721PaymentObligation.StatementData
-            memory exactDemand = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.ObligationData
+            memory exactDemand = ERC721PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 payee: payee
@@ -188,9 +188,9 @@ contract ERC721PaymentObligationTest is Test {
 
         // Test different token ID demand (should fail)
         uint256 differentTokenId = 999;
-        ERC721PaymentObligation.StatementData
+        ERC721PaymentObligation.ObligationData
             memory differentTokenIdDemand = ERC721PaymentObligation
-                .StatementData({
+                .ObligationData({
                     token: address(token),
                     tokenId: differentTokenId,
                     payee: payee
@@ -208,9 +208,9 @@ contract ERC721PaymentObligationTest is Test {
 
         // Test different token contract demand (should fail)
         MockERC721 differentToken = new MockERC721();
-        ERC721PaymentObligation.StatementData
+        ERC721PaymentObligation.ObligationData
             memory differentTokenDemand = ERC721PaymentObligation
-                .StatementData({
+                .ObligationData({
                     token: address(differentToken),
                     tokenId: tokenId,
                     payee: payee
@@ -228,9 +228,9 @@ contract ERC721PaymentObligationTest is Test {
 
         // Test different payee demand (should fail)
         address differentPayee = makeAddr("differentPayee");
-        ERC721PaymentObligation.StatementData
+        ERC721PaymentObligation.ObligationData
             memory differentPayeeDemand = ERC721PaymentObligation
-                .StatementData({
+                .ObligationData({
                     token: address(token),
                     tokenId: tokenId,
                     payee: differentPayee
@@ -253,8 +253,8 @@ contract ERC721PaymentObligationTest is Test {
         vm.startPrank(payer);
         token.approve(address(paymentObligation), tokenId);
 
-        ERC721PaymentObligation.StatementData
-            memory data = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.ObligationData
+            memory data = ERC721PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 payee: payee
@@ -270,8 +270,8 @@ contract ERC721PaymentObligationTest is Test {
 
         // Test with different demand - should fail because data doesn't match
         MockERC721 differentToken = new MockERC721();
-        ERC721PaymentObligation.StatementData
-            memory differentDemand = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.ObligationData
+            memory differentDemand = ERC721PaymentObligation.ObligationData({
                 token: address(differentToken),
                 tokenId: 999,
                 payee: makeAddr("differentPayee")
@@ -294,8 +294,8 @@ contract ERC721PaymentObligationTest is Test {
         uint256 otherTokenId = token.mint(otherOwner);
 
         // Try to create payment with a token that hasn't been approved for transfer
-        ERC721PaymentObligation.StatementData
-            memory data = ERC721PaymentObligation.StatementData({
+        ERC721PaymentObligation.ObligationData
+            memory data = ERC721PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: otherTokenId,
                 payee: payee

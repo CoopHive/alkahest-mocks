@@ -40,21 +40,21 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
             revert InvalidStatement();
         if (statement._checkExpired()) revert InvalidStatement();
 
-        ERC20EscrowObligation.StatementData memory statementData = abi.decode(
+        ERC20EscrowObligation.ObligationData memory obligationData = abi.decode(
             statement.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC20EscrowObligation.ObligationData)
         );
 
-        if (statementData.token != validationData.token)
+        if (obligationData.token != validationData.token)
             revert InvalidValidation();
-        if (statementData.amount < validationData.amount)
+        if (obligationData.amount < validationData.amount)
             revert InvalidValidation();
 
-        if (statementData.arbiter != address(specificAttestation))
+        if (obligationData.arbiter != address(specificAttestation))
             revert InvalidValidation();
 
         SpecificAttestationArbiter.DemandData memory demandData = abi.decode(
-            statementData.demand,
+            obligationData.demand,
             (SpecificAttestationArbiter.DemandData)
         );
 

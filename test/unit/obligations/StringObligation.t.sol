@@ -35,8 +35,8 @@ contract StringObligationTest is Test {
 
     function testMakeStatement() public {
         // Setup test data
-        StringObligation.StatementData memory data = StringObligation
-            .StatementData({item: "Test String Data"});
+        StringObligation.ObligationData memory data = StringObligation
+            .ObligationData({item: "Test String Data"});
 
         // Make a statement
         vm.prank(testUser);
@@ -60,9 +60,9 @@ contract StringObligationTest is Test {
         );
 
         // Decode and verify data
-        StringObligation.StatementData memory decodedData = abi.decode(
+        StringObligation.ObligationData memory decodedData = abi.decode(
             attestation.data,
-            (StringObligation.StatementData)
+            (StringObligation.ObligationData)
         );
         assertEq(
             decodedData.item,

@@ -112,10 +112,10 @@ contract AttestationBarterUtilsTest is Test {
         assertNotEq(escrowUid, bytes32(0), "Escrow should be created");
 
         // Verify attestation details
-        AttestationEscrowObligation2.StatementData memory escrowData = abi
+        AttestationEscrowObligation2.ObligationData memory escrowData = abi
             .decode(
                 eas.getAttestation(escrowUid).data,
-                (AttestationEscrowObligation2.StatementData)
+                (AttestationEscrowObligation2.ObligationData)
             );
 
         assertEq(

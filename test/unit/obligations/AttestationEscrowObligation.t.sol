@@ -76,8 +76,8 @@ contract AttestationEscrowObligationTest is Test {
             memory attestationRequest = createTestAttestationRequest();
 
         // Create the statement data
-        AttestationEscrowObligation.StatementData
-            memory data = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory data = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("test demand")
@@ -110,8 +110,8 @@ contract AttestationEscrowObligationTest is Test {
             memory attestationRequest = createTestAttestationRequest();
 
         // Create the statement data
-        AttestationEscrowObligation.StatementData
-            memory data = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory data = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("test demand")
@@ -153,8 +153,8 @@ contract AttestationEscrowObligationTest is Test {
         fulfillmentRequest.data.data = abi.encode("fulfillment data");
         fulfillmentRequest.data.recipient = attester;
 
-        AttestationEscrowObligation.StatementData
-            memory fulfillmentData = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory fulfillmentData = AttestationEscrowObligation.ObligationData({
                 attestation: fulfillmentRequest,
                 arbiter: arbiterAddr,
                 demand: abi.encode("fulfillment demand")
@@ -178,8 +178,8 @@ contract AttestationEscrowObligationTest is Test {
         AttestationRequest
             memory attestationRequest = createTestAttestationRequest();
 
-        AttestationEscrowObligation.StatementData
-            memory data = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory data = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: arbiterAddr,
                 demand: abi.encode("test demand")
@@ -240,8 +240,8 @@ contract AttestationEscrowObligationTest is Test {
         AttestationRequest
             memory attestationRequest = createTestAttestationRequest();
 
-        AttestationEscrowObligation.StatementData
-            memory data = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory data = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(rejectingArbiter),
                 demand: abi.encode("test demand")
@@ -254,7 +254,7 @@ contract AttestationEscrowObligationTest is Test {
         // Create a fulfillment attestation
         vm.startPrank(attester);
         bytes32 fulfillmentUid = stringObligation.doObligation(
-            StringObligation.StatementData({item: "fulfillment data"}),
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
@@ -275,8 +275,8 @@ contract AttestationEscrowObligationTest is Test {
         AttestationRequest
             memory attestationRequest = createTestAttestationRequest();
 
-        AttestationEscrowObligation.StatementData
-            memory escrowData = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory escrowData = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("specific demand")
@@ -306,8 +306,8 @@ contract AttestationEscrowObligationTest is Test {
         ) = createValidAttestation();
 
         // Test exact match
-        AttestationEscrowObligation.StatementData
-            memory exactDemand = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory exactDemand = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("specific demand")
@@ -329,8 +329,8 @@ contract AttestationEscrowObligationTest is Test {
         ) = createValidAttestation();
 
         // Create demand to match against
-        AttestationEscrowObligation.StatementData
-            memory exactDemand = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory exactDemand = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("specific demand")
@@ -356,8 +356,8 @@ contract AttestationEscrowObligationTest is Test {
         ) = createValidAttestation();
 
         // Create demand to match against
-        AttestationEscrowObligation.StatementData
-            memory exactDemand = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory exactDemand = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("specific demand")
@@ -383,8 +383,8 @@ contract AttestationEscrowObligationTest is Test {
         ) = createValidAttestation();
 
         // Create demand to match against
-        AttestationEscrowObligation.StatementData
-            memory exactDemand = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory exactDemand = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("specific demand")
@@ -415,9 +415,9 @@ contract AttestationEscrowObligationTest is Test {
             memory differentAttestationRequest = createTestAttestationRequest();
         differentAttestationRequest.data.data = abi.encode("different data");
 
-        AttestationEscrowObligation.StatementData
+        AttestationEscrowObligation.ObligationData
             memory differentAttestationDemand = AttestationEscrowObligation
-                .StatementData({
+                .ObligationData({
                     attestation: differentAttestationRequest,
                     arbiter: address(mockArbiter),
                     demand: abi.encode("specific demand")
@@ -442,9 +442,9 @@ contract AttestationEscrowObligationTest is Test {
         ) = createValidAttestation();
 
         // Test different arbiter (should not match)
-        AttestationEscrowObligation.StatementData
+        AttestationEscrowObligation.ObligationData
             memory differentArbiterDemand = AttestationEscrowObligation
-                .StatementData({
+                .ObligationData({
                     attestation: attestationRequest,
                     arbiter: address(rejectingArbiter),
                     demand: abi.encode("specific demand")
@@ -469,9 +469,9 @@ contract AttestationEscrowObligationTest is Test {
         ) = createValidAttestation();
 
         // Test different demand (should not match)
-        AttestationEscrowObligation.StatementData
+        AttestationEscrowObligation.ObligationData
             memory differentDemandData = AttestationEscrowObligation
-                .StatementData({
+                .ObligationData({
                     attestation: attestationRequest,
                     arbiter: address(mockArbiter),
                     demand: abi.encode("different demand")
@@ -495,8 +495,8 @@ contract AttestationEscrowObligationTest is Test {
         fulfillmentRequest.data.data = abi.encode("fulfillment data");
         fulfillmentRequest.data.recipient = attester;
 
-        AttestationEscrowObligation.StatementData
-            memory fulfillmentData = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory fulfillmentData = AttestationEscrowObligation.ObligationData({
                 attestation: fulfillmentRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("fulfillment demand")

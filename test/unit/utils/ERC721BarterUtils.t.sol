@@ -95,9 +95,9 @@ contract ERC721BarterUtilsUnitTest is Test {
 
         // Validate the attestation data
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC721EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC721EscrowObligation.StatementData)
+            (ERC721EscrowObligation.ObligationData)
         );
 
         assertEq(escrowData.token, address(erc721TokenA), "Token should match");
@@ -109,9 +109,9 @@ contract ERC721BarterUtilsUnitTest is Test {
         );
 
         // Extract the demand data
-        ERC721PaymentObligation.StatementData memory demandData = abi.decode(
+        ERC721PaymentObligation.ObligationData memory demandData = abi.decode(
             escrowData.demand,
-            (ERC721PaymentObligation.StatementData)
+            (ERC721PaymentObligation.ObligationData)
         );
 
         assertEq(
@@ -191,14 +191,14 @@ contract ERC721BarterUtilsUnitTest is Test {
 
         // Extract the attestation and manually decode it
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC721EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC721EscrowObligation.StatementData)
+            (ERC721EscrowObligation.ObligationData)
         );
 
-        ERC721PaymentObligation.StatementData memory demand = abi.decode(
+        ERC721PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC721PaymentObligation.StatementData)
+            (ERC721PaymentObligation.ObligationData)
         );
 
         // Verify the demand data matches what we expect

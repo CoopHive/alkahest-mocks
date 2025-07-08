@@ -46,7 +46,7 @@ pub struct GenObligationOpts {
     pub is_arbiter: bool,
     pub is_revocable: bool,
     pub finalization_terms: usize,
-    pub statement_data: String,
+    pub obligation_data: String,
     pub demand_data: String,
 }
 
@@ -78,8 +78,8 @@ pub fn gen_obligation(opts: GenObligationOpts) -> String {
         out += "  using ArbiterUtils for Attestation;\n\n";
     }
     out += &format!(
-        "  struct StatementData {{\n    {};\n  }}\n\n",
-        opts.statement_data
+        "  struct ObligationData {{\n    {};\n  }}\n\n",
+        opts.obligation_data
             .split(",")
             .collect::<Vec<_>>()
             .join(";\n   ")
@@ -95,14 +95,14 @@ pub fn gen_obligation(opts: GenObligationOpts) -> String {
     }
     out += &format!(
         "  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) BaseStatement(_eas, _schemaRegistry, \"{}\", {}) {{}}\n\n",
-        opts.statement_data,
+        opts.obligation_data,
         if opts.is_revocable { "true" } else { "false" },
     );
 
-    // makeStatement
+    // makeObligation
     out += concat!(
-            "  function makeStatement(StatementData calldata data, uint64 expirationTime, bytes32 fulfilling) public returns (bytes32) {\n",
-            "    // implement custom statement logic here\n    //...\n",
+            "  function makeObligation(ObligationData calldata data, uint64 expirationTime, bytes32 fulfilling) public returns (bytes32) {\n",
+            "    // implement custom obligation logic here\n    //...\n",
             "    return eas.attest(AttestationRequest({\n",
             "      schema: ATTESTATION_SCHEMA,\n",
             "      data: AttestationRequestData({\n",

@@ -50,13 +50,13 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
     ) external returns (bytes32) {
         return
             erc1155Escrow.doObligationFor(
-                ERC1155EscrowObligation.StatementData({
+                ERC1155EscrowObligation.ObligationData({
                     token: bidToken,
                     tokenId: bidTokenId,
                     amount: bidAmount,
                     arbiter: address(erc20Payment),
                     demand: abi.encode(
-                        ERC20PaymentObligation.StatementData({
+                        ERC20PaymentObligation.ObligationData({
                             token: askToken,
                             amount: askAmount,
                             payee: msg.sender
@@ -79,13 +79,13 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
     ) external returns (bytes32) {
         return
             erc1155Escrow.doObligationFor(
-                ERC1155EscrowObligation.StatementData({
+                ERC1155EscrowObligation.ObligationData({
                     token: bidToken,
                     tokenId: bidTokenId,
                     amount: bidAmount,
                     arbiter: address(erc721Payment),
                     demand: abi.encode(
-                        ERC721PaymentObligation.StatementData({
+                        ERC721PaymentObligation.ObligationData({
                             token: askToken,
                             tokenId: askTokenId,
                             payee: msg.sender
@@ -102,12 +102,12 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
         address bidToken,
         uint256 bidTokenId,
         uint256 bidAmount,
-        TokenBundlePaymentObligation.StatementData calldata askData,
+        TokenBundlePaymentObligation.ObligationData calldata askData,
         uint64 expiration
     ) external returns (bytes32) {
         return
             erc1155Escrow.doObligationFor(
-                ERC1155EscrowObligation.StatementData({
+                ERC1155EscrowObligation.ObligationData({
                     token: bidToken,
                     tokenId: bidTokenId,
                     amount: bidAmount,
@@ -124,13 +124,13 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC20EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC20EscrowObligation.ObligationData)
         );
-        ERC1155PaymentObligation.StatementData memory demand = abi.decode(
+        ERC1155PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC1155PaymentObligation.StatementData)
+            (ERC1155PaymentObligation.ObligationData)
         );
 
         bytes32 sellAttestation = erc1155Payment.doObligationFor(
@@ -150,13 +150,13 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC721EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC721EscrowObligation.StatementData)
+            (ERC721EscrowObligation.ObligationData)
         );
-        ERC1155PaymentObligation.StatementData memory demand = abi.decode(
+        ERC1155PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC1155PaymentObligation.StatementData)
+            (ERC1155PaymentObligation.ObligationData)
         );
 
         bytes32 sellAttestation = erc1155Payment.doObligationFor(
@@ -176,11 +176,11 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        TokenBundleEscrowObligation.StatementData memory escrowData = abi
-            .decode(bid.data, (TokenBundleEscrowObligation.StatementData));
-        ERC1155PaymentObligation.StatementData memory demand = abi.decode(
+        TokenBundleEscrowObligation.ObligationData memory escrowData = abi
+            .decode(bid.data, (TokenBundleEscrowObligation.ObligationData));
+        ERC1155PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC1155PaymentObligation.StatementData)
+            (ERC1155PaymentObligation.ObligationData)
         );
 
         bytes32 sellAttestation = erc1155Payment.doObligationFor(

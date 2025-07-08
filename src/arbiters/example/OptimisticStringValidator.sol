@@ -86,9 +86,9 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
         Attestation memory resultAttestation = eas.getAttestation(
             validation.refUID
         );
-        StringResultObligation.StatementData memory resultData = abi.decode(
+        StringResultObligation.ObligationData memory resultData = abi.decode(
             resultAttestation.data,
-            (StringResultObligation.StatementData)
+            (StringResultObligation.ObligationData)
         );
         success_ = _isCapitalized(data.query, resultData.result);
 
@@ -112,18 +112,18 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
         if (!statement._checkIntrinsic()) return false;
 
         ValidationData memory demandData = abi.decode(demand, (ValidationData));
-        ValidationData memory statementData = abi.decode(
+        ValidationData memory obligationData = abi.decode(
             statement.data,
             (ValidationData)
         );
 
         if (
-            keccak256(bytes(statementData.query)) !=
+            keccak256(bytes(obligationData.query)) !=
             keccak256(bytes(demandData.query))
         ) return false;
-        if (statementData.mediationPeriod != demandData.mediationPeriod)
+        if (obligationData.mediationPeriod != demandData.mediationPeriod)
             return false;
-        if (block.timestamp <= statement.time + statementData.mediationPeriod)
+        if (block.timestamp <= statement.time + obligationData.mediationPeriod)
             return false;
 
         return
@@ -131,7 +131,7 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
                 eas.getAttestation(statement.refUID),
                 abi.encode(
                     StringResultObligation.DemandData({
-                        query: statementData.query
+                        query: obligationData.query
                     })
                 ),
                 counteroffer

@@ -56,8 +56,8 @@ contract TokensForStringsTest is Test {
                 query: "hello world"
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(resultStatement),
@@ -68,8 +68,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "HELLO WORLD"
             });
         bytes32 resultUID = resultStatement.doObligation(
@@ -105,8 +105,8 @@ contract TokensForStringsTest is Test {
                 mediationPeriod: 1 days
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(validator),
@@ -117,8 +117,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "HELLO WORLD"
             });
         bytes32 resultUID = resultStatement.doObligation(
@@ -172,8 +172,8 @@ contract TokensForStringsTest is Test {
                 mediationPeriod: 1 days
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(validator),
@@ -184,8 +184,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "HELLO WORLD"
             });
         bytes32 resultUID = resultStatement.doObligation(
@@ -232,8 +232,8 @@ contract TokensForStringsTest is Test {
                 mediationPeriod: 1 days
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(validator),
@@ -244,8 +244,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "INCORRECT RESULT"
             });
         bytes32 resultUID = resultStatement.doObligation(
@@ -285,8 +285,8 @@ contract TokensForStringsTest is Test {
                 query: "hello world"
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(resultStatement),
@@ -297,8 +297,8 @@ contract TokensForStringsTest is Test {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "INCORRECT LENGTH RESULT"
             });
         bytes32 resultUID = resultStatement.doObligation(

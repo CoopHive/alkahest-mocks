@@ -138,9 +138,9 @@ contract ERC20BarterCrossTokenUnitTest is Test {
 
         // Validate the attestation data
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC20EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC20EscrowObligation.ObligationData)
         );
 
         assertEq(escrowData.token, address(bidToken), "Token should match");
@@ -152,9 +152,9 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         );
 
         // Extract the demand data
-        ERC721PaymentObligation.StatementData memory demandData = abi.decode(
+        ERC721PaymentObligation.ObligationData memory demandData = abi.decode(
             escrowData.demand,
-            (ERC721PaymentObligation.StatementData)
+            (ERC721PaymentObligation.ObligationData)
         );
 
         assertEq(
@@ -268,8 +268,8 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create token bundle statement data
-        TokenBundlePaymentObligation.StatementData
-            memory bundleData = TokenBundlePaymentObligation.StatementData({
+        TokenBundlePaymentObligation.ObligationData
+            memory bundleData = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: new address[](1),
                 erc20Amounts: new uint256[](1),
                 erc721Tokens: new address[](1),
@@ -311,8 +311,8 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint256 deadline = block.timestamp + 1 days;
 
         // Create token bundle statement data
-        TokenBundlePaymentObligation.StatementData
-            memory bundleData = TokenBundlePaymentObligation.StatementData({
+        TokenBundlePaymentObligation.ObligationData
+            memory bundleData = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: new address[](1),
                 erc20Amounts: new uint256[](1),
                 erc721Tokens: new address[](1),
@@ -401,12 +401,12 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         vm.startPrank(bob);
         askErc721Token.approve(address(erc721Escrow), erc721TokenId);
         bytes32 buyAttestation = erc721Escrow.doObligationFor(
-            ERC721EscrowObligation.StatementData({
+            ERC721EscrowObligation.ObligationData({
                 token: address(askErc721Token),
                 tokenId: erc721TokenId,
                 arbiter: address(paymentStatement),
                 demand: abi.encode(
-                    ERC20PaymentObligation.StatementData({
+                    ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
                         amount: bidAmount,
                         payee: bob
@@ -460,13 +460,13 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         vm.startPrank(bob);
         askErc1155Token.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = erc1155Escrow.doObligationFor(
-            ERC1155EscrowObligation.StatementData({
+            ERC1155EscrowObligation.ObligationData({
                 token: address(askErc1155Token),
                 tokenId: tokenId,
                 amount: amount,
                 arbiter: address(paymentStatement),
                 demand: abi.encode(
-                    ERC20PaymentObligation.StatementData({
+                    ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
                         amount: bidAmount,
                         payee: bob
@@ -520,7 +520,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create a bundle escrow
-        TokenBundleEscrowObligation.StatementData memory bundleData = TokenBundleEscrowObligation.StatementData({
+        TokenBundleEscrowObligation.ObligationData memory bundleData = TokenBundleEscrowObligation.ObligationData({
             erc20Tokens: new address[](0),
             erc20Amounts: new uint256[](0),
             erc721Tokens: new address[](1),
@@ -530,7 +530,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
             erc1155Amounts: new uint256[](1),
             arbiter: address(paymentStatement),
             demand: abi.encode(
-                ERC20PaymentObligation.StatementData({
+                ERC20PaymentObligation.ObligationData({
                     token: address(bidToken),
                     amount: bidAmount,
                     payee: bob
@@ -606,12 +606,12 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         vm.startPrank(bob);
         askErc721Token.approve(address(erc721Escrow), erc721TokenId);
         bytes32 buyAttestation = erc721Escrow.doObligationFor(
-            ERC721EscrowObligation.StatementData({
+            ERC721EscrowObligation.ObligationData({
                 token: address(askErc721Token),
                 tokenId: erc721TokenId,
                 arbiter: address(paymentStatement),
                 demand: abi.encode(
-                    ERC20PaymentObligation.StatementData({
+                    ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
                         amount: bidAmount,
                         payee: bob
@@ -673,13 +673,13 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         vm.startPrank(bob);
         askErc1155Token.setApprovalForAll(address(erc1155Escrow), true);
         bytes32 buyAttestation = erc1155Escrow.doObligationFor(
-            ERC1155EscrowObligation.StatementData({
+            ERC1155EscrowObligation.ObligationData({
                 token: address(askErc1155Token),
                 tokenId: tokenId,
                 amount: amount,
                 arbiter: address(paymentStatement),
                 demand: abi.encode(
-                    ERC20PaymentObligation.StatementData({
+                    ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
                         amount: bidAmount,
                         payee: bob
@@ -736,7 +736,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create a bundle escrow
-        TokenBundleEscrowObligation.StatementData memory bundleData = TokenBundleEscrowObligation.StatementData({
+        TokenBundleEscrowObligation.ObligationData memory bundleData = TokenBundleEscrowObligation.ObligationData({
             erc20Tokens: new address[](0),
             erc20Amounts: new uint256[](0),
             erc721Tokens: new address[](1),
@@ -746,7 +746,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
             erc1155Amounts: new uint256[](1),
             arbiter: address(paymentStatement),
             demand: abi.encode(
-                ERC20PaymentObligation.StatementData({
+                ERC20PaymentObligation.ObligationData({
                     token: address(bidToken),
                     amount: bidAmount,
                     payee: bob

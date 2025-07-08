@@ -150,7 +150,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Token2.setApprovalForAll(address(paymentObligation), true);
 
         // Create the bundle data
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory data = createFullBundleData();
 
         bytes32 uid = paymentObligation.doObligation(data);
@@ -184,7 +184,7 @@ contract TokenBundlePaymentObligationTest is Test {
         vm.stopPrank();
 
         // Create the bundle data
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory data = createFullBundleData();
 
         address recipient = makeAddr("recipient");
@@ -223,7 +223,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc20Token2.approve(address(paymentObligation), ERC20_AMOUNT_2);
 
         // Create bundle with only ERC20 tokens
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory data = createERC20OnlyBundleData();
 
         bytes32 uid = paymentObligation.doObligation(data);
@@ -262,7 +262,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc721Token2.approve(address(paymentObligation), erc721TokenId2);
 
         // Create bundle with only ERC721 tokens
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory data = createERC721OnlyBundleData();
 
         bytes32 uid = paymentObligation.doObligation(data);
@@ -291,7 +291,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Token2.setApprovalForAll(address(paymentObligation), true);
 
         // Create bundle with only ERC1155 tokens
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory data = createERC1155OnlyBundleData();
 
         bytes32 uid = paymentObligation.doObligation(data);
@@ -343,8 +343,8 @@ contract TokenBundlePaymentObligationTest is Test {
         uint256[] memory erc1155TokenIds = new uint256[](0);
         uint256[] memory erc1155Amounts = new uint256[](0);
 
-        TokenBundlePaymentObligation.StatementData
-            memory data = TokenBundlePaymentObligation.StatementData({
+        TokenBundlePaymentObligation.ObligationData
+            memory data = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -382,8 +382,8 @@ contract TokenBundlePaymentObligationTest is Test {
         uint256[] memory erc1155TokenIds = new uint256[](0);
         uint256[] memory erc1155Amounts = new uint256[](0);
 
-        TokenBundlePaymentObligation.StatementData
-            memory data = TokenBundlePaymentObligation.StatementData({
+        TokenBundlePaymentObligation.ObligationData
+            memory data = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -411,7 +411,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Token1.setApprovalForAll(address(paymentObligation), true);
         erc1155Token2.setApprovalForAll(address(paymentObligation), true);
 
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory data = createFullBundleData();
         bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
@@ -421,7 +421,7 @@ contract TokenBundlePaymentObligationTest is Test {
         );
 
         // Test exact match
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory exactDemand = createFullBundleData();
         bool exactMatch = paymentObligation.checkObligation(
             attestation,
@@ -431,7 +431,7 @@ contract TokenBundlePaymentObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test subset of ERC20 tokens (should succeed)
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory erc20SubsetDemand = createSubsetERC20Demand();
         bool erc20SubsetMatch = paymentObligation.checkObligation(
             attestation,
@@ -441,7 +441,7 @@ contract TokenBundlePaymentObligationTest is Test {
         assertTrue(erc20SubsetMatch, "Should match subset of ERC20 tokens");
 
         // Test lower ERC20 amount (should succeed)
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory lowerERC20AmountDemand = createLowerERC20AmountDemand();
         bool lowerERC20AmountMatch = paymentObligation.checkObligation(
             attestation,
@@ -454,7 +454,7 @@ contract TokenBundlePaymentObligationTest is Test {
         );
 
         // Test subset of ERC721 tokens (should succeed)
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory erc721SubsetDemand = createSubsetERC721Demand();
         bool erc721SubsetMatch = paymentObligation.checkObligation(
             attestation,
@@ -464,7 +464,7 @@ contract TokenBundlePaymentObligationTest is Test {
         assertTrue(erc721SubsetMatch, "Should match subset of ERC721 tokens");
 
         // Test subset of ERC1155 tokens (should succeed)
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory erc1155SubsetDemand = createSubsetERC1155Demand();
         bool erc1155SubsetMatch = paymentObligation.checkObligation(
             attestation,
@@ -474,7 +474,7 @@ contract TokenBundlePaymentObligationTest is Test {
         assertTrue(erc1155SubsetMatch, "Should match subset of ERC1155 tokens");
 
         // Test more ERC20 tokens than in the payment (should fail)
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory moreERC20Demand = createMoreERC20Demand();
         bool moreERC20Match = paymentObligation.checkObligation(
             attestation,
@@ -487,7 +487,7 @@ contract TokenBundlePaymentObligationTest is Test {
         );
 
         // Test higher ERC20 amount than in the payment (should fail)
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory higherERC20AmountDemand = createHigherERC20AmountDemand();
         bool higherERC20AmountMatch = paymentObligation.checkObligation(
             attestation,
@@ -500,7 +500,7 @@ contract TokenBundlePaymentObligationTest is Test {
         );
 
         // Test different payee (should fail)
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory differentPayeeDemand = createDifferentPayeeDemand();
         bool differentPayeeMatch = paymentObligation.checkObligation(
             attestation,
@@ -515,7 +515,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test with different schema (should fail)
         // Use the same attestation but add a test case that verifies schema checking
         // If we change the test data, that's enough to make it fail even with the same schema
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory invalidDemand = createFullBundleData();
         invalidDemand.payee = address(0); // Invalid payee that doesn't match
 
@@ -534,7 +534,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createFullBundleData()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -565,7 +565,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -581,7 +581,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createERC20OnlyBundleData()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -599,7 +599,7 @@ contract TokenBundlePaymentObligationTest is Test {
         uint256[] memory erc1155Amounts = new uint256[](0);
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -615,7 +615,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createERC721OnlyBundleData()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         // Empty arrays for ERC20
         address[] memory erc20Tokens = new address[](0);
@@ -635,7 +635,7 @@ contract TokenBundlePaymentObligationTest is Test {
         uint256[] memory erc1155Amounts = new uint256[](0);
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -651,7 +651,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createERC1155OnlyBundleData()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         // Empty arrays for ERC20
         address[] memory erc20Tokens = new address[](0);
@@ -674,7 +674,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -690,7 +690,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createSubsetERC20Demand()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         erc20Tokens[0] = address(erc20Token1);
@@ -719,7 +719,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -735,7 +735,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createLowerERC20AmountDemand()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -766,7 +766,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -782,7 +782,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createSubsetERC721Demand()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -811,7 +811,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -827,7 +827,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createSubsetERC1155Demand()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -855,7 +855,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[0] = ERC1155_AMOUNT_1;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -871,7 +871,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createMoreERC20Demand()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](3); // More tokens
         erc20Tokens[0] = address(1); // Placeholder
@@ -904,7 +904,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -920,7 +920,7 @@ contract TokenBundlePaymentObligationTest is Test {
     function createHigherERC20AmountDemand()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](2);
         erc20Tokens[0] = address(erc20Token1);
@@ -951,7 +951,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -966,7 +966,7 @@ contract TokenBundlePaymentObligationTest is Test {
     // Helper function to create a demand with different payee
     function createDifferentPayeeDemand()
         internal
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address differentPayee = makeAddr("differentPayee");
 
@@ -999,7 +999,7 @@ contract TokenBundlePaymentObligationTest is Test {
         erc1155Amounts[1] = ERC1155_AMOUNT_2;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,

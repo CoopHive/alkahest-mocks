@@ -31,8 +31,8 @@ contract RedisProvisionObligationTest is Test {
         vm.startPrank(alice);
 
         // Create a new provision statement for Redis
-        RedisProvisionObligation.StatementData memory statementData = RedisProvisionObligation
-            .StatementData({
+        RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
+            .ObligationData({
                 user: alice,
                 capacity: 1024 * 1024 * 1024, // 1 GB
                 egress: 500 * 1024 * 1024, // 500 MB
@@ -43,29 +43,29 @@ contract RedisProvisionObligationTest is Test {
         uint64 expiration = uint64(block.timestamp + 30 days);
 
         bytes32 statementUID = provisionObligation.doObligation(
-            statementData,
+            obligationData,
             expiration
         );
 
         // Retrieve the attestation and verify it matches the input data
         Attestation memory attestation = eas.getAttestation(statementUID);
-        RedisProvisionObligation.StatementData memory retrievedData = abi
-            .decode(attestation.data, (RedisProvisionObligation.StatementData));
+        RedisProvisionObligation.ObligationData memory retrievedData = abi
+            .decode(attestation.data, (RedisProvisionObligation.ObligationData));
 
-        assertEq(retrievedData.user, statementData.user, "User should match");
+        assertEq(retrievedData.user, obligationData.user, "User should match");
         assertEq(
             retrievedData.capacity,
-            statementData.capacity,
+            obligationData.capacity,
             "Capacity should match"
         );
         assertEq(
             retrievedData.egress,
-            statementData.egress,
+            obligationData.egress,
             "Egress should match"
         );
         assertEq(
             retrievedData.cpus,
-            statementData.cpus,
+            obligationData.cpus,
             "Ingress should match"
         );
         assertEq(
@@ -73,7 +73,7 @@ contract RedisProvisionObligationTest is Test {
             expiration,
             "Expiration should match"
         );
-        assertEq(retrievedData.url, statementData.url, "URL should match");
+        assertEq(retrievedData.url, obligationData.url, "URL should match");
 
         vm.stopPrank();
     }
@@ -82,8 +82,8 @@ contract RedisProvisionObligationTest is Test {
         vm.startPrank(alice);
 
         // Create initial provision statement
-        RedisProvisionObligation.StatementData memory statementData = RedisProvisionObligation
-            .StatementData({
+        RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
+            .ObligationData({
                 user: alice,
                 capacity: 1024 * 1024 * 1024, // 1 GB
                 egress: 500 * 1024 * 1024, // 500 MB
@@ -94,7 +94,7 @@ contract RedisProvisionObligationTest is Test {
         uint64 expiration = uint64(block.timestamp + 30 days);
 
         bytes32 initialUID = provisionObligation.doObligation(
-            statementData,
+            obligationData,
             expiration
         );
 
@@ -117,25 +117,25 @@ contract RedisProvisionObligationTest is Test {
         // Retrieve the updated attestation
         Attestation memory originalAttestation = eas.getAttestation(initialUID);
         Attestation memory updatedAttestation = eas.getAttestation(updatedUID);
-        RedisProvisionObligation.StatementData memory updatedData = abi.decode(
+        RedisProvisionObligation.ObligationData memory updatedData = abi.decode(
             updatedAttestation.data,
-            (RedisProvisionObligation.StatementData)
+            (RedisProvisionObligation.ObligationData)
         );
 
         // Check that the updates were applied
         assertEq(
             updatedData.capacity,
-            statementData.capacity + changeData.addedCapacity,
+            obligationData.capacity + changeData.addedCapacity,
             "Capacity should be updated"
         );
         assertEq(
             updatedData.egress,
-            statementData.egress + changeData.addedEgress,
+            obligationData.egress + changeData.addedEgress,
             "Egress should be updated"
         );
         assertEq(
             updatedData.cpus,
-            statementData.cpus + changeData.addedCpus,
+            obligationData.cpus + changeData.addedCpus,
             "CPUs should be updated"
         );
         assertEq(
@@ -145,12 +145,12 @@ contract RedisProvisionObligationTest is Test {
         );
         assertEq(
             updatedData.serverName,
-            statementData.serverName,
+            obligationData.serverName,
             "Server name should remain the same"
         );
         assertEq(
             updatedData.url,
-            statementData.url,
+            obligationData.url,
             "URL should remain the same"
         );
 
@@ -161,8 +161,8 @@ contract RedisProvisionObligationTest is Test {
         vm.startPrank(alice);
 
         // Create initial provision statement
-        RedisProvisionObligation.StatementData memory statementData = RedisProvisionObligation
-            .StatementData({
+        RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
+            .ObligationData({
                 user: alice,
                 capacity: 1024 * 1024 * 1024, // 1 GB
                 egress: 500 * 1024 * 1024, // 500 MB
@@ -173,7 +173,7 @@ contract RedisProvisionObligationTest is Test {
 
         uint64 expiration = uint64(block.timestamp + 30 days);
         bytes32 initialUID = provisionObligation.doObligation(
-            statementData,
+            obligationData,
             expiration
         );
 
@@ -227,15 +227,15 @@ contract RedisProvisionObligationTest is Test {
 
         Attestation memory originalAttestation = eas.getAttestation(initialUID);
         Attestation memory updatedAttestation = eas.getAttestation(updatedUID3);
-        RedisProvisionObligation.StatementData memory updatedData = abi.decode(
+        RedisProvisionObligation.ObligationData memory updatedData = abi.decode(
             updatedAttestation.data,
-            (RedisProvisionObligation.StatementData)
+            (RedisProvisionObligation.ObligationData)
         );
 
         // Check that the updates were applied
         assertEq(
             updatedData.capacity,
-            statementData.capacity + changeCapacity.addedCapacity,
+            obligationData.capacity + changeCapacity.addedCapacity,
             "Capacity should be updated"
         );
         assertEq(
@@ -252,8 +252,8 @@ contract RedisProvisionObligationTest is Test {
         vm.startPrank(alice);
 
         // Alice creates a provision statement
-        RedisProvisionObligation.StatementData memory statementData = RedisProvisionObligation
-            .StatementData({
+        RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
+            .ObligationData({
                 user: alice,
                 capacity: 1024 * 1024 * 1024, // 1 GB
                 egress: 500 * 1024 * 1024, // 500 MB
@@ -264,7 +264,7 @@ contract RedisProvisionObligationTest is Test {
         uint64 expiration = uint64(block.timestamp + 30 days);
 
         bytes32 aliceUID = provisionObligation.doObligation(
-            statementData,
+            obligationData,
             expiration
         );
         vm.stopPrank();

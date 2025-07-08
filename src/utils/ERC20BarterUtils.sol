@@ -47,7 +47,7 @@ contract ERC20BarterUtils {
         );
         return
             erc20Escrow.doObligationFor(
-                ERC20EscrowObligation.StatementData({
+                ERC20EscrowObligation.ObligationData({
                     token: token,
                     amount: amount,
                     arbiter: arbiter,
@@ -80,7 +80,7 @@ contract ERC20BarterUtils {
         );
         return
             erc20Payment.doObligationFor(
-                ERC20PaymentObligation.StatementData({
+                ERC20PaymentObligation.ObligationData({
                     token: token,
                     amount: amount,
                     payee: payee
@@ -99,12 +99,12 @@ contract ERC20BarterUtils {
     ) internal returns (bytes32) {
         return
             erc20Escrow.doObligationFor(
-                ERC20EscrowObligation.StatementData({
+                ERC20EscrowObligation.ObligationData({
                     token: bidToken,
                     amount: bidAmount,
                     arbiter: address(erc20Payment),
                     demand: abi.encode(
-                        ERC20PaymentObligation.StatementData({
+                        ERC20PaymentObligation.ObligationData({
                             token: askToken,
                             amount: askAmount,
                             payee: msg.sender
@@ -119,7 +119,7 @@ contract ERC20BarterUtils {
 
     function _payErc20ForErc20(
         bytes32 buyAttestation,
-        ERC20PaymentObligation.StatementData memory demand
+        ERC20PaymentObligation.ObligationData memory demand
     ) internal returns (bytes32) {
         bytes32 sellAttestation = erc20Payment.doObligationFor(
             demand,
@@ -173,13 +173,13 @@ contract ERC20BarterUtils {
         bytes32 s
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC20EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC20EscrowObligation.ObligationData)
         );
-        ERC20PaymentObligation.StatementData memory demand = abi.decode(
+        ERC20PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC20PaymentObligation.StatementData)
+            (ERC20PaymentObligation.ObligationData)
         );
 
         IERC20Permit askTokenC = IERC20Permit(demand.token);
@@ -217,13 +217,13 @@ contract ERC20BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC20EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC20EscrowObligation.ObligationData)
         );
-        ERC20PaymentObligation.StatementData memory demand = abi.decode(
+        ERC20PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC20PaymentObligation.StatementData)
+            (ERC20PaymentObligation.ObligationData)
         );
 
         return _payErc20ForErc20(buyAttestation, demand);

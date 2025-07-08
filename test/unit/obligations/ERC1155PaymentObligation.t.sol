@@ -73,8 +73,8 @@ contract ERC1155PaymentObligationTest is Test {
         token.setApprovalForAll(address(paymentObligation), true);
 
         // Make payment
-        ERC1155PaymentObligation.StatementData
-            memory data = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -118,8 +118,8 @@ contract ERC1155PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Make payment on behalf of payer
-        ERC1155PaymentObligation.StatementData
-            memory data = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -174,8 +174,8 @@ contract ERC1155PaymentObligationTest is Test {
         token.setApprovalForAll(address(paymentObligation), true);
 
         // Make payment with partial amount
-        ERC1155PaymentObligation.StatementData
-            memory data = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: partialAmount,
@@ -206,8 +206,8 @@ contract ERC1155PaymentObligationTest is Test {
         vm.startPrank(payer);
         token.setApprovalForAll(address(paymentObligation), true);
 
-        ERC1155PaymentObligation.StatementData
-            memory data = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -223,8 +223,8 @@ contract ERC1155PaymentObligationTest is Test {
         );
 
         // Test exact match demand
-        ERC1155PaymentObligation.StatementData
-            memory exactDemand = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory exactDemand = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -239,8 +239,8 @@ contract ERC1155PaymentObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test lower amount demand (should succeed)
-        ERC1155PaymentObligation.StatementData
-            memory lowerDemand = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory lowerDemand = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount - 50,
@@ -255,8 +255,8 @@ contract ERC1155PaymentObligationTest is Test {
         assertTrue(lowerMatch, "Should match lower amount demand");
 
         // Test higher amount demand (should fail)
-        ERC1155PaymentObligation.StatementData
-            memory higherDemand = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory higherDemand = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount + 50,
@@ -271,8 +271,8 @@ contract ERC1155PaymentObligationTest is Test {
         assertFalse(higherMatch, "Should not match higher amount demand");
 
         // Test different token ID demand (should fail)
-        ERC1155PaymentObligation.StatementData
-            memory differentIdDemand = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory differentIdDemand = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId + 1,
                 amount: erc1155TokenAmount,
@@ -291,9 +291,9 @@ contract ERC1155PaymentObligationTest is Test {
 
         // Test different token contract demand (should fail)
         MockERC1155 differentToken = new MockERC1155();
-        ERC1155PaymentObligation.StatementData
+        ERC1155PaymentObligation.ObligationData
             memory differentTokenDemand = ERC1155PaymentObligation
-                .StatementData({
+                .ObligationData({
                     token: address(differentToken),
                     tokenId: tokenId,
                     amount: erc1155TokenAmount,
@@ -312,9 +312,9 @@ contract ERC1155PaymentObligationTest is Test {
 
         // Test different payee demand (should fail)
         address differentPayee = makeAddr("differentPayee");
-        ERC1155PaymentObligation.StatementData
+        ERC1155PaymentObligation.ObligationData
             memory differentPayeeDemand = ERC1155PaymentObligation
-                .StatementData({
+                .ObligationData({
                     token: address(token),
                     tokenId: tokenId,
                     amount: erc1155TokenAmount,
@@ -337,8 +337,8 @@ contract ERC1155PaymentObligationTest is Test {
         vm.startPrank(payer);
         token.setApprovalForAll(address(paymentObligation), true);
 
-        ERC1155PaymentObligation.StatementData
-            memory data = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -355,8 +355,8 @@ contract ERC1155PaymentObligationTest is Test {
 
         // Test with different demand - should fail because data doesn't match
         MockERC1155 differentToken = new MockERC1155();
-        ERC1155PaymentObligation.StatementData
-            memory differentDemand = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory differentDemand = ERC1155PaymentObligation.ObligationData({
                 token: address(differentToken),
                 tokenId: 999,
                 amount: 999,
@@ -381,8 +381,8 @@ contract ERC1155PaymentObligationTest is Test {
         token.mint(otherOwner, otherTokenId, erc1155TokenAmount);
 
         // Try to create payment with a token that hasn't been approved for transfer
-        ERC1155PaymentObligation.StatementData
-            memory data = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: otherTokenId,
                 amount: erc1155TokenAmount,
@@ -405,8 +405,8 @@ contract ERC1155PaymentObligationTest is Test {
         token.setApprovalForAll(address(paymentObligation), true);
 
         // Make first payment
-        ERC1155PaymentObligation.StatementData
-            memory data1 = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data1 = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -416,8 +416,8 @@ contract ERC1155PaymentObligationTest is Test {
         bytes32 attestationId1 = paymentObligation.doObligation(data1);
 
         // Make second payment
-        ERC1155PaymentObligation.StatementData
-            memory data2 = ERC1155PaymentObligation.StatementData({
+        ERC1155PaymentObligation.ObligationData
+            memory data2 = ERC1155PaymentObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId2,
                 amount: erc1155TokenAmount2,

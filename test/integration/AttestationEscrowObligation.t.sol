@@ -64,8 +64,8 @@ contract AttestationEscrowObligationTest is Test {
             })
         });
 
-        AttestationEscrowObligation.StatementData
-            memory statementData = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory obligationData = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("Test demand")
@@ -73,7 +73,7 @@ contract AttestationEscrowObligationTest is Test {
 
         vm.prank(alice);
         bytes32 escrowId = escrowObligation.doObligation(
-            statementData,
+            obligationData,
             uint64(block.timestamp + 1 days)
         );
 
@@ -94,8 +94,8 @@ contract AttestationEscrowObligationTest is Test {
             })
         });
 
-        AttestationEscrowObligation.StatementData
-            memory statementData = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory obligationData = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("Test demand")
@@ -103,14 +103,14 @@ contract AttestationEscrowObligationTest is Test {
 
         vm.prank(alice);
         bytes32 escrowId = escrowObligation.doObligation(
-            statementData,
+            obligationData,
             uint64(block.timestamp + 1 days)
         );
 
         // Create fulfillment attestation through the escrow contract
         vm.prank(bob);
         bytes32 fulfillmentId = escrowObligation.doObligation(
-            statementData,
+            obligationData,
             uint64(block.timestamp + 1 days)
         );
 
@@ -137,8 +137,8 @@ contract AttestationEscrowObligationTest is Test {
             })
         });
 
-        AttestationEscrowObligation.StatementData
-            memory statementData = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory obligationData = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(failingArbiter),
                 demand: abi.encode("Test demand")
@@ -146,14 +146,14 @@ contract AttestationEscrowObligationTest is Test {
 
         vm.prank(alice);
         bytes32 escrowId = escrowObligation.doObligation(
-            statementData,
+            obligationData,
             uint64(block.timestamp + 1 days)
         );
 
         // Create fulfillment attestation through the escrow contract
         vm.prank(bob);
         bytes32 fulfillmentId = escrowObligation.doObligation(
-            statementData,
+            obligationData,
             uint64(block.timestamp + 1 days)
         );
 
@@ -183,8 +183,8 @@ contract AttestationEscrowObligationTest is Test {
             })
         });
 
-        AttestationEscrowObligation.StatementData
-            memory statementData = AttestationEscrowObligation.StatementData({
+        AttestationEscrowObligation.ObligationData
+            memory obligationData = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
                 arbiter: address(mockArbiter),
                 demand: abi.encode("Test demand")
@@ -192,7 +192,7 @@ contract AttestationEscrowObligationTest is Test {
 
         vm.prank(alice);
         bytes32 attestationId = escrowObligation.doObligation(
-            statementData,
+            obligationData,
             uint64(block.timestamp + 1 days)
         );
 
@@ -200,7 +200,7 @@ contract AttestationEscrowObligationTest is Test {
 
         bool isValid = escrowObligation.checkObligation(
             attestation,
-            abi.encode(statementData),
+            abi.encode(obligationData),
             bytes32(0)
         );
 
