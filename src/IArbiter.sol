@@ -4,7 +4,7 @@ import {Attestation} from "@eas/Common.sol";
 
 interface IArbiter {
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) external view returns (bool);

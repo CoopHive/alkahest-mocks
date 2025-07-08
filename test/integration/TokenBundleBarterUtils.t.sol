@@ -39,8 +39,8 @@ contract MockERC1155 is ERC1155 {
 }
 
 contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
-    TokenBundleEscrowObligation public escrowStatement;
-    TokenBundlePaymentObligation public paymentStatement;
+    TokenBundleEscrowObligation public escrowObligation;
+    TokenBundlePaymentObligation public paymentObligation;
     TokenBundleBarterUtils public barterUtils;
 
     MockERC20Permit public erc20TokenA;
@@ -75,15 +75,15 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         askErc1155TokenA = new MockERC1155();
         askErc1155TokenB = new MockERC1155();
 
-        escrowStatement = new TokenBundleEscrowObligation(eas, schemaRegistry);
-        paymentStatement = new TokenBundlePaymentObligation(
+        escrowObligation = new TokenBundleEscrowObligation(eas, schemaRegistry);
+        paymentObligation = new TokenBundlePaymentObligation(
             eas,
             schemaRegistry
         );
         barterUtils = new TokenBundleBarterUtils(
             eas,
-            escrowStatement,
-            paymentStatement
+            escrowObligation,
+            paymentObligation
         );
     }
 
@@ -234,7 +234,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         // Record initial balances
@@ -244,14 +244,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Alice creates buy order with manual approvals
         vm.startPrank(alice);
         erc20TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0]
         );
         askErc721TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc721TokenIds[0]
         );
-        askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        askErc1155TokenA.setApprovalForAll(address(escrowObligation), true);
 
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
             bidBundle,
@@ -267,18 +267,18 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
             "Alice's Token A not correctly escrowed"
         );
         assertEq(
-            erc20TokenA.balanceOf(address(escrowStatement)),
+            erc20TokenA.balanceOf(address(escrowObligation)),
             bidBundle.erc20Amounts[0],
             "Escrow contract Token A balance incorrect"
         );
         assertEq(
             askErc721TokenA.ownerOf(bidBundle.erc721TokenIds[0]),
-            address(escrowStatement),
+            address(escrowObligation),
             "ERC721 A not correctly escrowed"
         );
         assertEq(
             askErc1155TokenA.balanceOf(
-                address(escrowStatement),
+                address(escrowObligation),
                 bidBundle.erc1155TokenIds[0]
             ),
             bidBundle.erc1155Amounts[0],
@@ -288,14 +288,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Bob fulfills the order with manual approvals
         vm.startPrank(bob);
         erc20TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc20Amounts[0]
         );
         askErc721TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc721TokenIds[0]
         );
-        askErc1155TokenB.setApprovalForAll(address(paymentStatement), true);
+        askErc1155TokenB.setApprovalForAll(address(paymentObligation), true);
 
         bytes32 sellAttestation = barterUtils.payBundleForBundle(
             buyAttestation
@@ -368,13 +368,13 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Verify escrow contract has no remaining balance
         assertEq(
-            erc20TokenA.balanceOf(address(escrowStatement)),
+            erc20TokenA.balanceOf(address(escrowObligation)),
             0,
             "Escrow contract should have no remaining Token A"
         );
         assertEq(
             askErc1155TokenA.balanceOf(
-                address(escrowStatement),
+                address(escrowObligation),
                 bidBundle.erc1155TokenIds[0]
             ),
             0,
@@ -396,7 +396,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         // Attempt to create buy order without approvals
@@ -424,19 +424,19 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         vm.startPrank(alice);
         erc20TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0]
         );
         askErc721TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc721TokenIds[0]
         );
-        askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        askErc1155TokenA.setApprovalForAll(address(escrowObligation), true);
 
         vm.expectRevert();
         barterUtils.buyBundleForBundle(
@@ -462,7 +462,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         // Setup permits
@@ -473,7 +473,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         alicePermits[0] = _getERC20PermitSignature(
             erc20TokenA,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0],
             block.timestamp + 1
         );
@@ -481,14 +481,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Alice creates buy order
         vm.startPrank(alice);
         erc20TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0]
         );
         askErc721TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc721TokenIds[0]
         );
-        askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        askErc1155TokenA.setApprovalForAll(address(escrowObligation), true);
 
         bytes32 buyAttestation = barterUtils.permitAndEscrowBundleForBundle(
             bidBundle,
@@ -506,7 +506,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         bobPermits[0] = _getERC20PermitSignature(
             erc20TokenB,
             BOB_PRIVATE_KEY,
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc20Amounts[0],
             block.timestamp + 1
         );
@@ -514,14 +514,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Bob fulfills the order
         vm.startPrank(bob);
         erc20TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc20Amounts[0]
         );
         askErc721TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc721TokenIds[0]
         );
-        askErc1155TokenB.setApprovalForAll(address(paymentStatement), true);
+        askErc1155TokenB.setApprovalForAll(address(paymentObligation), true);
 
         bytes32 sellAttestation = barterUtils.permitAndPayBundleForBundle(
             buyAttestation,

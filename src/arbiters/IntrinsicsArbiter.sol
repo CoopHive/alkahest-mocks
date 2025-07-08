@@ -10,10 +10,10 @@ contract IntrinsicsArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/
     ) public view override returns (bool) {
-        return statement._checkIntrinsic();
+        return obligation._checkIntrinsic();
     }
 }

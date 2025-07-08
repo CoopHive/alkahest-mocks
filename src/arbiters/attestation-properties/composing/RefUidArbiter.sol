@@ -17,16 +17,16 @@ contract RefUidArbiter is IArbiter {
     error RefUidMismatched();
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.refUID != demand_.refUID) revert RefUidMismatched();
+        if (obligation.refUID != demand_.refUID) revert RefUidMismatched();
 
         return
             IArbiter(demand_.baseArbiter).checkObligation(
-                statement,
+                obligation,
                 demand_.baseDemand,
                 counteroffer
             );

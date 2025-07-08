@@ -29,7 +29,7 @@ abstract contract BaseObligation is SchemaResolver {
         Attestation calldata attestation,
         uint256 /* value */
     ) internal view override returns (bool) {
-        // only statement contract can attest
+        // only obligation contract can attest
         return attestation.attester == address(this);
     }
 
@@ -37,11 +37,11 @@ abstract contract BaseObligation is SchemaResolver {
         Attestation calldata attestation,
         uint256 /* value */
     ) internal view override returns (bool) {
-        // only statement contract can revoke
+        // only obligation contract can revoke
         return attestation.attester == address(this);
     }
 
-    function getStatement(
+    function getObligation(
         bytes32 uid
     ) external view returns (Attestation memory) {
         Attestation memory attestation = eas.getAttestation(uid);

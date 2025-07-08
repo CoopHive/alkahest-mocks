@@ -24,11 +24,11 @@ contract OptimisticStringValidator is BaseObligation, IArbiter {
     );
     event MediationRequested(bytes32 indexed validationUID, bool success_);
 
-    error InvalidStatement();
+    error InvalidObligation();
     error InvalidValidation();
     error MediationPeriodExpired();
 
-    StringResultObligation public immutable resultStatement;
+    StringResultObligation public immutable resultObligation;
 
     constructor(
         IEAS _eas,
@@ -42,7 +42,7 @@ contract OptimisticStringValidator is BaseObligation, IArbiter {
             true
         )
     {
-        resultStatement = _baseObligation;
+        resultObligation = _baseObligation;
     }
 
     function startValidation(
@@ -50,11 +50,11 @@ contract OptimisticStringValidator is BaseObligation, IArbiter {
         ValidationData calldata validationData
     ) external returns (bytes32 validationUID_) {
         Attestation memory resultAttestation = eas.getAttestation(resultUID);
-        if (resultAttestation.schema != resultStatement.ATTESTATION_SCHEMA())
-            revert InvalidStatement();
-        if (resultAttestation.revocationTime != 0) revert InvalidStatement();
+        if (resultAttestation.schema != resultObligation.ATTESTATION_SCHEMA())
+            revert InvalidObligation();
+        if (resultAttestation.revocationTime != 0) revert InvalidObligation();
         if (resultAttestation.recipient != msg.sender)
-            revert InvalidStatement();
+            revert InvalidObligation();
 
         validationUID_ = eas.attest(
             AttestationRequest({
@@ -105,15 +105,15 @@ contract OptimisticStringValidator is BaseObligation, IArbiter {
     }
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!obligation._checkIntrinsic()) return false;
 
         ValidationData memory demandData = abi.decode(demand, (ValidationData));
         ValidationData memory obligationData = abi.decode(
-            statement.data,
+            obligation.data,
             (ValidationData)
         );
 
@@ -123,12 +123,12 @@ contract OptimisticStringValidator is BaseObligation, IArbiter {
         ) return false;
         if (obligationData.mediationPeriod != demandData.mediationPeriod)
             return false;
-        if (block.timestamp <= statement.time + obligationData.mediationPeriod)
+        if (block.timestamp <= obligation.time + obligationData.mediationPeriod)
             return false;
 
         return
-            resultStatement.checkObligation(
-                eas.getAttestation(statement.refUID),
+            resultObligation.checkObligation(
+                eas.getAttestation(obligation.refUID),
                 abi.encode(
                     StringResultObligation.DemandData({
                         query: obligationData.query

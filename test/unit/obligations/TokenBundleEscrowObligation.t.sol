@@ -146,7 +146,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
     }
 
-    function testMakeStatement() public {
+    function testDoObligation() public {
         // Approve tokens first
         vm.startPrank(buyer);
         erc20Token1.approve(address(escrowObligation), ERC20_AMOUNT_1);
@@ -168,7 +168,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -210,7 +210,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -481,7 +481,7 @@ contract TokenBundleEscrowObligationTest is Test {
     }
 
     function testCheckObligation() public {
-        // Create statement data
+        // Create obligation data
         TokenBundleEscrowObligation.ObligationData
             memory paymentData = createBundleData();
 
@@ -501,7 +501,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
         vm.stopPrank();
 
-        Attestation memory attestation = escrowObligation.getStatement(
+        Attestation memory attestation = escrowObligation.getObligation(
             attestationId
         );
 

@@ -34,7 +34,7 @@ contract RecipientArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with matching recipient");
     }
@@ -60,7 +60,7 @@ contract RecipientArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with RecipientMismatched
+        // Check obligation should revert with RecipientMismatched
         vm.expectRevert(RecipientArbiter.RecipientMismatched.selector);
         arbiter.checkObligation(attestation, demand, bytes32(0));
     }

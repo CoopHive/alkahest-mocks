@@ -38,7 +38,7 @@ contract ExpirationTimeBeforeArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
@@ -68,7 +68,7 @@ contract ExpirationTimeBeforeArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with ExpirationTimeNotBefore
+        // Check obligation should revert with ExpirationTimeNotBefore
         vm.expectRevert(
             ExpirationTimeBeforeArbiter.ExpirationTimeNotBefore.selector
         );

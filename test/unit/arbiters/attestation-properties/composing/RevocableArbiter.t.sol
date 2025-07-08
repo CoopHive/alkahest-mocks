@@ -56,7 +56,7 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
@@ -90,7 +90,7 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return false
+        // Check obligation should return false
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
@@ -118,7 +118,7 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
@@ -149,7 +149,7 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with RevocabilityMismatched
+        // Check obligation should revert with RevocabilityMismatched
         vm.expectRevert(RevocableArbiter.RevocabilityMismatched.selector);
         arbiter.checkObligation(attestation, demand, bytes32(0));
     }

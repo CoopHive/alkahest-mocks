@@ -130,7 +130,7 @@ pub fn gen_obligation(opts: GenObligationOpts) -> String {
                 "    eas.revoke(RevocationRequest({\n",
                 "      schema: ATTESTATION_SCHEMA,\n",
                 "      data: RevocationRequestData({\n",
-                "        uid: statement,\n",
+                "        uid: obligation,\n",
                 "        value: 0\n",
                 "      })\n",
                 "    }));\n",

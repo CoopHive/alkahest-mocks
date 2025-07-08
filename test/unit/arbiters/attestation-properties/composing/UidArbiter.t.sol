@@ -57,7 +57,7 @@ contract UidArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
@@ -91,7 +91,7 @@ contract UidArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return false
+        // Check obligation should return false
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
@@ -119,7 +119,7 @@ contract UidArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with UidMismatched
+        // Check obligation should revert with UidMismatched
         vm.expectRevert(UidArbiter.UidMismatched.selector);
         arbiter.checkObligation(attestation, demand, bytes32(0));
     }

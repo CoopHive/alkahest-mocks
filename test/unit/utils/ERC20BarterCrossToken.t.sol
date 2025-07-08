@@ -49,8 +49,8 @@ contract MockERC1155 is ERC1155 {
 }
 
 contract ERC20BarterCrossTokenUnitTest is Test {
-    ERC20EscrowObligation public escrowStatement;
-    ERC20PaymentObligation public paymentStatement;
+    ERC20EscrowObligation public escrowObligation;
+    ERC20PaymentObligation public paymentObligation;
     ERC721EscrowObligation public erc721Escrow;
     ERC721PaymentObligation public erc721Payment;
     ERC1155EscrowObligation public erc1155Escrow;
@@ -84,9 +84,9 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         askErc721Token = new MockERC721();
         askErc1155Token = new MockERC1155();
 
-        // Deploy statements
-        escrowStatement = new ERC20EscrowObligation(eas, schemaRegistry);
-        paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
+        // Deploy obligation 
+        escrowObligation = new ERC20EscrowObligation(eas, schemaRegistry);
+        paymentObligation = new ERC20PaymentObligation(eas, schemaRegistry);
         erc721Escrow = new ERC721EscrowObligation(eas, schemaRegistry);
         erc721Payment = new ERC721PaymentObligation(eas, schemaRegistry);
         erc1155Escrow = new ERC1155EscrowObligation(eas, schemaRegistry);
@@ -97,8 +97,8 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         // Deploy barter cross token contract
         barterCross = new ERC20BarterCrossToken(
             eas,
-            escrowStatement,
-            paymentStatement,
+            escrowObligation,
+            paymentObligation,
             erc721Escrow,
             erc721Payment,
             erc1155Escrow,
@@ -120,7 +120,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        bidToken.approve(address(escrowStatement), bidAmount);
+        bidToken.approve(address(escrowObligation), bidAmount);
         bytes32 buyAttestation = barterCross.buyErc721WithErc20(
             address(bidToken),
             bidAmount,
@@ -175,7 +175,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
             bidToken,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidAmount,
             deadline
         );
@@ -208,7 +208,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        bidToken.approve(address(escrowStatement), bidAmount);
+        bidToken.approve(address(escrowObligation), bidAmount);
         bytes32 buyAttestation = barterCross.buyErc1155WithErc20(
             address(bidToken),
             bidAmount,
@@ -236,7 +236,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
             bidToken,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidAmount,
             deadline
         );
@@ -267,7 +267,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint256 bidAmount = 100 * 10 ** 18;
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        // Create token bundle statement data
+        // Create token bundle obligation data
         TokenBundlePaymentObligation.ObligationData
             memory bundleData = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: new address[](1),
@@ -289,7 +289,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         bundleData.erc1155Amounts[0] = 20;
 
         vm.startPrank(alice);
-        bidToken.approve(address(escrowStatement), bidAmount);
+        bidToken.approve(address(escrowObligation), bidAmount);
         bytes32 buyAttestation = barterCross.buyBundleWithErc20(
             address(bidToken),
             bidAmount,
@@ -310,7 +310,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
         uint256 deadline = block.timestamp + 1 days;
 
-        // Create token bundle statement data
+        // Create token bundle obligation data
         TokenBundlePaymentObligation.ObligationData
             memory bundleData = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: new address[](1),
@@ -334,7 +334,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
             bidToken,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidAmount,
             deadline
         );
@@ -367,7 +367,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
             bidToken,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidAmount,
             deadline
         );
@@ -404,7 +404,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
             ERC721EscrowObligation.ObligationData({
                 token: address(askErc721Token),
                 tokenId: erc721TokenId,
-                arbiter: address(paymentStatement),
+                arbiter: address(paymentObligation),
                 demand: abi.encode(
                     ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
@@ -421,7 +421,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
 
         // Alice fulfills Bob's bid with her ERC20
         vm.startPrank(alice);
-        bidToken.approve(address(paymentStatement), bidAmount);
+        bidToken.approve(address(paymentObligation), bidAmount);
         bytes32 payAttestation = barterCross.payErc20ForErc721(buyAttestation);
         vm.stopPrank();
 
@@ -464,7 +464,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
                 token: address(askErc1155Token),
                 tokenId: tokenId,
                 amount: amount,
-                arbiter: address(paymentStatement),
+                arbiter: address(paymentObligation),
                 demand: abi.encode(
                     ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
@@ -481,7 +481,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
 
         // Alice fulfills Bob's bid with her ERC20
         vm.startPrank(alice);
-        bidToken.approve(address(paymentStatement), bidAmount);
+        bidToken.approve(address(paymentObligation), bidAmount);
         bytes32 payAttestation = barterCross.payErc20ForErc1155(buyAttestation);
         vm.stopPrank();
 
@@ -528,7 +528,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
             erc1155Tokens: new address[](1),
             erc1155TokenIds: new uint256[](1),
             erc1155Amounts: new uint256[](1),
-            arbiter: address(paymentStatement),
+            arbiter: address(paymentObligation),
             demand: abi.encode(
                 ERC20PaymentObligation.ObligationData({
                     token: address(bidToken),
@@ -558,7 +558,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
 
         // Alice fulfills Bob's bid with her ERC20
         vm.startPrank(alice);
-        bidToken.approve(address(paymentStatement), bidAmount);
+        bidToken.approve(address(paymentObligation), bidAmount);
         bytes32 payAttestation = barterCross.payErc20ForBundle(buyAttestation);
         vm.stopPrank();
 
@@ -609,7 +609,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
             ERC721EscrowObligation.ObligationData({
                 token: address(askErc721Token),
                 tokenId: erc721TokenId,
-                arbiter: address(paymentStatement),
+                arbiter: address(paymentObligation),
                 demand: abi.encode(
                     ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
@@ -629,7 +629,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
             bidToken,
             ALICE_PRIVATE_KEY,
-            address(paymentStatement),
+            address(paymentObligation),
             bidAmount,
             deadline
         );
@@ -677,7 +677,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
                 token: address(askErc1155Token),
                 tokenId: tokenId,
                 amount: amount,
-                arbiter: address(paymentStatement),
+                arbiter: address(paymentObligation),
                 demand: abi.encode(
                     ERC20PaymentObligation.ObligationData({
                         token: address(bidToken),
@@ -697,7 +697,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
             bidToken,
             ALICE_PRIVATE_KEY,
-            address(paymentStatement),
+            address(paymentObligation),
             bidAmount,
             deadline
         );
@@ -744,7 +744,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
             erc1155Tokens: new address[](1),
             erc1155TokenIds: new uint256[](1),
             erc1155Amounts: new uint256[](1),
-            arbiter: address(paymentStatement),
+            arbiter: address(paymentObligation),
             demand: abi.encode(
                 ERC20PaymentObligation.ObligationData({
                     token: address(bidToken),
@@ -777,7 +777,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = _getPermitSignature(
             bidToken,
             ALICE_PRIVATE_KEY,
-            address(paymentStatement),
+            address(paymentObligation),
             bidAmount,
             deadline
         );
@@ -822,7 +822,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
 
         // Alice makes bid
         vm.startPrank(alice);
-        bidToken.approve(address(escrowStatement), bidAmount);
+        bidToken.approve(address(escrowObligation), bidAmount);
         bytes32 buyAttestation = barterCross.buyErc721WithErc20(
             address(bidToken),
             bidAmount,

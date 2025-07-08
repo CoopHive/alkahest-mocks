@@ -33,19 +33,19 @@ contract StringObligationTest is Test {
         assertEq(schema.schema, "string item", "Schema string should match");
     }
 
-    function testMakeStatement() public {
+    function testDoObligation() public {
         // Setup test data
         StringObligation.ObligationData memory data = StringObligation
             .ObligationData({item: "Test String Data"});
 
-        // Make a statement
+        // Make an obligation
         vm.prank(testUser);
         bytes32 attestationId = stringObligation.doObligation(data, "");
         // Verify attestation exists
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = stringObligation.getStatement(
+        Attestation memory attestation = stringObligation.getObligation(
             attestationId
         );
         assertEq(
@@ -71,10 +71,10 @@ contract StringObligationTest is Test {
         );
     }
 
-    function testGetStatementFailsForInvalidUID() public {
+    function testGetObligationFailsForInvalidUID() public {
         bytes32 invalidUID = bytes32(uint256(1));
 
         vm.expectRevert();
-        stringObligation.getStatement(invalidUID);
+        stringObligation.getObligation(invalidUID);
     }
 }

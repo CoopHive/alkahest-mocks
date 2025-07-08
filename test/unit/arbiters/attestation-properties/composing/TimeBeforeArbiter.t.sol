@@ -61,7 +61,7 @@ contract TimeBeforeArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
@@ -96,7 +96,7 @@ contract TimeBeforeArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return false
+        // Check obligation should return false
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
@@ -125,7 +125,7 @@ contract TimeBeforeArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with TimeNotBefore
+        // Check obligation should revert with TimeNotBefore
         vm.expectRevert(TimeBeforeArbiter.TimeNotBefore.selector);
         arbiter.checkObligation(attestation, demand, bytes32(0));
     }

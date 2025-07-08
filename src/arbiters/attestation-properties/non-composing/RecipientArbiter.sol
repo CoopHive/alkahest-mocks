@@ -15,12 +15,12 @@ contract RecipientArbiter is IArbiter {
     error RecipientMismatched();
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /*counteroffer*/
     ) public pure override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.recipient != demand_.recipient)
+        if (obligation.recipient != demand_.recipient)
             revert RecipientMismatched();
 
         return true;

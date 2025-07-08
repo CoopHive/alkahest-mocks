@@ -15,33 +15,33 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
         uint256 amount;
     }
 
-    error InvalidStatement();
+    error InvalidObligation();
     error InvalidValidation();
 
-    ERC20EscrowObligation public immutable paymentStatement;
+    ERC20EscrowObligation public immutable paymentObligation;
     SpecificAttestationArbiter public immutable specificAttestation;
 
     constructor(
         ERC20EscrowObligation _baseObligation,
         SpecificAttestationArbiter _specificAttestation
     ) {
-        paymentStatement = _baseObligation;
+        paymentObligation = _baseObligation;
         specificAttestation = _specificAttestation;
     }
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory validationData = abi.decode(demand, (DemandData));
 
-        if (statement.schema != paymentStatement.ATTESTATION_SCHEMA())
-            revert InvalidStatement();
-        if (statement._checkExpired()) revert InvalidStatement();
+        if (obligation.schema != paymentObligation.ATTESTATION_SCHEMA())
+            revert InvalidObligation();
+        if (obligation._checkExpired()) revert InvalidObligation();
 
         ERC20EscrowObligation.ObligationData memory obligationData = abi.decode(
-            statement.data,
+            obligation.data,
             (ERC20EscrowObligation.ObligationData)
         );
 

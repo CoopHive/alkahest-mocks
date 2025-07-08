@@ -7,7 +7,7 @@ import {Attestation} from "@eas/Common.sol";
 /**
  * @title MockArbiter
  * @dev A simple mock implementation of the IArbiter interface for testing
- * Can be configured to either accept or reject all statement validations
+ * Can be configured to either accept or reject all obligation validations
  * by setting the shouldAccept flag
  */
 contract MockArbiter is IArbiter {

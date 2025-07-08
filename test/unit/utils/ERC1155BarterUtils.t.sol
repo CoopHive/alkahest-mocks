@@ -20,8 +20,8 @@ contract MockERC1155 is ERC1155 {
 }
 
 contract ERC1155BarterUtilsUnitTest is Test {
-    ERC1155EscrowObligation public escrowStatement;
-    ERC1155PaymentObligation public paymentStatement;
+    ERC1155EscrowObligation public escrowObligation;
+    ERC1155PaymentObligation public paymentObligation;
     ERC1155BarterUtils public barterUtils;
 
     MockERC1155 public erc1155TokenA;
@@ -53,15 +53,15 @@ contract ERC1155BarterUtilsUnitTest is Test {
         erc1155TokenA = new MockERC1155();
         erc1155TokenB = new MockERC1155();
 
-        // Deploy statements
-        escrowStatement = new ERC1155EscrowObligation(eas, schemaRegistry);
-        paymentStatement = new ERC1155PaymentObligation(eas, schemaRegistry);
+        // Deploy obligations
+        escrowObligation = new ERC1155EscrowObligation(eas, schemaRegistry);
+        paymentObligation = new ERC1155PaymentObligation(eas, schemaRegistry);
 
         // Deploy barter utils contract
         barterUtils = new ERC1155BarterUtils(
             eas,
-            escrowStatement,
-            paymentStatement
+            escrowObligation,
+            paymentObligation
         );
 
         // Setup initial token balances
@@ -73,7 +73,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        erc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
         bytes32 buyAttestation = barterUtils.buyErc1155ForErc1155(
             address(erc1155TokenA),
             aliceTokenId,
@@ -111,7 +111,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
         );
         assertEq(
             escrowData.arbiter,
-            address(paymentStatement),
+            address(paymentObligation),
             "Arbiter should be payment statement"
         );
 
@@ -136,7 +136,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Verify that Alice's tokens are now escrowed
         assertEq(
-            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId),
+            erc1155TokenA.balanceOf(address(escrowObligation), aliceTokenId),
             aliceTokenAmount,
             "Tokens should be in escrow"
         );
@@ -152,7 +152,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        erc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
         bytes32 buyAttestation = barterUtils.buyErc1155ForErc1155(
             address(erc1155TokenA),
             aliceTokenId,
@@ -167,7 +167,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
         // Initial token balances (after escrow)
         assertEq(erc1155TokenA.balanceOf(alice, aliceTokenId), 0);
         assertEq(
-            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId),
+            erc1155TokenA.balanceOf(address(escrowObligation), aliceTokenId),
             aliceTokenAmount
         );
         assertEq(erc1155TokenB.balanceOf(bob, bobTokenId), bobTokenAmount);
@@ -175,7 +175,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Now Bob fulfills the request
         vm.startPrank(bob);
-        erc1155TokenB.setApprovalForAll(address(paymentStatement), true);
+        erc1155TokenB.setApprovalForAll(address(paymentObligation), true);
         bytes32 payAttestation = barterUtils.payErc1155ForErc1155(
             buyAttestation
         );
@@ -199,7 +199,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
             "Alice should now have Bob's tokens"
         );
         assertEq(
-            erc1155TokenA.balanceOf(address(escrowStatement), aliceTokenId),
+            erc1155TokenA.balanceOf(address(escrowObligation), aliceTokenId),
             0,
             "Escrow should have released tokens"
         );
@@ -214,7 +214,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         vm.startPrank(alice);
-        erc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
         bytes32 buyAttestation = barterUtils.buyErc1155ForErc1155(
             address(erc1155TokenA),
             aliceTokenId,
@@ -268,7 +268,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
         uint256 tooManyTokens = aliceTokenAmount * 2; // More than Alice has
 
         vm.startPrank(alice);
-        erc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
         vm.expectRevert(); // ERC1155: insufficient balance for transfer
         barterUtils.buyErc1155ForErc1155(
             address(erc1155TokenA),
@@ -287,7 +287,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Alice makes bid
         vm.startPrank(alice);
-        erc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
         bytes32 buyAttestation = barterUtils.buyErc1155ForErc1155(
             address(erc1155TokenA),
             aliceTokenId,
@@ -313,7 +313,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Bob tries to fulfill request with tokens he no longer owns
         vm.startPrank(bob);
-        erc1155TokenB.setApprovalForAll(address(paymentStatement), true);
+        erc1155TokenB.setApprovalForAll(address(paymentObligation), true);
         vm.expectRevert(); // ERC1155: insufficient balance for transfer
         barterUtils.payErc1155ForErc1155(buyAttestation);
         vm.stopPrank();
@@ -324,7 +324,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 10 minutes);
 
         vm.startPrank(alice);
-        erc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
         bytes32 buyAttestation = barterUtils.buyErc1155ForErc1155(
             address(erc1155TokenA),
             aliceTokenId,
@@ -341,7 +341,7 @@ contract ERC1155BarterUtilsUnitTest is Test {
 
         // Bob tries to fulfill expired bid
         vm.startPrank(bob);
-        erc1155TokenB.setApprovalForAll(address(paymentStatement), true);
+        erc1155TokenB.setApprovalForAll(address(paymentObligation), true);
         vm.expectRevert();
         barterUtils.payErc1155ForErc1155(buyAttestation);
         vm.stopPrank();

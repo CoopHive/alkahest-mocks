@@ -9,9 +9,9 @@ import {ArbiterUtils} from "../../ArbiterUtils.sol";
 contract ConfirmationArbiter is IArbiter {
     using ArbiterUtils for Attestation;
 
-    event ConfirmationMade(bytes32 indexed statement);
+    event ConfirmationMade(bytes32 indexed obligation);
     event ConfirmationRequested(
-        bytes32 indexed statement,
+        bytes32 indexed obligation,
         address indexed confirmer
     );
 
@@ -25,33 +25,33 @@ contract ConfirmationArbiter is IArbiter {
         eas = _eas;
     }
 
-    function confirm(bytes32 _statement) public {
-        Attestation memory statement = eas.getAttestation(_statement);
-        Attestation memory counteroffer = eas.getAttestation(statement.refUID);
+    function confirm(bytes32 _obligation) public {
+        Attestation memory obligation = eas.getAttestation(_obligation);
+        Attestation memory counteroffer = eas.getAttestation(obligation.refUID);
         if (counteroffer.recipient != msg.sender)
             revert UnauthorizedConfirmation();
 
-        confirmations[statement.uid] = true;
-        emit ConfirmationMade(_statement);
+        confirmations[obligation.uid] = true;
+        emit ConfirmationMade(_obligation);
     }
 
-    function requestConfirmation(bytes32 _statement) public {
-        Attestation memory statement = eas.getAttestation(_statement);
+    function requestConfirmation(bytes32 _obligation) public {
+        Attestation memory obligation = eas.getAttestation(_obligation);
         if (
-            statement.attester != msg.sender &&
-            statement.recipient != msg.sender
+            obligation.attester != msg.sender &&
+            obligation.recipient != msg.sender
         ) revert UnauthorizedConfirmationRequest();
 
-        Attestation memory counteroffer = eas.getAttestation(statement.refUID);
+        Attestation memory counteroffer = eas.getAttestation(obligation.refUID);
 
-        emit ConfirmationRequested(_statement, counteroffer.recipient);
+        emit ConfirmationRequested(_obligation, counteroffer.recipient);
     }
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/
     ) public view override returns (bool) {
-        return confirmations[statement.uid];
+        return confirmations[obligation.uid];
     }
 }

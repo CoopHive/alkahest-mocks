@@ -9,33 +9,33 @@ library ArbiterUtils {
     error InvalidSchema();
 
     function _checkExpired(
-        Attestation memory statement
+        Attestation memory obligation
     ) internal view returns (bool) {
         return
-            statement.expirationTime != 0 &&
-            statement.expirationTime < block.timestamp;
+            obligation.expirationTime != 0 &&
+            obligation.expirationTime < block.timestamp;
     }
 
     function _checkRevoked(
-        Attestation memory statement
+        Attestation memory obligation
     ) internal pure returns (bool) {
-        return statement.revocationTime != 0;
+        return obligation.revocationTime != 0;
     }
 
     function _checkIntrinsic(
-        Attestation memory statement
+        Attestation memory obligation
     ) internal view returns (bool) {
-        if (_checkExpired(statement)) revert DeadlineExpired();
-        if (_checkRevoked(statement)) revert AttestationRevoked();
+        if (_checkExpired(obligation)) revert DeadlineExpired();
+        if (_checkRevoked(obligation)) revert AttestationRevoked();
 
         return true;
     }
 
     function _checkIntrinsic(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes32 schema
     ) internal view returns (bool) {
-        if (statement.schema != schema) revert InvalidSchema();
-        return _checkIntrinsic(statement);
+        if (obligation.schema != schema) revert InvalidSchema();
+        return _checkIntrinsic(obligation);
     }
 }

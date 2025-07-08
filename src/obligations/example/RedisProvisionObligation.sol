@@ -74,18 +74,18 @@ contract RedisProvisionObligation is BaseObligation, IArbiter {
     }
 
     function reviseStatement(
-        bytes32 statementUID,
+        bytes32 obligationUID,
         ChangeData calldata changeData
     ) public returns (bytes32) {
-        Attestation memory statement = eas.getAttestation(statementUID);
+        Attestation memory obligation = eas.getAttestation(obligationUID);
         ObligationData memory obligationData = abi.decode(
-            statement.data,
+            obligation.data,
             (ObligationData)
         );
 
-        if (statement.recipient != msg.sender) revert UnauthorizedCall();
+        if (obligation.recipient != msg.sender) revert UnauthorizedCall();
 
-        statement.expirationTime += changeData.addedDuration;
+        obligation.expirationTime += changeData.addedDuration;
         obligationData.capacity += changeData.addedCapacity;
         obligationData.egress += changeData.addedEgress;
         obligationData.cpus += changeData.addedCpus;
@@ -101,7 +101,7 @@ contract RedisProvisionObligation is BaseObligation, IArbiter {
         eas.revoke(
             RevocationRequest({
                 schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: statementUID, value: 0})
+                data: RevocationRequestData({uid: obligationUID, value: 0})
             })
         );
 
@@ -111,9 +111,9 @@ contract RedisProvisionObligation is BaseObligation, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: statement.expirationTime,
+                        expirationTime: obligation.expirationTime,
                         revocable: true,
-                        refUID: statementUID,
+                        refUID: obligationUID,
                         data: abi.encode(obligationData),
                         value: 0
                     })
@@ -122,21 +122,21 @@ contract RedisProvisionObligation is BaseObligation, IArbiter {
     }
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         DemandData memory demandData = abi.decode(demand, (DemandData));
         ObligationData memory obligationData = abi.decode(
-            statement.data,
+            obligation.data,
             (ObligationData)
         );
 
         return
-            demandData.replaces == statement.refUID &&
-            demandData.expiration <= statement.expirationTime &&
+            demandData.replaces == obligation.refUID &&
+            demandData.expiration <= obligation.expirationTime &&
             demandData.user == obligationData.user &&
             demandData.capacity <= obligationData.capacity &&
             demandData.egress <= obligationData.egress &&

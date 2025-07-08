@@ -36,7 +36,7 @@ contract TimeAfterArbiterTest is Test {
             .DemandData({time: timestampThreshold});
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
@@ -64,7 +64,7 @@ contract TimeAfterArbiterTest is Test {
             .DemandData({time: timestampThreshold});
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with TimeNotAfter
+        // Check obligation should revert with TimeNotAfter
         vm.expectRevert(TimeAfterArbiter.TimeNotAfter.selector);
         arbiter.checkObligation(attestation, demand, bytes32(0));
     }

@@ -89,7 +89,7 @@ contract ERC721BarterCrossTokenUnitTest is Test {
         erc721TokenB = new MockERC721();
         erc1155Token = new MockERC1155();
 
-        // Deploy statements
+        // Deploy obligations
         erc20Escrow = new ERC20EscrowObligation(eas, schemaRegistry);
         erc20Payment = new ERC20PaymentObligation(eas, schemaRegistry);
         erc721Escrow = new ERC721EscrowObligation(eas, schemaRegistry);

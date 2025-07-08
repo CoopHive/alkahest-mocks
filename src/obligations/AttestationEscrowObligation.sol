@@ -131,14 +131,14 @@ contract AttestationEscrowObligation is BaseObligation, IArbiter {
     }
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         ObligationData memory escrow = abi.decode(
-            statement.data,
+            obligation.data,
             (ObligationData)
         );
         ObligationData memory demandData = abi.decode(demand, (ObligationData));

@@ -17,7 +17,7 @@ contract MockERC20 is ERC20 {
 }
 
 contract ERC20EscrowObligationTest is Test {
-    ERC20EscrowObligation public paymentStatement;
+    ERC20EscrowObligation public paymentObligation;
     ERC20PaymentFulfillmentArbiter public erc20PaymentFulfillment;
     SpecificAttestationArbiter public specificAttestation;
     MockERC20 public erc1155TokenA;
@@ -35,10 +35,10 @@ contract ERC20EscrowObligationTest is Test {
         erc1155TokenA = new MockERC20("Token A", "TKA");
         erc1155TokenB = new MockERC20("Token B", "TKB");
 
-        paymentStatement = new ERC20EscrowObligation(eas, schemaRegistry);
+        paymentObligation = new ERC20EscrowObligation(eas, schemaRegistry);
         specificAttestation = new SpecificAttestationArbiter();
         erc20PaymentFulfillment = new ERC20PaymentFulfillmentArbiter(
-            paymentStatement,
+            paymentObligation,
             specificAttestation
         );
 
@@ -51,7 +51,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectEscrow(
+        bool successBob = paymentObligation.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -59,7 +59,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectEscrow(
+        bool successAlice = paymentObligation.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -73,7 +73,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment first
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectEscrow(
+        bool successAlice = paymentObligation.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -81,7 +81,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectEscrow(
+        bool successBob = paymentObligation.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -95,7 +95,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectEscrow(
+        bool successBob = paymentObligation.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -103,7 +103,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectEscrow(
+        bool successAlice = paymentObligation.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -112,7 +112,7 @@ contract ERC20EscrowObligationTest is Test {
         // Alice attempts to double spend
         vm.prank(alice);
         vm.expectRevert();
-        paymentStatement.collectEscrow(bobPaymentUID, alicePaymentUID);
+        paymentObligation.collectEscrow(bobPaymentUID, alicePaymentUID);
     }
 
     function testDoubleSpendingBob() public {
@@ -120,7 +120,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectEscrow(
+        bool successAlice = paymentObligation.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -128,7 +128,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectEscrow(
+        bool successBob = paymentObligation.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -137,7 +137,7 @@ contract ERC20EscrowObligationTest is Test {
         // Bob attempts to double spend
         vm.prank(bob);
         vm.expectRevert();
-        paymentStatement.collectEscrow(alicePaymentUID, bobPaymentUID);
+        paymentObligation.collectEscrow(alicePaymentUID, bobPaymentUID);
     }
 
     function _setupTrade()
@@ -145,7 +145,7 @@ contract ERC20EscrowObligationTest is Test {
         returns (bytes32 alicePaymentUID, bytes32 bobPaymentUID)
     {
         vm.startPrank(alice);
-        erc1155TokenA.approve(address(paymentStatement), 100 * 10 ** 18);
+        erc1155TokenA.approve(address(paymentObligation), 100 * 10 ** 18);
         ERC20EscrowObligation.ObligationData
             memory alicePaymentData = ERC20EscrowObligation.ObligationData({
                 token: address(erc1155TokenA),
@@ -158,11 +158,11 @@ contract ERC20EscrowObligationTest is Test {
                     })
                 )
             });
-        alicePaymentUID = paymentStatement.doObligation(alicePaymentData, 0);
+        alicePaymentUID = paymentObligation.doObligation(alicePaymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
-        erc1155TokenB.approve(address(paymentStatement), 200 * 10 ** 18);
+        erc1155TokenB.approve(address(paymentObligation), 200 * 10 ** 18);
         ERC20EscrowObligation.ObligationData
             memory bobPaymentData = ERC20EscrowObligation.ObligationData({
                 token: address(erc1155TokenB),
@@ -174,7 +174,7 @@ contract ERC20EscrowObligationTest is Test {
                     })
                 )
             });
-        bobPaymentUID = paymentStatement.doObligation(bobPaymentData, 0);
+        bobPaymentUID = paymentObligation.doObligation(bobPaymentData, 0);
 
         vm.stopPrank();
     }
@@ -201,12 +201,12 @@ contract ERC20EscrowObligationTest is Test {
             "Bob should have 800 Token B"
         );
         assertEq(
-            erc1155TokenA.balanceOf(address(paymentStatement)),
+            erc1155TokenA.balanceOf(address(paymentObligation)),
             0,
             "Payment contract should have no Token A"
         );
         assertEq(
-            erc1155TokenB.balanceOf(address(paymentStatement)),
+            erc1155TokenB.balanceOf(address(paymentObligation)),
             0,
             "Payment contract should have no Token B"
         );

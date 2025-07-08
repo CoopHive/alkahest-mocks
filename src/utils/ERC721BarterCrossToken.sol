@@ -185,7 +185,7 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
             msg.sender
         );
 
-        // Fix: Use escrowStatement (erc721Escrow) instead of bundleEscrow
+        // Fix: Use escrowObligation (erc721Escrow) instead of bundleEscrow
         // The original escrow was made with ERC721EscrowObligation
         if (!erc721Escrow.collectEscrow(buyAttestation, sellAttestation)) {
             revert CouldntCollectEscrow();

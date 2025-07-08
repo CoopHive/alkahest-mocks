@@ -36,7 +36,7 @@ contract TimeEqualArbiterTest is Test {
             .DemandData({time: timestampValue});
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with equal time");
     }
@@ -61,7 +61,7 @@ contract TimeEqualArbiterTest is Test {
             .DemandData({time: timestampValue});
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with TimeNotEqual
+        // Check obligation should revert with TimeNotEqual
         vm.expectRevert(TimeEqualArbiter.TimeNotEqual.selector);
         arbiter.checkObligation(attestation, demand, bytes32(0));
     }

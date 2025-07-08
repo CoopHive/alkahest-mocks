@@ -74,7 +74,7 @@ contract ERC1155EscrowObligationTest is Test {
         );
     }
 
-    function testMakeStatement() public {
+    function testDoObligation() public {
         // Approve tokens first
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);
@@ -97,7 +97,7 @@ contract ERC1155EscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -149,7 +149,7 @@ contract ERC1155EscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -311,7 +311,7 @@ contract ERC1155EscrowObligationTest is Test {
     }
 
     function testCheckObligation() public {
-        // Create statement data
+        // Create obligation data
         ERC1155EscrowObligation.ObligationData
             memory paymentData = ERC1155EscrowObligation.ObligationData({
                 token: address(token),

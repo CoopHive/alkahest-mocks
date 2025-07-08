@@ -48,18 +48,18 @@ contract StringResultObligation is BaseObligation, IArbiter {
     }
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand /* (string query) */,
         bytes32 counteroffer
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!obligation._checkIntrinsic()) return false;
 
-        // Check if the statement is intended to fulfill the specific counteroffer
-        if (statement.refUID != bytes32(0) && statement.refUID != counteroffer)
+        // Check if the obligation is intended to fulfill the specific counteroffer
+        if (obligation.refUID != bytes32(0) && obligation.refUID != counteroffer)
             return false;
 
         ObligationData memory result = abi.decode(
-            statement.data,
+            obligation.data,
             (ObligationData)
         );
         DemandData memory demandData = abi.decode(demand, (DemandData));

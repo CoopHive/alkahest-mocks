@@ -75,7 +75,7 @@ contract AttestationEscrowObligationTest is Test {
         AttestationRequest
             memory attestationRequest = createTestAttestationRequest();
 
-        // Create the statement data
+        // Create the obligation data
         AttestationEscrowObligation.ObligationData
             memory data = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
@@ -91,7 +91,7 @@ contract AttestationEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -109,7 +109,7 @@ contract AttestationEscrowObligationTest is Test {
         AttestationRequest
             memory attestationRequest = createTestAttestationRequest();
 
-        // Create the statement data
+        // Create the obligation data
         AttestationEscrowObligation.ObligationData
             memory data = AttestationEscrowObligation.ObligationData({
                 attestation: attestationRequest,
@@ -130,7 +130,7 @@ contract AttestationEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -271,7 +271,7 @@ contract AttestationEscrowObligationTest is Test {
         internal
         returns (Attestation memory, AttestationRequest memory)
     {
-        // Create statement data through the contract to ensure we have a valid attestation
+        // Create obligation data through the contract to ensure we have a valid attestation
         AttestationRequest
             memory attestationRequest = createTestAttestationRequest();
 
@@ -282,17 +282,17 @@ contract AttestationEscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        // Create the statement through the contract's function
+        // Create the obligation through the contract's function
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
         vm.prank(requester);
-        bytes32 statementId = escrowObligation.doObligation(
+        bytes32 obligationId = escrowObligation.doObligation(
             escrowData,
             expiration
         );
 
         // Get the attestation
-        Attestation memory attestation = escrowObligation.getStatement(
-            statementId
+        Attestation memory attestation = escrowObligation.getObligation(
+            obligationId
         );
 
         return (attestation, attestationRequest);

@@ -35,7 +35,7 @@ contract SpecificAttestationArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with matching UID");
     }
@@ -63,7 +63,7 @@ contract SpecificAttestationArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with NotDemandedAttestation
+        // Check obligation should revert with NotDemandedAttestation
         vm.expectRevert(
             SpecificAttestationArbiter.NotDemandedAttestation.selector
         );

@@ -74,7 +74,7 @@ const genObligation = (
   // makeStatement
   out +=
     "  function makeStatement(ObligationData calldata data, uint64 expirationTime, bytes32 fulfilling) public returns (bytes32) {\n";
-  out += "    // implement custom statement logic here\n    //...\n";
+  out += "    // implement custom obligation logic here\n    //...\n";
   out += `    return eas.attest(AttestationRequest({
       schema: ATTESTATION_SCHEMA,
       data: AttestationRequestData({
@@ -93,20 +93,20 @@ const genObligation = (
     out +=
       "    // implement custom finalization term (e.g. cancellation or completion) pre-conditions here\n    //...\n";
     out +=
-      "    eas.revoke(RevocationRequest({schema: ATTESTATION_SCHEMA, data: RevocationRequestData({uid: statement, value: 0})}));\n";
+      "    eas.revoke(RevocationRequest({schema: ATTESTATION_SCHEMA, data: RevocationRequestData({uid: obligation, value: 0})}));\n";
     out +=
       "    // implement custom finalization term (e.g. cancellation or completion) post-conditions here\n    //...\n";
     out += "    return true;\n";
     out += "  }\n\n"; // end finalizationTerm
   }
   if (opts.isArbiter)
-    out += `  function checkObligation(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
-    if (!statement._checkIntrinsic()) return false;
+    out += `  function checkObligation(Attestation memory obligation, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
+    if (!obligation._checkIntrinsic()) return false;
 
-    ObligationData memory data_ = abi.decode(statement.data, (ObligationData));
+    ObligationData memory data_ = abi.decode(obligation.data, (ObligationData));
     DemandData memory demand_ = abi.decode(demand, (DemandData));
 
-    // implement custom statement verification logic here
+    // implement custom obligation verification logic here
     // we recommend early revert on invalid conditions
     // ...
     return true;
@@ -142,10 +142,10 @@ const genArbiter = (
     out += "  constructor() {}\n\n";
   }
 
-  out += `  function checkObligation(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {\n`;
+  out += `  function checkObligation(Attestation memory obligation, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {\n`;
   if (opts.baseObligation)
     out +=
-      "    if (statement.schema != baseObligation.ATTESTATION_SCHEMA()) revert IncompatibleStatement();\n";
+      "    if (obligation.schema != baseObligation.ATTESTATION_SCHEMA()) revert IncompatibleStatement();\n";
   out += `    DemandData memory demand_ = abi.decode(demand, (DemandData));
     // implement custom checks here.
     // early revert with custom errors is recommended on failure.

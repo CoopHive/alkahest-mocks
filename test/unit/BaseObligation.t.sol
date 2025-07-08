@@ -59,7 +59,7 @@ contract BaseObligationTest is Test {
     function testOnAttest() public {
         address testAddress = makeAddr("testAddress");
 
-        // Create a test attestation from the statement contract
+        // Create a test attestation from the obligation contract
         Attestation memory validAttestation = Attestation({
             uid: bytes32(0),
             schema: baseObligation.ATTESTATION_SCHEMA(),
@@ -73,7 +73,7 @@ contract BaseObligationTest is Test {
             data: bytes("")
         });
 
-        // Create an invalid attestation (not from statement contract)
+        // Create an invalid attestation (not from obligation contract)
         Attestation memory invalidAttestation = Attestation({
             uid: bytes32(0),
             schema: baseObligation.ATTESTATION_SCHEMA(),
@@ -100,7 +100,7 @@ contract BaseObligationTest is Test {
     function testOnRevoke() public {
         address testAddress = makeAddr("testAddress");
 
-        // Create a test attestation from the statement contract
+        // Create a test attestation from the obligation contract
         Attestation memory validAttestation = Attestation({
             uid: bytes32(0),
             schema: baseObligation.ATTESTATION_SCHEMA(),
@@ -114,7 +114,7 @@ contract BaseObligationTest is Test {
             data: bytes("")
         });
 
-        // Create an invalid attestation (not from statement contract)
+        // Create an invalid attestation (not from obligation contract)
         Attestation memory invalidAttestation = Attestation({
             uid: bytes32(0),
             schema: baseObligation.ATTESTATION_SCHEMA(),
@@ -138,7 +138,7 @@ contract BaseObligationTest is Test {
         );
     }
 
-    function testGetStatement() public {
+    function testGetObligation() public {
         bytes32 validSchema = baseObligation.ATTESTATION_SCHEMA();
         bytes32 invalidSchema = bytes32(uint256(1));
 
@@ -183,13 +183,13 @@ contract BaseObligationTest is Test {
         );
 
         // Valid attestation should work
-        Attestation memory attestation = baseObligation.getStatement(
+        Attestation memory attestation = baseObligation.getObligation(
             validSchema
         );
         assertEq(attestation.uid, validSchema, "UID should match");
 
         // Invalid attestation should revert
         vm.expectRevert(BaseObligation.NotFromObligation.selector);
-        baseObligation.getStatement(invalidSchema);
+        baseObligation.getObligation(invalidSchema);
     }
 }

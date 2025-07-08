@@ -20,8 +20,8 @@ contract MockERC20Permit is ERC20Permit {
 }
 
 contract ERC20BarterUtilsIntegrationTest is Test {
-    ERC20EscrowObligation public escrowStatement;
-    ERC20PaymentObligation public paymentStatement;
+    ERC20EscrowObligation public escrowObligation;
+    ERC20PaymentObligation public paymentObligation;
     ERC20BarterUtils public barterUtils;
     MockERC20Permit public erc1155TokenA;
     MockERC20Permit public erc1155TokenB;
@@ -44,12 +44,12 @@ contract ERC20BarterUtilsIntegrationTest is Test {
         erc1155TokenA = new MockERC20Permit("Token A", "TKA");
         erc1155TokenB = new MockERC20Permit("Token B", "TKB");
 
-        escrowStatement = new ERC20EscrowObligation(eas, schemaRegistry);
-        paymentStatement = new ERC20PaymentObligation(eas, schemaRegistry);
+        escrowObligation = new ERC20EscrowObligation(eas, schemaRegistry);
+        paymentObligation = new ERC20PaymentObligation(eas, schemaRegistry);
         barterUtils = new ERC20BarterUtils(
             eas,
-            escrowStatement,
-            paymentStatement
+            escrowObligation,
+            paymentObligation
         );
 
         erc1155TokenA.transfer(alice, 1000 * 10 ** 18);
@@ -63,7 +63,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
 
         // Alice creates buy order
         vm.startPrank(alice);
-        erc1155TokenA.approve(address(escrowStatement), bidAmount);
+        erc1155TokenA.approve(address(escrowObligation), bidAmount);
         bytes32 buyAttestation = barterUtils.buyErc20ForErc20(
             address(erc1155TokenA),
             bidAmount,
@@ -75,7 +75,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
 
         // Bob fulfills the order
         vm.startPrank(bob);
-        erc1155TokenB.approve(address(paymentStatement), askAmount);
+        erc1155TokenB.approve(address(paymentObligation), askAmount);
         bytes32 sellAttestation = barterUtils.payErc20ForErc20(buyAttestation);
         vm.stopPrank();
 
@@ -124,7 +124,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
         (uint8 v1, bytes32 r1, bytes32 s1) = _getPermitSignature(
             erc1155TokenA,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidAmount,
             deadline
         );
@@ -146,7 +146,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
         (uint8 v2, bytes32 r2, bytes32 s2) = _getPermitSignature(
             erc1155TokenB,
             BOB_PRIVATE_KEY,
-            address(paymentStatement),
+            address(paymentObligation),
             askAmount,
             deadline
         );
@@ -183,7 +183,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
         (uint8 v1, bytes32 r1, bytes32 s1) = _getPermitSignature(
             erc1155TokenA,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidAmount,
             deadline
         );
@@ -199,7 +199,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
         bytes32 buyAttestation = barterUtils.permitAndBuyWithErc20(
             address(erc1155TokenA),
             bidAmount,
-            address(paymentStatement),
+            address(paymentObligation),
             abi.encode(demand),
             expiration,
             deadline,
@@ -212,7 +212,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
         (uint8 v2, bytes32 r2, bytes32 s2) = _getPermitSignature(
             erc1155TokenB,
             BOB_PRIVATE_KEY,
-            address(paymentStatement),
+            address(paymentObligation),
             askAmount,
             deadline
         );
@@ -230,7 +230,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
 
         // Make the payment collection
         vm.prank(bob);
-        bool success = escrowStatement.collectEscrow(
+        bool success = escrowObligation.collectEscrow(
             buyAttestation,
             sellAttestation
         );

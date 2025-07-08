@@ -15,7 +15,7 @@ contract AnyArbiter is IArbiter {
     error MismatchedArrayLengths();
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
@@ -27,7 +27,7 @@ contract AnyArbiter is IArbiter {
             try
                 // can throw, since some arbiters throw with failure case instead of returning false
                 IArbiter(demand_.arbiters[i]).checkObligation(
-                    statement,
+                    obligation,
                     demand_.demands[i],
                     counteroffer
                 )

@@ -64,7 +64,7 @@ contract ERC721PaymentObligationTest is Test {
         );
     }
 
-    function testMakeStatement() public {
+    function testDoObligation() public {
         // Approve token transfer first
         vm.startPrank(payer);
         token.approve(address(paymentObligation), tokenId);
@@ -84,7 +84,7 @@ contract ERC721PaymentObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getStatement(
+        Attestation memory attestation = paymentObligation.getObligation(
             attestationId
         );
         assertEq(
@@ -129,7 +129,7 @@ contract ERC721PaymentObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getStatement(
+        Attestation memory attestation = paymentObligation.getObligation(
             attestationId
         );
         assertEq(
@@ -167,7 +167,7 @@ contract ERC721PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Get the attestation
-        Attestation memory attestation = paymentObligation.getStatement(
+        Attestation memory attestation = paymentObligation.getObligation(
             attestationId
         );
 
@@ -264,7 +264,7 @@ contract ERC721PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Get the attestation
-        Attestation memory attestation = paymentObligation.getStatement(
+        Attestation memory attestation = paymentObligation.getObligation(
             attestationId
         );
 

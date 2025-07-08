@@ -30,7 +30,7 @@ contract RedisProvisionObligationTest is Test {
     function testAliceCanMakeNewProvisionStatement() public {
         vm.startPrank(alice);
 
-        // Create a new provision statement for Redis
+        // Create a new provision obligation for Redis
         RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
             .ObligationData({
                 user: alice,
@@ -42,13 +42,13 @@ contract RedisProvisionObligationTest is Test {
             });
         uint64 expiration = uint64(block.timestamp + 30 days);
 
-        bytes32 statementUID = provisionObligation.doObligation(
+        bytes32 obligationUID = provisionObligation.doObligation(
             obligationData,
             expiration
         );
 
         // Retrieve the attestation and verify it matches the input data
-        Attestation memory attestation = eas.getAttestation(statementUID);
+        Attestation memory attestation = eas.getAttestation(obligationUID);
         RedisProvisionObligation.ObligationData memory retrievedData = abi
             .decode(attestation.data, (RedisProvisionObligation.ObligationData));
 
@@ -81,7 +81,7 @@ contract RedisProvisionObligationTest is Test {
     function testAliceCanUpdateProvisionStatement() public {
         vm.startPrank(alice);
 
-        // Create initial provision statement
+        // Create initial provision obligation
         RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
             .ObligationData({
                 user: alice,
@@ -98,7 +98,7 @@ contract RedisProvisionObligationTest is Test {
             expiration
         );
 
-        // Update the provision statement (increase capacity and expiration)
+        // Update the provision obligation (increase capacity and expiration)
         RedisProvisionObligation.ChangeData memory changeData = RedisProvisionObligation
             .ChangeData({
                 addedCapacity: 512 * 1024 * 1024, // Add 512 MB
@@ -160,7 +160,7 @@ contract RedisProvisionObligationTest is Test {
     function testAliceCanUpdateIndividualParams() public {
         vm.startPrank(alice);
 
-        // Create initial provision statement
+        // Create initial provision obligation
         RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
             .ObligationData({
                 user: alice,
@@ -251,7 +251,7 @@ contract RedisProvisionObligationTest is Test {
     function testBobCannotUpdateAlicesProvisionStatement() public {
         vm.startPrank(alice);
 
-        // Alice creates a provision statement
+        // Alice creates a provision obligation
         RedisProvisionObligation.ObligationData memory obligationData = RedisProvisionObligation
             .ObligationData({
                 user: alice,
@@ -269,7 +269,7 @@ contract RedisProvisionObligationTest is Test {
         );
         vm.stopPrank();
 
-        // Bob tries to update Alice's provision statement
+        // Bob tries to update Alice's provision obligation
         RedisProvisionObligation.ChangeData memory changeData = RedisProvisionObligation
             .ChangeData({
                 addedCapacity: 512 * 1024 * 1024, // Attempt to add 512 MB

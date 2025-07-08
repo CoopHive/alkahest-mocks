@@ -88,7 +88,7 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         erc1155TokenA = new MockERC1155();
         erc1155TokenB = new MockERC1155();
 
-        // Deploy statements
+        // Deploy obligations
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
 

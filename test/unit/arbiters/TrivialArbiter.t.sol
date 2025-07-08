@@ -30,7 +30,7 @@ contract TrivialArbiterTest is Test {
         // Empty demand data
         bytes memory demand = bytes("");
 
-        // Check statement should always return true
+        // Check obligation should always return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "TrivialArbiter should always return true");
 

@@ -15,12 +15,12 @@ contract TrustedOracleArbiter is IArbiter {
     }
 
     event ArbitrationMade(
-        bytes32 indexed statement,
+        bytes32 indexed obligation,
         address indexed oracle,
         bool decision
     );
     event ArbitrationRequested(
-        bytes32 indexed statement,
+        bytes32 indexed obligation,
         address indexed oracle
     );
 
@@ -33,28 +33,28 @@ contract TrustedOracleArbiter is IArbiter {
         eas = _eas;
     }
 
-    function arbitrate(bytes32 statement, bool decision) public {
-        decisions[msg.sender][statement] = decision;
-        emit ArbitrationMade(statement, msg.sender, decision);
+    function arbitrate(bytes32 obligation, bool decision) public {
+        decisions[msg.sender][obligation] = decision;
+        emit ArbitrationMade(obligation, msg.sender, decision);
     }
 
-    function requestArbitration(bytes32 _statement, address oracle) public {
-        Attestation memory statement = eas.getAttestation(_statement);
+    function requestArbitration(bytes32 _obligation, address oracle) public {
+        Attestation memory obligation = eas.getAttestation(_obligation);
         if (
-            statement.attester != msg.sender &&
-            statement.recipient != msg.sender
+            obligation.attester != msg.sender &&
+            obligation.recipient != msg.sender
         ) revert UnauthorizedArbitrationRequest();
 
-        emit ArbitrationRequested(_statement, oracle);
+        emit ArbitrationRequested(_obligation, oracle);
     }
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /*counteroffer*/
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        return decisions[demand_.oracle][statement.uid];
+        return decisions[demand_.oracle][obligation.uid];
     }
 
     function decodeDemandData(

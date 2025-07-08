@@ -95,7 +95,7 @@ contract AttestationEscrowObligation2Test is Test {
     function testMakeStatement() public {
         vm.startPrank(requester);
         
-        // Create the statement data
+        // Create the obligation data
         AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
@@ -110,7 +110,7 @@ contract AttestationEscrowObligation2Test is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -128,7 +128,7 @@ contract AttestationEscrowObligation2Test is Test {
     }
 
     function testDoObligationFor() public {
-        // Create the statement data
+        // Create the obligation data
         AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
@@ -144,7 +144,7 @@ contract AttestationEscrowObligation2Test is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -165,7 +165,7 @@ contract AttestationEscrowObligation2Test is Test {
         // Setup: create an escrow with the accepting MockArbiter
         vm.startPrank(requester);
         
-        // Create the statement data
+        // Create the obligation data
         AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),
@@ -217,7 +217,7 @@ contract AttestationEscrowObligation2Test is Test {
         // Setup: create an escrow with rejecting arbiter
         vm.startPrank(requester);
         
-        // Create the statement data with rejecting arbiter
+        // Create the obligation data with rejecting arbiter
         AttestationEscrowObligation2.ObligationData memory data = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(rejectingArbiter),
@@ -243,7 +243,7 @@ contract AttestationEscrowObligation2Test is Test {
     }
 
     function testCheckObligation() public {
-        // Create statement data
+        // Create obligation data
         AttestationEscrowObligation2.ObligationData memory escrowData = AttestationEscrowObligation2.ObligationData({
             attestationUid: preExistingAttestationId,
             arbiter: address(mockArbiter),

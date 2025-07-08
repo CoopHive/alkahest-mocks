@@ -17,16 +17,16 @@ contract TimeBeforeArbiter is IArbiter {
     error TimeNotBefore();
 
     function checkObligation(
-        Attestation memory statement,
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.time > demand_.time) revert TimeNotBefore();
+        if (obligation.time > demand_.time) revert TimeNotBefore();
 
         return
             IArbiter(demand_.baseArbiter).checkObligation(
-                statement,
+                obligation,
                 demand_.baseDemand,
                 counteroffer
             );

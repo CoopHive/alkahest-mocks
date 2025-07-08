@@ -59,7 +59,7 @@ contract TrustedPartyArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
+        // Check obligation should return true
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
@@ -94,7 +94,7 @@ contract TrustedPartyArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return false
+        // Check obligation should return false
         bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
@@ -123,7 +123,7 @@ contract TrustedPartyArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with NotTrustedParty
+        // Check obligation should revert with NotTrustedParty
         vm.expectRevert(TrustedPartyArbiter.NotTrustedParty.selector);
         arbiter.checkObligation(attestation, demand, bytes32(0));
     }
