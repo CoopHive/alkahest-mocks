@@ -230,7 +230,7 @@ contract ERC20BarterUtilsIntegrationTest is Test {
 
         // Make the payment collection
         vm.prank(bob);
-        bool success = escrowStatement.collectPayment(
+        bool success = escrowStatement.collectEscrow(
             buyAttestation,
             sellAttestation
         );

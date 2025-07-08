@@ -12,7 +12,7 @@ contract ERC1155BarterUtils {
     ERC1155EscrowObligation internal erc1155Escrow;
     ERC1155PaymentObligation internal erc1155Payment;
 
-    error CouldntCollectPayment();
+    error CouldntCollectEscrow();
 
     constructor(
         IEAS _eas,
@@ -34,7 +34,7 @@ contract ERC1155BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc1155Escrow.makeStatementFor(
+            erc1155Escrow.doObligationFor(
                 ERC1155EscrowObligation.StatementData({
                     token: bidToken,
                     tokenId: bidTokenId,
@@ -59,14 +59,14 @@ contract ERC1155BarterUtils {
         bytes32 buyAttestation,
         ERC1155PaymentObligation.StatementData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc1155Payment.makeStatementFor(
+        bytes32 sellAttestation = erc1155Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc1155Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc1155Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;

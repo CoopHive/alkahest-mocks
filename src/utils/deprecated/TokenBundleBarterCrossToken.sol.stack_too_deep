@@ -35,7 +35,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            bundleEscrow.makeStatementFor(
+            bundleEscrow.doObligationFor(
                 TokenBundleEscrowObligation.StatementData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,
@@ -66,7 +66,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            bundleEscrow.makeStatementFor(
+            bundleEscrow.doObligationFor(
                 TokenBundleEscrowObligation.StatementData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,
@@ -98,7 +98,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            bundleEscrow.makeStatementFor(
+            bundleEscrow.doObligationFor(
                 TokenBundleEscrowObligation.StatementData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,

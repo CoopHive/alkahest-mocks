@@ -85,7 +85,7 @@ contract AttestationBarterUtils is SchemaResolver {
                 demand: demand
             });
 
-        escrowUid = escrowContract.makeStatement(escrowData, expiration);
+        escrowUid = escrowContract.doObligation(escrowData, expiration);
     }
 
     function onAttest(

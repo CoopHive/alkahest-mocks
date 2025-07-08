@@ -14,7 +14,7 @@ contract RecipientArbiter is IArbiter {
 
     error RecipientMismatched();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /*counteroffer*/

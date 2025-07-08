@@ -14,7 +14,7 @@ contract ExpirationTimeBeforeArbiter is IArbiter {
 
     error ExpirationTimeNotBefore();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /*counteroffer*/

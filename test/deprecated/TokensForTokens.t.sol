@@ -51,7 +51,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(
+        bool successBob = paymentStatement.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -59,7 +59,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectPayment(
+        bool successAlice = paymentStatement.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -73,7 +73,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment first
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectPayment(
+        bool successAlice = paymentStatement.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -81,7 +81,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(
+        bool successBob = paymentStatement.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -95,7 +95,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(
+        bool successBob = paymentStatement.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -103,7 +103,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectPayment(
+        bool successAlice = paymentStatement.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -112,7 +112,7 @@ contract ERC20EscrowObligationTest is Test {
         // Alice attempts to double spend
         vm.prank(alice);
         vm.expectRevert();
-        paymentStatement.collectPayment(bobPaymentUID, alicePaymentUID);
+        paymentStatement.collectEscrow(bobPaymentUID, alicePaymentUID);
     }
 
     function testDoubleSpendingBob() public {
@@ -120,7 +120,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Alice collects Bob's payment
         vm.prank(alice);
-        bool successAlice = paymentStatement.collectPayment(
+        bool successAlice = paymentStatement.collectEscrow(
             bobPaymentUID,
             alicePaymentUID
         );
@@ -128,7 +128,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Bob collects Alice's payment
         vm.prank(bob);
-        bool successBob = paymentStatement.collectPayment(
+        bool successBob = paymentStatement.collectEscrow(
             alicePaymentUID,
             bobPaymentUID
         );
@@ -137,7 +137,7 @@ contract ERC20EscrowObligationTest is Test {
         // Bob attempts to double spend
         vm.prank(bob);
         vm.expectRevert();
-        paymentStatement.collectPayment(alicePaymentUID, bobPaymentUID);
+        paymentStatement.collectEscrow(alicePaymentUID, bobPaymentUID);
     }
 
     function _setupTrade()
@@ -158,7 +158,7 @@ contract ERC20EscrowObligationTest is Test {
                     })
                 )
             });
-        alicePaymentUID = paymentStatement.makeStatement(alicePaymentData, 0);
+        alicePaymentUID = paymentStatement.doObligation(alicePaymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
@@ -174,7 +174,7 @@ contract ERC20EscrowObligationTest is Test {
                     })
                 )
             });
-        bobPaymentUID = paymentStatement.makeStatement(bobPaymentData, 0);
+        bobPaymentUID = paymentStatement.doObligation(bobPaymentData, 0);
 
         vm.stopPrank();
     }

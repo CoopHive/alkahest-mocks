@@ -52,7 +52,7 @@ contract ConfirmationArbiterComposing is IArbiter {
         emit ConfirmationRequested(_statement, counteroffer.recipient);
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
@@ -65,7 +65,7 @@ contract ConfirmationArbiterComposing is IArbiter {
         }
         
         // Then delegate to the base arbiter with the base demand
-        return IArbiter(demand_.baseArbiter).checkStatement(
+        return IArbiter(demand_.baseArbiter).checkObligation(
             statement,
             demand_.baseDemand,
             counteroffer

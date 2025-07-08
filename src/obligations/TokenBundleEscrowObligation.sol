@@ -230,7 +230,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         }
     }
 
-    function makeStatementFor(
+    function doObligationFor(
         StatementData calldata data,
         uint64 expirationTime,
         address payer,
@@ -263,14 +263,14 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         }
     }
 
-    function makeStatement(
+    function doObligation(
         StatementData calldata data,
         uint64 expirationTime
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, expirationTime, msg.sender, msg.sender);
+        return doObligationFor(data, expirationTime, msg.sender, msg.sender);
     }
 
-    function collectPayment(
+    function collectEscrow(
         bytes32 _payment,
         bytes32 _fulfillment
     ) public returns (bool) {
@@ -301,7 +301,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         );
 
         if (
-            !IArbiter(paymentData.arbiter).checkStatement(
+            !IArbiter(paymentData.arbiter).checkObligation(
                 fulfillment,
                 paymentData.demand,
                 payment.uid
@@ -327,7 +327,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         return true;
     }
 
-    function collectExpired(bytes32 uid) public returns (bool) {
+    function reclaimExpired(bytes32 uid) public returns (bool) {
         Attestation memory attestation;
 
         // Get attestation with error handling
@@ -350,7 +350,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         return true;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /* counteroffer */

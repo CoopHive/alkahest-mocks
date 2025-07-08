@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 
 interface IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer

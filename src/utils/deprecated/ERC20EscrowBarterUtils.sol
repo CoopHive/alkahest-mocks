@@ -14,7 +14,7 @@ contract ERC20EscrowBarterUtils {
     ERC20PaymentFulfillmentArbiter internal erc20Fulfillment;
     SpecificAttestationArbiter internal specificAttestation;
 
-    error CouldntCollectPayment();
+    error CouldntCollectEscrow();
 
     constructor(
         IEAS _eas,
@@ -49,7 +49,7 @@ contract ERC20EscrowBarterUtils {
             s
         );
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: token,
                     amount: amount,
@@ -82,7 +82,7 @@ contract ERC20EscrowBarterUtils {
             s
         );
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: token,
                     amount: amount,
@@ -105,7 +105,7 @@ contract ERC20EscrowBarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: bidToken,
                     amount: bidAmount,
@@ -127,7 +127,7 @@ contract ERC20EscrowBarterUtils {
         bytes32 buyAttestation,
         ERC20PaymentFulfillmentArbiter.DemandData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc20Escrow.makeStatementFor(
+        bytes32 sellAttestation = erc20Escrow.doObligationFor(
             ERC20EscrowObligation.StatementData({
                 token: demand.token,
                 amount: demand.amount,
@@ -141,8 +141,8 @@ contract ERC20EscrowBarterUtils {
             msg.sender
         );
 
-        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc20Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;

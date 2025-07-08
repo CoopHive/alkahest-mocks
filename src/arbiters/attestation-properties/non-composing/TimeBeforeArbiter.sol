@@ -14,7 +14,7 @@ contract TimeBeforeArbiter is IArbiter {
 
     error TimeNotBefore();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /*counteroffer*/

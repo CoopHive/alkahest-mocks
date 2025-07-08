@@ -16,7 +16,7 @@ contract RevocableArbiter is IArbiter {
 
     error RevocabilityMismatched();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
@@ -26,7 +26,7 @@ contract RevocableArbiter is IArbiter {
             revert RevocabilityMismatched();
 
         return
-            IArbiter(demand_.baseArbiter).checkStatement(
+            IArbiter(demand_.baseArbiter).checkObligation(
                 statement,
                 demand_.baseDemand,
                 counteroffer

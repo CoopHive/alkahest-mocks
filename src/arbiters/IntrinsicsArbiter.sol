@@ -9,7 +9,7 @@ contract IntrinsicsArbiter is IArbiter {
     // validates attestation is not expired and not revoked
     using ArbiterUtils for Attestation;
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/

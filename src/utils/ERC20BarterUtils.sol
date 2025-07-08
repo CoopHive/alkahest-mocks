@@ -12,7 +12,7 @@ contract ERC20BarterUtils {
     ERC20EscrowObligation internal erc20Escrow;
     ERC20PaymentObligation internal erc20Payment;
 
-    error CouldntCollectPayment();
+    error CouldntCollectEscrow();
 
     constructor(
         IEAS _eas,
@@ -46,7 +46,7 @@ contract ERC20BarterUtils {
             s
         );
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: token,
                     amount: amount,
@@ -79,7 +79,7 @@ contract ERC20BarterUtils {
             s
         );
         return
-            erc20Payment.makeStatementFor(
+            erc20Payment.doObligationFor(
                 ERC20PaymentObligation.StatementData({
                     token: token,
                     amount: amount,
@@ -98,7 +98,7 @@ contract ERC20BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: bidToken,
                     amount: bidAmount,
@@ -121,14 +121,14 @@ contract ERC20BarterUtils {
         bytes32 buyAttestation,
         ERC20PaymentObligation.StatementData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc20Payment.makeStatementFor(
+        bytes32 sellAttestation = erc20Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc20Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;

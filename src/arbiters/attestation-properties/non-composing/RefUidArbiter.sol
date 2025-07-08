@@ -14,7 +14,7 @@ contract RefUidArbiter is IArbiter {
 
     error RefUidMismatched();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /*counteroffer*/

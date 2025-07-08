@@ -16,7 +16,7 @@ contract ExpirationTimeEqualArbiterTest is Test {
         expirationTimeValue = uint64(block.timestamp + 100); // 100 seconds in the future
     }
 
-    function testCheckStatementWithExpirationTimeEqual() public view {
+    function testCheckObligationWithExpirationTimeEqual() public view {
         // Create a test attestation with expiration time equal to the required time
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -39,14 +39,14 @@ contract ExpirationTimeEqualArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with equal expiration time"
         );
     }
 
-    function testCheckStatementWithExpirationTimeDifferent() public {
+    function testCheckObligationWithExpirationTimeDifferent() public {
         // Create a test attestation with expiration time different from the required time
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -72,7 +72,7 @@ contract ExpirationTimeEqualArbiterTest is Test {
         vm.expectRevert(
             ExpirationTimeEqualArbiter.ExpirationTimeNotEqual.selector
         );
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

@@ -64,7 +64,7 @@ contract TokensForStringsTest is Test {
                 demand: abi.encode(stringDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentStatement.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
@@ -72,13 +72,13 @@ contract TokensForStringsTest is Test {
             memory resultData = StringResultObligation.StatementData({
                 result: "HELLO WORLD"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultStatement.doObligation(
             resultData,
             paymentUID
         );
 
         // Collect payment
-        bool success = paymentStatement.collectPayment(paymentUID, resultUID);
+        bool success = paymentStatement.collectEscrow(paymentUID, resultUID);
         assertTrue(success, "Payment collection should succeed");
         vm.stopPrank();
 
@@ -113,7 +113,7 @@ contract TokensForStringsTest is Test {
                 demand: abi.encode(validationDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentStatement.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
@@ -121,7 +121,7 @@ contract TokensForStringsTest is Test {
             memory resultData = StringResultObligation.StatementData({
                 result: "HELLO WORLD"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultStatement.doObligation(
             resultData,
             paymentUID
         );
@@ -142,7 +142,7 @@ contract TokensForStringsTest is Test {
 
         // Collect payment
         vm.prank(bob);
-        bool success = paymentStatement.collectPayment(
+        bool success = paymentStatement.collectEscrow(
             paymentUID,
             validationUID
         );
@@ -180,7 +180,7 @@ contract TokensForStringsTest is Test {
                 demand: abi.encode(validationDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentStatement.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
@@ -188,7 +188,7 @@ contract TokensForStringsTest is Test {
             memory resultData = StringResultObligation.StatementData({
                 result: "HELLO WORLD"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultStatement.doObligation(
             resultData,
             paymentUID
         );
@@ -212,7 +212,7 @@ contract TokensForStringsTest is Test {
 
         // Collect payment
         vm.prank(bob);
-        bool success = paymentStatement.collectPayment(
+        bool success = paymentStatement.collectEscrow(
             paymentUID,
             validationUID
         );
@@ -240,7 +240,7 @@ contract TokensForStringsTest is Test {
                 demand: abi.encode(validationDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentStatement.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
@@ -248,7 +248,7 @@ contract TokensForStringsTest is Test {
             memory resultData = StringResultObligation.StatementData({
                 result: "INCORRECT RESULT"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultStatement.doObligation(
             resultData,
             paymentUID
         );
@@ -273,7 +273,7 @@ contract TokensForStringsTest is Test {
         // Try to collect payment
         vm.prank(bob);
         vm.expectRevert(); // Expect the transaction to revert
-        paymentStatement.collectPayment(paymentUID, validationUID);
+        paymentStatement.collectEscrow(paymentUID, validationUID);
     }
 
     function testIncorrectResultStringLengthsDifferent() public {
@@ -293,7 +293,7 @@ contract TokensForStringsTest is Test {
                 demand: abi.encode(stringDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentStatement.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
@@ -301,7 +301,7 @@ contract TokensForStringsTest is Test {
             memory resultData = StringResultObligation.StatementData({
                 result: "INCORRECT LENGTH RESULT"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultStatement.doObligation(
             resultData,
             paymentUID
         );
@@ -310,6 +310,6 @@ contract TokensForStringsTest is Test {
         // Try to collect payment
         vm.prank(bob);
         vm.expectRevert(); // Expect the transaction to revert
-        paymentStatement.collectPayment(paymentUID, resultUID);
+        paymentStatement.collectEscrow(paymentUID, resultUID);
     }
 }

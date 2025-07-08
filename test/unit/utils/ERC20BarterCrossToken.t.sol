@@ -400,7 +400,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         // Bob makes a bid with his ERC721
         vm.startPrank(bob);
         askErc721Token.approve(address(erc721Escrow), erc721TokenId);
-        bytes32 buyAttestation = erc721Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc721Escrow.doObligationFor(
             ERC721EscrowObligation.StatementData({
                 token: address(askErc721Token),
                 tokenId: erc721TokenId,
@@ -459,7 +459,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         // Bob makes a bid with his ERC1155
         vm.startPrank(bob);
         askErc1155Token.setApprovalForAll(address(erc1155Escrow), true);
-        bytes32 buyAttestation = erc1155Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc1155Escrow.doObligationFor(
             ERC1155EscrowObligation.StatementData({
                 token: address(askErc1155Token),
                 tokenId: tokenId,
@@ -548,7 +548,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         vm.startPrank(bob);
         askErc721Token.approve(address(bundleEscrow), 1);
         askErc1155Token.setApprovalForAll(address(bundleEscrow), true);
-        bytes32 buyAttestation = bundleEscrow.makeStatementFor(
+        bytes32 buyAttestation = bundleEscrow.doObligationFor(
             bundleData,
             expiration,
             bob,
@@ -605,7 +605,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         // First, bob makes an ERC721 escrow with ERC20 payment demand
         vm.startPrank(bob);
         askErc721Token.approve(address(erc721Escrow), erc721TokenId);
-        bytes32 buyAttestation = erc721Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc721Escrow.doObligationFor(
             ERC721EscrowObligation.StatementData({
                 token: address(askErc721Token),
                 tokenId: erc721TokenId,
@@ -672,7 +672,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         // First, bob makes an ERC1155 escrow with ERC20 payment demand
         vm.startPrank(bob);
         askErc1155Token.setApprovalForAll(address(erc1155Escrow), true);
-        bytes32 buyAttestation = erc1155Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc1155Escrow.doObligationFor(
             ERC1155EscrowObligation.StatementData({
                 token: address(askErc1155Token),
                 tokenId: tokenId,
@@ -764,7 +764,7 @@ contract ERC20BarterCrossTokenUnitTest is Test {
         vm.startPrank(bob);
         askErc721Token.approve(address(bundleEscrow), 1);
         askErc1155Token.setApprovalForAll(address(bundleEscrow), true);
-        bytes32 buyAttestation = bundleEscrow.makeStatementFor(
+        bytes32 buyAttestation = bundleEscrow.doObligationFor(
             bundleData,
             expiration,
             bob,

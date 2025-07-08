@@ -13,7 +13,7 @@ contract AttesterArbiterTest is Test {
         arbiter = new AttesterArbiter();
     }
 
-    function testCheckStatementWithCorrectAttester() public view {
+    function testCheckObligationWithCorrectAttester() public view {
         // Create a test attestation with the correct attester
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -35,11 +35,11 @@ contract AttesterArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with matching attester");
     }
 
-    function testCheckStatementWithIncorrectAttester() public {
+    function testCheckObligationWithIncorrectAttester() public {
         // Create a test attestation with non-matching attester
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -62,7 +62,7 @@ contract AttesterArbiterTest is Test {
 
         // Check statement should revert with AttesterMismatched
         vm.expectRevert(AttesterArbiter.AttesterMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

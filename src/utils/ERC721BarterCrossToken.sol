@@ -48,7 +48,7 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
         uint64 expiration
     ) external returns (bytes32) {
         return
-            erc721Escrow.makeStatementFor(
+            erc721Escrow.doObligationFor(
                 ERC721EscrowObligation.StatementData({
                     token: bidToken,
                     tokenId: bidTokenId,
@@ -76,7 +76,7 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
         uint64 expiration
     ) external returns (bytes32) {
         return
-            erc721Escrow.makeStatementFor(
+            erc721Escrow.doObligationFor(
                 ERC721EscrowObligation.StatementData({
                     token: bidToken,
                     tokenId: bidTokenId,
@@ -103,7 +103,7 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
         uint64 expiration
     ) external returns (bytes32) {
         return
-            erc721Escrow.makeStatementFor(
+            erc721Escrow.doObligationFor(
                 ERC721EscrowObligation.StatementData({
                     token: bidToken,
                     tokenId: bidTokenId,
@@ -129,14 +129,14 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
             (ERC721PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc721Payment.makeStatementFor(
+        bytes32 sellAttestation = erc721Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc20Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -155,14 +155,14 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
             (ERC721PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc721Payment.makeStatementFor(
+        bytes32 sellAttestation = erc721Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc1155Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc1155Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -179,7 +179,7 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
             (ERC721PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc721Payment.makeStatementFor(
+        bytes32 sellAttestation = erc721Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
@@ -187,8 +187,8 @@ contract ERC721BarterCrossToken is ERC721BarterUtils {
 
         // Fix: Use escrowStatement (erc721Escrow) instead of bundleEscrow
         // The original escrow was made with ERC721EscrowObligation
-        if (!bundleEscrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc721Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;

@@ -96,7 +96,7 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
         }
     }
 
-    function makeStatementFor(
+    function doObligationFor(
         StatementData calldata data,
         address payer,
         address recipient
@@ -120,13 +120,13 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
         emit BundleTransferred(uid_, payer, data.payee);
     }
 
-    function makeStatement(
+    function doObligation(
         StatementData calldata data
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, msg.sender, msg.sender);
+        return doObligationFor(data, msg.sender, msg.sender);
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /* counteroffer */

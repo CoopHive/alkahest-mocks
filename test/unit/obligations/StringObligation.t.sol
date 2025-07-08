@@ -40,7 +40,7 @@ contract StringObligationTest is Test {
 
         // Make a statement
         vm.prank(testUser);
-        bytes32 attestationId = stringObligation.makeStatement(data, "");
+        bytes32 attestationId = stringObligation.doObligation(data, "");
         // Verify attestation exists
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 

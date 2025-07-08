@@ -79,7 +79,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: bidToken,
                     amount: bidAmount,
@@ -107,7 +107,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: bidToken,
                     amount: bidAmount,
@@ -134,7 +134,7 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc20Escrow.makeStatementFor(
+            erc20Escrow.doObligationFor(
                 ERC20EscrowObligation.StatementData({
                     token: bidToken,
                     amount: bidAmount,
@@ -151,14 +151,14 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         bytes32 buyAttestation,
         ERC20PaymentObligation.StatementData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc20Payment.makeStatementFor(
+        bytes32 sellAttestation = erc20Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc721Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc721Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -168,14 +168,14 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         bytes32 buyAttestation,
         ERC20PaymentObligation.StatementData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc20Payment.makeStatementFor(
+        bytes32 sellAttestation = erc20Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc1155Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc1155Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -185,14 +185,14 @@ contract ERC20BarterCrossToken is ERC20BarterUtils {
         bytes32 buyAttestation,
         ERC20PaymentObligation.StatementData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc20Payment.makeStatementFor(
+        bytes32 sellAttestation = erc20Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!bundleEscrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!bundleEscrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;

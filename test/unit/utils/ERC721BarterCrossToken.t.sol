@@ -188,7 +188,7 @@ contract ERC721BarterCrossTokenUnitTest is Test {
 
         vm.startPrank(bob);
         erc20Token.approve(address(erc20Escrow), erc20Amount);
-        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc20Escrow.doObligationFor(
             ERC20EscrowObligation.StatementData({
                 token: address(erc20Token),
                 amount: erc20Amount,
@@ -311,7 +311,7 @@ contract ERC721BarterCrossTokenUnitTest is Test {
 
         vm.startPrank(bob);
         erc1155Token.setApprovalForAll(address(erc1155Escrow), true);
-        bytes32 buyAttestation = erc1155Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc1155Escrow.doObligationFor(
             ERC1155EscrowObligation.StatementData({
                 token: address(erc1155Token),
                 tokenId: erc1155TokenId,
@@ -486,7 +486,7 @@ contract ERC721BarterCrossTokenUnitTest is Test {
         erc20Token.approve(address(bundleEscrow), erc20Amount / 2);
         erc721TokenB.approve(address(bundleEscrow), bobErc721Id);
         erc1155Token.setApprovalForAll(address(bundleEscrow), true);
-        bytes32 buyAttestation = bundleEscrow.makeStatementFor(
+        bytes32 buyAttestation = bundleEscrow.doObligationFor(
             bundleData,
             expiration,
             bob,
@@ -552,7 +552,7 @@ contract ERC721BarterCrossTokenUnitTest is Test {
         // Bob makes bid with ERC20
         vm.startPrank(bob);
         erc20Token.approve(address(erc20Escrow), erc20Amount);
-        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc20Escrow.doObligationFor(
             ERC20EscrowObligation.StatementData({
                 token: address(erc20Token),
                 amount: erc20Amount,
@@ -585,7 +585,7 @@ contract ERC721BarterCrossTokenUnitTest is Test {
         // Bob makes bid with ERC20
         vm.startPrank(bob);
         erc20Token.approve(address(erc20Escrow), erc20Amount);
-        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
+        bytes32 buyAttestation = erc20Escrow.doObligationFor(
             ERC20EscrowObligation.StatementData({
                 token: address(erc20Token),
                 amount: erc20Amount,

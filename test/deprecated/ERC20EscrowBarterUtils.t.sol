@@ -111,7 +111,7 @@ contract ERC20EscrowBarterUtilsTest is Test {
         vm.stopPrank();
 
         vm.prank(alice);
-        escrowStatement.collectPayment(sellAttestation, buyAttestation);
+        escrowStatement.collectEscrow(sellAttestation, buyAttestation);
         vm.stopPrank();
 
         // Verify attestations
@@ -235,7 +235,7 @@ contract ERC20EscrowBarterUtilsTest is Test {
         vm.stopPrank();
 
         vm.prank(alice);
-        escrowStatement.collectPayment(sellAttestation, buyAttestation);
+        escrowStatement.collectEscrow(sellAttestation, buyAttestation);
         vm.stopPrank();
 
         // Check final balances

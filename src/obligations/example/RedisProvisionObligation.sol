@@ -53,7 +53,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function makeStatement(
+    function doObligation(
         StatementData calldata data,
         uint64 expirationTime
     ) public returns (bytes32) {
@@ -121,7 +121,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
             );
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /* counteroffer */

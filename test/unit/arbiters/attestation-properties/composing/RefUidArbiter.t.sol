@@ -13,7 +13,7 @@ contract MockArbiter is IArbiter {
         returnValue = _returnValue;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory /*statement*/,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/
@@ -34,7 +34,7 @@ contract RefUidArbiterTest is Test {
         mockArbiterFalse = new MockArbiter(false);
     }
 
-    function testCheckStatementWithCorrectRefUid() public view {
+    function testCheckObligationWithCorrectRefUid() public view {
         // Create a test attestation with the correct refUID
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -58,14 +58,14 @@ contract RefUidArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with correct refUID and base arbiter returning true"
         );
     }
 
-    function testCheckStatementWithCorrectRefUidButBaseArbiterReturnsFalse()
+    function testCheckObligationWithCorrectRefUidButBaseArbiterReturnsFalse()
         public
         view
     {
@@ -92,11 +92,11 @@ contract RefUidArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return false
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
 
-    function testCheckStatementWithIncorrectRefUid() public {
+    function testCheckObligationWithIncorrectRefUid() public {
         // Create a test attestation with an incorrect refUID
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -121,7 +121,7 @@ contract RefUidArbiterTest is Test {
 
         // Check statement should revert with RefUidMismatched
         vm.expectRevert(RefUidArbiter.RefUidMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

@@ -13,7 +13,7 @@ contract RefUidArbiterTest is Test {
         arbiter = new RefUidArbiter();
     }
 
-    function testCheckStatementWithCorrectRefUid() public view {
+    function testCheckObligationWithCorrectRefUid() public view {
         // Create a test attestation with the correct refUID
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -35,11 +35,11 @@ contract RefUidArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with matching refUID");
     }
 
-    function testCheckStatementWithIncorrectRefUid() public {
+    function testCheckObligationWithIncorrectRefUid() public {
         // Create a test attestation with non-matching refUID
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -62,7 +62,7 @@ contract RefUidArbiterTest is Test {
 
         // Check statement should revert with RefUidMismatched
         vm.expectRevert(RefUidArbiter.RefUidMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

@@ -16,7 +16,7 @@ contract TimeEqualArbiterTest is Test {
         timestampValue = uint64(block.timestamp);
     }
 
-    function testCheckStatementWithTimeEqual() public view {
+    function testCheckObligationWithTimeEqual() public view {
         // Create a test attestation with time equal to the required time
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -37,11 +37,11 @@ contract TimeEqualArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with equal time");
     }
 
-    function testCheckStatementWithTimeDifferentThanRequired() public {
+    function testCheckObligationWithTimeDifferentThanRequired() public {
         // Create a test attestation with time not equal to the required time
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -63,7 +63,7 @@ contract TimeEqualArbiterTest is Test {
 
         // Check statement should revert with TimeNotEqual
         vm.expectRevert(TimeEqualArbiter.TimeNotEqual.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

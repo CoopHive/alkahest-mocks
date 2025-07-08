@@ -83,7 +83,7 @@ contract ERC20EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 uid = escrowObligation.makeStatement(data, expiration);
+        bytes32 uid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -111,7 +111,7 @@ contract ERC20EscrowObligationTest is Test {
         );
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         // Approve tokens first
         vm.startPrank(buyer);
         token.approve(address(escrowObligation), AMOUNT);
@@ -130,7 +130,7 @@ contract ERC20EscrowObligationTest is Test {
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
 
         vm.prank(address(this));
-        bytes32 uid = escrowObligation.makeStatementFor(
+        bytes32 uid = escrowObligation.doObligationFor(
             data,
             expiration,
             buyer,
@@ -166,7 +166,7 @@ contract ERC20EscrowObligationTest is Test {
         );
     }
 
-    function testCollectPayment() public {
+    function testCollectEscrow() public {
         // Setup: create an escrow
         vm.startPrank(buyer);
         token.approve(address(escrowObligation), AMOUNT);
@@ -181,7 +181,7 @@ contract ERC20EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Create a fulfillment attestation using a separate obligation (can be any other contract)
@@ -192,14 +192,14 @@ contract ERC20EscrowObligationTest is Test {
         );
 
         vm.prank(seller);
-        bytes32 fulfillmentUid = stringObligation.makeStatement(
+        bytes32 fulfillmentUid = stringObligation.doObligation(
             StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
 
         // Collect payment
         vm.prank(seller);
-        bool success = escrowObligation.collectPayment(
+        bool success = escrowObligation.collectEscrow(
             paymentUid,
             fulfillmentUid
         );
@@ -219,7 +219,7 @@ contract ERC20EscrowObligationTest is Test {
         );
     }
 
-    function testCollectPaymentWithRejectedFulfillment() public {
+    function testCollectEscrowWithRejectedFulfillment() public {
         // Setup: create an escrow with rejecting arbiter
         vm.startPrank(buyer);
         token.approve(address(escrowObligation), AMOUNT);
@@ -234,7 +234,7 @@ contract ERC20EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Create a fulfillment attestation using a separate obligation
@@ -244,7 +244,7 @@ contract ERC20EscrowObligationTest is Test {
         );
 
         vm.prank(seller);
-        bytes32 fulfillmentUid = stringObligation.makeStatement(
+        bytes32 fulfillmentUid = stringObligation.doObligation(
             StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
@@ -252,10 +252,10 @@ contract ERC20EscrowObligationTest is Test {
         // Try to collect payment, should revert with InvalidFulfillment
         vm.prank(seller);
         vm.expectRevert(ERC20EscrowObligation.InvalidFulfillment.selector);
-        escrowObligation.collectPayment(paymentUid, fulfillmentUid);
+        escrowObligation.collectEscrow(paymentUid, fulfillmentUid);
     }
 
-    function testCollectExpired() public {
+    function testReclaimExpired() public {
         // Setup: create an escrow
         vm.startPrank(buyer);
         token.approve(address(escrowObligation), AMOUNT);
@@ -270,20 +270,20 @@ contract ERC20EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + 100);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Attempt to collect before expiration (should fail)
         vm.prank(buyer);
         vm.expectRevert(ERC20EscrowObligation.UnauthorizedCall.selector);
-        escrowObligation.collectExpired(paymentUid);
+        escrowObligation.reclaimExpired(paymentUid);
 
         // Fast forward past expiration time
         vm.warp(block.timestamp + 200);
 
         // Collect expired funds
         vm.prank(buyer);
-        bool success = escrowObligation.collectExpired(paymentUid);
+        bool success = escrowObligation.reclaimExpired(paymentUid);
 
         assertTrue(success, "Expired fund collection should succeed");
 
@@ -300,7 +300,7 @@ contract ERC20EscrowObligationTest is Test {
         );
     }
 
-    function testCheckStatement() public {
+    function testCheckObligation() public {
         // Create statement data
         ERC20EscrowObligation.StatementData
             memory paymentData = ERC20EscrowObligation.StatementData({
@@ -313,7 +313,7 @@ contract ERC20EscrowObligationTest is Test {
         // Use the obligation contract to create a valid attestation
         vm.startPrank(buyer);
         token.approve(address(escrowObligation), AMOUNT);
-        bytes32 attestationId = escrowObligation.makeStatement(
+        bytes32 attestationId = escrowObligation.doObligation(
             paymentData,
             uint64(block.timestamp + EXPIRATION_TIME)
         );
@@ -330,7 +330,7 @@ contract ERC20EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool exactMatch = escrowObligation.checkStatement(
+        bool exactMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -346,7 +346,7 @@ contract ERC20EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool lowerMatch = escrowObligation.checkStatement(
+        bool lowerMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(lowerDemand),
             bytes32(0)
@@ -362,7 +362,7 @@ contract ERC20EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool higherMatch = escrowObligation.checkStatement(
+        bool higherMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(higherDemand),
             bytes32(0)
@@ -379,7 +379,7 @@ contract ERC20EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool differentTokenMatch = escrowObligation.checkStatement(
+        bool differentTokenMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentTokenDemand),
             bytes32(0)
@@ -399,7 +399,7 @@ contract ERC20EscrowObligationTest is Test {
                     demand: abi.encode("specific demand")
                 });
 
-        bool differentArbiterMatch = escrowObligation.checkStatement(
+        bool differentArbiterMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentArbiterDemand),
             bytes32(0)
@@ -418,7 +418,7 @@ contract ERC20EscrowObligationTest is Test {
                 demand: abi.encode("different demand")
             });
 
-        bool differentDemandMatch = escrowObligation.checkStatement(
+        bool differentDemandMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentDemandData),
             bytes32(0)
@@ -455,7 +455,7 @@ contract ERC20EscrowObligationTest is Test {
                 largeAmount
             )
         );
-        escrowObligation.makeStatement(data, expiration);
+        escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
     }
 }

@@ -70,7 +70,7 @@ contract UnrevocableArbiterComposing is IArbiter {
         );
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
@@ -84,7 +84,7 @@ contract UnrevocableArbiterComposing is IArbiter {
 
         // Then delegate to the base arbiter with the base demand
         return
-            IArbiter(demand_.baseArbiter).checkStatement(
+            IArbiter(demand_.baseArbiter).checkObligation(
                 statement,
                 demand_.baseDemand,
                 counteroffer

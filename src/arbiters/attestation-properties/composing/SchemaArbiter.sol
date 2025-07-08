@@ -16,7 +16,7 @@ contract SchemaArbiter is IArbiter {
 
     error SchemaMismatched();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
@@ -25,7 +25,7 @@ contract SchemaArbiter is IArbiter {
         if (statement.schema != demand_.schema) revert SchemaMismatched();
 
         return
-            IArbiter(demand_.baseArbiter).checkStatement(
+            IArbiter(demand_.baseArbiter).checkObligation(
                 statement,
                 demand_.baseDemand,
                 counteroffer

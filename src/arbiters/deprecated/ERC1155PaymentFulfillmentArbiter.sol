@@ -30,7 +30,7 @@ contract ERC1155PaymentFulfillmentArbiter is IArbiter {
         specificAttestation = _specificAttestation;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer

@@ -47,7 +47,7 @@ contract ConfirmationArbiter is IArbiter {
         emit ConfirmationRequested(_statement, counteroffer.recipient);
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/

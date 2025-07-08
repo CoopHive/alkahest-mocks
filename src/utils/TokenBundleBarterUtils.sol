@@ -12,7 +12,7 @@ contract TokenBundleBarterUtils {
     TokenBundleEscrowObligation internal bundleEscrow;
     TokenBundlePaymentObligation internal bundlePayment;
 
-    error CouldntCollectPayment();
+    error CouldntCollectEscrow();
     error InvalidSignatureLength();
 
     struct ERC20PermitSignature {
@@ -54,7 +54,7 @@ contract TokenBundleBarterUtils {
         }
 
         return
-            bundleEscrow.makeStatementFor(
+            bundleEscrow.doObligationFor(
                 data,
                 expiration,
                 msg.sender,
@@ -82,7 +82,7 @@ contract TokenBundleBarterUtils {
             );
         }
 
-        return bundlePayment.makeStatementFor(data, msg.sender, msg.sender);
+        return bundlePayment.doObligationFor(data, msg.sender, msg.sender);
     }
 
     function _buyBundleForBundle(
@@ -91,7 +91,7 @@ contract TokenBundleBarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            bundleEscrow.makeStatementFor(
+            bundleEscrow.doObligationFor(
                 TokenBundleEscrowObligation.StatementData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,
@@ -113,14 +113,14 @@ contract TokenBundleBarterUtils {
         bytes32 buyAttestation,
         TokenBundlePaymentObligation.StatementData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = bundlePayment.makeStatementFor(
+        bytes32 sellAttestation = bundlePayment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!bundleEscrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!bundleEscrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;

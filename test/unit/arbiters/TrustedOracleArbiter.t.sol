@@ -47,7 +47,7 @@ contract TrustedOracleArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Should return false initially since no decision has been made
-        assertFalse(newArbiter.checkStatement(attestation, demand, bytes32(0)));
+        assertFalse(newArbiter.checkObligation(attestation, demand, bytes32(0)));
     }
 
     function testArbitrate() public {
@@ -56,7 +56,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Initially the decision should be false (default value)
         assertFalse(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 Attestation({
                     uid: statementUid,
                     schema: bytes32(0),
@@ -88,7 +88,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Now the decision should be true
         assertTrue(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 Attestation({
                     uid: statementUid,
                     schema: bytes32(0),
@@ -114,7 +114,7 @@ contract TrustedOracleArbiterTest is Test {
         vm.stopPrank();
     }
 
-    function testCheckStatementWithDifferentOracles() public {
+    function testCheckObligationWithDifferentOracles() public {
         // Set up two different oracles with different decisions
         address oracle1 = address(0x123);
         address oracle2 = address(0x456);
@@ -144,7 +144,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Check with oracle1 - should be true
         assertTrue(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 attestation,
                 abi.encode(
                     TrustedOracleArbiter.DemandData({
@@ -158,7 +158,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Check with oracle2 - should be false
         assertFalse(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 attestation,
                 abi.encode(
                     TrustedOracleArbiter.DemandData({
@@ -171,7 +171,7 @@ contract TrustedOracleArbiterTest is Test {
         );
     }
 
-    function testCheckStatementWithNoDecision() public {
+    function testCheckObligationWithNoDecision() public {
         // Test with an oracle that hasn't made a decision
         address newOracle = address(0x789);
         // Use the class-level statementUid
@@ -192,7 +192,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Check with the new oracle - should be false (default value)
         assertFalse(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 attestation,
                 abi.encode(
                     TrustedOracleArbiter.DemandData({

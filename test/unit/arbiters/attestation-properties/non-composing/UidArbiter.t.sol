@@ -12,7 +12,7 @@ contract UidArbiterTest is Test {
         arbiter = new UidArbiter();
     }
 
-    function testCheckStatementWithCorrectUID() public view {
+    function testCheckObligationWithCorrectUID() public view {
         // Create a test attestation
         bytes32 uid = bytes32(uint256(1));
         Attestation memory attestation = Attestation({
@@ -35,11 +35,11 @@ contract UidArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with matching UID");
     }
 
-    function testCheckStatementWithIncorrectUID() public {
+    function testCheckObligationWithIncorrectUID() public {
         // Create a test attestation
         bytes32 uid = bytes32(uint256(1));
         Attestation memory attestation = Attestation({
@@ -63,7 +63,7 @@ contract UidArbiterTest is Test {
 
         // Check statement should revert with UidMismatched
         vm.expectRevert(UidArbiter.UidMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

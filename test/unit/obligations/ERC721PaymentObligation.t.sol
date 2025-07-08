@@ -77,7 +77,7 @@ contract ERC721PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -102,7 +102,7 @@ contract ERC721PaymentObligationTest is Test {
         );
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         // Approve token transfer first
         vm.startPrank(payer);
         token.approve(address(paymentObligation), tokenId);
@@ -119,7 +119,7 @@ contract ERC721PaymentObligationTest is Test {
         address recipient = makeAddr("recipient");
 
         vm.prank(address(this));
-        bytes32 attestationId = paymentObligation.makeStatementFor(
+        bytes32 attestationId = paymentObligation.doObligationFor(
             data,
             payer,
             recipient
@@ -151,7 +151,7 @@ contract ERC721PaymentObligationTest is Test {
         );
     }
 
-    function testCheckStatement() public {
+    function testCheckObligation() public {
         // Create a payment first
         vm.startPrank(payer);
         token.approve(address(paymentObligation), tokenId);
@@ -163,7 +163,7 @@ contract ERC721PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Get the attestation
@@ -179,7 +179,7 @@ contract ERC721PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bool exactMatch = paymentObligation.checkStatement(
+        bool exactMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -196,7 +196,7 @@ contract ERC721PaymentObligationTest is Test {
                     payee: payee
                 });
 
-        bool differentTokenIdMatch = paymentObligation.checkStatement(
+        bool differentTokenIdMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentTokenIdDemand),
             bytes32(0)
@@ -216,7 +216,7 @@ contract ERC721PaymentObligationTest is Test {
                     payee: payee
                 });
 
-        bool differentTokenMatch = paymentObligation.checkStatement(
+        bool differentTokenMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentTokenDemand),
             bytes32(0)
@@ -236,7 +236,7 @@ contract ERC721PaymentObligationTest is Test {
                     payee: differentPayee
                 });
 
-        bool differentPayeeMatch = paymentObligation.checkStatement(
+        bool differentPayeeMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentPayeeDemand),
             bytes32(0)
@@ -260,7 +260,7 @@ contract ERC721PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Get the attestation
@@ -277,7 +277,7 @@ contract ERC721PaymentObligationTest is Test {
                 payee: makeAddr("differentPayee")
             });
 
-        bool result = paymentObligation.checkStatement(
+        bool result = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentDemand),
             bytes32(0)
@@ -303,6 +303,6 @@ contract ERC721PaymentObligationTest is Test {
 
         // Should revert because the token transfer will fail
         vm.expectRevert();
-        paymentObligation.makeStatementFor(data, otherOwner, otherOwner);
+        paymentObligation.doObligationFor(data, otherOwner, otherOwner);
     }
 }

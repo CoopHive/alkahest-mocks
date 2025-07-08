@@ -92,7 +92,7 @@ const genObligation = (
     out += "  }\n\n"; // end finalizationTerm
   }
   if (opts.isArbiter)
-    out += `  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
+    out += `  function checkObligation(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {
     if (!statement._checkIntrinsic()) return false;
 
     StatementData memory data_ = abi.decode(statement.data, (StatementData));
@@ -132,12 +132,12 @@ const genArbiter = (
     out += "  constructor() {}\n\n";
   }
 
-  out += `  function checkStatement(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {\n`
+  out += `  function checkObligation(Attestation memory statement, bytes memory demand, bytes32 counteroffer) public view override returns (bool) {\n`
   if (opts.baseStatement) out += "    if (statement.schema != baseStatement.ATTESTATION_SCHEMA()) revert IncompatibleStatement();\n";
   out += `    DemandData memory demand_ = abi.decode(demand, (DemandData));
     // implement custom checks here.
     // early revert with custom errors is recommended on failure.
-    // remember that utility checks are available in IArbiter${opts.baseStatement ? ",\n    // and you can also use baseStatement.checkStatement() if appropriate." : ""}
+    // remember that utility checks are available in IArbiter${opts.baseStatement ? ",\n    // and you can also use baseStatement.checkObligation() if appropriate." : ""}
     // ...
     return true;
   }\n\n`;

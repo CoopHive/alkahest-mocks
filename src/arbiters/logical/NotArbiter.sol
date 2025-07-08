@@ -12,7 +12,7 @@ contract NotArbiter is IArbiter {
         bytes baseDemand;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
@@ -21,7 +21,7 @@ contract NotArbiter is IArbiter {
         
         try
             // can throw, since some arbiters throw with failure case instead of returning false
-            IArbiter(demand_.baseArbiter).checkStatement(
+            IArbiter(demand_.baseArbiter).checkObligation(
                 statement,
                 demand_.baseDemand,
                 counteroffer

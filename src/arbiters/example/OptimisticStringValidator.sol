@@ -104,7 +104,7 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
         emit MediationRequested(validationUID, success_);
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
@@ -127,7 +127,7 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
             return false;
 
         return
-            resultStatement.checkStatement(
+            resultStatement.checkObligation(
                 eas.getAttestation(statement.refUID),
                 abi.encode(
                     StringResultObligation.DemandData({

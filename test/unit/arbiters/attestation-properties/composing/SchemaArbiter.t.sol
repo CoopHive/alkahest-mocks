@@ -13,7 +13,7 @@ contract MockArbiter is IArbiter {
         returnValue = _returnValue;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory /*statement*/,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/
@@ -34,7 +34,7 @@ contract SchemaArbiterTest is Test {
         mockArbiterFalse = new MockArbiter(false);
     }
 
-    function testCheckStatementWithCorrectSchema() public view {
+    function testCheckObligationWithCorrectSchema() public view {
         // Create a test attestation with the correct schema
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -58,14 +58,14 @@ contract SchemaArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with correct schema and base arbiter returning true"
         );
     }
 
-    function testCheckStatementWithCorrectSchemaButBaseArbiterReturnsFalse()
+    function testCheckObligationWithCorrectSchemaButBaseArbiterReturnsFalse()
         public
         view
     {
@@ -92,11 +92,11 @@ contract SchemaArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Check statement should return false
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
 
-    function testCheckStatementWithIncorrectSchema() public {
+    function testCheckObligationWithIncorrectSchema() public {
         // Create a test attestation with an incorrect schema
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -121,7 +121,7 @@ contract SchemaArbiterTest is Test {
 
         // Check statement should revert with SchemaMismatched
         vm.expectRevert(SchemaArbiter.SchemaMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

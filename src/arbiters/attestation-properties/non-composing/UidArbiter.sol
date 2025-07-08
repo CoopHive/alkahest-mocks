@@ -14,7 +14,7 @@ contract UidArbiter is IArbiter {
 
     error UidMismatched();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /*counteroffer*/

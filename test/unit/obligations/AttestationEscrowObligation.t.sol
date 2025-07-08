@@ -84,7 +84,7 @@ contract AttestationEscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 uid = escrowObligation.makeStatement(data, expiration);
+        bytes32 uid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -104,7 +104,7 @@ contract AttestationEscrowObligationTest is Test {
         );
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         // Create the attestation request
         AttestationRequest
             memory attestationRequest = createTestAttestationRequest();
@@ -120,7 +120,7 @@ contract AttestationEscrowObligationTest is Test {
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
 
         vm.prank(address(this));
-        bytes32 uid = escrowObligation.makeStatementFor(
+        bytes32 uid = escrowObligation.doObligationFor(
             data,
             expiration,
             recipient
@@ -166,7 +166,7 @@ contract AttestationEscrowObligationTest is Test {
 
         // Create the fulfillment attestation
         vm.startPrank(attester);
-        fulfillmentUid = escrowObligation.makeStatement(
+        fulfillmentUid = escrowObligation.doObligation(
             fulfillmentData,
             fulfillmentExpiration
         );
@@ -186,14 +186,14 @@ contract AttestationEscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        escrowUid = escrowObligation.makeStatement(data, expiration);
+        escrowUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         return (fulfillmentUid, escrowUid);
     }
 
-    function testCollectPayment_Successful() public {
-        // For this test to pass, we need to make the mockArbiter's checkStatement function return true
+    function testCollectEscrow_Successful() public {
+        // For this test to pass, we need to make the mockArbiter's checkObligation function return true
         // First setup the test
         bytes32 fulfillmentUid;
         bytes32 escrowUid;
@@ -206,7 +206,7 @@ contract AttestationEscrowObligationTest is Test {
 
         // Collect payment
         vm.prank(attester);
-        bytes32 attestationUid = escrowObligation.collectPayment(
+        bytes32 attestationUid = escrowObligation.collectEscrow(
             escrowUid,
             fulfillmentUid
         );
@@ -248,12 +248,12 @@ contract AttestationEscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 escrowUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 escrowUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Create a fulfillment attestation
         vm.startPrank(attester);
-        bytes32 fulfillmentUid = stringObligation.makeStatement(
+        bytes32 fulfillmentUid = stringObligation.doObligation(
             StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
@@ -262,7 +262,7 @@ contract AttestationEscrowObligationTest is Test {
         vm.expectRevert(
             AttestationEscrowObligation.InvalidFulfillment.selector
         );
-        escrowObligation.collectPayment(escrowUid, fulfillmentUid);
+        escrowObligation.collectEscrow(escrowUid, fulfillmentUid);
         vm.stopPrank();
     }
 
@@ -285,7 +285,7 @@ contract AttestationEscrowObligationTest is Test {
         // Create the statement through the contract's function
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
         vm.prank(requester);
-        bytes32 statementId = escrowObligation.makeStatement(
+        bytes32 statementId = escrowObligation.doObligation(
             escrowData,
             expiration
         );
@@ -299,7 +299,7 @@ contract AttestationEscrowObligationTest is Test {
     }
 
     // Test case for exact match
-    function testCheckStatement_ExactMatch() public {
+    function testCheckObligation_ExactMatch() public {
         (
             Attestation memory attestation,
             AttestationRequest memory attestationRequest // Used to create exactDemand
@@ -313,7 +313,7 @@ contract AttestationEscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool exactMatch = escrowObligation.checkStatement(
+        bool exactMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -341,7 +341,7 @@ contract AttestationEscrowObligationTest is Test {
         expiredAttestation.expirationTime = uint64(block.timestamp - 1); // Expired
 
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        escrowObligation.checkStatement(
+        escrowObligation.checkObligation(
             expiredAttestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -368,7 +368,7 @@ contract AttestationEscrowObligationTest is Test {
         wrongSchemaAttestation.schema = bytes32(uint256(1)); // Different schema
 
         vm.expectRevert(ArbiterUtils.InvalidSchema.selector);
-        escrowObligation.checkStatement(
+        escrowObligation.checkObligation(
             wrongSchemaAttestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -395,7 +395,7 @@ contract AttestationEscrowObligationTest is Test {
         revokedAttestation.revocationTime = uint64(block.timestamp - 1); // Revoked
 
         vm.expectRevert(ArbiterUtils.AttestationRevoked.selector);
-        escrowObligation.checkStatement(
+        escrowObligation.checkObligation(
             revokedAttestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -403,7 +403,7 @@ contract AttestationEscrowObligationTest is Test {
     }
 
     // Test case for different attestation request
-    function testCheckStatement_DifferentAttestationRequest() public {
+    function testCheckObligation_DifferentAttestationRequest() public {
         // Only using the attestation from the return value, not the attestationRequest
         (
             Attestation memory attestation,
@@ -423,7 +423,7 @@ contract AttestationEscrowObligationTest is Test {
                     demand: abi.encode("specific demand")
                 });
 
-        bool differentAttestationMatch = escrowObligation.checkStatement(
+        bool differentAttestationMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentAttestationDemand),
             bytes32(0)
@@ -435,7 +435,7 @@ contract AttestationEscrowObligationTest is Test {
     }
 
     // Test case for different arbiter
-    function testCheckStatement_DifferentArbiter() public {
+    function testCheckObligation_DifferentArbiter() public {
         (
             Attestation memory attestation,
             AttestationRequest memory attestationRequest
@@ -450,7 +450,7 @@ contract AttestationEscrowObligationTest is Test {
                     demand: abi.encode("specific demand")
                 });
 
-        bool differentArbiterMatch = escrowObligation.checkStatement(
+        bool differentArbiterMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentArbiterDemand),
             bytes32(0)
@@ -462,7 +462,7 @@ contract AttestationEscrowObligationTest is Test {
     }
 
     // Test case for different demand
-    function testCheckStatement_DifferentDemand() public {
+    function testCheckObligation_DifferentDemand() public {
         (
             Attestation memory attestation,
             AttestationRequest memory attestationRequest
@@ -477,7 +477,7 @@ contract AttestationEscrowObligationTest is Test {
                     demand: abi.encode("different demand")
                 });
 
-        bool differentDemandMatch = escrowObligation.checkStatement(
+        bool differentDemandMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentDemandData),
             bytes32(0)
@@ -507,7 +507,7 @@ contract AttestationEscrowObligationTest is Test {
         );
 
         vm.startPrank(attester);
-        bytes32 fulfillmentUid = escrowObligation.makeStatement(
+        bytes32 fulfillmentUid = escrowObligation.doObligation(
             fulfillmentData,
             fulfillmentExpiration
         );
@@ -518,7 +518,7 @@ contract AttestationEscrowObligationTest is Test {
         // The test should expect a generic revert when the attestation ID is not found
         // This is because the EAS contract is likely returning a generic revert when the attestation doesn't exist
         vm.expectRevert();
-        escrowObligation.collectPayment(invalidAttestationId, fulfillmentUid);
+        escrowObligation.collectEscrow(invalidAttestationId, fulfillmentUid);
         vm.stopPrank();
     }
 

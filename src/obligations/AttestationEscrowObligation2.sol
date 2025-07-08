@@ -49,7 +49,7 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
         );
     }
 
-    function makeStatementFor(
+    function doObligationFor(
         StatementData calldata data,
         uint64 expirationTime,
         address recipient
@@ -70,14 +70,14 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
         emit EscrowMade(uid_, recipient);
     }
 
-    function makeStatement(
+    function doObligation(
         StatementData calldata data,
         uint64 expirationTime
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, expirationTime, msg.sender);
+        return doObligationFor(data, expirationTime, msg.sender);
     }
 
-    function collectPayment(
+    function collectEscrow(
         bytes32 _escrow,
         bytes32 _fulfillment
     ) public returns (bytes32) {
@@ -92,7 +92,7 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
         );
 
         if (
-            !IArbiter(escrowData.arbiter).checkStatement(
+            !IArbiter(escrowData.arbiter).checkObligation(
                 fulfillment,
                 escrowData.demand,
                 escrow.uid
@@ -126,7 +126,7 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
         return validationUid;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /* counteroffer */

@@ -18,7 +18,7 @@ contract StringObligation is BaseStatement {
         ISchemaRegistry _schemaRegistry
     ) BaseStatement(_eas, _schemaRegistry, "string item", true) {}
 
-    function makeStatement(
+    function doObligation(
         StatementData calldata data,
         bytes32 refUID
     ) public returns (bytes32 uid_) {

@@ -27,7 +27,7 @@ contract StringResultObligation is BaseStatement, IArbiter {
         ISchemaRegistry _schemaRegistry
     ) BaseStatement(_eas, _schemaRegistry, "string result", true) {}
 
-    function makeStatement(
+    function doObligation(
         StatementData calldata data,
         bytes32 refUID
     ) public returns (bytes32) {
@@ -47,7 +47,7 @@ contract StringResultObligation is BaseStatement, IArbiter {
             );
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand /* (string query) */,
         bytes32 counteroffer

@@ -14,7 +14,7 @@ contract AllArbiter is IArbiter {
 
     error MismatchedArrayLengths();
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 counteroffer
@@ -27,7 +27,7 @@ contract AllArbiter is IArbiter {
             if (
                 // can throw, since some arbiters throw with failure case instead of returning false
                 // error must be checked against all base arbiters
-                !IArbiter(demand_.arbiters[i]).checkStatement(
+                !IArbiter(demand_.arbiters[i]).checkObligation(
                     statement,
                     demand_.demands[i],
                     counteroffer

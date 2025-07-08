@@ -21,7 +21,7 @@ contract MockArbiter is IArbiter {
         shouldAccept = _shouldAccept;
     }
     
-    function checkStatement(
+    function checkObligation(
         Attestation memory, 
         bytes memory, 
         bytes32

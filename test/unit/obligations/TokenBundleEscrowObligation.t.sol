@@ -161,7 +161,7 @@ contract TokenBundleEscrowObligationTest is Test {
             memory data = createBundleData();
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 uid = escrowObligation.makeStatement(data, expiration);
+        bytes32 uid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -180,7 +180,7 @@ contract TokenBundleEscrowObligationTest is Test {
         verifyTokensInEscrow();
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         // Approve tokens first
         vm.startPrank(buyer);
         erc20Token1.approve(address(escrowObligation), ERC20_AMOUNT_1);
@@ -199,7 +199,7 @@ contract TokenBundleEscrowObligationTest is Test {
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
 
         vm.prank(address(this));
-        bytes32 uid = escrowObligation.makeStatementFor(
+        bytes32 uid = escrowObligation.doObligationFor(
             data,
             expiration,
             buyer,
@@ -265,11 +265,11 @@ contract TokenBundleEscrowObligationTest is Test {
         vm.expectRevert(
             TokenBundleEscrowObligation.ArrayLengthMismatch.selector
         );
-        escrowObligation.makeStatement(data, expiration);
+        escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
     }
 
-    function testCollectPayment() public {
+    function testCollectEscrow() public {
         // Setup: create an escrow
         vm.startPrank(buyer);
         erc20Token1.approve(address(escrowObligation), ERC20_AMOUNT_1);
@@ -283,7 +283,7 @@ contract TokenBundleEscrowObligationTest is Test {
             memory data = createBundleData();
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Create a fulfillment attestation using StringObligation
@@ -292,14 +292,14 @@ contract TokenBundleEscrowObligationTest is Test {
             schemaRegistry
         );
         vm.prank(seller);
-        bytes32 fulfillmentUid = stringObligation.makeStatement(
+        bytes32 fulfillmentUid = stringObligation.doObligation(
             StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
 
         // Collect payment
         vm.prank(seller);
-        bool success = escrowObligation.collectPayment(
+        bool success = escrowObligation.collectEscrow(
             paymentUid,
             fulfillmentUid
         );
@@ -339,7 +339,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
     }
 
-    function testCollectPaymentWithRejectedFulfillment() public {
+    function testCollectEscrowWithRejectedFulfillment() public {
         // Setup: create an escrow with rejecting arbiter
         vm.startPrank(buyer);
         erc20Token1.approve(address(escrowObligation), ERC20_AMOUNT_1);
@@ -394,7 +394,7 @@ contract TokenBundleEscrowObligationTest is Test {
         });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Create a fulfillment attestation using StringObligation
@@ -403,7 +403,7 @@ contract TokenBundleEscrowObligationTest is Test {
             schemaRegistry
         );
         vm.prank(seller);
-        bytes32 fulfillmentUid = stringObligation.makeStatement(
+        bytes32 fulfillmentUid = stringObligation.doObligation(
             StringObligation.StatementData({item: "fulfillment data"}),
             bytes32(0)
         );
@@ -413,10 +413,10 @@ contract TokenBundleEscrowObligationTest is Test {
         vm.expectRevert(
             TokenBundleEscrowObligation.InvalidFulfillment.selector
         );
-        escrowObligation.collectPayment(paymentUid, fulfillmentUid);
+        escrowObligation.collectEscrow(paymentUid, fulfillmentUid);
     }
 
-    function testCollectExpired() public {
+    function testReclaimExpired() public {
         // Setup: create an escrow
         vm.startPrank(buyer);
         erc20Token1.approve(address(escrowObligation), ERC20_AMOUNT_1);
@@ -430,20 +430,20 @@ contract TokenBundleEscrowObligationTest is Test {
             memory data = createBundleData();
 
         uint64 expiration = uint64(block.timestamp + 100); // Short expiration
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Attempt to collect before expiration (should fail)
         vm.prank(buyer);
         vm.expectRevert(TokenBundleEscrowObligation.UnauthorizedCall.selector);
-        escrowObligation.collectExpired(paymentUid);
+        escrowObligation.reclaimExpired(paymentUid);
 
         // Fast forward past expiration time
         vm.warp(block.timestamp + 200);
 
         // Collect expired funds
         vm.prank(buyer);
-        bool success = escrowObligation.collectExpired(paymentUid);
+        bool success = escrowObligation.reclaimExpired(paymentUid);
 
         assertTrue(success, "Expired token collection should succeed");
 
@@ -480,7 +480,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
     }
 
-    function testCheckStatement() public {
+    function testCheckObligation() public {
         // Create statement data
         TokenBundleEscrowObligation.StatementData
             memory paymentData = createBundleData();
@@ -495,7 +495,7 @@ contract TokenBundleEscrowObligationTest is Test {
         erc1155Token2.setApprovalForAll(address(escrowObligation), true);
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 attestationId = escrowObligation.makeStatement(
+        bytes32 attestationId = escrowObligation.doObligation(
             paymentData,
             expiration
         );
@@ -508,7 +508,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test exact match
         TokenBundleEscrowObligation.StatementData
             memory exactDemand = createBundleData();
-        bool exactMatch = escrowObligation.checkStatement(
+        bool exactMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -518,7 +518,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test subset of ERC20 tokens (should succeed)
         TokenBundleEscrowObligation.StatementData
             memory erc20SubsetDemand = createSubsetERC20Demand();
-        bool erc20SubsetMatch = escrowObligation.checkStatement(
+        bool erc20SubsetMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(erc20SubsetDemand),
             bytes32(0)
@@ -528,7 +528,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test subset of ERC721 tokens (should succeed)
         TokenBundleEscrowObligation.StatementData
             memory erc721SubsetDemand = createSubsetERC721Demand();
-        bool erc721SubsetMatch = escrowObligation.checkStatement(
+        bool erc721SubsetMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(erc721SubsetDemand),
             bytes32(0)
@@ -538,7 +538,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test subset of ERC1155 tokens (should succeed)
         TokenBundleEscrowObligation.StatementData
             memory erc1155SubsetDemand = createSubsetERC1155Demand();
-        bool erc1155SubsetMatch = escrowObligation.checkStatement(
+        bool erc1155SubsetMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(erc1155SubsetDemand),
             bytes32(0)
@@ -548,7 +548,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test different arbiter (should fail)
         TokenBundleEscrowObligation.StatementData
             memory differentArbiterDemand = createDifferentArbiterDemand();
-        bool differentArbiterMatch = escrowObligation.checkStatement(
+        bool differentArbiterMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentArbiterDemand),
             bytes32(0)
@@ -561,7 +561,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test different demand data (should fail)
         TokenBundleEscrowObligation.StatementData
             memory differentDemandData = createDifferentDemandData();
-        bool differentDemandMatch = escrowObligation.checkStatement(
+        bool differentDemandMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentDemandData),
             bytes32(0)
@@ -574,7 +574,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test more ERC20 tokens than in the escrow (should fail)
         TokenBundleEscrowObligation.StatementData
             memory moreERC20Demand = createMoreERC20Demand();
-        bool moreERC20Match = escrowObligation.checkStatement(
+        bool moreERC20Match = escrowObligation.checkObligation(
             attestation,
             abi.encode(moreERC20Demand),
             bytes32(0)
@@ -587,7 +587,7 @@ contract TokenBundleEscrowObligationTest is Test {
         // Test higher ERC20 amount than in the escrow (should fail)
         TokenBundleEscrowObligation.StatementData
             memory higherERC20AmountDemand = createHigherERC20AmountDemand();
-        bool higherERC20AmountMatch = escrowObligation.checkStatement(
+        bool higherERC20AmountMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(higherERC20AmountDemand),
             bytes32(0)

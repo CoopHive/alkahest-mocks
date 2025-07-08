@@ -78,7 +78,7 @@ async function createObligation(args: string[]) {
     break;
   }
   console.error(
-    "Will it have a default implementation of `checkStatement`? [y/N]",
+    "Will it have a default implementation of `checkObligation`? [y/N]",
   );
   process.stderr.write("> ");
   for await (const line of console) {
@@ -87,7 +87,7 @@ async function createObligation(args: string[]) {
   }
   if (opts.isArbiter) {
     console.error(
-      `What's the demand schema for \`checkStatement\`? [${opts.statementData}]`,
+      `What's the demand schema for \`checkObligation\`? [${opts.statementData}]`,
     );
     process.stderr.write("> ");
     for await (const line of console) {

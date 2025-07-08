@@ -153,7 +153,7 @@ contract TokenBundlePaymentObligationTest is Test {
         TokenBundlePaymentObligation.StatementData
             memory data = createFullBundleData();
 
-        bytes32 uid = paymentObligation.makeStatement(data);
+        bytes32 uid = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -172,7 +172,7 @@ contract TokenBundlePaymentObligationTest is Test {
         verifyTokensTransferredToPayee();
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         // Approve tokens first
         vm.startPrank(payer);
         erc20Token1.approve(address(paymentObligation), ERC20_AMOUNT_1);
@@ -190,7 +190,7 @@ contract TokenBundlePaymentObligationTest is Test {
         address recipient = makeAddr("recipient");
 
         vm.prank(address(this));
-        bytes32 uid = paymentObligation.makeStatementFor(
+        bytes32 uid = paymentObligation.doObligationFor(
             data,
             payer,
             recipient
@@ -226,7 +226,7 @@ contract TokenBundlePaymentObligationTest is Test {
         TokenBundlePaymentObligation.StatementData
             memory data = createERC20OnlyBundleData();
 
-        bytes32 uid = paymentObligation.makeStatement(data);
+        bytes32 uid = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -265,7 +265,7 @@ contract TokenBundlePaymentObligationTest is Test {
         TokenBundlePaymentObligation.StatementData
             memory data = createERC721OnlyBundleData();
 
-        bytes32 uid = paymentObligation.makeStatement(data);
+        bytes32 uid = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -294,7 +294,7 @@ contract TokenBundlePaymentObligationTest is Test {
         TokenBundlePaymentObligation.StatementData
             memory data = createERC1155OnlyBundleData();
 
-        bytes32 uid = paymentObligation.makeStatement(data);
+        bytes32 uid = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -359,7 +359,7 @@ contract TokenBundlePaymentObligationTest is Test {
         vm.expectRevert(
             TokenBundlePaymentObligation.ArrayLengthMismatch.selector
         );
-        paymentObligation.makeStatement(data);
+        paymentObligation.doObligation(data);
         vm.stopPrank();
     }
 
@@ -397,11 +397,11 @@ contract TokenBundlePaymentObligationTest is Test {
         // The ERC20InsufficientBalance error is from OpenZeppelin 5.0
         // This is a low-level error from the ERC20 contract itself
         vm.expectRevert();
-        paymentObligation.makeStatement(data);
+        paymentObligation.doObligation(data);
         vm.stopPrank();
     }
 
-    function testCheckStatement() public {
+    function testCheckObligation() public {
         // First create an attestation to use for testing
         vm.startPrank(payer);
         erc20Token1.approve(address(paymentObligation), ERC20_AMOUNT_1);
@@ -413,7 +413,7 @@ contract TokenBundlePaymentObligationTest is Test {
 
         TokenBundlePaymentObligation.StatementData
             memory data = createFullBundleData();
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         Attestation memory attestation = paymentObligation.getStatement(
@@ -423,7 +423,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test exact match
         TokenBundlePaymentObligation.StatementData
             memory exactDemand = createFullBundleData();
-        bool exactMatch = paymentObligation.checkStatement(
+        bool exactMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -433,7 +433,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test subset of ERC20 tokens (should succeed)
         TokenBundlePaymentObligation.StatementData
             memory erc20SubsetDemand = createSubsetERC20Demand();
-        bool erc20SubsetMatch = paymentObligation.checkStatement(
+        bool erc20SubsetMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(erc20SubsetDemand),
             bytes32(0)
@@ -443,7 +443,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test lower ERC20 amount (should succeed)
         TokenBundlePaymentObligation.StatementData
             memory lowerERC20AmountDemand = createLowerERC20AmountDemand();
-        bool lowerERC20AmountMatch = paymentObligation.checkStatement(
+        bool lowerERC20AmountMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(lowerERC20AmountDemand),
             bytes32(0)
@@ -456,7 +456,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test subset of ERC721 tokens (should succeed)
         TokenBundlePaymentObligation.StatementData
             memory erc721SubsetDemand = createSubsetERC721Demand();
-        bool erc721SubsetMatch = paymentObligation.checkStatement(
+        bool erc721SubsetMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(erc721SubsetDemand),
             bytes32(0)
@@ -466,7 +466,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test subset of ERC1155 tokens (should succeed)
         TokenBundlePaymentObligation.StatementData
             memory erc1155SubsetDemand = createSubsetERC1155Demand();
-        bool erc1155SubsetMatch = paymentObligation.checkStatement(
+        bool erc1155SubsetMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(erc1155SubsetDemand),
             bytes32(0)
@@ -476,7 +476,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test more ERC20 tokens than in the payment (should fail)
         TokenBundlePaymentObligation.StatementData
             memory moreERC20Demand = createMoreERC20Demand();
-        bool moreERC20Match = paymentObligation.checkStatement(
+        bool moreERC20Match = paymentObligation.checkObligation(
             attestation,
             abi.encode(moreERC20Demand),
             bytes32(0)
@@ -489,7 +489,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test higher ERC20 amount than in the payment (should fail)
         TokenBundlePaymentObligation.StatementData
             memory higherERC20AmountDemand = createHigherERC20AmountDemand();
-        bool higherERC20AmountMatch = paymentObligation.checkStatement(
+        bool higherERC20AmountMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(higherERC20AmountDemand),
             bytes32(0)
@@ -502,7 +502,7 @@ contract TokenBundlePaymentObligationTest is Test {
         // Test different payee (should fail)
         TokenBundlePaymentObligation.StatementData
             memory differentPayeeDemand = createDifferentPayeeDemand();
-        bool differentPayeeMatch = paymentObligation.checkStatement(
+        bool differentPayeeMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentPayeeDemand),
             bytes32(0)
@@ -519,7 +519,7 @@ contract TokenBundlePaymentObligationTest is Test {
             memory invalidDemand = createFullBundleData();
         invalidDemand.payee = address(0); // Invalid payee that doesn't match
 
-        bool invalidDemandMatch = paymentObligation.checkStatement(
+        bool invalidDemandMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(invalidDemand),
             bytes32(0)

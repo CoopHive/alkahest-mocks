@@ -10,7 +10,7 @@ import {ArbiterUtils} from "@src/ArbiterUtils.sol";
 
 // Mock arbiters for testing
 contract MockSuccessArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -20,7 +20,7 @@ contract MockSuccessArbiter is IArbiter {
 }
 
 contract MockFailArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -30,7 +30,7 @@ contract MockFailArbiter is IArbiter {
 }
 
 contract MockRevertArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -122,7 +122,7 @@ contract NotArbiterTest is Test {
         Attestation memory attestation = createValidAttestation();
 
         // The NotArbiter should invert the successful result to false
-        bool result = notArbiter.checkStatement(
+        bool result = notArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -141,7 +141,7 @@ contract NotArbiterTest is Test {
         Attestation memory attestation = createValidAttestation();
 
         // The NotArbiter should invert the failed result to true
-        bool result = notArbiter.checkStatement(
+        bool result = notArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -160,7 +160,7 @@ contract NotArbiterTest is Test {
         Attestation memory attestation = createValidAttestation();
 
         // When the base arbiter reverts, NotArbiter should treat it as success (returning true)
-        bool result = notArbiter.checkStatement(
+        bool result = notArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -182,7 +182,7 @@ contract NotArbiterTest is Test {
         Attestation memory attestation = createValidAttestation();
 
         // IntrinsicsArbiter validates the attestation, so NotArbiter should invert to false
-        bool result = notArbiter.checkStatement(
+        bool result = notArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -204,7 +204,7 @@ contract NotArbiterTest is Test {
         Attestation memory attestation = createExpiredAttestation();
 
         // IntrinsicsArbiter would revert for expired attestation, so NotArbiter should return true
-        bool result = notArbiter.checkStatement(
+        bool result = notArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -261,7 +261,7 @@ contract NotArbiterTest is Test {
         Attestation memory attestation = createValidAttestation();
 
         // The nested NotArbiters should result in true (inverting the inversion)
-        bool result = secondLevelNotArbiter.checkStatement(
+        bool result = secondLevelNotArbiter.checkObligation(
             attestation,
             secondLevelDemand,
             bytes32(0)

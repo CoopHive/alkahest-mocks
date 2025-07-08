@@ -73,7 +73,7 @@ contract ERC20PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Verify attestation exists
@@ -103,7 +103,7 @@ contract ERC20PaymentObligationTest is Test {
         );
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         uint256 amount = 150 * 10 ** 18;
         address recipient = makeAddr("recipient");
 
@@ -121,7 +121,7 @@ contract ERC20PaymentObligationTest is Test {
             });
 
         vm.prank(address(this));
-        bytes32 attestationId = paymentObligation.makeStatementFor(
+        bytes32 attestationId = paymentObligation.doObligationFor(
             data,
             payer,
             recipient
@@ -158,7 +158,7 @@ contract ERC20PaymentObligationTest is Test {
         );
     }
 
-    function testCheckStatement() public {
+    function testCheckObligation() public {
         uint256 amount = 200 * 10 ** 18;
 
         // Approve tokens first
@@ -173,7 +173,7 @@ contract ERC20PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Get the attestation
@@ -189,7 +189,7 @@ contract ERC20PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bool exactMatch = paymentObligation.checkStatement(
+        bool exactMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -204,7 +204,7 @@ contract ERC20PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bool lowerMatch = paymentObligation.checkStatement(
+        bool lowerMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(lowerDemand),
             bytes32(0)
@@ -219,7 +219,7 @@ contract ERC20PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bool higherMatch = paymentObligation.checkStatement(
+        bool higherMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(higherDemand),
             bytes32(0)
@@ -235,7 +235,7 @@ contract ERC20PaymentObligationTest is Test {
                 payee: payee
             });
 
-        bool differentTokenMatch = paymentObligation.checkStatement(
+        bool differentTokenMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentTokenDemand),
             bytes32(0)
@@ -253,7 +253,7 @@ contract ERC20PaymentObligationTest is Test {
                 payee: makeAddr("differentPayee")
             });
 
-        bool differentPayeeMatch = paymentObligation.checkStatement(
+        bool differentPayeeMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentPayeeDemand),
             bytes32(0)
@@ -280,7 +280,7 @@ contract ERC20PaymentObligationTest is Test {
             });
 
         vm.expectRevert();
-        paymentObligation.makeStatement(data);
+        paymentObligation.doObligation(data);
         vm.stopPrank();
     }
 }

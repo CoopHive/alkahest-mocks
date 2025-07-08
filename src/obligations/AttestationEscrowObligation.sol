@@ -40,7 +40,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function makeStatementFor(
+    function doObligationFor(
         StatementData calldata data,
         uint64 expirationTime,
         address recipient
@@ -61,18 +61,18 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         emit EscrowMade(uid_, recipient);
     }
 
-    function makeStatement(
+    function doObligation(
         StatementData calldata data,
         uint64 expirationTime
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, expirationTime, msg.sender);
+        return doObligationFor(data, expirationTime, msg.sender);
     }
 
     error AttestationNotFound(bytes32 attestationId);
     error RevocationFailed(bytes32 attestationId);
     error AttestationCreationFailed();
 
-    function collectPayment(
+    function collectEscrow(
         bytes32 _escrow,
         bytes32 _fulfillment
     ) public returns (bytes32) {
@@ -101,7 +101,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         );
 
         if (
-            !IArbiter(escrowData.arbiter).checkStatement(
+            !IArbiter(escrowData.arbiter).checkObligation(
                 fulfillment,
                 escrowData.demand,
                 escrow.uid
@@ -130,7 +130,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         return attestationUid;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory statement,
         bytes memory demand,
         bytes32 /* counteroffer */

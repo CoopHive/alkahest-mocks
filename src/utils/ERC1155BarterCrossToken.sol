@@ -49,7 +49,7 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
         uint64 expiration
     ) external returns (bytes32) {
         return
-            erc1155Escrow.makeStatementFor(
+            erc1155Escrow.doObligationFor(
                 ERC1155EscrowObligation.StatementData({
                     token: bidToken,
                     tokenId: bidTokenId,
@@ -78,7 +78,7 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
         uint64 expiration
     ) external returns (bytes32) {
         return
-            erc1155Escrow.makeStatementFor(
+            erc1155Escrow.doObligationFor(
                 ERC1155EscrowObligation.StatementData({
                     token: bidToken,
                     tokenId: bidTokenId,
@@ -106,7 +106,7 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
         uint64 expiration
     ) external returns (bytes32) {
         return
-            erc1155Escrow.makeStatementFor(
+            erc1155Escrow.doObligationFor(
                 ERC1155EscrowObligation.StatementData({
                     token: bidToken,
                     tokenId: bidTokenId,
@@ -133,14 +133,14 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
             (ERC1155PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc1155Payment.makeStatementFor(
+        bytes32 sellAttestation = erc1155Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc20Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -159,14 +159,14 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
             (ERC1155PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc1155Payment.makeStatementFor(
+        bytes32 sellAttestation = erc1155Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc721Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc721Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -183,14 +183,14 @@ contract ERC1155BarterCrossToken is ERC1155BarterUtils {
             (ERC1155PaymentObligation.StatementData)
         );
 
-        bytes32 sellAttestation = erc1155Payment.makeStatementFor(
+        bytes32 sellAttestation = erc1155Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!bundleEscrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!bundleEscrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;

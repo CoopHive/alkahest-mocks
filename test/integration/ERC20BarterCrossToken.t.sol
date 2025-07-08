@@ -132,7 +132,7 @@ contract ERC20BarterCrossTokenTest is Test {
         // Bob accepts by transferring NFT
         vm.startPrank(bob);
         erc721Token.approve(address(erc721Payment), nftId);
-        bytes32 sellAttestation = erc721Payment.makeStatement(
+        bytes32 sellAttestation = erc721Payment.doObligation(
             ERC721PaymentObligation.StatementData({
                 token: address(erc721Token),
                 tokenId: nftId,
@@ -141,7 +141,7 @@ contract ERC20BarterCrossTokenTest is Test {
         );
 
         // Collect payment
-        bool success = escrowStatement.collectPayment(
+        bool success = escrowStatement.collectEscrow(
             buyAttestation,
             sellAttestation
         );
@@ -182,7 +182,7 @@ contract ERC20BarterCrossTokenTest is Test {
         // Bob accepts by transferring tokens
         vm.startPrank(bob);
         erc1155Token.setApprovalForAll(address(erc1155Payment), true);
-        bytes32 sellAttestation = erc1155Payment.makeStatement(
+        bytes32 sellAttestation = erc1155Payment.doObligation(
             ERC1155PaymentObligation.StatementData({
                 token: address(erc1155Token),
                 tokenId: tokenId,
@@ -192,7 +192,7 @@ contract ERC20BarterCrossTokenTest is Test {
         );
 
         // Collect payment
-        bool success = escrowStatement.collectPayment(
+        bool success = escrowStatement.collectEscrow(
             buyAttestation,
             sellAttestation
         );
@@ -243,7 +243,7 @@ contract ERC20BarterCrossTokenTest is Test {
         // Bob accepts
         vm.startPrank(bob);
         erc721Token.approve(address(erc721Payment), nftId);
-        bytes32 sellAttestation = erc721Payment.makeStatement(
+        bytes32 sellAttestation = erc721Payment.doObligation(
             ERC721PaymentObligation.StatementData({
                 token: address(erc721Token),
                 tokenId: nftId,
@@ -251,7 +251,7 @@ contract ERC20BarterCrossTokenTest is Test {
             })
         );
 
-        bool success = escrowStatement.collectPayment(
+        bool success = escrowStatement.collectEscrow(
             buyAttestation,
             sellAttestation
         );

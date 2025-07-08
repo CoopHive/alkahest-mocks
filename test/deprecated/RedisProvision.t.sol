@@ -42,7 +42,7 @@ contract RedisProvisionObligationTest is Test {
             });
         uint64 expiration = uint64(block.timestamp + 30 days);
 
-        bytes32 statementUID = provisionObligation.makeStatement(
+        bytes32 statementUID = provisionObligation.doObligation(
             statementData,
             expiration
         );
@@ -93,7 +93,7 @@ contract RedisProvisionObligationTest is Test {
             });
         uint64 expiration = uint64(block.timestamp + 30 days);
 
-        bytes32 initialUID = provisionObligation.makeStatement(
+        bytes32 initialUID = provisionObligation.doObligation(
             statementData,
             expiration
         );
@@ -172,7 +172,7 @@ contract RedisProvisionObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + 30 days);
-        bytes32 initialUID = provisionObligation.makeStatement(
+        bytes32 initialUID = provisionObligation.doObligation(
             statementData,
             expiration
         );
@@ -263,7 +263,7 @@ contract RedisProvisionObligationTest is Test {
             });
         uint64 expiration = uint64(block.timestamp + 30 days);
 
-        bytes32 aliceUID = provisionObligation.makeStatement(
+        bytes32 aliceUID = provisionObligation.doObligation(
             statementData,
             expiration
         );
