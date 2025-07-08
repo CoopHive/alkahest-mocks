@@ -4,11 +4,11 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
+contract AttestationEscrowObligation2 is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
     bytes32 public immutable VALIDATION_SCHEMA;
@@ -34,7 +34,7 @@ contract AttestationEscrowObligation2 is BaseStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address arbiter, bytes demand, bytes32 attestationUid",

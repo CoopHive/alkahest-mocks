@@ -5,11 +5,11 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IArbiter} from "../../IArbiter.sol";
-import {BaseStatement} from "../../BaseStatement.sol";
+import {BaseObligation} from "../../BaseObligation.sol";
 import {StringResultObligation} from "../../obligations/example/StringResultObligation.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
-contract OptimisticStringValidator is BaseStatement, IArbiter {
+contract OptimisticStringValidator is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct ValidationData {
@@ -33,16 +33,16 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry,
-        StringResultObligation _baseStatement
+        StringResultObligation _baseObligation
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "string query, uint64 mediationPeriod",
             true
         )
     {
-        resultStatement = _baseStatement;
+        resultStatement = _baseObligation;
     }
 
     function startValidation(

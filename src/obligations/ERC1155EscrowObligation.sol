@@ -6,11 +6,11 @@ import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, Rev
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
+contract ERC1155EscrowObligation is BaseObligation, IArbiter, ERC1155Holder {
     using ArbiterUtils for Attestation;
 
     struct ObligationData {
@@ -47,7 +47,7 @@ contract ERC1155EscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address arbiter, bytes demand, address token, uint256 tokenId, uint256 amount",

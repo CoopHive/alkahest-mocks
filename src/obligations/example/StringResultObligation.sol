@@ -4,11 +4,11 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../../BaseStatement.sol";
+import {BaseObligation} from "../../BaseObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
-contract StringResultObligation is BaseStatement, IArbiter {
+contract StringResultObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct ObligationData {
@@ -25,7 +25,7 @@ contract StringResultObligation is BaseStatement, IArbiter {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) BaseStatement(_eas, _schemaRegistry, "string result", true) {}
+    ) BaseObligation(_eas, _schemaRegistry, "string result", true) {}
 
     function doObligation(
         ObligationData calldata data,

@@ -4,11 +4,11 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../../BaseStatement.sol";
+import {BaseObligation} from "../../BaseObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
-contract RedisProvisionObligation is BaseStatement, IArbiter {
+contract RedisProvisionObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct ObligationData {
@@ -45,7 +45,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address user, uint256 capacity, uint256 egress, uint256 cpus, string memory serverName, string memory url",

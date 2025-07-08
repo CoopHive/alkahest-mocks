@@ -7,12 +7,12 @@ import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {Attestation} from "@eas/Common.sol";
 
-abstract contract BaseStatement is SchemaResolver {
+abstract contract BaseObligation is SchemaResolver {
     ISchemaRegistry internal immutable schemaRegistry;
     IEAS internal immutable eas;
     bytes32 public immutable ATTESTATION_SCHEMA;
 
-    error NotFromStatement();
+    error NotFromObligation();
 
     constructor(
         IEAS _eas,
@@ -45,7 +45,7 @@ abstract contract BaseStatement is SchemaResolver {
         bytes32 uid
     ) external view returns (Attestation memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
+        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromObligation();
         return attestation;
     }
 

@@ -31,10 +31,10 @@ contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
     SpecificAttestationArbiter public immutable specificAttestation;
 
     constructor(
-        TokenBundleEscrowObligation _baseStatement,
+        TokenBundleEscrowObligation _baseObligation,
         SpecificAttestationArbiter _specificAttestation
     ) {
-        paymentStatement = _baseStatement;
+        paymentStatement = _baseObligation;
         specificAttestation = _specificAttestation;
     }
 

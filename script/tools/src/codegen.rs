@@ -34,7 +34,7 @@ fn gen_imports(imports: impl IntoIterator<Item = impl ToString>) -> String {
         "@eas/IEAS.sol"
     );
     add_imports!(["ISchemaRegistry"], "@eas/ISchemaRegistry.sol");
-    add_imports!(["BaseStatement"], "../BaseStatement.sol");
+    add_imports!(["BaseObligation"], "../BaseObligation.sol");
     add_imports!(["IArbiter"], "../IArbiter.sol");
     add_imports!(["ArbiterUtils"], "../ArbiterUtils.sol");
 
@@ -52,7 +52,7 @@ pub struct GenObligationOpts {
 
 pub fn gen_obligation(opts: GenObligationOpts) -> String {
     let mut imports = vec![
-        "BaseStatement",
+        "BaseObligation",
         "IEAS",
         "ISchemaRegistry",
         "Attestation",
@@ -70,7 +70,7 @@ pub fn gen_obligation(opts: GenObligationOpts) -> String {
 
     let mut out = format!("{}\n{}\n\n{}\n", LICENSE, PRAGMA, gen_imports(imports));
     out += &format!(
-        "contract {} is BaseStatement{} {{\n",
+        "contract {} is BaseObligation{} {{\n",
         opts.name,
         if opts.is_arbiter { ", IArbiter" } else { "" }
     );
@@ -94,7 +94,7 @@ pub fn gen_obligation(opts: GenObligationOpts) -> String {
         );
     }
     out += &format!(
-        "  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) BaseStatement(_eas, _schemaRegistry, \"{}\", {}) {{}}\n\n",
+        "  constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) BaseObligation(_eas, _schemaRegistry, \"{}\", {}) {{}}\n\n",
         opts.obligation_data,
         if opts.is_revocable { "true" } else { "false" },
     );

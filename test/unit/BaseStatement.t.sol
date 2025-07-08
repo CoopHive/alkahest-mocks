@@ -2,18 +2,18 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseStatement} from "@src/BaseStatement.sol";
+import {BaseObligation} from "@src/BaseObligation.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {IEAS, Attestation} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
-// Mock implementation of BaseStatement for testing
-contract MockBaseStatement is BaseStatement {
+// Mock implementation of BaseObligation for testing
+contract MockBaseObligation is BaseObligation {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) BaseStatement(_eas, _schemaRegistry, "mock schema", true) {}
+    ) BaseObligation(_eas, _schemaRegistry, "mock schema", true) {}
 
     // Public wrapper for onAttest for testing
     function testOnAttest(
@@ -32,8 +32,8 @@ contract MockBaseStatement is BaseStatement {
     }
 }
 
-contract BaseStatementTest is Test {
-    MockBaseStatement public baseStatement;
+contract BaseObligationTest is Test {
+    MockBaseObligation public baseObligation;
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
 
@@ -41,16 +41,16 @@ contract BaseStatementTest is Test {
         EASDeployer easDeployer = new EASDeployer();
         (eas, schemaRegistry) = easDeployer.deployEAS();
 
-        baseStatement = new MockBaseStatement(eas, schemaRegistry);
+        baseObligation = new MockBaseObligation(eas, schemaRegistry);
     }
 
     function testConstructor() public view {
         // Verify the schema was registered
-        bytes32 schemaId = baseStatement.ATTESTATION_SCHEMA();
+        bytes32 schemaId = baseObligation.ATTESTATION_SCHEMA();
         assertNotEq(schemaId, bytes32(0), "Schema should be registered");
 
         // Verify schema details
-        SchemaRecord memory schema = baseStatement.getSchema();
+        SchemaRecord memory schema = baseObligation.getSchema();
         assertEq(schema.uid, schemaId, "Schema UID should match");
         assertEq(schema.schema, "mock schema", "Schema string should match");
         assertTrue(schema.revocable, "Schema should be revocable");
@@ -62,13 +62,13 @@ contract BaseStatementTest is Test {
         // Create a test attestation from the statement contract
         Attestation memory validAttestation = Attestation({
             uid: bytes32(0),
-            schema: baseStatement.ATTESTATION_SCHEMA(),
+            schema: baseObligation.ATTESTATION_SCHEMA(),
             time: uint64(block.timestamp),
             expirationTime: uint64(0),
             revocationTime: uint64(0),
             refUID: bytes32(0),
             recipient: address(0),
-            attester: address(baseStatement),
+            attester: address(baseObligation),
             revocable: true,
             data: bytes("")
         });
@@ -76,7 +76,7 @@ contract BaseStatementTest is Test {
         // Create an invalid attestation (not from statement contract)
         Attestation memory invalidAttestation = Attestation({
             uid: bytes32(0),
-            schema: baseStatement.ATTESTATION_SCHEMA(),
+            schema: baseObligation.ATTESTATION_SCHEMA(),
             time: uint64(block.timestamp),
             expirationTime: uint64(0),
             revocationTime: uint64(0),
@@ -88,11 +88,11 @@ contract BaseStatementTest is Test {
         });
 
         assertTrue(
-            baseStatement.testOnAttest(validAttestation, 0),
+            baseObligation.testOnAttest(validAttestation, 0),
             "onAttest should return true for valid attestation"
         );
         assertFalse(
-            baseStatement.testOnAttest(invalidAttestation, 0),
+            baseObligation.testOnAttest(invalidAttestation, 0),
             "onAttest should return false for invalid attestation"
         );
     }
@@ -103,13 +103,13 @@ contract BaseStatementTest is Test {
         // Create a test attestation from the statement contract
         Attestation memory validAttestation = Attestation({
             uid: bytes32(0),
-            schema: baseStatement.ATTESTATION_SCHEMA(),
+            schema: baseObligation.ATTESTATION_SCHEMA(),
             time: uint64(block.timestamp),
             expirationTime: uint64(0),
             revocationTime: uint64(0),
             refUID: bytes32(0),
             recipient: address(0),
-            attester: address(baseStatement),
+            attester: address(baseObligation),
             revocable: true,
             data: bytes("")
         });
@@ -117,7 +117,7 @@ contract BaseStatementTest is Test {
         // Create an invalid attestation (not from statement contract)
         Attestation memory invalidAttestation = Attestation({
             uid: bytes32(0),
-            schema: baseStatement.ATTESTATION_SCHEMA(),
+            schema: baseObligation.ATTESTATION_SCHEMA(),
             time: uint64(block.timestamp),
             expirationTime: uint64(0),
             revocationTime: uint64(0),
@@ -129,17 +129,17 @@ contract BaseStatementTest is Test {
         });
 
         assertTrue(
-            baseStatement.testOnRevoke(validAttestation, 0),
+            baseObligation.testOnRevoke(validAttestation, 0),
             "onRevoke should return true for valid attestation"
         );
         assertFalse(
-            baseStatement.testOnRevoke(invalidAttestation, 0),
+            baseObligation.testOnRevoke(invalidAttestation, 0),
             "onRevoke should return false for invalid attestation"
         );
     }
 
     function testGetStatement() public {
-        bytes32 validSchema = baseStatement.ATTESTATION_SCHEMA();
+        bytes32 validSchema = baseObligation.ATTESTATION_SCHEMA();
         bytes32 invalidSchema = bytes32(uint256(1));
 
         // Mock getAttestation to return a valid attestation
@@ -155,7 +155,7 @@ contract BaseStatementTest is Test {
                     revocationTime: uint64(0),
                     refUID: bytes32(0),
                     recipient: address(0),
-                    attester: address(baseStatement),
+                    attester: address(baseObligation),
                     revocable: true,
                     data: bytes("")
                 })
@@ -175,7 +175,7 @@ contract BaseStatementTest is Test {
                     revocationTime: uint64(0),
                     refUID: bytes32(0),
                     recipient: address(0),
-                    attester: address(baseStatement),
+                    attester: address(baseObligation),
                     revocable: true,
                     data: bytes("")
                 })
@@ -183,13 +183,13 @@ contract BaseStatementTest is Test {
         );
 
         // Valid attestation should work
-        Attestation memory attestation = baseStatement.getStatement(
+        Attestation memory attestation = baseObligation.getStatement(
             validSchema
         );
         assertEq(attestation.uid, validSchema, "UID should match");
 
         // Invalid attestation should revert
-        vm.expectRevert(BaseStatement.NotFromStatement.selector);
-        baseStatement.getStatement(invalidSchema);
+        vm.expectRevert(BaseObligation.NotFromObligation.selector);
+        baseObligation.getStatement(invalidSchema);
     }
 }

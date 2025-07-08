@@ -4,9 +4,9 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 
-contract StringObligation is BaseStatement {
+contract StringObligation is BaseObligation {
     struct ObligationData {
         string item;
     }
@@ -16,7 +16,7 @@ contract StringObligation is BaseStatement {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) BaseStatement(_eas, _schemaRegistry, "string item", true) {}
+    ) BaseObligation(_eas, _schemaRegistry, "string item", true) {}
 
     function doObligation(
         ObligationData calldata data,
@@ -48,7 +48,7 @@ contract StringObligation is BaseStatement {
         bytes32 uid
     ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
+        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromObligation();
         return abi.decode(attestation.data, (ObligationData));
     }
 

@@ -122,7 +122,7 @@ async function createObligation(args: string[]) {
 async function createArbiter(args: string[]) {
   let name = "";
   const opts = {
-    baseStatement: "",
+    baseObligation: "",
     demandData: "",
   };
 
@@ -140,7 +140,7 @@ async function createArbiter(args: string[]) {
   );
   process.stderr.write("> ");
   for await (const line of console) {
-    opts.baseStatement = line;
+    opts.baseObligation = line;
     break;
   }
   console.error(

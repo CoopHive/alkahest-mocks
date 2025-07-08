@@ -22,10 +22,10 @@ contract ERC20PaymentFulfillmentArbiter is IArbiter {
     SpecificAttestationArbiter public immutable specificAttestation;
 
     constructor(
-        ERC20EscrowObligation _baseStatement,
+        ERC20EscrowObligation _baseObligation,
         SpecificAttestationArbiter _specificAttestation
     ) {
-        paymentStatement = _baseStatement;
+        paymentStatement = _baseObligation;
         specificAttestation = _specificAttestation;
     }
 
