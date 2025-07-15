@@ -58,7 +58,7 @@ contract ERC20PaymentObligationTest is Test {
         );
     }
 
-    function testMakeStatement() public {
+    function testDoObligation() public {
         uint256 amount = 100 * 10 ** 18;
 
         // Approve tokens first
@@ -66,21 +66,21 @@ contract ERC20PaymentObligationTest is Test {
         token.approve(address(paymentObligation), amount);
 
         // Make payment
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
             });
 
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Verify attestation exists
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getStatement(
+        Attestation memory attestation = paymentObligation.getObligation(
             attestationId
         );
         assertEq(
@@ -103,7 +103,7 @@ contract ERC20PaymentObligationTest is Test {
         );
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         uint256 amount = 150 * 10 ** 18;
         address recipient = makeAddr("recipient");
 
@@ -113,15 +113,15 @@ contract ERC20PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Make payment on behalf of payer
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
             });
 
         vm.prank(address(this));
-        bytes32 attestationId = paymentObligation.makeStatementFor(
+        bytes32 attestationId = paymentObligation.doObligationFor(
             data,
             payer,
             recipient
@@ -131,7 +131,7 @@ contract ERC20PaymentObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getStatement(
+        Attestation memory attestation = paymentObligation.getObligation(
             attestationId
         );
         assertEq(
@@ -158,7 +158,7 @@ contract ERC20PaymentObligationTest is Test {
         );
     }
 
-    function testCheckStatement() public {
+    function testCheckObligation() public {
         uint256 amount = 200 * 10 ** 18;
 
         // Approve tokens first
@@ -166,30 +166,30 @@ contract ERC20PaymentObligationTest is Test {
         token.approve(address(paymentObligation), amount);
 
         // Make payment
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
             });
 
-        bytes32 attestationId = paymentObligation.makeStatement(data);
+        bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
         // Get the attestation
-        Attestation memory attestation = paymentObligation.getStatement(
+        Attestation memory attestation = paymentObligation.getObligation(
             attestationId
         );
 
         // Test exact match demand
-        ERC20PaymentObligation.StatementData
-            memory exactDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory exactDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
             });
 
-        bool exactMatch = paymentObligation.checkStatement(
+        bool exactMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -197,14 +197,14 @@ contract ERC20PaymentObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test lower amount demand
-        ERC20PaymentObligation.StatementData
-            memory lowerDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory lowerDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount - 50 * 10 ** 18,
                 payee: payee
             });
 
-        bool lowerMatch = paymentObligation.checkStatement(
+        bool lowerMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(lowerDemand),
             bytes32(0)
@@ -212,14 +212,14 @@ contract ERC20PaymentObligationTest is Test {
         assertTrue(lowerMatch, "Should match lower amount demand");
 
         // Test higher amount demand (should fail)
-        ERC20PaymentObligation.StatementData
-            memory higherDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory higherDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount + 50 * 10 ** 18,
                 payee: payee
             });
 
-        bool higherMatch = paymentObligation.checkStatement(
+        bool higherMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(higherDemand),
             bytes32(0)
@@ -228,14 +228,14 @@ contract ERC20PaymentObligationTest is Test {
 
         // Test different token demand (should fail)
         MockERC20 differentToken = new MockERC20();
-        ERC20PaymentObligation.StatementData
-            memory differentTokenDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory differentTokenDemand = ERC20PaymentObligation.ObligationData({
                 token: address(differentToken),
                 amount: amount,
                 payee: payee
             });
 
-        bool differentTokenMatch = paymentObligation.checkStatement(
+        bool differentTokenMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentTokenDemand),
             bytes32(0)
@@ -246,14 +246,14 @@ contract ERC20PaymentObligationTest is Test {
         );
 
         // Test different payee demand (should fail)
-        ERC20PaymentObligation.StatementData
-            memory differentPayeeDemand = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory differentPayeeDemand = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: makeAddr("differentPayee")
             });
 
-        bool differentPayeeMatch = paymentObligation.checkStatement(
+        bool differentPayeeMatch = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentPayeeDemand),
             bytes32(0)
@@ -272,15 +272,15 @@ contract ERC20PaymentObligationTest is Test {
         token.approve(address(paymentObligation), amount);
 
         // Try to make payment with insufficient balance
-        ERC20PaymentObligation.StatementData
-            memory data = ERC20PaymentObligation.StatementData({
+        ERC20PaymentObligation.ObligationData
+            memory data = ERC20PaymentObligation.ObligationData({
                 token: address(token),
                 amount: amount,
                 payee: payee
             });
 
         vm.expectRevert();
-        paymentObligation.makeStatement(data);
+        paymentObligation.doObligation(data);
         vm.stopPrank();
     }
 }

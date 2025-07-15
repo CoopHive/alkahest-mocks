@@ -16,7 +16,7 @@ contract ExpirationTimeBeforeArbiterTest is Test {
         expirationTimeThreshold = uint64(block.timestamp + 100); // 100 seconds in the future
     }
 
-    function testCheckStatementWithExpirationTimeBeforeThreshold() public view {
+    function testCheckObligationWithExpirationTimeBeforeThreshold() public view {
         // Create a test attestation with expiration time before the threshold
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -38,15 +38,15 @@ contract ExpirationTimeBeforeArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with expiration time before threshold"
         );
     }
 
-    function testCheckStatementWithExpirationTimeAfterThreshold() public {
+    function testCheckObligationWithExpirationTimeAfterThreshold() public {
         // Create a test attestation with expiration time after the threshold
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -68,11 +68,11 @@ contract ExpirationTimeBeforeArbiterTest is Test {
             });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with ExpirationTimeNotBefore
+        // Check obligation should revert with ExpirationTimeNotBefore
         vm.expectRevert(
             ExpirationTimeBeforeArbiter.ExpirationTimeNotBefore.selector
         );
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

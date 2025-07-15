@@ -77,15 +77,15 @@ contract AttestationBarterUtils is SchemaResolver {
         // First create the attestation
         attestationUid = eas.attest(attestationRequest);
 
-        // Then create the escrow statement
-        AttestationEscrowObligation2.StatementData
-            memory escrowData = AttestationEscrowObligation2.StatementData({
+        // Then create the escrow obligation
+        AttestationEscrowObligation2.ObligationData
+            memory escrowData = AttestationEscrowObligation2.ObligationData({
                 attestationUid: attestationUid,
                 arbiter: arbiter,
                 demand: demand
             });
 
-        escrowUid = escrowContract.makeStatement(escrowData, expiration);
+        escrowUid = escrowContract.doObligation(escrowData, expiration);
     }
 
     function onAttest(

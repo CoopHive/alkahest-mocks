@@ -56,7 +56,7 @@ async function createObligation(args: string[]) {
     isArbiter: false,
     isRevocable: false,
     finalizationTerms: 0,
-    statementData: "",
+    obligationData: "",
     demandData: "",
   };
 
@@ -74,11 +74,11 @@ async function createObligation(args: string[]) {
   );
   process.stderr.write("> ");
   for await (const line of console) {
-    opts.statementData = line ? line : "address token, uint256 amount";
+    opts.obligationData = line ? line : "address token, uint256 amount";
     break;
   }
   console.error(
-    "Will it have a default implementation of `checkStatement`? [y/N]",
+    "Will it have a default implementation of `checkObligation`? [y/N]",
   );
   process.stderr.write("> ");
   for await (const line of console) {
@@ -87,11 +87,11 @@ async function createObligation(args: string[]) {
   }
   if (opts.isArbiter) {
     console.error(
-      `What's the demand schema for \`checkStatement\`? [${opts.statementData}]`,
+      `What's the demand schema for \`checkObligation\`? [${opts.obligationData}]`,
     );
     process.stderr.write("> ");
     for await (const line of console) {
-      opts.demandData = line ? line : opts.statementData;
+      opts.demandData = line ? line : opts.obligationData;
       break;
     }
   }
@@ -122,7 +122,7 @@ async function createObligation(args: string[]) {
 async function createArbiter(args: string[]) {
   let name = "";
   const opts = {
-    baseStatement: "",
+    baseObligation: "",
     demandData: "",
   };
 
@@ -140,7 +140,7 @@ async function createArbiter(args: string[]) {
   );
   process.stderr.write("> ");
   for await (const line of console) {
-    opts.baseStatement = line;
+    opts.baseObligation = line;
     break;
   }
   console.error(

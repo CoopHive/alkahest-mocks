@@ -12,7 +12,7 @@ Learn more at [Alkahest Docs](https://alkahest.coophive.network).
 
 Base contracts: 
 - [IArbiter](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/IArbiter.sol)
-- [BaseStatement](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/BaseStatement.sol)
+- [BaseObligation](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/BaseObligation.sol)
 - [IValidator](https://github.com/CoopHive/alkahest-mocks/blob/main/src/it1_bytes_arbiters/IValidator.sol)
 
 

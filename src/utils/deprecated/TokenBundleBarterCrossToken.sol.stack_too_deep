@@ -29,14 +29,14 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function _buyErc20WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askAmount,
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            bundleEscrow.makeStatementFor(
-                TokenBundleEscrowObligation.StatementData({
+            bundleEscrow.doObligationFor(
+                TokenBundleEscrowObligation.ObligationData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,
                     erc721Tokens: bidBundle.erc721Tokens,
@@ -46,7 +46,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
                     erc1155Amounts: bidBundle.erc1155Amounts,
                     arbiter: address(erc20Payment),
                     demand: abi.encode(
-                        ERC20PaymentObligation.StatementData({
+                        ERC20PaymentObligation.ObligationData({
                             token: askToken,
                             amount: askAmount,
                             payee: msg.sender
@@ -60,14 +60,14 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function _buyErc721WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askTokenId,
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            bundleEscrow.makeStatementFor(
-                TokenBundleEscrowObligation.StatementData({
+            bundleEscrow.doObligationFor(
+                TokenBundleEscrowObligation.ObligationData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,
                     erc721Tokens: bidBundle.erc721Tokens,
@@ -77,7 +77,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
                     erc1155Amounts: bidBundle.erc1155Amounts,
                     arbiter: address(erc721Payment),
                     demand: abi.encode(
-                        ERC721PaymentObligation.StatementData({
+                        ERC721PaymentObligation.ObligationData({
                             token: askToken,
                             tokenId: askTokenId,
                             payee: msg.sender
@@ -91,15 +91,15 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function _buyErc1155WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askTokenId,
         uint256 askAmount,
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            bundleEscrow.makeStatementFor(
-                TokenBundleEscrowObligation.StatementData({
+            bundleEscrow.doObligationFor(
+                TokenBundleEscrowObligation.ObligationData({
                     erc20Tokens: bidBundle.erc20Tokens,
                     erc20Amounts: bidBundle.erc20Amounts,
                     erc721Tokens: bidBundle.erc721Tokens,
@@ -109,7 +109,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
                     erc1155Amounts: bidBundle.erc1155Amounts,
                     arbiter: address(erc1155Payment),
                     demand: abi.encode(
-                        ERC1155PaymentObligation.StatementData({
+                        ERC1155PaymentObligation.ObligationData({
                             token: askToken,
                             tokenId: askTokenId,
                             amount: askAmount,
@@ -124,7 +124,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function buyErc20WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askAmount,
         uint64 expiration
@@ -133,7 +133,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function buyErc721WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askTokenId,
         uint64 expiration
@@ -143,7 +143,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function buyErc1155WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askTokenId,
         uint256 askAmount,
@@ -160,7 +160,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function permitAndBuyErc20WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askAmount,
         uint64 expiration,
@@ -185,7 +185,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function permitAndBuyErc721WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askTokenId,
         uint64 expiration,
@@ -211,7 +211,7 @@ contract TokenBundleBarterCrossToken is TokenBundleBarterUtils {
     }
 
     function permitAndBuyErc1155WithBundle(
-        TokenBundleEscrowObligation.StatementData calldata bidBundle,
+        TokenBundleEscrowObligation.ObligationData calldata bidBundle,
         address askToken,
         uint256 askTokenId,
         uint256 askAmount,

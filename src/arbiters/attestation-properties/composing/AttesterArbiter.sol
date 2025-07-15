@@ -16,17 +16,17 @@ contract AttesterArbiter is IArbiter {
 
     error AttesterMismatched();
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.attester != demand_.attester) revert AttesterMismatched();
+        if (obligation.attester != demand_.attester) revert AttesterMismatched();
 
         return
-            IArbiter(demand_.baseArbiter).checkStatement(
-                statement,
+            IArbiter(demand_.baseArbiter).checkObligation(
+                obligation,
                 demand_.baseDemand,
                 counteroffer
             );

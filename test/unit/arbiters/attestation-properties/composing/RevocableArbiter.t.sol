@@ -13,7 +13,7 @@ contract MockArbiter is IArbiter {
         returnValue = _returnValue;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory /*statement*/,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/
@@ -33,7 +33,7 @@ contract RevocableArbiterTest is Test {
         mockArbiterFalse = new MockArbiter(false);
     }
 
-    function testCheckStatementWithMatchingRevocable() public view {
+    function testCheckObligationWithMatchingRevocable() public view {
         // Create a test attestation that is revocable
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -56,15 +56,15 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with matching revocable status and base arbiter returning true"
         );
     }
 
-    function testCheckStatementWithMatchingRevocableButBaseArbiterReturnsFalse()
+    function testCheckObligationWithMatchingRevocableButBaseArbiterReturnsFalse()
         public
         view
     {
@@ -90,12 +90,12 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return false
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return false
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
 
-    function testCheckStatementWithMatchingNonRevocable() public view {
+    function testCheckObligationWithMatchingNonRevocable() public view {
         // Create a test attestation that is not revocable
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -118,15 +118,15 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with matching non-revocable status"
         );
     }
 
-    function testCheckStatementWithMismatchedRevocability() public {
+    function testCheckObligationWithMismatchedRevocability() public {
         // Create a test attestation that is revocable
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -149,9 +149,9 @@ contract RevocableArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with RevocabilityMismatched
+        // Check obligation should revert with RevocabilityMismatched
         vm.expectRevert(RevocableArbiter.RevocabilityMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

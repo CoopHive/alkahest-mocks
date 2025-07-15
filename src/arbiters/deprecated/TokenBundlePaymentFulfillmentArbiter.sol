@@ -23,18 +23,18 @@ contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
         uint256[] erc1155Amounts;
     }
 
-    error InvalidStatement();
+    error InvalidObligation();
     error InvalidValidation();
     error ArrayLengthMismatch();
 
-    TokenBundleEscrowObligation public immutable paymentStatement;
+    TokenBundleEscrowObligation public immutable paymentObligation;
     SpecificAttestationArbiter public immutable specificAttestation;
 
     constructor(
-        TokenBundleEscrowObligation _baseStatement,
+        TokenBundleEscrowObligation _baseObligation,
         SpecificAttestationArbiter _specificAttestation
     ) {
-        paymentStatement = _baseStatement;
+        paymentObligation = _baseObligation;
         specificAttestation = _specificAttestation;
     }
 
@@ -49,32 +49,32 @@ contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
         ) revert ArrayLengthMismatch();
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory validationData = abi.decode(demand, (DemandData));
         validateArrayLengths(validationData);
 
-        if (statement.schema != paymentStatement.ATTESTATION_SCHEMA())
-            revert InvalidStatement();
-        if (statement._checkExpired()) revert InvalidStatement();
+        if (obligation.schema != paymentObligation.ATTESTATION_SCHEMA())
+            revert InvalidObligation();
+        if (obligation._checkExpired()) revert InvalidObligation();
 
-        TokenBundleEscrowObligation.StatementData memory statementData = abi
+        TokenBundleEscrowObligation.ObligationData memory obligationData = abi
             .decode(
-                statement.data,
-                (TokenBundleEscrowObligation.StatementData)
+                obligation.data,
+                (TokenBundleEscrowObligation.ObligationData)
             );
 
-        if (!_validateTokens(statementData, validationData))
+        if (!_validateTokens(obligationData, validationData))
             revert InvalidValidation();
 
-        if (statementData.arbiter != address(specificAttestation))
+        if (obligationData.arbiter != address(specificAttestation))
             revert InvalidValidation();
 
         SpecificAttestationArbiter.DemandData memory demandData = abi.decode(
-            statementData.demand,
+            obligationData.demand,
             (SpecificAttestationArbiter.DemandData)
         );
 
@@ -84,37 +84,37 @@ contract TokenBundlePaymentFulfillmentArbiter is IArbiter {
     }
 
     function _validateTokens(
-        TokenBundleEscrowObligation.StatementData memory statement,
+        TokenBundleEscrowObligation.ObligationData memory obligation,
         DemandData memory validation
     ) internal pure returns (bool) {
         // Validate ERC20s
-        if (statement.erc20Tokens.length < validation.erc20Tokens.length)
+        if (obligation.erc20Tokens.length < validation.erc20Tokens.length)
             return false;
         for (uint i = 0; i < validation.erc20Tokens.length; i++) {
             if (
-                statement.erc20Tokens[i] != validation.erc20Tokens[i] ||
-                statement.erc20Amounts[i] < validation.erc20Amounts[i]
+                obligation.erc20Tokens[i] != validation.erc20Tokens[i] ||
+                obligation.erc20Amounts[i] < validation.erc20Amounts[i]
             ) return false;
         }
 
         // Validate ERC721s
-        if (statement.erc721Tokens.length < validation.erc721Tokens.length)
+        if (obligation.erc721Tokens.length < validation.erc721Tokens.length)
             return false;
         for (uint i = 0; i < validation.erc721Tokens.length; i++) {
             if (
-                statement.erc721Tokens[i] != validation.erc721Tokens[i] ||
-                statement.erc721TokenIds[i] != validation.erc721TokenIds[i]
+                obligation.erc721Tokens[i] != validation.erc721Tokens[i] ||
+                obligation.erc721TokenIds[i] != validation.erc721TokenIds[i]
             ) return false;
         }
 
         // Validate ERC1155s
-        if (statement.erc1155Tokens.length < validation.erc1155Tokens.length)
+        if (obligation.erc1155Tokens.length < validation.erc1155Tokens.length)
             return false;
         for (uint i = 0; i < validation.erc1155Tokens.length; i++) {
             if (
-                statement.erc1155Tokens[i] != validation.erc1155Tokens[i] ||
-                statement.erc1155TokenIds[i] != validation.erc1155TokenIds[i] ||
-                statement.erc1155Amounts[i] < validation.erc1155Amounts[i]
+                obligation.erc1155Tokens[i] != validation.erc1155Tokens[i] ||
+                obligation.erc1155TokenIds[i] != validation.erc1155TokenIds[i] ||
+                obligation.erc1155Amounts[i] < validation.erc1155Amounts[i]
             ) return false;
         }
 

@@ -13,7 +13,7 @@ contract SchemaArbiterTest is Test {
         arbiter = new SchemaArbiter();
     }
 
-    function testCheckStatementWithCorrectSchema() public view {
+    function testCheckObligationWithCorrectSchema() public view {
         // Create a test attestation with matching schema
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -34,12 +34,12 @@ contract SchemaArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with matching schema");
     }
 
-    function testCheckStatementWithIncorrectSchema() public {
+    function testCheckObligationWithIncorrectSchema() public {
         // Create a test attestation with non-matching schema
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -60,9 +60,9 @@ contract SchemaArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with SchemaMismatched
+        // Check obligation should revert with SchemaMismatched
         vm.expectRevert(SchemaArbiter.SchemaMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

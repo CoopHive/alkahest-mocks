@@ -14,13 +14,13 @@ contract SchemaArbiter is IArbiter {
 
     error SchemaMismatched();
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /*counteroffer*/
     ) public pure override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.schema != demand_.schema) revert SchemaMismatched();
+        if (obligation.schema != demand_.schema) revert SchemaMismatched();
 
         return true;
     }

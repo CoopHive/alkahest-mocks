@@ -5,14 +5,14 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract ERC1155PaymentObligation is BaseStatement, IArbiter {
+contract ERC1155PaymentObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         address token;
         uint256 tokenId;
         uint256 amount;
@@ -35,7 +35,7 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address token, uint256 tokenId, uint256 amount, address payee",
@@ -43,8 +43,8 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function makeStatementFor(
-        StatementData calldata data,
+    function doObligationFor(
+        ObligationData calldata data,
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
@@ -93,24 +93,24 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
         }
     }
 
-    function makeStatement(
-        StatementData calldata data
+    function doObligation(
+        ObligationData calldata data
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, msg.sender, msg.sender);
+        return doObligationFor(data, msg.sender, msg.sender);
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
-        StatementData memory payment = abi.decode(
-            statement.data,
-            (StatementData)
+        ObligationData memory payment = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
-        StatementData memory demandData = abi.decode(demand, (StatementData));
+        ObligationData memory demandData = abi.decode(demand, (ObligationData));
 
         return
             payment.token == demandData.token &&
@@ -119,17 +119,17 @@ contract ERC1155PaymentObligation is BaseStatement, IArbiter {
             payment.payee == demandData.payee;
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidPayment();
-        return abi.decode(attestation.data, (StatementData));
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

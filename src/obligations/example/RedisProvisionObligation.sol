@@ -4,14 +4,14 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../../BaseStatement.sol";
+import {BaseObligation} from "../../BaseObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
-contract RedisProvisionObligation is BaseStatement, IArbiter {
+contract RedisProvisionObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         address user;
         uint256 capacity; // bytes
         uint256 egress; // bytes
@@ -45,7 +45,7 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address user, uint256 capacity, uint256 egress, uint256 cpus, string memory serverName, string memory url",
@@ -53,8 +53,8 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function makeStatement(
-        StatementData calldata data,
+    function doObligation(
+        ObligationData calldata data,
         uint64 expirationTime
     ) public returns (bytes32) {
         return
@@ -74,34 +74,34 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
     }
 
     function reviseStatement(
-        bytes32 statementUID,
+        bytes32 obligationUID,
         ChangeData calldata changeData
     ) public returns (bytes32) {
-        Attestation memory statement = eas.getAttestation(statementUID);
-        StatementData memory statementData = abi.decode(
-            statement.data,
-            (StatementData)
+        Attestation memory obligation = eas.getAttestation(obligationUID);
+        ObligationData memory obligationData = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
 
-        if (statement.recipient != msg.sender) revert UnauthorizedCall();
+        if (obligation.recipient != msg.sender) revert UnauthorizedCall();
 
-        statement.expirationTime += changeData.addedDuration;
-        statementData.capacity += changeData.addedCapacity;
-        statementData.egress += changeData.addedEgress;
-        statementData.cpus += changeData.addedCpus;
+        obligation.expirationTime += changeData.addedDuration;
+        obligationData.capacity += changeData.addedCapacity;
+        obligationData.egress += changeData.addedEgress;
+        obligationData.cpus += changeData.addedCpus;
 
         if (bytes(changeData.newUrl).length != 0) {
-            statementData.url = changeData.newUrl;
+            obligationData.url = changeData.newUrl;
         }
 
         if (bytes(changeData.newServerName).length != 0) {
-            statementData.serverName = changeData.newServerName;
+            obligationData.serverName = changeData.newServerName;
         }
 
         eas.revoke(
             RevocationRequest({
                 schema: ATTESTATION_SCHEMA,
-                data: RevocationRequestData({uid: statementUID, value: 0})
+                data: RevocationRequestData({uid: obligationUID, value: 0})
             })
         );
 
@@ -111,37 +111,37 @@ contract RedisProvisionObligation is BaseStatement, IArbiter {
                     schema: ATTESTATION_SCHEMA,
                     data: AttestationRequestData({
                         recipient: msg.sender,
-                        expirationTime: statement.expirationTime,
+                        expirationTime: obligation.expirationTime,
                         revocable: true,
-                        refUID: statementUID,
-                        data: abi.encode(statementData),
+                        refUID: obligationUID,
+                        data: abi.encode(obligationData),
                         value: 0
                     })
                 })
             );
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
         DemandData memory demandData = abi.decode(demand, (DemandData));
-        StatementData memory statementData = abi.decode(
-            statement.data,
-            (StatementData)
+        ObligationData memory obligationData = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
 
         return
-            demandData.replaces == statement.refUID &&
-            demandData.expiration <= statement.expirationTime &&
-            demandData.user == statementData.user &&
-            demandData.capacity <= statementData.capacity &&
-            demandData.egress <= statementData.egress &&
-            demandData.cpus <= statementData.cpus &&
+            demandData.replaces == obligation.refUID &&
+            demandData.expiration <= obligation.expirationTime &&
+            demandData.user == obligationData.user &&
+            demandData.capacity <= obligationData.capacity &&
+            demandData.egress <= obligationData.egress &&
+            demandData.cpus <= obligationData.cpus &&
             keccak256(bytes(demandData.serverName)) ==
-            keccak256(bytes(statementData.serverName));
+            keccak256(bytes(obligationData.serverName));
     }
 }

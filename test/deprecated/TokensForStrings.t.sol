@@ -18,9 +18,9 @@ contract MockERC20 is ERC20 {
 }
 
 contract TokensForStringsTest is Test {
-    ERC20EscrowObligation public paymentStatement;
+    ERC20EscrowObligation public paymentObligation;
     OptimisticStringValidator public validator;
-    StringResultObligation public resultStatement;
+    StringResultObligation public resultObligation;
     MockERC20 public mockToken;
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
@@ -34,12 +34,12 @@ contract TokensForStringsTest is Test {
         (eas, schemaRegistry) = easDeployer.deployEAS();
 
         mockToken = new MockERC20();
-        resultStatement = new StringResultObligation(eas, schemaRegistry);
-        paymentStatement = new ERC20EscrowObligation(eas, schemaRegistry);
+        resultObligation = new StringResultObligation(eas, schemaRegistry);
+        paymentObligation = new ERC20EscrowObligation(eas, schemaRegistry);
         validator = new OptimisticStringValidator(
             eas,
             schemaRegistry,
-            resultStatement
+            resultObligation
         );
 
         // Fund Alice and Bob with mock tokens
@@ -47,38 +47,38 @@ contract TokensForStringsTest is Test {
         mockToken.transfer(bob, 1000 * 10 ** 18);
     }
 
-    function testHappyPathWithStringStatementArbiter() public {
+    function testHappyPathWithStringObligationArbiter() public {
         vm.startPrank(alice);
-        mockToken.approve(address(paymentStatement), 100 * 10 ** 18);
+        mockToken.approve(address(paymentObligation), 100 * 10 ** 18);
 
         StringResultObligation.DemandData
             memory stringDemand = StringResultObligation.DemandData({
                 query: "hello world"
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
-                arbiter: address(resultStatement),
+                arbiter: address(resultObligation),
                 demand: abi.encode(stringDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentObligation.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "HELLO WORLD"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultObligation.doObligation(
             resultData,
             paymentUID
         );
 
         // Collect payment
-        bool success = paymentStatement.collectPayment(paymentUID, resultUID);
+        bool success = paymentObligation.collectEscrow(paymentUID, resultUID);
         assertTrue(success, "Payment collection should succeed");
         vm.stopPrank();
 
@@ -89,7 +89,7 @@ contract TokensForStringsTest is Test {
             "Bob should have received the payment"
         );
         assertEq(
-            mockToken.balanceOf(address(paymentStatement)),
+            mockToken.balanceOf(address(paymentObligation)),
             0,
             "Payment contract should have no balance"
         );
@@ -97,7 +97,7 @@ contract TokensForStringsTest is Test {
 
     function testHappyPathWithValidator() public {
         vm.startPrank(alice);
-        mockToken.approve(address(paymentStatement), 100 * 10 ** 18);
+        mockToken.approve(address(paymentObligation), 100 * 10 ** 18);
 
         OptimisticStringValidator.ValidationData
             memory validationDemand = OptimisticStringValidator.ValidationData({
@@ -105,23 +105,23 @@ contract TokensForStringsTest is Test {
                 mediationPeriod: 1 days
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(validator),
                 demand: abi.encode(validationDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentObligation.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "HELLO WORLD"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultObligation.doObligation(
             resultData,
             paymentUID
         );
@@ -142,7 +142,7 @@ contract TokensForStringsTest is Test {
 
         // Collect payment
         vm.prank(bob);
-        bool success = paymentStatement.collectPayment(
+        bool success = paymentObligation.collectEscrow(
             paymentUID,
             validationUID
         );
@@ -156,7 +156,7 @@ contract TokensForStringsTest is Test {
             "Bob should have received the payment"
         );
         assertEq(
-            mockToken.balanceOf(address(paymentStatement)),
+            mockToken.balanceOf(address(paymentObligation)),
             0,
             "Payment contract should have no balance"
         );
@@ -164,7 +164,7 @@ contract TokensForStringsTest is Test {
 
     function testMediationRequestedCorrect() public {
         vm.startPrank(alice);
-        mockToken.approve(address(paymentStatement), 100 * 10 ** 18);
+        mockToken.approve(address(paymentObligation), 100 * 10 ** 18);
 
         OptimisticStringValidator.ValidationData
             memory validationDemand = OptimisticStringValidator.ValidationData({
@@ -172,23 +172,23 @@ contract TokensForStringsTest is Test {
                 mediationPeriod: 1 days
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(validator),
                 demand: abi.encode(validationDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentObligation.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "HELLO WORLD"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultObligation.doObligation(
             resultData,
             paymentUID
         );
@@ -212,7 +212,7 @@ contract TokensForStringsTest is Test {
 
         // Collect payment
         vm.prank(bob);
-        bool success = paymentStatement.collectPayment(
+        bool success = paymentObligation.collectEscrow(
             paymentUID,
             validationUID
         );
@@ -224,7 +224,7 @@ contract TokensForStringsTest is Test {
 
     function testMediationRequestedIncorrect() public {
         vm.startPrank(alice);
-        mockToken.approve(address(paymentStatement), 100 * 10 ** 18);
+        mockToken.approve(address(paymentObligation), 100 * 10 ** 18);
 
         OptimisticStringValidator.ValidationData
             memory validationDemand = OptimisticStringValidator.ValidationData({
@@ -232,23 +232,23 @@ contract TokensForStringsTest is Test {
                 mediationPeriod: 1 days
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
                 arbiter: address(validator),
                 demand: abi.encode(validationDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentObligation.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "INCORRECT RESULT"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultObligation.doObligation(
             resultData,
             paymentUID
         );
@@ -273,35 +273,35 @@ contract TokensForStringsTest is Test {
         // Try to collect payment
         vm.prank(bob);
         vm.expectRevert(); // Expect the transaction to revert
-        paymentStatement.collectPayment(paymentUID, validationUID);
+        paymentObligation.collectEscrow(paymentUID, validationUID);
     }
 
     function testIncorrectResultStringLengthsDifferent() public {
         vm.startPrank(alice);
-        mockToken.approve(address(paymentStatement), 100 * 10 ** 18);
+        mockToken.approve(address(paymentObligation), 100 * 10 ** 18);
 
         StringResultObligation.DemandData
             memory stringDemand = StringResultObligation.DemandData({
                 query: "hello world"
             });
 
-        ERC20EscrowObligation.StatementData
-            memory paymentData = ERC20EscrowObligation.StatementData({
+        ERC20EscrowObligation.ObligationData
+            memory paymentData = ERC20EscrowObligation.ObligationData({
                 token: address(mockToken),
                 amount: 100 * 10 ** 18,
-                arbiter: address(resultStatement),
+                arbiter: address(resultObligation),
                 demand: abi.encode(stringDemand)
             });
 
-        bytes32 paymentUID = paymentStatement.makeStatement(paymentData, 0);
+        bytes32 paymentUID = paymentObligation.doObligation(paymentData, 0);
         vm.stopPrank();
 
         vm.startPrank(bob);
-        StringResultObligation.StatementData
-            memory resultData = StringResultObligation.StatementData({
+        StringResultObligation.ObligationData
+            memory resultData = StringResultObligation.ObligationData({
                 result: "INCORRECT LENGTH RESULT"
             });
-        bytes32 resultUID = resultStatement.makeStatement(
+        bytes32 resultUID = resultObligation.doObligation(
             resultData,
             paymentUID
         );
@@ -310,6 +310,6 @@ contract TokensForStringsTest is Test {
         // Try to collect payment
         vm.prank(bob);
         vm.expectRevert(); // Expect the transaction to revert
-        paymentStatement.collectPayment(paymentUID, resultUID);
+        paymentObligation.collectEscrow(paymentUID, resultUID);
     }
 }

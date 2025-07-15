@@ -14,7 +14,7 @@ contract TrustedOracleArbiterTest is Test {
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
     address oracle = address(0x123);
-    bytes32 statementUid = bytes32(uint256(1));
+    bytes32 obligationUid = bytes32(uint256(1));
 
     function setUp() public {
         EASDeployer easDeployer = new EASDeployer();
@@ -30,7 +30,7 @@ contract TrustedOracleArbiterTest is Test {
         // This is an indirect test since the eas variable is private
         // We'll test it through functionality
         Attestation memory attestation = Attestation({
-            uid: statementUid,
+            uid: obligationUid,
             schema: bytes32(0),
             time: uint64(block.timestamp),
             expirationTime: uint64(0),
@@ -47,7 +47,7 @@ contract TrustedOracleArbiterTest is Test {
         bytes memory demand = abi.encode(demandData);
 
         // Should return false initially since no decision has been made
-        assertFalse(newArbiter.checkStatement(attestation, demand, bytes32(0)));
+        assertFalse(newArbiter.checkObligation(attestation, demand, bytes32(0)));
     }
 
     function testArbitrate() public {
@@ -56,9 +56,9 @@ contract TrustedOracleArbiterTest is Test {
 
         // Initially the decision should be false (default value)
         assertFalse(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 Attestation({
-                    uid: statementUid,
+                    uid: obligationUid,
                     schema: bytes32(0),
                     time: uint64(block.timestamp),
                     expirationTime: uint64(0),
@@ -81,16 +81,16 @@ contract TrustedOracleArbiterTest is Test {
 
         // Expect the ArbitrationMade event to be emitted
         vm.expectEmit(true, true, false, true);
-        emit TrustedOracleArbiter.ArbitrationMade(statementUid, oracle, true);
+        emit TrustedOracleArbiter.ArbitrationMade(obligationUid, oracle, true);
 
         // Make a positive arbitration decision
-        arbiter.arbitrate(statementUid, true);
+        arbiter.arbitrate(obligationUid, true);
 
         // Now the decision should be true
         assertTrue(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 Attestation({
-                    uid: statementUid,
+                    uid: obligationUid,
                     schema: bytes32(0),
                     time: uint64(block.timestamp),
                     expirationTime: uint64(0),
@@ -114,23 +114,23 @@ contract TrustedOracleArbiterTest is Test {
         vm.stopPrank();
     }
 
-    function testCheckStatementWithDifferentOracles() public {
+    function testCheckObligationWithDifferentOracles() public {
         // Set up two different oracles with different decisions
         address oracle1 = address(0x123);
         address oracle2 = address(0x456);
-        // Use the class-level statementUid
+        // Use the class-level obligationUid
 
         // Oracle 1 makes a positive decision
         vm.prank(oracle1);
-        arbiter.arbitrate(statementUid, true);
+        arbiter.arbitrate(obligationUid, true);
 
         // Oracle 2 makes a negative decision
         vm.prank(oracle2);
-        arbiter.arbitrate(statementUid, false);
+        arbiter.arbitrate(obligationUid, false);
 
         // Create the attestation
         Attestation memory attestation = Attestation({
-            uid: statementUid,
+            uid: obligationUid,
             schema: bytes32(0),
             time: uint64(block.timestamp),
             expirationTime: uint64(0),
@@ -144,7 +144,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Check with oracle1 - should be true
         assertTrue(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 attestation,
                 abi.encode(
                     TrustedOracleArbiter.DemandData({
@@ -158,7 +158,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Check with oracle2 - should be false
         assertFalse(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 attestation,
                 abi.encode(
                     TrustedOracleArbiter.DemandData({
@@ -171,14 +171,14 @@ contract TrustedOracleArbiterTest is Test {
         );
     }
 
-    function testCheckStatementWithNoDecision() public {
+    function testCheckObligationWithNoDecision() public {
         // Test with an oracle that hasn't made a decision
         address newOracle = address(0x789);
-        // Use the class-level statementUid
+        // Use the class-level obligationUid
 
         // Create the attestation
         Attestation memory attestation = Attestation({
-            uid: statementUid,
+            uid: obligationUid,
             schema: bytes32(0),
             time: uint64(block.timestamp),
             expirationTime: uint64(0),
@@ -192,7 +192,7 @@ contract TrustedOracleArbiterTest is Test {
 
         // Check with the new oracle - should be false (default value)
         assertFalse(
-            arbiter.checkStatement(
+            arbiter.checkObligation(
                 attestation,
                 abi.encode(
                     TrustedOracleArbiter.DemandData({

@@ -90,7 +90,7 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         erc1155TokenA = new MockERC1155();
         erc1155TokenB = new MockERC1155();
 
-        // Deploy statements
+        // Deploy obligations
         erc20Escrow = new ERC20EscrowObligation(eas, schemaRegistry);
         erc20Payment = new ERC20PaymentObligation(eas, schemaRegistry);
         erc721Escrow = new ERC721EscrowObligation(eas, schemaRegistry);
@@ -147,9 +147,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Validate the attestation data
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC1155EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC1155EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC1155EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.ObligationData)
         );
 
         assertEq(
@@ -166,9 +166,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         );
 
         // Extract the demand data
-        ERC20PaymentObligation.StatementData memory demandData = abi.decode(
+        ERC20PaymentObligation.ObligationData memory demandData = abi.decode(
             escrowData.demand,
-            (ERC20PaymentObligation.StatementData)
+            (ERC20PaymentObligation.ObligationData)
         );
 
         assertEq(
@@ -198,13 +198,13 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         vm.startPrank(bob);
         erc20Token.approve(address(erc20Escrow), erc20Amount);
-        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
-            ERC20EscrowObligation.StatementData({
+        bytes32 buyAttestation = erc20Escrow.doObligationFor(
+            ERC20EscrowObligation.ObligationData({
                 token: address(erc20Token),
                 amount: erc20Amount,
                 arbiter: address(erc1155Payment),
                 demand: abi.encode(
-                    ERC1155PaymentObligation.StatementData({
+                    ERC1155PaymentObligation.ObligationData({
                         token: address(erc1155TokenA),
                         tokenId: erc1155TokenAId,
                         amount: erc1155TokenAAmount,
@@ -277,9 +277,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Validate the attestation data
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC1155EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC1155EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC1155EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.ObligationData)
         );
 
         assertEq(
@@ -296,9 +296,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         );
 
         // Extract the demand data
-        ERC721PaymentObligation.StatementData memory demandData = abi.decode(
+        ERC721PaymentObligation.ObligationData memory demandData = abi.decode(
             escrowData.demand,
-            (ERC721PaymentObligation.StatementData)
+            (ERC721PaymentObligation.ObligationData)
         );
 
         assertEq(
@@ -328,13 +328,13 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         vm.startPrank(bob);
         erc721Token.approve(address(erc721Escrow), erc721TokenId);
-        bytes32 buyAttestation = erc721Escrow.makeStatementFor(
-            ERC721EscrowObligation.StatementData({
+        bytes32 buyAttestation = erc721Escrow.doObligationFor(
+            ERC721EscrowObligation.ObligationData({
                 token: address(erc721Token),
                 tokenId: erc721TokenId,
                 arbiter: address(erc1155Payment),
                 demand: abi.encode(
-                    ERC1155PaymentObligation.StatementData({
+                    ERC1155PaymentObligation.ObligationData({
                         token: address(erc1155TokenA),
                         tokenId: erc1155TokenAId,
                         amount: erc1155TokenAAmount,
@@ -378,8 +378,8 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create bundle data
-        TokenBundlePaymentObligation.StatementData
-            memory bundleData = TokenBundlePaymentObligation.StatementData({
+        TokenBundlePaymentObligation.ObligationData
+            memory bundleData = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: new address[](1),
                 erc20Amounts: new uint256[](1),
                 erc721Tokens: new address[](1),
@@ -417,9 +417,9 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         // Validate the attestation data
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC1155EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC1155EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC1155EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.ObligationData)
         );
 
         assertEq(
@@ -436,10 +436,10 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         );
 
         // Extract the demand data - we'll just verify it's correctly decodable
-        TokenBundlePaymentObligation.StatementData memory demandData = abi
+        TokenBundlePaymentObligation.ObligationData memory demandData = abi
             .decode(
                 escrowData.demand,
-                (TokenBundlePaymentObligation.StatementData)
+                (TokenBundlePaymentObligation.ObligationData)
             );
 
         assertEq(demandData.payee, alice, "Payee should be Alice");
@@ -476,8 +476,8 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
         // Create bundle data for Bob to escrow
-        TokenBundleEscrowObligation.StatementData
-            memory bundleData = TokenBundleEscrowObligation.StatementData({
+        TokenBundleEscrowObligation.ObligationData
+            memory bundleData = TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: new address[](1),
                 erc20Amounts: new uint256[](1),
                 erc721Tokens: new address[](1),
@@ -487,7 +487,7 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
                 erc1155Amounts: new uint256[](1),
                 arbiter: address(erc1155Payment),
                 demand: abi.encode(
-                    ERC1155PaymentObligation.StatementData({
+                    ERC1155PaymentObligation.ObligationData({
                         token: address(erc1155TokenA),
                         tokenId: erc1155TokenAId,
                         amount: erc1155TokenAAmount,
@@ -508,7 +508,7 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
         erc20Token.approve(address(bundleEscrow), erc20Amount / 2);
         erc721Token.approve(address(bundleEscrow), erc721TokenId);
         erc1155TokenB.setApprovalForAll(address(bundleEscrow), true);
-        bytes32 buyAttestation = bundleEscrow.makeStatementFor(
+        bytes32 buyAttestation = bundleEscrow.doObligationFor(
             bundleData,
             expiration,
             bob,
@@ -593,13 +593,13 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         vm.startPrank(bob);
         erc20Token.approve(address(erc20Escrow), erc20Amount);
-        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
-            ERC20EscrowObligation.StatementData({
+        bytes32 buyAttestation = erc20Escrow.doObligationFor(
+            ERC20EscrowObligation.ObligationData({
                 token: address(erc20Token),
                 amount: erc20Amount,
                 arbiter: address(erc1155Payment),
                 demand: abi.encode(
-                    ERC1155PaymentObligation.StatementData({
+                    ERC1155PaymentObligation.ObligationData({
                         token: address(erc1155TokenA),
                         tokenId: erc1155TokenAId,
                         amount: erc1155TokenAAmount,
@@ -626,13 +626,13 @@ contract ERC1155BarterCrossTokenUnitTest is Test {
 
         vm.startPrank(bob);
         erc20Token.approve(address(erc20Escrow), erc20Amount);
-        bytes32 buyAttestation = erc20Escrow.makeStatementFor(
-            ERC20EscrowObligation.StatementData({
+        bytes32 buyAttestation = erc20Escrow.doObligationFor(
+            ERC20EscrowObligation.ObligationData({
                 token: address(erc20Token),
                 amount: erc20Amount,
                 arbiter: address(erc1155Payment),
                 demand: abi.encode(
-                    ERC1155PaymentObligation.StatementData({
+                    ERC1155PaymentObligation.ObligationData({
                         token: address(erc1155TokenA),
                         tokenId: erc1155TokenAId,
                         amount: erc1155TokenAAmount,

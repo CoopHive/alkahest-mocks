@@ -43,7 +43,7 @@ contract IntrinsicsArbiter2Test is Test {
         });
 
         bytes memory demand = createDemandData(TEST_SCHEMA);
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Valid attestation with matching schema should return true"
@@ -51,7 +51,7 @@ contract IntrinsicsArbiter2Test is Test {
 
         // Attestation with no expiration (expirationTime = 0) should also be valid
         attestation.expirationTime = 0;
-        result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Attestation with no expiration should return true");
     }
 
@@ -73,7 +73,7 @@ contract IntrinsicsArbiter2Test is Test {
         bytes memory demand = createDemandData(bytes32(uint256(2))); // Different schema
 
         vm.expectRevert(ArbiterUtils.InvalidSchema.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testExpiredAttestation() public {
@@ -94,7 +94,7 @@ contract IntrinsicsArbiter2Test is Test {
         bytes memory demand = createDemandData(TEST_SCHEMA);
 
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testRevokedAttestation() public {
@@ -115,7 +115,7 @@ contract IntrinsicsArbiter2Test is Test {
         bytes memory demand = createDemandData(TEST_SCHEMA);
 
         vm.expectRevert(ArbiterUtils.AttestationRevoked.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testExpiredAndRevokedAttestation() public {
@@ -137,12 +137,12 @@ contract IntrinsicsArbiter2Test is Test {
 
         // With correct schema but expired attestation
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
 
         // Test the order of checks - schema should be checked first
         bytes memory wrongSchemaDemand = createDemandData(bytes32(uint256(2)));
         vm.expectRevert(ArbiterUtils.InvalidSchema.selector);
-        arbiter.checkStatement(attestation, wrongSchemaDemand, bytes32(0));
+        arbiter.checkObligation(attestation, wrongSchemaDemand, bytes32(0));
     }
 
     function testTimeManipulation() public {
@@ -163,12 +163,12 @@ contract IntrinsicsArbiter2Test is Test {
         bytes memory demand = createDemandData(TEST_SCHEMA);
 
         // Attestation is valid now
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Attestation should be valid initially");
 
         // Warp time to just before expiration
         vm.warp(currentTime + 1 days - 1);
-        result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Attestation should still be valid just before expiration"
@@ -176,7 +176,7 @@ contract IntrinsicsArbiter2Test is Test {
 
         // Warp time to exactly at expiration
         vm.warp(currentTime + 1 days);
-        result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Attestation should still be valid right at expiration"
@@ -185,7 +185,7 @@ contract IntrinsicsArbiter2Test is Test {
         // Warp time past expiration
         vm.warp(currentTime + 1 days + 1);
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public view {

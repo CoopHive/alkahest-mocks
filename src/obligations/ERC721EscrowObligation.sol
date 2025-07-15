@@ -5,14 +5,14 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract ERC721EscrowObligation is BaseStatement, IArbiter {
+contract ERC721EscrowObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         address arbiter;
         bytes demand;
         address token;
@@ -44,7 +44,7 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address arbiter, bytes demand, address token, uint256 tokenId",
@@ -52,8 +52,8 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function makeStatementFor(
-        StatementData calldata data,
+    function doObligationFor(
+        ObligationData calldata data,
         uint64 expirationTime,
         address payer,
         address recipient
@@ -96,14 +96,14 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         }
     }
 
-    function makeStatement(
-        StatementData calldata data,
+    function doObligation(
+        ObligationData calldata data,
         uint64 expirationTime
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, expirationTime, msg.sender, msg.sender);
+        return doObligationFor(data, expirationTime, msg.sender, msg.sender);
     }
 
-    function collectPayment(
+    function collectEscrow(
         bytes32 _payment,
         bytes32 _fulfillment
     ) public returns (bool) {
@@ -128,13 +128,13 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
 
         if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
 
-        StatementData memory paymentData = abi.decode(
+        ObligationData memory paymentData = abi.decode(
             payment.data,
-            (StatementData)
+            (ObligationData)
         );
 
         if (
-            !IArbiter(paymentData.arbiter).checkStatement(
+            !IArbiter(paymentData.arbiter).checkObligation(
                 fulfillment,
                 paymentData.demand,
                 payment.uid
@@ -173,7 +173,7 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         return true;
     }
 
-    function collectExpired(bytes32 uid) public returns (bool) {
+    function reclaimExpired(bytes32 uid) public returns (bool) {
         Attestation memory attestation;
 
         // Get attestation with error handling
@@ -186,9 +186,9 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         if (block.timestamp < attestation.expirationTime)
             revert UnauthorizedCall();
 
-        StatementData memory data = abi.decode(
+        ObligationData memory data = abi.decode(
             attestation.data,
-            (StatementData)
+            (ObligationData)
         );
 
         // Transfer ERC721 token with error handling
@@ -210,18 +210,18 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
         return true;
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
-        StatementData memory payment = abi.decode(
-            statement.data,
-            (StatementData)
+        ObligationData memory payment = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
-        StatementData memory demandData = abi.decode(demand, (StatementData));
+        ObligationData memory demandData = abi.decode(demand, (ObligationData));
 
         return
             payment.token == demandData.token &&
@@ -230,18 +230,18 @@ contract ERC721EscrowObligation is BaseStatement, IArbiter {
             keccak256(payment.demand) == keccak256(demandData.demand);
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA)
             revert InvalidEscrowAttestation();
-        return abi.decode(attestation.data, (StatementData));
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

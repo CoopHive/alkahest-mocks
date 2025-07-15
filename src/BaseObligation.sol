@@ -7,12 +7,12 @@ import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {Attestation} from "@eas/Common.sol";
 
-abstract contract BaseStatement is SchemaResolver {
+abstract contract BaseObligation is SchemaResolver {
     ISchemaRegistry internal immutable schemaRegistry;
     IEAS internal immutable eas;
     bytes32 public immutable ATTESTATION_SCHEMA;
 
-    error NotFromStatement();
+    error NotFromObligation();
 
     constructor(
         IEAS _eas,
@@ -29,7 +29,7 @@ abstract contract BaseStatement is SchemaResolver {
         Attestation calldata attestation,
         uint256 /* value */
     ) internal view override returns (bool) {
-        // only statement contract can attest
+        // only obligation contract can attest
         return attestation.attester == address(this);
     }
 
@@ -37,15 +37,15 @@ abstract contract BaseStatement is SchemaResolver {
         Attestation calldata attestation,
         uint256 /* value */
     ) internal view override returns (bool) {
-        // only statement contract can revoke
+        // only obligation contract can revoke
         return attestation.attester == address(this);
     }
 
-    function getStatement(
+    function getObligation(
         bytes32 uid
     ) external view returns (Attestation memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
+        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromObligation();
         return attestation;
     }
 

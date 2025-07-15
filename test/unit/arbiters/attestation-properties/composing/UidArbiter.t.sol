@@ -13,7 +13,7 @@ contract MockArbiter is IArbiter {
         returnValue = _returnValue;
     }
 
-    function checkStatement(
+    function checkObligation(
         Attestation memory /*statement*/,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/
@@ -34,7 +34,7 @@ contract UidArbiterTest is Test {
         mockArbiterFalse = new MockArbiter(false);
     }
 
-    function testCheckStatementWithCorrectUid() public view {
+    function testCheckObligationWithCorrectUid() public view {
         // Create a test attestation with the correct UID
         Attestation memory attestation = Attestation({
             uid: uid,
@@ -57,15 +57,15 @@ contract UidArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with correct UID and base arbiter returning true"
         );
     }
 
-    function testCheckStatementWithCorrectUidButBaseArbiterReturnsFalse()
+    function testCheckObligationWithCorrectUidButBaseArbiterReturnsFalse()
         public
         view
     {
@@ -91,12 +91,12 @@ contract UidArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return false
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return false
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertFalse(result, "Should reject when base arbiter returns false");
     }
 
-    function testCheckStatementWithIncorrectUid() public {
+    function testCheckObligationWithIncorrectUid() public {
         // Create a test attestation with an incorrect UID
         Attestation memory attestation = Attestation({
             uid: bytes32(uint256(456)), // Different from demanded UID
@@ -119,9 +119,9 @@ contract UidArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with UidMismatched
+        // Check obligation should revert with UidMismatched
         vm.expectRevert(UidArbiter.UidMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

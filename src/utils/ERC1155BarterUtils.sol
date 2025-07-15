@@ -12,7 +12,7 @@ contract ERC1155BarterUtils {
     ERC1155EscrowObligation internal erc1155Escrow;
     ERC1155PaymentObligation internal erc1155Payment;
 
-    error CouldntCollectPayment();
+    error CouldntCollectEscrow();
 
     constructor(
         IEAS _eas,
@@ -34,14 +34,14 @@ contract ERC1155BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc1155Escrow.makeStatementFor(
-                ERC1155EscrowObligation.StatementData({
+            erc1155Escrow.doObligationFor(
+                ERC1155EscrowObligation.ObligationData({
                     token: bidToken,
                     tokenId: bidTokenId,
                     amount: bidAmount,
                     arbiter: address(erc1155Payment),
                     demand: abi.encode(
-                        ERC1155PaymentObligation.StatementData({
+                        ERC1155PaymentObligation.ObligationData({
                             token: askToken,
                             tokenId: askId,
                             amount: askAmount,
@@ -57,16 +57,16 @@ contract ERC1155BarterUtils {
 
     function _payErc1155ForErc1155(
         bytes32 buyAttestation,
-        ERC1155PaymentObligation.StatementData memory demand
+        ERC1155PaymentObligation.ObligationData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc1155Payment.makeStatementFor(
+        bytes32 sellAttestation = erc1155Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc1155Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc1155Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -97,13 +97,13 @@ contract ERC1155BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC1155EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC1155EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC1155EscrowObligation.StatementData)
+            (ERC1155EscrowObligation.ObligationData)
         );
-        ERC1155PaymentObligation.StatementData memory demand = abi.decode(
+        ERC1155PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC1155PaymentObligation.StatementData)
+            (ERC1155PaymentObligation.ObligationData)
         );
 
         return _payErc1155ForErc1155(buyAttestation, demand);

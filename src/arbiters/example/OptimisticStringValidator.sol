@@ -5,11 +5,11 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IArbiter} from "../../IArbiter.sol";
-import {BaseStatement} from "../../BaseStatement.sol";
+import {BaseObligation} from "../../BaseObligation.sol";
 import {StringResultObligation} from "../../obligations/example/StringResultObligation.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
-contract OptimisticStringValidator is BaseStatement, IArbiter {
+contract OptimisticStringValidator is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct ValidationData {
@@ -24,25 +24,25 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
     );
     event MediationRequested(bytes32 indexed validationUID, bool success_);
 
-    error InvalidStatement();
+    error InvalidObligation();
     error InvalidValidation();
     error MediationPeriodExpired();
 
-    StringResultObligation public immutable resultStatement;
+    StringResultObligation public immutable resultObligation;
 
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry,
-        StringResultObligation _baseStatement
+        StringResultObligation _baseObligation
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "string query, uint64 mediationPeriod",
             true
         )
     {
-        resultStatement = _baseStatement;
+        resultObligation = _baseObligation;
     }
 
     function startValidation(
@@ -50,11 +50,11 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
         ValidationData calldata validationData
     ) external returns (bytes32 validationUID_) {
         Attestation memory resultAttestation = eas.getAttestation(resultUID);
-        if (resultAttestation.schema != resultStatement.ATTESTATION_SCHEMA())
-            revert InvalidStatement();
-        if (resultAttestation.revocationTime != 0) revert InvalidStatement();
+        if (resultAttestation.schema != resultObligation.ATTESTATION_SCHEMA())
+            revert InvalidObligation();
+        if (resultAttestation.revocationTime != 0) revert InvalidObligation();
         if (resultAttestation.recipient != msg.sender)
-            revert InvalidStatement();
+            revert InvalidObligation();
 
         validationUID_ = eas.attest(
             AttestationRequest({
@@ -86,9 +86,9 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
         Attestation memory resultAttestation = eas.getAttestation(
             validation.refUID
         );
-        StringResultObligation.StatementData memory resultData = abi.decode(
+        StringResultObligation.ObligationData memory resultData = abi.decode(
             resultAttestation.data,
-            (StringResultObligation.StatementData)
+            (StringResultObligation.ObligationData)
         );
         success_ = _isCapitalized(data.query, resultData.result);
 
@@ -104,34 +104,34 @@ contract OptimisticStringValidator is BaseStatement, IArbiter {
         emit MediationRequested(validationUID, success_);
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!obligation._checkIntrinsic()) return false;
 
         ValidationData memory demandData = abi.decode(demand, (ValidationData));
-        ValidationData memory statementData = abi.decode(
-            statement.data,
+        ValidationData memory obligationData = abi.decode(
+            obligation.data,
             (ValidationData)
         );
 
         if (
-            keccak256(bytes(statementData.query)) !=
+            keccak256(bytes(obligationData.query)) !=
             keccak256(bytes(demandData.query))
         ) return false;
-        if (statementData.mediationPeriod != demandData.mediationPeriod)
+        if (obligationData.mediationPeriod != demandData.mediationPeriod)
             return false;
-        if (block.timestamp <= statement.time + statementData.mediationPeriod)
+        if (block.timestamp <= obligation.time + obligationData.mediationPeriod)
             return false;
 
         return
-            resultStatement.checkStatement(
-                eas.getAttestation(statement.refUID),
+            resultObligation.checkObligation(
+                eas.getAttestation(obligation.refUID),
                 abi.encode(
                     StringResultObligation.DemandData({
-                        query: statementData.query
+                        query: obligationData.query
                     })
                 ),
                 counteroffer

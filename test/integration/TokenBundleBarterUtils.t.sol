@@ -39,8 +39,8 @@ contract MockERC1155 is ERC1155 {
 }
 
 contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
-    TokenBundleEscrowObligation public escrowStatement;
-    TokenBundlePaymentObligation public paymentStatement;
+    TokenBundleEscrowObligation public escrowObligation;
+    TokenBundlePaymentObligation public paymentObligation;
     TokenBundleBarterUtils public barterUtils;
 
     MockERC20Permit public erc20TokenA;
@@ -75,15 +75,15 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         askErc1155TokenA = new MockERC1155();
         askErc1155TokenB = new MockERC1155();
 
-        escrowStatement = new TokenBundleEscrowObligation(eas, schemaRegistry);
-        paymentStatement = new TokenBundlePaymentObligation(
+        escrowObligation = new TokenBundleEscrowObligation(eas, schemaRegistry);
+        paymentObligation = new TokenBundlePaymentObligation(
             eas,
             schemaRegistry
         );
         barterUtils = new TokenBundleBarterUtils(
             eas,
-            escrowStatement,
-            paymentStatement
+            escrowObligation,
+            paymentObligation
         );
     }
 
@@ -111,7 +111,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     function _createBidBundle()
         internal
         pure
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         uint256[] memory erc20Amounts = new uint256[](1);
@@ -130,7 +130,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         erc1155Amounts[0] = 10;
 
         return
-            TokenBundleEscrowObligation.StatementData({
+            TokenBundleEscrowObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -146,7 +146,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     function _createAskBundle()
         internal
         pure
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         uint256[] memory erc20Amounts = new uint256[](1);
@@ -165,7 +165,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         erc1155Amounts[0] = 20;
 
         return
-            TokenBundlePaymentObligation.StatementData({
+            TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -221,20 +221,20 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
     function testBundleTradeWithManualApprovals() public {
         // Setup bundles
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
 
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         // Record initial balances
@@ -244,14 +244,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Alice creates buy order with manual approvals
         vm.startPrank(alice);
         erc20TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0]
         );
         askErc721TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc721TokenIds[0]
         );
-        askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        askErc1155TokenA.setApprovalForAll(address(escrowObligation), true);
 
         bytes32 buyAttestation = barterUtils.buyBundleForBundle(
             bidBundle,
@@ -267,18 +267,18 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
             "Alice's Token A not correctly escrowed"
         );
         assertEq(
-            erc20TokenA.balanceOf(address(escrowStatement)),
+            erc20TokenA.balanceOf(address(escrowObligation)),
             bidBundle.erc20Amounts[0],
             "Escrow contract Token A balance incorrect"
         );
         assertEq(
             askErc721TokenA.ownerOf(bidBundle.erc721TokenIds[0]),
-            address(escrowStatement),
+            address(escrowObligation),
             "ERC721 A not correctly escrowed"
         );
         assertEq(
             askErc1155TokenA.balanceOf(
-                address(escrowStatement),
+                address(escrowObligation),
                 bidBundle.erc1155TokenIds[0]
             ),
             bidBundle.erc1155Amounts[0],
@@ -288,14 +288,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Bob fulfills the order with manual approvals
         vm.startPrank(bob);
         erc20TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc20Amounts[0]
         );
         askErc721TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc721TokenIds[0]
         );
-        askErc1155TokenB.setApprovalForAll(address(paymentStatement), true);
+        askErc1155TokenB.setApprovalForAll(address(paymentObligation), true);
 
         bytes32 sellAttestation = barterUtils.payBundleForBundle(
             buyAttestation
@@ -368,13 +368,13 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
         // Verify escrow contract has no remaining balance
         assertEq(
-            erc20TokenA.balanceOf(address(escrowStatement)),
+            erc20TokenA.balanceOf(address(escrowObligation)),
             0,
             "Escrow contract should have no remaining Token A"
         );
         assertEq(
             askErc1155TokenA.balanceOf(
-                address(escrowStatement),
+                address(escrowObligation),
                 bidBundle.erc1155TokenIds[0]
             ),
             0,
@@ -383,20 +383,20 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     }
 
     function test_RevertWhen_BundleTradeHasNoApprovals() public {
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
 
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         // Attempt to create buy order without approvals
@@ -410,33 +410,33 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     }
 
     function test_RevertWhen_BundleTradeHasInsufficientBalance() public {
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
         bidBundle.erc20Amounts[0] = 1000000 * 10 ** 18; // Amount larger than balance
 
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         vm.startPrank(alice);
         erc20TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0]
         );
         askErc721TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc721TokenIds[0]
         );
-        askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        askErc1155TokenA.setApprovalForAll(address(escrowObligation), true);
 
         vm.expectRevert();
         barterUtils.buyBundleForBundle(
@@ -449,20 +449,20 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
     function testBundleTradeWithPermits() public {
         // Setup bundles
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
 
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
         askBundle.erc1155Tokens[0] = address(askErc1155TokenB);
         askBundle.payee = alice;
 
-        bidBundle.arbiter = address(paymentStatement);
+        bidBundle.arbiter = address(paymentObligation);
         bidBundle.demand = abi.encode(askBundle);
 
         // Setup permits
@@ -473,7 +473,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         alicePermits[0] = _getERC20PermitSignature(
             erc20TokenA,
             ALICE_PRIVATE_KEY,
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0],
             block.timestamp + 1
         );
@@ -481,14 +481,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Alice creates buy order
         vm.startPrank(alice);
         erc20TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc20Amounts[0]
         );
         askErc721TokenA.approve(
-            address(escrowStatement),
+            address(escrowObligation),
             bidBundle.erc721TokenIds[0]
         );
-        askErc1155TokenA.setApprovalForAll(address(escrowStatement), true);
+        askErc1155TokenA.setApprovalForAll(address(escrowObligation), true);
 
         bytes32 buyAttestation = barterUtils.permitAndEscrowBundleForBundle(
             bidBundle,
@@ -506,7 +506,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         bobPermits[0] = _getERC20PermitSignature(
             erc20TokenB,
             BOB_PRIVATE_KEY,
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc20Amounts[0],
             block.timestamp + 1
         );
@@ -514,14 +514,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         // Bob fulfills the order
         vm.startPrank(bob);
         erc20TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc20Amounts[0]
         );
         askErc721TokenB.approve(
-            address(paymentStatement),
+            address(paymentObligation),
             askBundle.erc721TokenIds[0]
         );
-        askErc1155TokenB.setApprovalForAll(address(paymentStatement), true);
+        askErc1155TokenB.setApprovalForAll(address(paymentObligation), true);
 
         bytes32 sellAttestation = barterUtils.permitAndPayBundleForBundle(
             buyAttestation,

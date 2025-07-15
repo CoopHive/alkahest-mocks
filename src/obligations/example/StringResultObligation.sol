@@ -4,14 +4,14 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../../BaseStatement.sol";
+import {BaseObligation} from "../../BaseObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {ArbiterUtils} from "../../ArbiterUtils.sol";
 
-contract StringResultObligation is BaseStatement, IArbiter {
+contract StringResultObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         string result;
     }
 
@@ -25,10 +25,10 @@ contract StringResultObligation is BaseStatement, IArbiter {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) BaseStatement(_eas, _schemaRegistry, "string result", true) {}
+    ) BaseObligation(_eas, _schemaRegistry, "string result", true) {}
 
-    function makeStatement(
-        StatementData calldata data,
+    function doObligation(
+        ObligationData calldata data,
         bytes32 refUID
     ) public returns (bytes32) {
         return
@@ -47,20 +47,20 @@ contract StringResultObligation is BaseStatement, IArbiter {
             );
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand /* (string query) */,
         bytes32 counteroffer
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic()) return false;
+        if (!obligation._checkIntrinsic()) return false;
 
-        // Check if the statement is intended to fulfill the specific counteroffer
-        if (statement.refUID != bytes32(0) && statement.refUID != counteroffer)
+        // Check if the obligation is intended to fulfill the specific counteroffer
+        if (obligation.refUID != bytes32(0) && obligation.refUID != counteroffer)
             return false;
 
-        StatementData memory result = abi.decode(
-            statement.data,
-            (StatementData)
+        ObligationData memory result = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
         DemandData memory demandData = abi.decode(demand, (DemandData));
 

@@ -10,7 +10,7 @@ import {ArbiterUtils} from "@src/ArbiterUtils.sol";
 
 // Mock arbiters for testing
 contract MockSuccessArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -20,7 +20,7 @@ contract MockSuccessArbiter is IArbiter {
 }
 
 contract MockFailArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -30,7 +30,7 @@ contract MockFailArbiter is IArbiter {
 }
 
 contract MockRevertArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -123,7 +123,7 @@ contract AllArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // No arbiters to check should result in true
-        bool result = allArbiter.checkStatement(
+        bool result = allArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -148,7 +148,7 @@ contract AllArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // All arbiters succeed, should return true
-        bool result = allArbiter.checkStatement(
+        bool result = allArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -173,7 +173,7 @@ contract AllArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // One arbiter fails, should return false
-        bool result = allArbiter.checkStatement(
+        bool result = allArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -202,7 +202,7 @@ contract AllArbiterTest is Test {
 
         // One arbiter reverts, AllArbiter should also revert with the same error
         vm.expectRevert("Arbiter reverted");
-        allArbiter.checkStatement(attestation, demandData, bytes32(0));
+        allArbiter.checkObligation(attestation, demandData, bytes32(0));
     }
 
     function testIntrinsicsArbiterWithExpiredAttestation() public {
@@ -221,7 +221,7 @@ contract AllArbiterTest is Test {
 
         // Should revert with DeadlineExpired from IntrinsicsArbiter
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        allArbiter.checkStatement(attestation, demandData, bytes32(0));
+        allArbiter.checkObligation(attestation, demandData, bytes32(0));
     }
 
     function testMultipleValidArbiters() public view {
@@ -237,7 +237,7 @@ contract AllArbiterTest is Test {
         Attestation memory attestation = createValidAttestation();
         bytes memory demandData = createDemandData(arbiters, demands);
 
-        bool result = allArbiter.checkStatement(
+        bool result = allArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -314,7 +314,7 @@ contract AllArbiterTest is Test {
 
         // This should revert with an out of bounds error when trying to access demands[1]
         vm.expectRevert(AllArbiter.MismatchedArrayLengths.selector);
-        allArbiter.checkStatement(attestation, demandData, bytes32(0));
+        allArbiter.checkObligation(attestation, demandData, bytes32(0));
     }
 
     function testArbitersWithSpecificDemands() public view {
@@ -332,7 +332,7 @@ contract AllArbiterTest is Test {
         Attestation memory attestation = createValidAttestation();
         bytes memory demandData = createDemandData(arbiters, demands);
 
-        bool result = allArbiter.checkStatement(
+        bool result = allArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)

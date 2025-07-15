@@ -13,7 +13,7 @@ contract RecipientArbiterTest is Test {
         arbiter = new RecipientArbiter();
     }
 
-    function testCheckStatementWithCorrectRecipient() public view {
+    function testCheckObligationWithCorrectRecipient() public view {
         // Create a test attestation with the correct recipient
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -34,12 +34,12 @@ contract RecipientArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "Should accept attestation with matching recipient");
     }
 
-    function testCheckStatementWithIncorrectRecipient() public {
+    function testCheckObligationWithIncorrectRecipient() public {
         // Create a test attestation with non-matching recipient
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -60,9 +60,9 @@ contract RecipientArbiterTest is Test {
         });
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with RecipientMismatched
+        // Check obligation should revert with RecipientMismatched
         vm.expectRevert(RecipientArbiter.RecipientMismatched.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

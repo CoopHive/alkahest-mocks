@@ -8,14 +8,14 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
+contract TokenBundleEscrowObligation is BaseObligation, IArbiter, ERC1155Holder {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         address arbiter;
         bytes demand;
         // ERC20
@@ -69,7 +69,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address arbiter, bytes demand, address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts",
@@ -77,7 +77,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         )
     {}
 
-    function validateArrayLengths(StatementData calldata data) internal pure {
+    function validateArrayLengths(ObligationData calldata data) internal pure {
         if (data.erc20Tokens.length != data.erc20Amounts.length)
             revert ArrayLengthMismatch();
         if (data.erc721Tokens.length != data.erc721TokenIds.length)
@@ -89,7 +89,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     }
 
     function transferInTokenBundle(
-        StatementData calldata data,
+        ObligationData calldata data,
         address from
     ) internal {
         // Transfer ERC20s
@@ -162,7 +162,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     }
 
     function transferOutTokenBundle(
-        StatementData memory data,
+        ObligationData memory data,
         address to
     ) internal {
         // Transfer ERC20s
@@ -230,8 +230,8 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         }
     }
 
-    function makeStatementFor(
-        StatementData calldata data,
+    function doObligationFor(
+        ObligationData calldata data,
         uint64 expirationTime,
         address payer,
         address recipient
@@ -263,14 +263,14 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         }
     }
 
-    function makeStatement(
-        StatementData calldata data,
+    function doObligation(
+        ObligationData calldata data,
         uint64 expirationTime
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, expirationTime, msg.sender, msg.sender);
+        return doObligationFor(data, expirationTime, msg.sender, msg.sender);
     }
 
-    function collectPayment(
+    function collectEscrow(
         bytes32 _payment,
         bytes32 _fulfillment
     ) public returns (bool) {
@@ -295,13 +295,13 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
 
         if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
 
-        StatementData memory paymentData = abi.decode(
+        ObligationData memory paymentData = abi.decode(
             payment.data,
-            (StatementData)
+            (ObligationData)
         );
 
         if (
-            !IArbiter(paymentData.arbiter).checkStatement(
+            !IArbiter(paymentData.arbiter).checkObligation(
                 fulfillment,
                 paymentData.demand,
                 payment.uid
@@ -327,7 +327,7 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         return true;
     }
 
-    function collectExpired(bytes32 uid) public returns (bool) {
+    function reclaimExpired(bytes32 uid) public returns (bool) {
         Attestation memory attestation;
 
         // Get attestation with error handling
@@ -340,9 +340,9 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         if (block.timestamp < attestation.expirationTime)
             revert UnauthorizedCall();
 
-        StatementData memory data = abi.decode(
+        ObligationData memory data = abi.decode(
             attestation.data,
-            (StatementData)
+            (ObligationData)
         );
 
         // Transfer tokens with error handling (already handled in transferOutTokenBundle)
@@ -350,18 +350,18 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         return true;
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
-        StatementData memory payment = abi.decode(
-            statement.data,
-            (StatementData)
+        ObligationData memory payment = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
-        StatementData memory demandData = abi.decode(demand, (StatementData));
+        ObligationData memory demandData = abi.decode(demand, (ObligationData));
 
         return
             _checkTokenArrays(payment, demandData) &&
@@ -370,8 +370,8 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
     }
 
     function _checkTokenArrays(
-        StatementData memory payment,
-        StatementData memory demand
+        ObligationData memory payment,
+        ObligationData memory demand
     ) internal pure returns (bool) {
         // Check ERC20s
         if (payment.erc20Tokens.length < demand.erc20Tokens.length)
@@ -407,18 +407,18 @@ contract TokenBundleEscrowObligation is BaseStatement, IArbiter, ERC1155Holder {
         return true;
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA)
             revert InvalidEscrowAttestation();
-        return abi.decode(attestation.data, (StatementData));
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

@@ -10,7 +10,7 @@ import {ArbiterUtils} from "@src/ArbiterUtils.sol";
 
 // Mock arbiters for testing
 contract MockSuccessArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -20,7 +20,7 @@ contract MockSuccessArbiter is IArbiter {
 }
 
 contract MockFailArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -30,7 +30,7 @@ contract MockFailArbiter is IArbiter {
 }
 
 contract MockRevertArbiter is IArbiter {
-    function checkStatement(
+    function checkObligation(
         Attestation memory,
         bytes memory,
         bytes32
@@ -123,7 +123,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // No arbiters to check should result in false
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -146,7 +146,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Single successful arbiter should return true
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -173,7 +173,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return true because at least one arbiter succeeds
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -201,7 +201,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return false because all arbiters fail
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -226,7 +226,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return false because all arbiters revert
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -253,7 +253,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return false because all arbiters either revert or fail
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -283,7 +283,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return true because at least one arbiter succeeds, even with reverts
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -309,7 +309,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return true because IntrinsicsArbiter should validate the attestation
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -335,7 +335,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return false because IntrinsicsArbiter will revert, but AnyArbiter catches it
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -363,7 +363,7 @@ contract AnyArbiterTest is Test {
         bytes memory demandData = createDemandData(arbiters, demands);
 
         // Should return true because the second arbiter succeeds
-        bool result = anyArbiter.checkStatement(
+        bool result = anyArbiter.checkObligation(
             attestation,
             demandData,
             bytes32(0)
@@ -443,6 +443,6 @@ contract AnyArbiterTest is Test {
 
         // This should revert with an out of bounds error when trying to access demands[1]
         vm.expectRevert(AnyArbiter.MismatchedArrayLengths.selector);
-        anyArbiter.checkStatement(attestation, demandData, bytes32(0));
+        anyArbiter.checkObligation(attestation, demandData, bytes32(0));
     }
 }

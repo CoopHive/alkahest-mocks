@@ -14,13 +14,13 @@ contract TimeAfterArbiter is IArbiter {
 
     error TimeNotAfter();
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /*counteroffer*/
     ) public pure override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.time < demand_.time) revert TimeNotAfter();
+        if (obligation.time < demand_.time) revert TimeNotAfter();
 
         return true;
     }

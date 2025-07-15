@@ -16,18 +16,18 @@ contract ExpirationTimeBeforeArbiter is IArbiter {
 
     error ExpirationTimeNotBefore();
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.expirationTime > demand_.expirationTime)
+        if (obligation.expirationTime > demand_.expirationTime)
             revert ExpirationTimeNotBefore();
 
         return
-            IArbiter(demand_.baseArbiter).checkStatement(
-                statement,
+            IArbiter(demand_.baseArbiter).checkObligation(
+                obligation,
                 demand_.baseDemand,
                 counteroffer
             );

@@ -16,17 +16,17 @@ contract TrustedPartyArbiter is IArbiter {
 
     error NotTrustedParty();
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
-        if (statement.recipient != demand_.creator) revert NotTrustedParty();
+        if (obligation.recipient != demand_.creator) revert NotTrustedParty();
 
         return
-            IArbiter(demand_.baseArbiter).checkStatement(
-                statement,
+            IArbiter(demand_.baseArbiter).checkObligation(
+                obligation,
                 demand_.baseDemand,
                 counteroffer
             );

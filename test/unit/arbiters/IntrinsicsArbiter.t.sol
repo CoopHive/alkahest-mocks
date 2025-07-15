@@ -33,7 +33,7 @@ contract IntrinsicsArbiterTest is Test {
             data: bytes("")
         });
 
-        bool result = arbiter.checkStatement(
+        bool result = arbiter.checkObligation(
             attestation,
             bytes(""),
             bytes32(0)
@@ -42,7 +42,7 @@ contract IntrinsicsArbiterTest is Test {
 
         // Attestation with no expiration (expirationTime = 0) should also be valid
         attestation.expirationTime = 0;
-        result = arbiter.checkStatement(attestation, bytes(""), bytes32(0));
+        result = arbiter.checkObligation(attestation, bytes(""), bytes32(0));
         assertTrue(result, "Attestation with no expiration should return true");
     }
 
@@ -62,7 +62,7 @@ contract IntrinsicsArbiterTest is Test {
         });
 
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        arbiter.checkStatement(attestation, bytes(""), bytes32(0));
+        arbiter.checkObligation(attestation, bytes(""), bytes32(0));
     }
 
     function testRevokedAttestation() public {
@@ -81,7 +81,7 @@ contract IntrinsicsArbiterTest is Test {
         });
 
         vm.expectRevert(ArbiterUtils.AttestationRevoked.selector);
-        arbiter.checkStatement(attestation, bytes(""), bytes32(0));
+        arbiter.checkObligation(attestation, bytes(""), bytes32(0));
     }
 
     function testExpiredAndRevokedAttestation() public {
@@ -101,7 +101,7 @@ contract IntrinsicsArbiterTest is Test {
 
         // It should revert with DeadlineExpired first because that check is performed first
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        arbiter.checkStatement(attestation, bytes(""), bytes32(0));
+        arbiter.checkObligation(attestation, bytes(""), bytes32(0));
     }
 
     function testTimeManipulation() public {
@@ -120,7 +120,7 @@ contract IntrinsicsArbiterTest is Test {
         });
 
         // Attestation is valid now
-        bool result = arbiter.checkStatement(
+        bool result = arbiter.checkObligation(
             attestation,
             bytes(""),
             bytes32(0)
@@ -129,7 +129,7 @@ contract IntrinsicsArbiterTest is Test {
 
         // Warp time to just before expiration
         vm.warp(currentTime + 1 days - 1);
-        result = arbiter.checkStatement(attestation, bytes(""), bytes32(0));
+        result = arbiter.checkObligation(attestation, bytes(""), bytes32(0));
         assertTrue(
             result,
             "Attestation should still be valid just before expiration"
@@ -137,7 +137,7 @@ contract IntrinsicsArbiterTest is Test {
 
         // Warp time to exactly at expiration
         vm.warp(currentTime + 1 days);
-        result = arbiter.checkStatement(attestation, bytes(""), bytes32(0));
+        result = arbiter.checkObligation(attestation, bytes(""), bytes32(0));
         assertTrue(
             result,
             "Attestation should still be valid right at expiration"
@@ -146,6 +146,6 @@ contract IntrinsicsArbiterTest is Test {
         // Warp time past expiration
         vm.warp(currentTime + 1 days + 1);
         vm.expectRevert(ArbiterUtils.DeadlineExpired.selector);
-        arbiter.checkStatement(attestation, bytes(""), bytes32(0));
+        arbiter.checkObligation(attestation, bytes(""), bytes32(0));
     }
 }

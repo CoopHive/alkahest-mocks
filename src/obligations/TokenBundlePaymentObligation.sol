@@ -7,14 +7,14 @@ import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
+contract TokenBundlePaymentObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         // ERC20
         address[] erc20Tokens;
         uint256[] erc20Amounts;
@@ -41,7 +41,7 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee",
@@ -49,7 +49,7 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function validateArrayLengths(StatementData calldata data) internal pure {
+    function validateArrayLengths(ObligationData calldata data) internal pure {
         if (data.erc20Tokens.length != data.erc20Amounts.length)
             revert ArrayLengthMismatch();
         if (data.erc721Tokens.length != data.erc721TokenIds.length)
@@ -61,7 +61,7 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
     }
 
     function transferBundle(
-        StatementData calldata data,
+        ObligationData calldata data,
         address from
     ) internal {
         // Transfer ERC20s
@@ -96,8 +96,8 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
         }
     }
 
-    function makeStatementFor(
-        StatementData calldata data,
+    function doObligationFor(
+        ObligationData calldata data,
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
@@ -120,24 +120,24 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
         emit BundleTransferred(uid_, payer, data.payee);
     }
 
-    function makeStatement(
-        StatementData calldata data
+    function doObligation(
+        ObligationData calldata data
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, msg.sender, msg.sender);
+        return doObligationFor(data, msg.sender, msg.sender);
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
-        StatementData memory payment = abi.decode(
-            statement.data,
-            (StatementData)
+        ObligationData memory payment = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
-        StatementData memory demandData = abi.decode(demand, (StatementData));
+        ObligationData memory demandData = abi.decode(demand, (ObligationData));
 
         return
             _checkTokenArrays(payment, demandData) &&
@@ -145,8 +145,8 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
     }
 
     function _checkTokenArrays(
-        StatementData memory payment,
-        StatementData memory demand
+        ObligationData memory payment,
+        ObligationData memory demand
     ) internal pure returns (bool) {
         // Check ERC20s
         if (payment.erc20Tokens.length < demand.erc20Tokens.length)
@@ -182,17 +182,17 @@ contract TokenBundlePaymentObligation is BaseStatement, IArbiter {
         return true;
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidTransfer();
-        return abi.decode(attestation.data, (StatementData));
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

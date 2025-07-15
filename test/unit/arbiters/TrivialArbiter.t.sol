@@ -12,7 +12,7 @@ contract TrivialArbiterTest is Test {
         arbiter = new TrivialArbiter();
     }
 
-    function testCheckStatementAlwaysReturnsTrue() public {
+    function testCheckObligationAlwaysReturnsTrue() public {
         // Create a test attestation (values don't matter for TrivialArbiter)
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -30,15 +30,15 @@ contract TrivialArbiterTest is Test {
         // Empty demand data
         bytes memory demand = bytes("");
 
-        // Check statement should always return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should always return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(result, "TrivialArbiter should always return true");
 
         // Try with different values, should still return true
         attestation.uid = bytes32(uint256(1));
         demand = abi.encode("some data");
 
-        result = arbiter.checkStatement(
+        result = arbiter.checkObligation(
             attestation,
             demand,
             bytes32(uint256(42))

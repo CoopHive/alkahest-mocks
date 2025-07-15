@@ -88,7 +88,7 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         erc1155TokenA = new MockERC1155();
         erc1155TokenB = new MockERC1155();
 
-        // Deploy statements
+        // Deploy obligations
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
 
@@ -117,10 +117,10 @@ contract TokenBundleBarterUtilsUnitTest is Test {
     function createAliceBundle()
         internal
         view
-        returns (TokenBundleEscrowObligation.StatementData memory)
+        returns (TokenBundleEscrowObligation.ObligationData memory)
     {
-        TokenBundleEscrowObligation.StatementData memory bundle = TokenBundleEscrowObligation
-            .StatementData({
+        TokenBundleEscrowObligation.ObligationData memory bundle = TokenBundleEscrowObligation
+            .ObligationData({
                 erc20Tokens: new address[](1),
                 erc20Amounts: new uint256[](1),
                 erc721Tokens: new address[](1),
@@ -147,10 +147,10 @@ contract TokenBundleBarterUtilsUnitTest is Test {
     function createBobBundle()
         internal
         view
-        returns (TokenBundlePaymentObligation.StatementData memory)
+        returns (TokenBundlePaymentObligation.ObligationData memory)
     {
-        TokenBundlePaymentObligation.StatementData
-            memory bundle = TokenBundlePaymentObligation.StatementData({
+        TokenBundlePaymentObligation.ObligationData
+            memory bundle = TokenBundlePaymentObligation.ObligationData({
                 erc20Tokens: new address[](1),
                 erc20Amounts: new uint256[](1),
                 erc721Tokens: new address[](1),
@@ -206,9 +206,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
     function testBuyBundleForBundle() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Approve tokens
@@ -232,8 +232,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Validate the attestation data
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        TokenBundleEscrowObligation.StatementData memory escrowData = abi
-            .decode(bid.data, (TokenBundleEscrowObligation.StatementData));
+        TokenBundleEscrowObligation.ObligationData memory escrowData = abi
+            .decode(bid.data, (TokenBundleEscrowObligation.ObligationData));
 
         assertEq(
             escrowData.erc20Tokens[0],
@@ -267,10 +267,10 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         );
 
         // Extract the demand data
-        TokenBundlePaymentObligation.StatementData memory demandData = abi
+        TokenBundlePaymentObligation.ObligationData memory demandData = abi
             .decode(
                 escrowData.demand,
-                (TokenBundlePaymentObligation.StatementData)
+                (TokenBundlePaymentObligation.ObligationData)
             );
 
         assertEq(
@@ -311,9 +311,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
     function testPayBundleForBundle() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Alice creates bid
@@ -411,7 +411,7 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
         uint256 deadline = block.timestamp + 1 days;
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
 
         // Create permit signature for Alice's ERC20 token
@@ -475,7 +475,7 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // No expiration needed for this test
         uint256 deadline = block.timestamp + 1 days;
 
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Create permit signature for Bob's ERC20 token
@@ -518,8 +518,8 @@ contract TokenBundleBarterUtilsUnitTest is Test {
 
         // Verify the attestation
         Attestation memory payment = eas.getAttestation(payAttestation);
-        TokenBundlePaymentObligation.StatementData memory paymentData = abi
-            .decode(payment.data, (TokenBundlePaymentObligation.StatementData));
+        TokenBundlePaymentObligation.ObligationData memory paymentData = abi
+            .decode(payment.data, (TokenBundlePaymentObligation.ObligationData));
 
         assertEq(
             paymentData.erc20Tokens[0],
@@ -543,9 +543,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
         uint256 deadline = block.timestamp + 1 days;
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Create permit signature for Alice's ERC20 token
@@ -610,9 +610,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
         uint256 deadline = block.timestamp + 1 days;
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Alice creates bid
@@ -705,9 +705,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
     function test_RevertWhen_TokenNotApproved() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Alice tries to make bid without approving tokens
@@ -720,9 +720,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
     function test_RevertWhen_PaymentFails() public {
         uint64 expiration = uint64(block.timestamp + 1 days);
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Alice creates bid
@@ -748,7 +748,7 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         uint64 expiration = uint64(block.timestamp + 1 days);
         uint256 deadline = block.timestamp + 1 days;
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
 
         // We don't need the result of the permit signature for this test
@@ -778,9 +778,9 @@ contract TokenBundleBarterUtilsUnitTest is Test {
         // Create a bid with short expiration
         uint64 expiration = uint64(block.timestamp + 10 minutes);
 
-        TokenBundleEscrowObligation.StatementData
+        TokenBundleEscrowObligation.ObligationData
             memory aliceBundle = createAliceBundle();
-        TokenBundlePaymentObligation.StatementData
+        TokenBundlePaymentObligation.ObligationData
             memory bobBundle = createBobBundle();
 
         // Alice creates bid

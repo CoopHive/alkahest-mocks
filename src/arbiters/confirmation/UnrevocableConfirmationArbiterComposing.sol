@@ -15,11 +15,11 @@ contract UnrevocableArbiterComposing is IArbiter {
     }
 
     event ConfirmationMade(
-        bytes32 indexed statement,
+        bytes32 indexed obligation,
         bytes32 indexed counteroffer
     );
     event ConfirmationRequested(
-        bytes32 indexed statement,
+        bytes32 indexed obligation,
         address indexed confirmer,
         bytes32 indexed counteroffer
     );
@@ -36,9 +36,9 @@ contract UnrevocableArbiterComposing is IArbiter {
         eas = _eas;
     }
 
-    function confirm(bytes32 _statement) public {
-        Attestation memory statement = eas.getAttestation(_statement);
-        Attestation memory counteroffer = eas.getAttestation(statement.refUID);
+    function confirm(bytes32 _obligation) public {
+        Attestation memory obligation = eas.getAttestation(_obligation);
+        Attestation memory counteroffer = eas.getAttestation(obligation.refUID);
 
         if (counteroffer.recipient != msg.sender) {
             revert UnauthorizedConfirmation();
@@ -48,44 +48,44 @@ contract UnrevocableArbiterComposing is IArbiter {
             revert CounterOfferAlreadyConfirmed();
         }
 
-        confirmations[statement.uid] = true;
+        confirmations[obligation.uid] = true;
         counterofferConfirmed[counteroffer.uid] = true;
 
-        emit ConfirmationMade(_statement, counteroffer.uid);
+        emit ConfirmationMade(_obligation, counteroffer.uid);
     }
 
-    function requestConfirmation(bytes32 _statement) public {
-        Attestation memory statement = eas.getAttestation(_statement);
+    function requestConfirmation(bytes32 _obligation) public {
+        Attestation memory obligation = eas.getAttestation(_obligation);
         if (
-            statement.attester != msg.sender &&
-            statement.recipient != msg.sender
+            obligation.attester != msg.sender &&
+            obligation.recipient != msg.sender
         ) revert UnauthorizedConfirmationRequest();
 
-        Attestation memory counteroffer = eas.getAttestation(statement.refUID);
+        Attestation memory counteroffer = eas.getAttestation(obligation.refUID);
 
         emit ConfirmationRequested(
-            _statement,
+            _obligation,
             counteroffer.recipient,
             counteroffer.uid
         );
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
 
-        // First check if the statement is confirmed
-        if (!confirmations[statement.uid]) {
+        // First check if the obligation is confirmed
+        if (!confirmations[obligation.uid]) {
             return false;
         }
 
         // Then delegate to the base arbiter with the base demand
         return
-            IArbiter(demand_.baseArbiter).checkStatement(
-                statement,
+            IArbiter(demand_.baseArbiter).checkObligation(
+                obligation,
                 demand_.baseDemand,
                 counteroffer
             );

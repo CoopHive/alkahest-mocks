@@ -12,7 +12,7 @@ contract ERC721BarterUtils {
     ERC721EscrowObligation internal erc721Escrow;
     ERC721PaymentObligation internal erc721Payment;
 
-    error CouldntCollectPayment();
+    error CouldntCollectEscrow();
 
     constructor(
         IEAS _eas,
@@ -32,13 +32,13 @@ contract ERC721BarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc721Escrow.makeStatementFor(
-                ERC721EscrowObligation.StatementData({
+            erc721Escrow.doObligationFor(
+                ERC721EscrowObligation.ObligationData({
                     token: bidToken,
                     tokenId: bidTokenId,
                     arbiter: address(erc721Payment),
                     demand: abi.encode(
-                        ERC721PaymentObligation.StatementData({
+                        ERC721PaymentObligation.ObligationData({
                             token: askToken,
                             tokenId: askTokenId,
                             payee: msg.sender
@@ -53,16 +53,16 @@ contract ERC721BarterUtils {
 
     function _payErc721ForErc721(
         bytes32 buyAttestation,
-        ERC721PaymentObligation.StatementData memory demand
+        ERC721PaymentObligation.ObligationData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc721Payment.makeStatementFor(
+        bytes32 sellAttestation = erc721Payment.doObligationFor(
             demand,
             msg.sender,
             msg.sender
         );
 
-        if (!erc721Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc721Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -89,13 +89,13 @@ contract ERC721BarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC721EscrowObligation.StatementData memory escrowData = abi.decode(
+        ERC721EscrowObligation.ObligationData memory escrowData = abi.decode(
             bid.data,
-            (ERC721EscrowObligation.StatementData)
+            (ERC721EscrowObligation.ObligationData)
         );
-        ERC721PaymentObligation.StatementData memory demand = abi.decode(
+        ERC721PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
-            (ERC721PaymentObligation.StatementData)
+            (ERC721PaymentObligation.ObligationData)
         );
 
         return _payErc721ForErc721(buyAttestation, demand);

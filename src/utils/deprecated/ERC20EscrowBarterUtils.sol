@@ -14,7 +14,7 @@ contract ERC20EscrowBarterUtils {
     ERC20PaymentFulfillmentArbiter internal erc20Fulfillment;
     SpecificAttestationArbiter internal specificAttestation;
 
-    error CouldntCollectPayment();
+    error CouldntCollectEscrow();
 
     constructor(
         IEAS _eas,
@@ -49,8 +49,8 @@ contract ERC20EscrowBarterUtils {
             s
         );
         return
-            erc20Escrow.makeStatementFor(
-                ERC20EscrowObligation.StatementData({
+            erc20Escrow.doObligationFor(
+                ERC20EscrowObligation.ObligationData({
                     token: token,
                     amount: amount,
                     arbiter: arbiter,
@@ -82,8 +82,8 @@ contract ERC20EscrowBarterUtils {
             s
         );
         return
-            erc20Escrow.makeStatementFor(
-                ERC20EscrowObligation.StatementData({
+            erc20Escrow.doObligationFor(
+                ERC20EscrowObligation.ObligationData({
                     token: token,
                     amount: amount,
                     arbiter: address(specificAttestation),
@@ -105,8 +105,8 @@ contract ERC20EscrowBarterUtils {
         uint64 expiration
     ) internal returns (bytes32) {
         return
-            erc20Escrow.makeStatementFor(
-                ERC20EscrowObligation.StatementData({
+            erc20Escrow.doObligationFor(
+                ERC20EscrowObligation.ObligationData({
                     token: bidToken,
                     amount: bidAmount,
                     arbiter: address(erc20Fulfillment),
@@ -127,8 +127,8 @@ contract ERC20EscrowBarterUtils {
         bytes32 buyAttestation,
         ERC20PaymentFulfillmentArbiter.DemandData memory demand
     ) internal returns (bytes32) {
-        bytes32 sellAttestation = erc20Escrow.makeStatementFor(
-            ERC20EscrowObligation.StatementData({
+        bytes32 sellAttestation = erc20Escrow.doObligationFor(
+            ERC20EscrowObligation.ObligationData({
                 token: demand.token,
                 amount: demand.amount,
                 arbiter: address(specificAttestation),
@@ -141,8 +141,8 @@ contract ERC20EscrowBarterUtils {
             msg.sender
         );
 
-        if (!erc20Escrow.collectPayment(buyAttestation, sellAttestation)) {
-            revert CouldntCollectPayment();
+        if (!erc20Escrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
         }
 
         return sellAttestation;
@@ -185,9 +185,9 @@ contract ERC20EscrowBarterUtils {
         bytes32 s
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory paymentData = abi.decode(
+        ERC20EscrowObligation.ObligationData memory paymentData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC20EscrowObligation.ObligationData)
         );
         ERC20PaymentFulfillmentArbiter.DemandData memory demand = abi.decode(
             paymentData.demand,
@@ -228,9 +228,9 @@ contract ERC20EscrowBarterUtils {
         bytes32 buyAttestation
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        ERC20EscrowObligation.StatementData memory paymentData = abi.decode(
+        ERC20EscrowObligation.ObligationData memory paymentData = abi.decode(
             bid.data,
-            (ERC20EscrowObligation.StatementData)
+            (ERC20EscrowObligation.ObligationData)
         );
         ERC20PaymentFulfillmentArbiter.DemandData memory demand = abi.decode(
             paymentData.demand,

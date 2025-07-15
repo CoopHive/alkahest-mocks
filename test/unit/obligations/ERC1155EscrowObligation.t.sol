@@ -74,14 +74,14 @@ contract ERC1155EscrowObligationTest is Test {
         );
     }
 
-    function testMakeStatement() public {
+    function testDoObligation() public {
         // Approve tokens first
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -90,14 +90,14 @@ contract ERC1155EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 uid = escrowObligation.makeStatement(data, expiration);
+        bytes32 uid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Verify attestation exists
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -118,15 +118,15 @@ contract ERC1155EscrowObligationTest is Test {
         );
     }
 
-    function testMakeStatementFor() public {
+    function testDoObligationFor() public {
         // Approve tokens first
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);
         vm.stopPrank();
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -138,7 +138,7 @@ contract ERC1155EscrowObligationTest is Test {
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
 
         vm.prank(address(this));
-        bytes32 uid = escrowObligation.makeStatementFor(
+        bytes32 uid = escrowObligation.doObligationFor(
             data,
             expiration,
             buyer,
@@ -149,7 +149,7 @@ contract ERC1155EscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getStatement(uid);
+        Attestation memory attestation = escrowObligation.getObligation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -174,14 +174,14 @@ contract ERC1155EscrowObligationTest is Test {
         );
     }
 
-    function testCollectPayment() public {
+    function testCollectEscrow() public {
         // Setup: create an escrow
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -190,7 +190,7 @@ contract ERC1155EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Create a fulfillment attestation using a StringObligation
@@ -200,14 +200,14 @@ contract ERC1155EscrowObligationTest is Test {
         );
 
         vm.prank(seller);
-        bytes32 fulfillmentUid = stringObligation.makeStatement(
-            StringObligation.StatementData({item: "fulfillment data"}),
+        bytes32 fulfillmentUid = stringObligation.doObligation(
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
         // Collect payment
         vm.prank(seller);
-        bool success = escrowObligation.collectPayment(
+        bool success = escrowObligation.collectEscrow(
             paymentUid,
             fulfillmentUid
         );
@@ -227,14 +227,14 @@ contract ERC1155EscrowObligationTest is Test {
         );
     }
 
-    function testCollectPaymentWithRejectedFulfillment() public {
+    function testCollectEscrowWithRejectedFulfillment() public {
         // Setup: create an escrow with rejecting arbiter
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -243,7 +243,7 @@ contract ERC1155EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + EXPIRATION_TIME);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Create a fulfillment attestation using a StringObligation
@@ -253,25 +253,25 @@ contract ERC1155EscrowObligationTest is Test {
         );
 
         vm.prank(seller);
-        bytes32 fulfillmentUid = stringObligation.makeStatement(
-            StringObligation.StatementData({item: "fulfillment data"}),
+        bytes32 fulfillmentUid = stringObligation.doObligation(
+            StringObligation.ObligationData({item: "fulfillment data"}),
             bytes32(0)
         );
 
         // Try to collect payment, should revert with InvalidFulfillment
         vm.prank(seller);
         vm.expectRevert(ERC1155EscrowObligation.InvalidFulfillment.selector);
-        escrowObligation.collectPayment(paymentUid, fulfillmentUid);
+        escrowObligation.collectEscrow(paymentUid, fulfillmentUid);
     }
 
-    function testCollectExpired() public {
+    function testReclaimExpired() public {
         // Setup: create an escrow
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -280,20 +280,20 @@ contract ERC1155EscrowObligationTest is Test {
             });
 
         uint64 expiration = uint64(block.timestamp + 100);
-        bytes32 paymentUid = escrowObligation.makeStatement(data, expiration);
+        bytes32 paymentUid = escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
 
         // Attempt to collect before expiration (should fail)
         vm.prank(buyer);
         vm.expectRevert(ERC1155EscrowObligation.UnauthorizedCall.selector);
-        escrowObligation.collectExpired(paymentUid);
+        escrowObligation.reclaimExpired(paymentUid);
 
         // Fast forward past expiration time
         vm.warp(block.timestamp + 200);
 
         // Collect expired funds
         vm.prank(buyer);
-        bool success = escrowObligation.collectExpired(paymentUid);
+        bool success = escrowObligation.reclaimExpired(paymentUid);
 
         assertTrue(success, "Expired token collection should succeed");
 
@@ -310,10 +310,10 @@ contract ERC1155EscrowObligationTest is Test {
         );
     }
 
-    function testCheckStatement() public {
-        // Create statement data
-        ERC1155EscrowObligation.StatementData
-            memory paymentData = ERC1155EscrowObligation.StatementData({
+    function testCheckObligation() public {
+        // Create obligation data
+        ERC1155EscrowObligation.ObligationData
+            memory paymentData = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -324,7 +324,7 @@ contract ERC1155EscrowObligationTest is Test {
         // Use the obligation contract to create a valid attestation
         vm.startPrank(buyer);
         token.setApprovalForAll(address(escrowObligation), true);
-        bytes32 attestationId = escrowObligation.makeStatement(
+        bytes32 attestationId = escrowObligation.doObligation(
             paymentData,
             uint64(block.timestamp + EXPIRATION_TIME)
         );
@@ -333,8 +333,8 @@ contract ERC1155EscrowObligationTest is Test {
         Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match
-        ERC1155EscrowObligation.StatementData
-            memory exactDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory exactDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -342,7 +342,7 @@ contract ERC1155EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool exactMatch = escrowObligation.checkStatement(
+        bool exactMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(exactDemand),
             bytes32(0)
@@ -350,8 +350,8 @@ contract ERC1155EscrowObligationTest is Test {
         assertTrue(exactMatch, "Should match exact demand");
 
         // Test lower amount demand (should succeed)
-        ERC1155EscrowObligation.StatementData
-            memory lowerDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory lowerDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount - 50,
@@ -359,7 +359,7 @@ contract ERC1155EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool lowerMatch = escrowObligation.checkStatement(
+        bool lowerMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(lowerDemand),
             bytes32(0)
@@ -367,8 +367,8 @@ contract ERC1155EscrowObligationTest is Test {
         assertTrue(lowerMatch, "Should match lower amount demand");
 
         // Test higher amount demand (should fail)
-        ERC1155EscrowObligation.StatementData
-            memory higherDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory higherDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount + 50,
@@ -376,7 +376,7 @@ contract ERC1155EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool higherMatch = escrowObligation.checkStatement(
+        bool higherMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(higherDemand),
             bytes32(0)
@@ -384,8 +384,8 @@ contract ERC1155EscrowObligationTest is Test {
         assertFalse(higherMatch, "Should not match higher amount demand");
 
         // Test different token ID (should fail)
-        ERC1155EscrowObligation.StatementData
-            memory differentIdDemand = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory differentIdDemand = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId + 1,
                 amount: erc1155TokenAmount,
@@ -393,7 +393,7 @@ contract ERC1155EscrowObligationTest is Test {
                 demand: abi.encode("specific demand")
             });
 
-        bool differentIdMatch = escrowObligation.checkStatement(
+        bool differentIdMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentIdDemand),
             bytes32(0)
@@ -405,9 +405,9 @@ contract ERC1155EscrowObligationTest is Test {
 
         // Test different token (should fail)
         MockERC1155 differentToken = new MockERC1155();
-        ERC1155EscrowObligation.StatementData
+        ERC1155EscrowObligation.ObligationData
             memory differentTokenDemand = ERC1155EscrowObligation
-                .StatementData({
+                .ObligationData({
                     token: address(differentToken),
                     tokenId: tokenId,
                     amount: erc1155TokenAmount,
@@ -415,7 +415,7 @@ contract ERC1155EscrowObligationTest is Test {
                     demand: abi.encode("specific demand")
                 });
 
-        bool differentTokenMatch = escrowObligation.checkStatement(
+        bool differentTokenMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentTokenDemand),
             bytes32(0)
@@ -426,9 +426,9 @@ contract ERC1155EscrowObligationTest is Test {
         );
 
         // Test different arbiter (should fail)
-        ERC1155EscrowObligation.StatementData
+        ERC1155EscrowObligation.ObligationData
             memory differentArbiterDemand = ERC1155EscrowObligation
-                .StatementData({
+                .ObligationData({
                     token: address(token),
                     tokenId: tokenId,
                     amount: erc1155TokenAmount,
@@ -436,7 +436,7 @@ contract ERC1155EscrowObligationTest is Test {
                     demand: abi.encode("specific demand")
                 });
 
-        bool differentArbiterMatch = escrowObligation.checkStatement(
+        bool differentArbiterMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentArbiterDemand),
             bytes32(0)
@@ -447,8 +447,8 @@ contract ERC1155EscrowObligationTest is Test {
         );
 
         // Test different demand (should fail)
-        ERC1155EscrowObligation.StatementData
-            memory differentDemandData = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory differentDemandData = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: erc1155TokenAmount,
@@ -456,7 +456,7 @@ contract ERC1155EscrowObligationTest is Test {
                 demand: abi.encode("different demand")
             });
 
-        bool differentDemandMatch = escrowObligation.checkStatement(
+        bool differentDemandMatch = escrowObligation.checkObligation(
             attestation,
             abi.encode(differentDemandData),
             bytes32(0)
@@ -472,8 +472,8 @@ contract ERC1155EscrowObligationTest is Test {
         token.setApprovalForAll(address(escrowObligation), true);
 
         bytes memory demand = abi.encode("test demand");
-        ERC1155EscrowObligation.StatementData
-            memory data = ERC1155EscrowObligation.StatementData({
+        ERC1155EscrowObligation.ObligationData
+            memory data = ERC1155EscrowObligation.ObligationData({
                 token: address(token),
                 tokenId: tokenId,
                 amount: excessAmount,
@@ -494,7 +494,7 @@ contract ERC1155EscrowObligationTest is Test {
                 excessAmount
             )
         );
-        escrowObligation.makeStatement(data, expiration);
+        escrowObligation.doObligation(data, expiration);
         vm.stopPrank();
     }
 }

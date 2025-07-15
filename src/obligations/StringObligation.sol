@@ -4,10 +4,10 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 
-contract StringObligation is BaseStatement {
-    struct StatementData {
+contract StringObligation is BaseObligation {
+    struct ObligationData {
         string item;
     }
 
@@ -16,10 +16,10 @@ contract StringObligation is BaseStatement {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
-    ) BaseStatement(_eas, _schemaRegistry, "string item", true) {}
+    ) BaseObligation(_eas, _schemaRegistry, "string item", true) {}
 
-    function makeStatement(
-        StatementData calldata data,
+    function doObligation(
+        ObligationData calldata data,
         bytes32 refUID
     ) public returns (bytes32 uid_) {
         // Create attestation with try/catch for potential EAS failures
@@ -44,17 +44,17 @@ contract StringObligation is BaseStatement {
         }
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromStatement();
-        return abi.decode(attestation.data, (StatementData));
+        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromObligation();
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

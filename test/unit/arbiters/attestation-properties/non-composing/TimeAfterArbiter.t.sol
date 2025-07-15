@@ -16,7 +16,7 @@ contract TimeAfterArbiterTest is Test {
         timestampThreshold = uint64(block.timestamp - 100); // 100 seconds in the past
     }
 
-    function testCheckStatementWithTimeAfterThreshold() public view {
+    function testCheckObligationWithTimeAfterThreshold() public view {
         // Create a test attestation with time after the threshold
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -36,15 +36,15 @@ contract TimeAfterArbiterTest is Test {
             .DemandData({time: timestampThreshold});
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should return true
-        bool result = arbiter.checkStatement(attestation, demand, bytes32(0));
+        // Check obligation should return true
+        bool result = arbiter.checkObligation(attestation, demand, bytes32(0));
         assertTrue(
             result,
             "Should accept attestation with time after threshold"
         );
     }
 
-    function testCheckStatementWithTimeBeforeThreshold() public {
+    function testCheckObligationWithTimeBeforeThreshold() public {
         // Create a test attestation with time before the threshold
         Attestation memory attestation = Attestation({
             uid: bytes32(0),
@@ -64,9 +64,9 @@ contract TimeAfterArbiterTest is Test {
             .DemandData({time: timestampThreshold});
         bytes memory demand = abi.encode(demandData);
 
-        // Check statement should revert with TimeNotAfter
+        // Check obligation should revert with TimeNotAfter
         vm.expectRevert(TimeAfterArbiter.TimeNotAfter.selector);
-        arbiter.checkStatement(attestation, demand, bytes32(0));
+        arbiter.checkObligation(attestation, demand, bytes32(0));
     }
 
     function testDecodeDemandData() public {

@@ -9,11 +9,11 @@ contract IntrinsicsArbiter is IArbiter {
     // validates attestation is not expired and not revoked
     using ArbiterUtils for Attestation;
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory /*demand*/,
         bytes32 /*counteroffer*/
     ) public view override returns (bool) {
-        return statement._checkIntrinsic();
+        return obligation._checkIntrinsic();
     }
 }

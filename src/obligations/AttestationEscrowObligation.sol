@@ -4,14 +4,14 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseStatement} from "../BaseStatement.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
-contract AttestationEscrowObligation is BaseStatement, IArbiter {
+contract AttestationEscrowObligation is BaseObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
-    struct StatementData {
+    struct ObligationData {
         address arbiter;
         bytes demand;
         AttestationRequest attestation;
@@ -32,7 +32,7 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseStatement(
+        BaseObligation(
             _eas,
             _schemaRegistry,
             "address arbiter, bytes demand, tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data) attestation",
@@ -40,8 +40,8 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         )
     {}
 
-    function makeStatementFor(
-        StatementData calldata data,
+    function doObligationFor(
+        ObligationData calldata data,
         uint64 expirationTime,
         address recipient
     ) public returns (bytes32 uid_) {
@@ -61,18 +61,18 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         emit EscrowMade(uid_, recipient);
     }
 
-    function makeStatement(
-        StatementData calldata data,
+    function doObligation(
+        ObligationData calldata data,
         uint64 expirationTime
     ) public returns (bytes32 uid_) {
-        return makeStatementFor(data, expirationTime, msg.sender);
+        return doObligationFor(data, expirationTime, msg.sender);
     }
 
     error AttestationNotFound(bytes32 attestationId);
     error RevocationFailed(bytes32 attestationId);
     error AttestationCreationFailed();
 
-    function collectPayment(
+    function collectEscrow(
         bytes32 _escrow,
         bytes32 _fulfillment
     ) public returns (bytes32) {
@@ -95,13 +95,13 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
 
         if (!escrow._checkIntrinsic()) revert InvalidEscrowAttestation();
 
-        StatementData memory escrowData = abi.decode(
+        ObligationData memory escrowData = abi.decode(
             escrow.data,
-            (StatementData)
+            (ObligationData)
         );
 
         if (
-            !IArbiter(escrowData.arbiter).checkStatement(
+            !IArbiter(escrowData.arbiter).checkObligation(
                 fulfillment,
                 escrowData.demand,
                 escrow.uid
@@ -130,18 +130,18 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
         return attestationUid;
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 /* counteroffer */
     ) public view override returns (bool) {
-        if (!statement._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
+        if (!obligation._checkIntrinsic(ATTESTATION_SCHEMA)) return false;
 
-        StatementData memory escrow = abi.decode(
-            statement.data,
-            (StatementData)
+        ObligationData memory escrow = abi.decode(
+            obligation.data,
+            (ObligationData)
         );
-        StatementData memory demandData = abi.decode(demand, (StatementData));
+        ObligationData memory demandData = abi.decode(demand, (ObligationData));
 
         return
             keccak256(abi.encode(escrow.attestation)) ==
@@ -150,18 +150,18 @@ contract AttestationEscrowObligation is BaseStatement, IArbiter {
             keccak256(escrow.demand) == keccak256(demandData.demand);
     }
 
-    function getStatementData(
+    function getObligationData(
         bytes32 uid
-    ) public view returns (StatementData memory) {
+    ) public view returns (ObligationData memory) {
         Attestation memory attestation = eas.getAttestation(uid);
         if (attestation.schema != ATTESTATION_SCHEMA)
             revert InvalidEscrowAttestation();
-        return abi.decode(attestation.data, (StatementData));
+        return abi.decode(attestation.data, (ObligationData));
     }
 
-    function decodeStatementData(
+    function decodeObligationData(
         bytes calldata data
-    ) public pure returns (StatementData memory) {
-        return abi.decode(data, (StatementData));
+    ) public pure returns (ObligationData memory) {
+        return abi.decode(data, (ObligationData));
     }
 }

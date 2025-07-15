@@ -15,46 +15,46 @@ contract ERC721PaymentFulfillmentArbiter is IArbiter {
         uint256 tokenId;
     }
 
-    error InvalidStatement();
+    error InvalidObligation();
     error InvalidValidation();
 
-    ERC721EscrowObligation public immutable paymentStatement;
+    ERC721EscrowObligation public immutable paymentObligation;
     SpecificAttestationArbiter public immutable specificAttestation;
 
     constructor(
-        ERC721EscrowObligation _baseStatement,
+        ERC721EscrowObligation _baseObligation,
         SpecificAttestationArbiter _specificAttestation
     ) {
-        paymentStatement = _baseStatement;
+        paymentObligation = _baseObligation;
         specificAttestation = _specificAttestation;
     }
 
-    function checkStatement(
-        Attestation memory statement,
+    function checkObligation(
+        Attestation memory obligation,
         bytes memory demand,
         bytes32 counteroffer
     ) public view override returns (bool) {
         DemandData memory validationData = abi.decode(demand, (DemandData));
 
-        if (statement.schema != paymentStatement.ATTESTATION_SCHEMA())
-            revert InvalidStatement();
-        if (statement._checkExpired()) revert InvalidStatement();
+        if (obligation.schema != paymentObligation.ATTESTATION_SCHEMA())
+            revert InvalidObligation();
+        if (obligation._checkExpired()) revert InvalidObligation();
 
-        ERC721EscrowObligation.StatementData memory statementData = abi.decode(
-            statement.data,
-            (ERC721EscrowObligation.StatementData)
+        ERC721EscrowObligation.ObligationData memory obligationData = abi.decode(
+            obligation.data,
+            (ERC721EscrowObligation.ObligationData)
         );
 
-        if (statementData.token != validationData.token)
+        if (obligationData.token != validationData.token)
             revert InvalidValidation();
-        if (statementData.tokenId != validationData.tokenId)
+        if (obligationData.tokenId != validationData.tokenId)
             revert InvalidValidation();
 
-        if (statementData.arbiter != address(specificAttestation))
+        if (obligationData.arbiter != address(specificAttestation))
             revert InvalidValidation();
 
         SpecificAttestationArbiter.DemandData memory demandData = abi.decode(
-            statementData.demand,
+            obligationData.demand,
             (SpecificAttestationArbiter.DemandData)
         );
 
