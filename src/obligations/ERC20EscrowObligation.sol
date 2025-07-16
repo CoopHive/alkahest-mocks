@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import {Attestation} from "@eas/Common.sol";
-import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
-import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {BaseObligation} from "../BaseObligation.sol";
+import {BaseEscrowObligation} from "../BaseEscrowObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
+import {Attestation} from "@eas/Common.sol";
+import {IEAS} from "@eas/IEAS.sol";
+import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract ERC20EscrowObligation is BaseObligation, IArbiter {
+contract ERC20EscrowObligation is BaseEscrowObligation, IArbiter {
     using ArbiterUtils for Attestation;
 
     struct ObligationData {
@@ -19,32 +19,18 @@ contract ERC20EscrowObligation is BaseObligation, IArbiter {
         uint256 amount;
     }
 
-    event EscrowMade(bytes32 indexed payment, address indexed buyer);
-    event EscrowClaimed(
-        bytes32 indexed payment,
-        bytes32 indexed fulfillment,
-        address indexed fulfiller
-    );
-
-    error InvalidEscrow();
-    error InvalidEscrowAttestation();
-    error InvalidFulfillment();
-    error UnauthorizedCall();
     error ERC20TransferFailed(
         address token,
         address from,
         address to,
         uint256 amount
     );
-    error AttestationNotFound(bytes32 attestationId);
-    error AttestationCreateFailed();
-    error RevocationFailed(bytes32 attestationId);
 
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry
     )
-        BaseObligation(
+        BaseEscrowObligation(
             _eas,
             _schemaRegistry,
             "address arbiter, bytes demand, address token, uint256 amount",
@@ -52,16 +38,26 @@ contract ERC20EscrowObligation is BaseObligation, IArbiter {
         )
     {}
 
-    function doObligationFor(
-        ObligationData calldata data,
-        uint64 expirationTime,
-        address payer,
-        address recipient
-    ) public returns (bytes32 uid_) {
-        // Try token transfer and handle potential failures
+    // Extract arbiter and demand from encoded data
+
+    function extractArbiterAndDemand(
+        bytes memory data
+    ) public pure override returns (address arbiter, bytes memory demand) {
+        ObligationData memory decoded = abi.decode(data, (ObligationData));
+        return (decoded.arbiter, decoded.demand);
+    }
+
+    // Transfer tokens into escrow
+    function _lockEscrow(bytes memory data, address from) internal override {
+        ObligationData memory decoded = abi.decode(data, (ObligationData));
+
         bool success;
         try
-            IERC20(data.token).transferFrom(payer, address(this), data.amount)
+            IERC20(decoded.token).transferFrom(
+                from,
+                address(this),
+                decoded.amount
+            )
         returns (bool result) {
             success = result;
         } catch {
@@ -70,102 +66,29 @@ contract ERC20EscrowObligation is BaseObligation, IArbiter {
 
         if (!success) {
             revert ERC20TransferFailed(
-                data.token,
-                payer,
+                decoded.token,
+                from,
                 address(this),
-                data.amount
+                decoded.amount
             );
         }
-
-        // Create attestation with try/catch for potential EAS failures
-        try
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: recipient,
-                        expirationTime: expirationTime,
-                        revocable: true,
-                        refUID: bytes32(0),
-                        data: abi.encode(data),
-                        value: 0
-                    })
-                })
-            )
-        returns (bytes32 uid) {
-            uid_ = uid;
-            emit EscrowMade(uid_, recipient);
-        } catch {
-            // The revert will automatically revert all state changes including token transfers
-            revert AttestationCreateFailed();
-        }
     }
 
-    function doObligation(
-        ObligationData calldata data,
-        uint64 expirationTime
-    ) public returns (bytes32 uid_) {
-        return doObligationFor(data, expirationTime, msg.sender, msg.sender);
-    }
+    // Transfer tokens to fulfiller
+    function _releaseEscrow(
+        bytes memory escrowData,
+        address to,
+        bytes32 /* fulfillmentUid */
+    ) internal override returns (bytes memory) {
+        ObligationData memory decoded = abi.decode(
+            escrowData,
+            (ObligationData)
+        );
 
-    function collectEscrow(
-        bytes32 _payment,
-        bytes32 _fulfillment
-    ) public returns (bool) {
-        Attestation memory payment;
-        Attestation memory fulfillment;
-
-        // Get payment attestation with error handling
-        try eas.getAttestation(_payment) returns (Attestation memory result) {
-            payment = result;
-        } catch {
-            revert AttestationNotFound(_payment);
-        }
-
-        // Get fulfillment attestation with error handling
-        try eas.getAttestation(_fulfillment) returns (
-            Attestation memory result
+        bool success;
+        try IERC20(decoded.token).transfer(to, decoded.amount) returns (
+            bool result
         ) {
-            fulfillment = result;
-        } catch {
-            revert AttestationNotFound(_fulfillment);
-        }
-
-        if (!payment._checkIntrinsic()) revert InvalidEscrowAttestation();
-
-        ObligationData memory paymentData = abi.decode(
-            payment.data,
-            (ObligationData)
-        );
-
-        if (
-            !IArbiter(paymentData.arbiter).checkObligation(
-                fulfillment,
-                paymentData.demand,
-                payment.uid
-            )
-        ) revert InvalidFulfillment();
-
-        // Revoke attestation with error handling
-        try
-            eas.revoke(
-                RevocationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: RevocationRequestData({uid: _payment, value: 0})
-                })
-            )
-        {} catch {
-            revert RevocationFailed(_payment);
-        }
-
-        // Transfer tokens with error handling
-        bool success;
-        try
-            IERC20(paymentData.token).transfer(
-                fulfillment.recipient,
-                paymentData.amount
-            )
-        returns (bool result) {
             success = result;
         } catch {
             success = false;
@@ -173,40 +96,24 @@ contract ERC20EscrowObligation is BaseObligation, IArbiter {
 
         if (!success) {
             revert ERC20TransferFailed(
-                paymentData.token,
+                decoded.token,
                 address(this),
-                fulfillment.recipient,
-                paymentData.amount
+                to,
+                decoded.amount
             );
         }
 
-        emit EscrowClaimed(_payment, _fulfillment, fulfillment.recipient);
-        return true;
+        return ""; // Token escrows don't return anything
     }
 
-    function reclaimExpired(bytes32 uid) public returns (bool) {
-        Attestation memory attestation;
+    // Return tokens to original owner on expiry
+    function _returnEscrow(bytes memory data, address to) internal override {
+        ObligationData memory decoded = abi.decode(data, (ObligationData));
 
-        // Get attestation with error handling
-        try eas.getAttestation(uid) returns (Attestation memory result) {
-            attestation = result;
-        } catch {
-            revert AttestationNotFound(uid);
-        }
-
-        if (block.timestamp < attestation.expirationTime)
-            revert UnauthorizedCall();
-
-        ObligationData memory data = abi.decode(
-            attestation.data,
-            (ObligationData)
-        );
-
-        // Transfer tokens with error handling
         bool success;
-        try
-            IERC20(data.token).transfer(attestation.recipient, data.amount)
-        returns (bool result) {
+        try IERC20(decoded.token).transfer(to, decoded.amount) returns (
+            bool result
+        ) {
             success = result;
         } catch {
             success = false;
@@ -214,16 +121,15 @@ contract ERC20EscrowObligation is BaseObligation, IArbiter {
 
         if (!success) {
             revert ERC20TransferFailed(
-                data.token,
+                decoded.token,
                 address(this),
-                attestation.recipient,
-                data.amount
+                to,
+                decoded.amount
             );
         }
-
-        return true;
     }
 
+    // Implement IArbiter
     function checkObligation(
         Attestation memory obligation,
         bytes memory demand,
@@ -244,12 +150,49 @@ contract ERC20EscrowObligation is BaseObligation, IArbiter {
             keccak256(payment.demand) == keccak256(demandData.demand);
     }
 
+    // Typed convenience methods
+    function doObligation(
+        ObligationData calldata data,
+        uint64 expirationTime
+    ) external returns (bytes32) {
+        return
+            this.doObligationForRaw(
+                abi.encode(data),
+                expirationTime,
+                msg.sender,
+                msg.sender,
+                bytes32(0)
+            );
+    }
+
+    function doObligationFor(
+        ObligationData calldata data,
+        uint64 expirationTime,
+        address payer,
+        address recipient
+    ) external returns (bytes32) {
+        return
+            this.doObligationForRaw(
+                abi.encode(data),
+                expirationTime,
+                payer,
+                recipient,
+                bytes32(0)
+            );
+    }
+
+    function collectEscrow(
+        bytes32 escrow,
+        bytes32 fulfillment
+    ) external returns (bool) {
+        collectEscrowRaw(escrow, fulfillment);
+        return true;
+    }
+
     function getObligationData(
         bytes32 uid
     ) public view returns (ObligationData memory) {
-        Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA)
-            revert InvalidEscrowAttestation();
+        Attestation memory attestation = _getAttestation(uid);
         return abi.decode(attestation.data, (ObligationData));
     }
 

@@ -35,9 +35,6 @@ abstract contract BaseEscrowObligation is BaseObligation {
     ) BaseObligation(_eas, _schemaRegistry, schema, revocable) {}
 
     // Abstract methods that escrow types must implement
-    function _extractArbiterAndDemand(
-        bytes memory data
-    ) internal pure virtual returns (address arbiter, bytes memory demand);
 
     // Called when escrow is created (in _beforeObligation)
     function _lockEscrow(bytes memory data, address from) internal virtual;
@@ -52,8 +49,13 @@ abstract contract BaseEscrowObligation is BaseObligation {
     // Called when escrow expires and is reclaimed
     function _returnEscrow(bytes memory data, address to) internal virtual;
 
+    // Extract arbiter and demand from encoded data
+    function extractArbiterAndDemand(
+        bytes memory data
+    ) public pure virtual returns (address arbiter, bytes memory demand);
+
     // Common escrow collection implementation
-    function collectEscrow(
+    function collectEscrowRaw(
         bytes32 _escrow,
         bytes32 _fulfillment
     ) public virtual returns (bytes memory) {
@@ -78,7 +80,7 @@ abstract contract BaseEscrowObligation is BaseObligation {
         if (!escrow._checkIntrinsic()) revert InvalidEscrowAttestation();
 
         // Extract arbiter and demand from escrow data
-        (address arbiter, bytes memory demand) = _extractArbiterAndDemand(
+        (address arbiter, bytes memory demand) = extractArbiterAndDemand(
             escrow.data
         );
 
@@ -135,5 +137,16 @@ abstract contract BaseEscrowObligation is BaseObligation {
         address recipient
     ) internal virtual override {
         _lockEscrow(data, payer);
+    }
+
+    // Hook implementations
+
+    function _afterAttest(
+        bytes32 uid,
+        bytes calldata data,
+        address payer,
+        address recipient
+    ) internal override {
+        emit EscrowMade(uid, recipient);
     }
 }

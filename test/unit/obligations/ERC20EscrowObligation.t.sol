@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {ERC20EscrowObligation} from "@src/obligations/ERC20EscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {MockArbiter} from "./MockArbiter.sol";
@@ -90,7 +91,7 @@ contract ERC20EscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -141,7 +142,7 @@ contract ERC20EscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -251,7 +252,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Try to collect payment, should revert with InvalidFulfillment
         vm.prank(seller);
-        vm.expectRevert(ERC20EscrowObligation.InvalidFulfillment.selector);
+        vm.expectRevert(BaseEscrowObligation.InvalidFulfillment.selector);
         escrowObligation.collectEscrow(paymentUid, fulfillmentUid);
     }
 
@@ -275,7 +276,7 @@ contract ERC20EscrowObligationTest is Test {
 
         // Attempt to collect before expiration (should fail)
         vm.prank(buyer);
-        vm.expectRevert(ERC20EscrowObligation.UnauthorizedCall.selector);
+        vm.expectRevert(BaseEscrowObligation.UnauthorizedCall.selector);
         escrowObligation.reclaimExpired(paymentUid);
 
         // Fast forward past expiration time
