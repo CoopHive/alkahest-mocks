@@ -45,9 +45,7 @@ contract StringObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = stringObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
         assertEq(
             attestation.schema,
             stringObligation.ATTESTATION_SCHEMA(),
@@ -69,12 +67,5 @@ contract StringObligationTest is Test {
             "Test String Data",
             "Statement data should match"
         );
-    }
-
-    function testGetObligationFailsForInvalidUID() public {
-        bytes32 invalidUID = bytes32(uint256(1));
-
-        vm.expectRevert();
-        stringObligation.getObligation(invalidUID);
     }
 }

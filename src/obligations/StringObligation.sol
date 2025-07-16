@@ -4,14 +4,12 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseObligation} from "../BaseObligation.sol";
+import {BaseObligation} from "../BaseObligationNew.sol";
 
 contract StringObligation is BaseObligation {
     struct ObligationData {
         string item;
     }
-
-    error AttestationCreateFailed();
 
     constructor(
         IEAS _eas,
@@ -22,33 +20,20 @@ contract StringObligation is BaseObligation {
         ObligationData calldata data,
         bytes32 refUID
     ) public returns (bytes32 uid_) {
-        // Create attestation with try/catch for potential EAS failures
-        try
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: msg.sender,
-                        expirationTime: 0,
-                        revocable: false,
-                        refUID: refUID,
-                        data: abi.encode(data),
-                        value: 0
-                    })
-                })
-            )
-        returns (bytes32 uid) {
-            uid_ = uid;
-        } catch {
-            revert AttestationCreateFailed();
-        }
+        bytes memory encodedData = abi.encode(data);
+        uid_ = this.doObligationForRaw(
+            encodedData,
+            0,
+            msg.sender,
+            msg.sender,
+            refUID
+        );
     }
 
     function getObligationData(
         bytes32 uid
     ) public view returns (ObligationData memory) {
-        Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromObligation();
+        Attestation memory attestation = _getAttestation(uid);
         return abi.decode(attestation.data, (ObligationData));
     }
 
