@@ -160,7 +160,7 @@ contract TokenBundlePaymentObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             paymentObligation.ATTESTATION_SCHEMA(),
@@ -190,17 +190,13 @@ contract TokenBundlePaymentObligationTest is Test {
         address recipient = makeAddr("recipient");
 
         vm.prank(address(this));
-        bytes32 uid = paymentObligation.doObligationFor(
-            data,
-            payer,
-            recipient
-        );
+        bytes32 uid = paymentObligation.doObligationFor(data, payer, recipient);
 
         // Verify attestation exists
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             paymentObligation.ATTESTATION_SCHEMA(),
@@ -416,9 +412,7 @@ contract TokenBundlePaymentObligationTest is Test {
         bytes32 attestationId = paymentObligation.doObligation(data);
         vm.stopPrank();
 
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match
         TokenBundlePaymentObligation.ObligationData

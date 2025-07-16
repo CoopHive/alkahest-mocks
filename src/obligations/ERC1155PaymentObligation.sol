@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import {BaseObligation} from "../BaseObligation.sol";
+import {BaseObligation} from "../BaseObligationNew.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
@@ -21,7 +21,6 @@ contract ERC1155PaymentObligation is BaseObligation, IArbiter {
 
     event PaymentMade(bytes32 indexed payment, address indexed buyer);
 
-    error InvalidPayment();
     error ERC1155TransferFailed(
         address token,
         address from,
@@ -29,7 +28,6 @@ contract ERC1155PaymentObligation is BaseObligation, IArbiter {
         uint256 tokenId,
         uint256 amount
     );
-    error AttestationCreateFailed();
 
     constructor(
         IEAS _eas,
@@ -43,60 +41,73 @@ contract ERC1155PaymentObligation is BaseObligation, IArbiter {
         )
     {}
 
+    function doObligation(
+        ObligationData calldata data
+    ) public returns (bytes32 uid_) {
+        bytes memory encodedData = abi.encode(data);
+        uid_ = this.doObligationForRaw(
+            encodedData,
+            0,
+            msg.sender,
+            msg.sender,
+            bytes32(0)
+        );
+    }
+
     function doObligationFor(
         ObligationData calldata data,
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
+        bytes memory encodedData = abi.encode(data);
+        uid_ = this.doObligationForRaw(
+            encodedData,
+            0,
+            payer,
+            recipient,
+            bytes32(0)
+        );
+    }
+
+    function _beforeAttest(
+        bytes calldata data,
+        address payer,
+        address /* recipient */
+    ) internal override {
+        ObligationData memory obligationData = abi.decode(
+            data,
+            (ObligationData)
+        );
+
         // Try token transfer with error handling
         try
-            IERC1155(data.token).safeTransferFrom(
+            IERC1155(obligationData.token).safeTransferFrom(
                 payer,
-                data.payee,
-                data.tokenId,
-                data.amount,
+                obligationData.payee,
+                obligationData.tokenId,
+                obligationData.amount,
                 ""
             )
         {
             // Transfer succeeded
         } catch {
             revert ERC1155TransferFailed(
-                data.token,
+                obligationData.token,
                 payer,
-                data.payee,
-                data.tokenId,
-                data.amount
+                obligationData.payee,
+                obligationData.tokenId,
+                obligationData.amount
             );
-        }
-
-        // Create attestation with try/catch for potential EAS failures
-        try
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: recipient,
-                        expirationTime: 0,
-                        revocable: true,
-                        refUID: bytes32(0),
-                        data: abi.encode(data),
-                        value: 0
-                    })
-                })
-            )
-        returns (bytes32 uid) {
-            uid_ = uid;
-            emit PaymentMade(uid_, recipient);
-        } catch {
-            // Note: We can't refund the tokens here as they're already sent to payee
-            revert AttestationCreateFailed();
         }
     }
 
-    function doObligation(
-        ObligationData calldata data
-    ) public returns (bytes32 uid_) {
-        return doObligationFor(data, msg.sender, msg.sender);
+    function _afterAttest(
+        bytes32 uid,
+        bytes calldata /* data */,
+        address /* payer */,
+        address recipient
+    ) internal override {
+        emit PaymentMade(uid, recipient);
     }
 
     function checkObligation(
@@ -122,8 +133,7 @@ contract ERC1155PaymentObligation is BaseObligation, IArbiter {
     function getObligationData(
         bytes32 uid
     ) public view returns (ObligationData memory) {
-        Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidPayment();
+        Attestation memory attestation = _getAttestation(uid);
         return abi.decode(attestation.data, (ObligationData));
     }
 

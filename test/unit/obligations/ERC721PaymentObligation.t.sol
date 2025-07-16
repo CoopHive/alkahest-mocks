@@ -84,9 +84,7 @@ contract ERC721PaymentObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
         assertEq(
             attestation.schema,
             paymentObligation.ATTESTATION_SCHEMA(),
@@ -129,9 +127,7 @@ contract ERC721PaymentObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
         assertEq(
             attestation.schema,
             paymentObligation.ATTESTATION_SCHEMA(),
@@ -167,9 +163,7 @@ contract ERC721PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Get the attestation
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match demand
         ERC721PaymentObligation.ObligationData
@@ -264,9 +258,7 @@ contract ERC721PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Get the attestation
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test with different demand - should fail because data doesn't match
         MockERC721 differentToken = new MockERC721();

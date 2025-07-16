@@ -7,7 +7,7 @@ import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import {BaseObligation} from "../BaseObligation.sol";
+import {BaseObligation} from "../BaseObligationNew.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
@@ -34,7 +34,6 @@ contract TokenBundlePaymentObligation is BaseObligation, IArbiter {
         address indexed to
     );
 
-    error InvalidTransfer();
     error ArrayLengthMismatch();
 
     constructor(
@@ -49,7 +48,62 @@ contract TokenBundlePaymentObligation is BaseObligation, IArbiter {
         )
     {}
 
-    function validateArrayLengths(ObligationData calldata data) internal pure {
+    function doObligation(
+        ObligationData calldata data
+    ) public returns (bytes32 uid_) {
+        bytes memory encodedData = abi.encode(data);
+        uid_ = this.doObligationForRaw(
+            encodedData,
+            0,
+            msg.sender,
+            msg.sender,
+            bytes32(0)
+        );
+    }
+
+    function doObligationFor(
+        ObligationData calldata data,
+        address payer,
+        address recipient
+    ) public returns (bytes32 uid_) {
+        bytes memory encodedData = abi.encode(data);
+        uid_ = this.doObligationForRaw(
+            encodedData,
+            0,
+            payer,
+            recipient,
+            bytes32(0)
+        );
+    }
+
+    function _beforeAttest(
+        bytes calldata data,
+        address payer,
+        address /* recipient */
+    ) internal override {
+        ObligationData memory obligationData = abi.decode(
+            data,
+            (ObligationData)
+        );
+
+        validateArrayLengths(obligationData);
+        transferBundle(obligationData, payer);
+    }
+
+    function _afterAttest(
+        bytes32 uid,
+        bytes calldata data,
+        address payer,
+        address /* recipient */
+    ) internal override {
+        ObligationData memory obligationData = abi.decode(
+            data,
+            (ObligationData)
+        );
+        emit BundleTransferred(uid, payer, obligationData.payee);
+    }
+
+    function validateArrayLengths(ObligationData memory data) internal pure {
         if (data.erc20Tokens.length != data.erc20Amounts.length)
             revert ArrayLengthMismatch();
         if (data.erc721Tokens.length != data.erc721TokenIds.length)
@@ -60,19 +114,17 @@ contract TokenBundlePaymentObligation is BaseObligation, IArbiter {
         ) revert ArrayLengthMismatch();
     }
 
-    function transferBundle(
-        ObligationData calldata data,
-        address from
-    ) internal {
+    function transferBundle(ObligationData memory data, address from) internal {
         // Transfer ERC20s
         for (uint i = 0; i < data.erc20Tokens.length; i++) {
-            if (
-                !IERC20(data.erc20Tokens[i]).transferFrom(
+            require(
+                IERC20(data.erc20Tokens[i]).transferFrom(
                     from,
                     data.payee,
                     data.erc20Amounts[i]
-                )
-            ) revert InvalidTransfer();
+                ),
+                "ERC20 transfer failed"
+            );
         }
 
         // Transfer ERC721s
@@ -94,36 +146,6 @@ contract TokenBundlePaymentObligation is BaseObligation, IArbiter {
                 ""
             );
         }
-    }
-
-    function doObligationFor(
-        ObligationData calldata data,
-        address payer,
-        address recipient
-    ) public returns (bytes32 uid_) {
-        validateArrayLengths(data);
-        transferBundle(data, payer);
-
-        uid_ = eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: recipient,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: bytes32(0),
-                    data: abi.encode(data),
-                    value: 0
-                })
-            })
-        );
-        emit BundleTransferred(uid_, payer, data.payee);
-    }
-
-    function doObligation(
-        ObligationData calldata data
-    ) public returns (bytes32 uid_) {
-        return doObligationFor(data, msg.sender, msg.sender);
     }
 
     function checkObligation(
@@ -185,8 +207,7 @@ contract TokenBundlePaymentObligation is BaseObligation, IArbiter {
     function getObligationData(
         bytes32 uid
     ) public view returns (ObligationData memory) {
-        Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidTransfer();
+        Attestation memory attestation = _getAttestation(uid);
         return abi.decode(attestation.data, (ObligationData));
     }
 
