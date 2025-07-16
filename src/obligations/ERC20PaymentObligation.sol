@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {BaseObligation} from "../BaseObligation.sol";
+import {BaseObligation} from "../BaseObligationNew.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 
@@ -20,14 +20,12 @@ contract ERC20PaymentObligation is BaseObligation, IArbiter {
 
     event PaymentMade(bytes32 indexed payment, address indexed buyer);
 
-    error InvalidPayment();
     error ERC20TransferFailed(
         address token,
         address from,
         address to,
         uint256 amount
     );
-    error AttestationCreateFailed();
 
     constructor(
         IEAS _eas,
@@ -41,15 +39,52 @@ contract ERC20PaymentObligation is BaseObligation, IArbiter {
         )
     {}
 
+    function doObligation(
+        ObligationData calldata data
+    ) public returns (bytes32 uid_) {
+        bytes memory encodedData = abi.encode(data);
+        uid_ = this.doObligationForRaw(
+            encodedData,
+            0,
+            msg.sender,
+            msg.sender,
+            bytes32(0)
+        );
+    }
+
     function doObligationFor(
         ObligationData calldata data,
         address payer,
         address recipient
     ) public returns (bytes32 uid_) {
+        bytes memory encodedData = abi.encode(data);
+        uid_ = this.doObligationForRaw(
+            encodedData,
+            0,
+            payer,
+            recipient,
+            bytes32(0)
+        );
+    }
+
+    function _beforeAttest(
+        bytes calldata data,
+        address payer,
+        address /* recipient */
+    ) internal override {
+        ObligationData memory obligationData = abi.decode(
+            data,
+            (ObligationData)
+        );
+
         // Try token transfer with error handling
         bool success;
         try
-            IERC20(data.token).transferFrom(payer, data.payee, data.amount)
+            IERC20(obligationData.token).transferFrom(
+                payer,
+                obligationData.payee,
+                obligationData.amount
+            )
         returns (bool result) {
             success = result;
         } catch {
@@ -58,41 +93,21 @@ contract ERC20PaymentObligation is BaseObligation, IArbiter {
 
         if (!success) {
             revert ERC20TransferFailed(
-                data.token,
+                obligationData.token,
                 payer,
-                data.payee,
-                data.amount
+                obligationData.payee,
+                obligationData.amount
             );
-        }
-
-        // Create attestation with try/catch for potential EAS failures
-        try
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: recipient,
-                        expirationTime: 0,
-                        revocable: true,
-                        refUID: bytes32(0),
-                        data: abi.encode(data),
-                        value: 0
-                    })
-                })
-            )
-        returns (bytes32 uid) {
-            uid_ = uid;
-            emit PaymentMade(uid_, recipient);
-        } catch {
-            // Note: We can't refund the tokens here as they're already sent to payee
-            revert AttestationCreateFailed();
         }
     }
 
-    function doObligation(
-        ObligationData calldata data
-    ) public returns (bytes32 uid_) {
-        return doObligationFor(data, msg.sender, msg.sender);
+    function _afterAttest(
+        bytes32 uid,
+        bytes calldata /* data */,
+        address /* payer */,
+        address recipient
+    ) internal override {
+        emit PaymentMade(uid, recipient);
     }
 
     function checkObligation(
@@ -117,8 +132,7 @@ contract ERC20PaymentObligation is BaseObligation, IArbiter {
     function getObligationData(
         bytes32 uid
     ) public view returns (ObligationData memory) {
-        Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert InvalidPayment();
+        Attestation memory attestation = _getAttestation(uid);
         return abi.decode(attestation.data, (ObligationData));
     }
 

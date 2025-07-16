@@ -80,9 +80,7 @@ contract ERC20PaymentObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
         assertEq(
             attestation.schema,
             paymentObligation.ATTESTATION_SCHEMA(),
@@ -131,9 +129,7 @@ contract ERC20PaymentObligationTest is Test {
         assertNotEq(attestationId, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
         assertEq(
             attestation.schema,
             paymentObligation.ATTESTATION_SCHEMA(),
@@ -177,9 +173,7 @@ contract ERC20PaymentObligationTest is Test {
         vm.stopPrank();
 
         // Get the attestation
-        Attestation memory attestation = paymentObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match demand
         ERC20PaymentObligation.ObligationData
@@ -229,11 +223,12 @@ contract ERC20PaymentObligationTest is Test {
         // Test different token demand (should fail)
         MockERC20 differentToken = new MockERC20();
         ERC20PaymentObligation.ObligationData
-            memory differentTokenDemand = ERC20PaymentObligation.ObligationData({
-                token: address(differentToken),
-                amount: amount,
-                payee: payee
-            });
+            memory differentTokenDemand = ERC20PaymentObligation
+                .ObligationData({
+                    token: address(differentToken),
+                    amount: amount,
+                    payee: payee
+                });
 
         bool differentTokenMatch = paymentObligation.checkObligation(
             attestation,
@@ -247,11 +242,12 @@ contract ERC20PaymentObligationTest is Test {
 
         // Test different payee demand (should fail)
         ERC20PaymentObligation.ObligationData
-            memory differentPayeeDemand = ERC20PaymentObligation.ObligationData({
-                token: address(token),
-                amount: amount,
-                payee: makeAddr("differentPayee")
-            });
+            memory differentPayeeDemand = ERC20PaymentObligation
+                .ObligationData({
+                    token: address(token),
+                    amount: amount,
+                    payee: makeAddr("differentPayee")
+                });
 
         bool differentPayeeMatch = paymentObligation.checkObligation(
             attestation,
