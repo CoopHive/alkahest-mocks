@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {MockArbiter} from "./MockArbiter.sol";
@@ -168,7 +169,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -210,7 +211,7 @@ contract TokenBundleEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -410,9 +411,7 @@ contract TokenBundleEscrowObligationTest is Test {
 
         // Try to collect payment, should revert with InvalidFulfillment
         vm.prank(seller);
-        vm.expectRevert(
-            TokenBundleEscrowObligation.InvalidFulfillment.selector
-        );
+        vm.expectRevert(BaseEscrowObligation.InvalidFulfillment.selector);
         escrowObligation.collectEscrow(paymentUid, fulfillmentUid);
     }
 
@@ -435,7 +434,7 @@ contract TokenBundleEscrowObligationTest is Test {
 
         // Attempt to collect before expiration (should fail)
         vm.prank(buyer);
-        vm.expectRevert(TokenBundleEscrowObligation.UnauthorizedCall.selector);
+        vm.expectRevert(BaseEscrowObligation.UnauthorizedCall.selector);
         escrowObligation.reclaimExpired(paymentUid);
 
         // Fast forward past expiration time
@@ -501,9 +500,7 @@ contract TokenBundleEscrowObligationTest is Test {
         );
         vm.stopPrank();
 
-        Attestation memory attestation = escrowObligation.getObligation(
-            attestationId
-        );
+        Attestation memory attestation = eas.getAttestation(attestationId);
 
         // Test exact match
         TokenBundleEscrowObligation.ObligationData
