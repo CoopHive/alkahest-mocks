@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {MockArbiter} from "./MockArbiter.sol";
@@ -92,7 +93,7 @@ contract ERC721EscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -138,7 +139,7 @@ contract ERC721EscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -237,7 +238,7 @@ contract ERC721EscrowObligationTest is Test {
 
         // Try to collect payment, should revert with InvalidFulfillment
         vm.prank(seller);
-        vm.expectRevert(ERC721EscrowObligation.InvalidFulfillment.selector);
+        vm.expectRevert(BaseEscrowObligation.InvalidFulfillment.selector);
         escrowObligation.collectEscrow(paymentUid, fulfillmentUid);
     }
 
@@ -261,7 +262,7 @@ contract ERC721EscrowObligationTest is Test {
 
         // Attempt to collect before expiration (should fail)
         vm.prank(buyer);
-        vm.expectRevert(ERC721EscrowObligation.UnauthorizedCall.selector);
+        vm.expectRevert(BaseEscrowObligation.UnauthorizedCall.selector);
         escrowObligation.reclaimExpired(paymentUid);
 
         // Fast forward past expiration time
@@ -342,12 +343,13 @@ contract ERC721EscrowObligationTest is Test {
         // Test different token (should fail)
         MockERC721 differentToken = new MockERC721();
         ERC721EscrowObligation.ObligationData
-            memory differentTokenDemand = ERC721EscrowObligation.ObligationData({
-                token: address(differentToken),
-                tokenId: tokenId,
-                arbiter: address(mockArbiter),
-                demand: abi.encode("specific demand")
-            });
+            memory differentTokenDemand = ERC721EscrowObligation
+                .ObligationData({
+                    token: address(differentToken),
+                    tokenId: tokenId,
+                    arbiter: address(mockArbiter),
+                    demand: abi.encode("specific demand")
+                });
 
         bool differentTokenMatch = escrowObligation.checkObligation(
             attestation,
