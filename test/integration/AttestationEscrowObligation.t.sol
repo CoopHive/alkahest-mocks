@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {AttestationEscrowObligation} from "@src/obligations/AttestationEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
@@ -158,9 +159,7 @@ contract AttestationEscrowObligationTest is Test {
         );
 
         vm.prank(bob);
-        vm.expectRevert(
-            AttestationEscrowObligation.InvalidFulfillment.selector
-        );
+        vm.expectRevert(BaseEscrowObligation.InvalidFulfillment.selector);
         escrowObligation.collectEscrow(escrowId, fulfillmentId);
     }
 

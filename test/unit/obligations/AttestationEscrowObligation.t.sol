@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {AttestationEscrowObligation} from "@src/obligations/AttestationEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {MockArbiter} from "./MockArbiter.sol";
@@ -91,7 +92,7 @@ contract AttestationEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -130,7 +131,7 @@ contract AttestationEscrowObligationTest is Test {
         assertNotEq(uid, bytes32(0), "Attestation should be created");
 
         // Verify attestation details
-        Attestation memory attestation = escrowObligation.getObligation(uid);
+        Attestation memory attestation = eas.getAttestation(uid);
         assertEq(
             attestation.schema,
             escrowObligation.ATTESTATION_SCHEMA(),
@@ -154,11 +155,12 @@ contract AttestationEscrowObligationTest is Test {
         fulfillmentRequest.data.recipient = attester;
 
         AttestationEscrowObligation.ObligationData
-            memory fulfillmentData = AttestationEscrowObligation.ObligationData({
-                attestation: fulfillmentRequest,
-                arbiter: arbiterAddr,
-                demand: abi.encode("fulfillment demand")
-            });
+            memory fulfillmentData = AttestationEscrowObligation
+                .ObligationData({
+                    attestation: fulfillmentRequest,
+                    arbiter: arbiterAddr,
+                    demand: abi.encode("fulfillment demand")
+                });
 
         uint64 fulfillmentExpiration = uint64(
             block.timestamp + EXPIRATION_TIME
@@ -259,9 +261,7 @@ contract AttestationEscrowObligationTest is Test {
         );
 
         // Try to collect payment, should revert with InvalidFulfillment
-        vm.expectRevert(
-            AttestationEscrowObligation.InvalidFulfillment.selector
-        );
+        vm.expectRevert(BaseEscrowObligation.InvalidFulfillment.selector);
         escrowObligation.collectEscrow(escrowUid, fulfillmentUid);
         vm.stopPrank();
     }
@@ -291,9 +291,7 @@ contract AttestationEscrowObligationTest is Test {
         );
 
         // Get the attestation
-        Attestation memory attestation = escrowObligation.getObligation(
-            obligationId
-        );
+        Attestation memory attestation = eas.getAttestation(obligationId);
 
         return (attestation, attestationRequest);
     }
@@ -406,8 +404,9 @@ contract AttestationEscrowObligationTest is Test {
     function testCheckObligation_DifferentAttestationRequest() public {
         // Only using the attestation from the return value, not the attestationRequest
         (
-            Attestation memory attestation,
-            /* AttestationRequest memory attestationRequest */
+            Attestation
+                memory attestation /* AttestationRequest memory attestationRequest */,
+
         ) = createValidAttestation();
 
         // Test different attestation request (should not match)
@@ -496,11 +495,12 @@ contract AttestationEscrowObligationTest is Test {
         fulfillmentRequest.data.recipient = attester;
 
         AttestationEscrowObligation.ObligationData
-            memory fulfillmentData = AttestationEscrowObligation.ObligationData({
-                attestation: fulfillmentRequest,
-                arbiter: address(mockArbiter),
-                demand: abi.encode("fulfillment demand")
-            });
+            memory fulfillmentData = AttestationEscrowObligation
+                .ObligationData({
+                    attestation: fulfillmentRequest,
+                    arbiter: address(mockArbiter),
+                    demand: abi.encode("fulfillment demand")
+                });
 
         uint64 fulfillmentExpiration = uint64(
             block.timestamp + EXPIRATION_TIME
