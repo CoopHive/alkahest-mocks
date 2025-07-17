@@ -63,16 +63,18 @@ abstract contract BaseEscrowObligation is BaseObligation {
         Attestation memory fulfillment;
 
         // Get attestations with error handling
-        try eas.getAttestation(_escrow) returns (Attestation memory result) {
-            escrow = result;
+        try eas.getAttestation(_escrow) returns (
+            Attestation memory attestationResult
+        ) {
+            escrow = attestationResult;
         } catch {
             revert AttestationNotFound(_escrow);
         }
 
         try eas.getAttestation(_fulfillment) returns (
-            Attestation memory result
+            Attestation memory attestationResult
         ) {
-            fulfillment = result;
+            fulfillment = attestationResult;
         } catch {
             revert AttestationNotFound(_fulfillment);
         }
@@ -134,7 +136,7 @@ abstract contract BaseEscrowObligation is BaseObligation {
     function _beforeAttest(
         bytes calldata data,
         address payer,
-        address recipient
+        address /*recipient*/
     ) internal virtual override {
         _lockEscrow(data, payer);
     }
@@ -143,8 +145,8 @@ abstract contract BaseEscrowObligation is BaseObligation {
 
     function _afterAttest(
         bytes32 uid,
-        bytes calldata data,
-        address payer,
+        bytes calldata /*data*/,
+        address /*payer*/,
         address recipient
     ) internal override {
         emit EscrowMade(uid, recipient);
