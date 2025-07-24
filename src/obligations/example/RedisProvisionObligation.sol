@@ -57,19 +57,14 @@ contract RedisProvisionObligation is BaseObligation, IArbiter {
         ObligationData calldata data,
         uint64 expirationTime
     ) public returns (bytes32) {
+        bytes memory encodedData = abi.encode(data);
         return
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: msg.sender,
-                        expirationTime: expirationTime,
-                        revocable: true,
-                        refUID: 0,
-                        data: abi.encode(data),
-                        value: 0
-                    })
-                })
+            this.doObligationForRaw(
+                encodedData,
+                expirationTime,
+                msg.sender,
+                msg.sender,
+                bytes32(0)
             );
     }
 
@@ -77,7 +72,7 @@ contract RedisProvisionObligation is BaseObligation, IArbiter {
         bytes32 obligationUID,
         ChangeData calldata changeData
     ) public returns (bytes32) {
-        Attestation memory obligation = eas.getAttestation(obligationUID);
+        Attestation memory obligation = _getAttestation(obligationUID);
         ObligationData memory obligationData = abi.decode(
             obligation.data,
             (ObligationData)
@@ -106,18 +101,11 @@ contract RedisProvisionObligation is BaseObligation, IArbiter {
         );
 
         return
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: msg.sender,
-                        expirationTime: obligation.expirationTime,
-                        revocable: true,
-                        refUID: obligationUID,
-                        data: abi.encode(obligationData),
-                        value: 0
-                    })
-                })
+            _attest(
+                abi.encode(obligationData),
+                msg.sender,
+                obligation.expirationTime,
+                obligationUID
             );
     }
 

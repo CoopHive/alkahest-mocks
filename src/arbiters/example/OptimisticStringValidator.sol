@@ -56,25 +56,17 @@ contract OptimisticStringValidator is BaseObligation, IArbiter {
         if (resultAttestation.recipient != msg.sender)
             revert InvalidObligation();
 
-        validationUID_ = eas.attest(
-            AttestationRequest({
-                schema: ATTESTATION_SCHEMA,
-                data: AttestationRequestData({
-                    recipient: msg.sender,
-                    expirationTime: 0,
-                    revocable: true,
-                    refUID: resultUID,
-                    data: abi.encode(validationData),
-                    value: 0
-                })
-            })
+        validationUID_ = _attest(
+            abi.encode(validationData),
+            msg.sender,
+            0, // no expiration
+            resultUID
         );
         emit ValidationStarted(validationUID_, resultUID, validationData.query);
     }
 
     function mediate(bytes32 validationUID) external returns (bool success_) {
-        Attestation memory validation = eas.getAttestation(validationUID);
-        if (validation.schema != ATTESTATION_SCHEMA) revert InvalidValidation();
+        Attestation memory validation = _getAttestation(validationUID);
 
         ValidationData memory data = abi.decode(
             validation.data,

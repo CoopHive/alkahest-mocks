@@ -31,19 +31,14 @@ contract StringResultObligation is BaseObligation, IArbiter {
         ObligationData calldata data,
         bytes32 refUID
     ) public returns (bytes32) {
+        bytes memory encodedData = abi.encode(data);
         return
-            eas.attest(
-                AttestationRequest({
-                    schema: ATTESTATION_SCHEMA,
-                    data: AttestationRequestData({
-                        recipient: msg.sender,
-                        expirationTime: 0,
-                        revocable: false,
-                        refUID: refUID,
-                        data: abi.encode(data),
-                        value: 0
-                    })
-                })
+            this.doObligationForRaw(
+                encodedData,
+                0,
+                msg.sender,
+                msg.sender,
+                refUID
             );
     }
 
@@ -55,8 +50,9 @@ contract StringResultObligation is BaseObligation, IArbiter {
         if (!obligation._checkIntrinsic()) return false;
 
         // Check if the obligation is intended to fulfill the specific counteroffer
-        if (obligation.refUID != bytes32(0) && obligation.refUID != counteroffer)
-            return false;
+        if (
+            obligation.refUID != bytes32(0) && obligation.refUID != counteroffer
+        ) return false;
 
         ObligationData memory result = abi.decode(
             obligation.data,
