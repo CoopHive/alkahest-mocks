@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
-import {BaseObligation} from "@src/BaseObligationNew.sol";
+import {BaseObligation} from "@src/BaseObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {IEAS, Attestation, AttestationRequestData, AttestationRequest} from "@eas/IEAS.sol";
 import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
@@ -26,7 +26,10 @@ contract NativeTokenPaymentObligationTest is Test {
         EASDeployer easDeployer = new EASDeployer();
         (eas, schemaRegistry) = easDeployer.deployEAS();
 
-        paymentObligation = new NativeTokenPaymentObligation(eas, schemaRegistry);
+        paymentObligation = new NativeTokenPaymentObligation(
+            eas,
+            schemaRegistry
+        );
 
         buyer = makeAddr("buyer");
         seller = makeAddr("seller");
@@ -214,10 +217,8 @@ contract NativeTokenPaymentObligationTest is Test {
 
         // Should not match with different payee
         NativeTokenPaymentObligation.ObligationData
-            memory differentPayee = NativeTokenPaymentObligation.ObligationData({
-                amount: AMOUNT,
-                payee: randomUser
-            });
+            memory differentPayee = NativeTokenPaymentObligation
+                .ObligationData({amount: AMOUNT, payee: randomUser});
         result = paymentObligation.checkObligation(
             attestation,
             abi.encode(differentPayee),
