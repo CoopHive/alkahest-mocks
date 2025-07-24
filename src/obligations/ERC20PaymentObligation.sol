@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {BaseObligation} from "../BaseObligationNew.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 import {IArbiter} from "../IArbiter.sol";
 import {ArbiterUtils} from "../ArbiterUtils.sol";
 

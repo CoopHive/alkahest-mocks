@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseObligation} from "../BaseObligationNew.sol";
+import {BaseObligation} from "../BaseObligation.sol";
 
 contract StringObligation is BaseObligation {
     struct ObligationData {

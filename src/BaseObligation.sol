@@ -1,55 +1,57 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import {IArbiter} from "./IArbiter.sol";
+import {BaseAttester} from "./BaseAttester.sol";
 import {IEAS} from "@eas/IEAS.sol";
-import {ISchemaRegistry, SchemaRecord} from "@eas/ISchemaRegistry.sol";
-import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
+import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";
 
-abstract contract BaseObligation is SchemaResolver {
-    ISchemaRegistry internal immutable schemaRegistry;
-    IEAS internal immutable eas;
-    bytes32 public immutable ATTESTATION_SCHEMA;
-
-    error NotFromObligation();
-
+abstract contract BaseObligation is BaseAttester {
     constructor(
         IEAS _eas,
         ISchemaRegistry _schemaRegistry,
         string memory schema,
         bool revocable
-    ) SchemaResolver(_eas) {
-        eas = _eas;
-        schemaRegistry = _schemaRegistry;
-        ATTESTATION_SCHEMA = schemaRegistry.register(schema, this, revocable);
+    ) BaseAttester(_eas, _schemaRegistry, schema, revocable) {}
+
+    // Base implementation with raw bytes
+    function doObligationRaw(
+        bytes calldata data,
+        uint64 expirationTime,
+        bytes32 refUID
+    ) public payable virtual returns (bytes32 uid_) {
+        uid_ = doObligationForRaw(
+            data,
+            expirationTime,
+            msg.sender,
+            msg.sender,
+            refUID
+        );
     }
 
-    function onAttest(
-        Attestation calldata attestation,
-        uint256 /* value */
-    ) internal view override returns (bool) {
-        // only obligation contract can attest
-        return attestation.attester == address(this);
+    function doObligationForRaw(
+        bytes calldata data,
+        uint64 expirationTime,
+        address payer,
+        address recipient,
+        bytes32 refUID
+    ) public payable virtual returns (bytes32 uid_) {
+        _beforeAttest(data, payer, recipient);
+        uid_ = _attest(data, recipient, expirationTime, refUID);
+        _afterAttest(uid_, data, payer, recipient);
     }
 
-    function onRevoke(
-        Attestation calldata attestation,
-        uint256 /* value */
-    ) internal view override returns (bool) {
-        // only obligation contract can revoke
-        return attestation.attester == address(this);
-    }
+    // Hooks for obligations to implement
+    function _beforeAttest(
+        bytes calldata data,
+        address payer,
+        address recipient
+    ) internal virtual {}
 
-    function getObligation(
-        bytes32 uid
-    ) external view returns (Attestation memory) {
-        Attestation memory attestation = eas.getAttestation(uid);
-        if (attestation.schema != ATTESTATION_SCHEMA) revert NotFromObligation();
-        return attestation;
-    }
-
-    function getSchema() external view returns (SchemaRecord memory) {
-        return schemaRegistry.getSchema(ATTESTATION_SCHEMA);
-    }
+    function _afterAttest(
+        bytes32 uid,
+        bytes calldata data,
+        address payer,
+        address recipient
+    ) internal virtual {}
 }
