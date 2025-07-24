@@ -19,7 +19,7 @@ abstract contract BaseObligation is BaseAttester {
         bytes calldata data,
         uint64 expirationTime,
         bytes32 refUID
-    ) public virtual returns (bytes32 uid_) {
+    ) public payable virtual returns (bytes32 uid_) {
         uid_ = doObligationForRaw(
             data,
             expirationTime,
@@ -35,7 +35,7 @@ abstract contract BaseObligation is BaseAttester {
         address payer,
         address recipient,
         bytes32 refUID
-    ) public virtual returns (bytes32 uid_) {
+    ) public payable virtual returns (bytes32 uid_) {
         _beforeAttest(data, payer, recipient);
         uid_ = _attest(data, recipient, expirationTime, refUID);
         _afterAttest(uid_, data, payer, recipient);
