@@ -9,20 +9,17 @@ import {EASDeployer} from "test/utils/EASDeployer.sol";
 // ERC20 Contracts
 import {ERC20EscrowObligation} from "@src/obligations/ERC20EscrowObligation.sol";
 import {ERC20PaymentObligation} from "@src/obligations/ERC20PaymentObligation.sol";
-// import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
-import {ERC20BarterCrossToken} from "@src/utils/ERC20BarterCrossToken.sol";
+import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
 
 // ERC721 Contracts
 import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
 import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
-// import {ERC721BarterUtils} from "@src/utils/ERC721BarterUtils.sol";
-import {ERC721BarterCrossToken} from "@src/utils/ERC721BarterCrossToken.sol";
+import {ERC721BarterUtils} from "@src/utils/ERC721BarterUtils.sol";
 
 // ERC1155 Contracts
 import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.sol";
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
-// import {ERC1155BarterUtils} from "@src/utils/ERC1155BarterUtils.sol";
-import {ERC1155BarterCrossToken} from "@src/utils/ERC1155BarterCrossToken.sol";
+import {ERC1155BarterUtils} from "@src/utils/ERC1155BarterUtils.sol";
 
 // TokenBundle Contracts
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
@@ -204,8 +201,8 @@ contract Deploy is Script {
             bundlePayment
         );
 
-        // Deploy cross token barter contracts
-        ERC20BarterCrossToken erc20BarterCrossToken = new ERC20BarterCrossToken(
+        // Deploy barter utils contracts
+        ERC20BarterUtils erc20BarterUtils = new ERC20BarterUtils(
             IEAS(easAddress),
             erc20Escrow,
             erc20Payment,
@@ -217,29 +214,29 @@ contract Deploy is Script {
             bundlePayment
         );
 
-        ERC721BarterCrossToken erc721BarterCrossToken = new ERC721BarterCrossToken(
-                IEAS(easAddress),
-                erc20Escrow,
-                erc20Payment,
-                erc721Escrow,
-                erc721Payment,
-                erc1155Escrow,
-                erc1155Payment,
-                bundleEscrow,
-                bundlePayment
-            );
+        ERC721BarterUtils erc721BarterUtils = new ERC721BarterUtils(
+            IEAS(easAddress),
+            erc20Escrow,
+            erc20Payment,
+            erc721Escrow,
+            erc721Payment,
+            erc1155Escrow,
+            erc1155Payment,
+            bundleEscrow,
+            bundlePayment
+        );
 
-        ERC1155BarterCrossToken erc1155BarterCrossToken = new ERC1155BarterCrossToken(
-                IEAS(easAddress),
-                erc20Escrow,
-                erc20Payment,
-                erc721Escrow,
-                erc721Payment,
-                erc1155Escrow,
-                erc1155Payment,
-                bundleEscrow,
-                bundlePayment
-            );
+        ERC1155BarterUtils erc1155BarterUtils = new ERC1155BarterUtils(
+            IEAS(easAddress),
+            erc20Escrow,
+            erc20Payment,
+            erc721Escrow,
+            erc721Payment,
+            erc1155Escrow,
+            erc1155Payment,
+            bundleEscrow,
+            bundlePayment
+        );
 
         // Deploy attestation barter contracts
         AttestationEscrowObligation attestationEscrow = new AttestationEscrowObligation(
@@ -370,23 +367,17 @@ contract Deploy is Script {
         console.log("\nERC20 Contracts:");
         console.log("ERC20EscrowObligation:", address(erc20Escrow));
         console.log("ERC20PaymentObligation:", address(erc20Payment));
-        // console.log("ERC20BarterUtils:", address(erc20BarterUtils));
-        console.log("ERC20BarterCrossToken:", address(erc20BarterCrossToken));
+        console.log("ERC20BarterUtils:", address(erc20BarterUtils));
 
         console.log("\nERC721 Contracts:");
         console.log("ERC721EscrowObligation:", address(erc721Escrow));
         console.log("ERC721PaymentObligation:", address(erc721Payment));
-        // console.log("ERC721BarterUtils:", address(erc721BarterUtils));
-        console.log("ERC721BarterCrossToken:", address(erc721BarterCrossToken));
+        console.log("ERC721BarterUtils:", address(erc721BarterUtils));
 
         console.log("\nERC1155 Contracts:");
         console.log("ERC1155EscrowObligation:", address(erc1155Escrow));
         console.log("ERC1155PaymentObligation:", address(erc1155Payment));
-        // console.log("ERC1155BarterUtils:", address(erc1155BarterUtils));
-        console.log(
-            "ERC1155BarterCrossToken:",
-            address(erc1155BarterCrossToken)
-        );
+        console.log("ERC1155BarterUtils:", address(erc1155BarterUtils));
 
         console.log("\nTokenBundle Contracts:");
         console.log("TokenBundleEscrowObligation:", address(bundleEscrow));
@@ -637,17 +628,17 @@ contract Deploy is Script {
         vm.serializeAddress(
             deploymentJson,
             "erc20BarterUtils",
-            address(erc20BarterCrossToken)
+            address(erc20BarterUtils)
         );
         vm.serializeAddress(
             deploymentJson,
             "erc721BarterUtils",
-            address(erc721BarterCrossToken)
+            address(erc721BarterUtils)
         );
         vm.serializeAddress(
             deploymentJson,
             "erc1155BarterUtils",
-            address(erc1155BarterCrossToken)
+            address(erc1155BarterUtils)
         );
 
         // Add Attestation addresses

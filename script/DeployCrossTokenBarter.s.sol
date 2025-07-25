@@ -4,9 +4,9 @@ pragma solidity ^0.8.26;
 import "forge-std/Script.sol";
 import {IEAS} from "@eas/IEAS.sol";
 
-import {ERC20BarterCrossToken} from "@src/utils/ERC20BarterCrossToken.sol";
-import {ERC721BarterCrossToken} from "@src/utils/ERC721BarterCrossToken.sol";
-import {ERC1155BarterCrossToken} from "@src/utils/ERC1155BarterCrossToken.sol";
+import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
+import {ERC721BarterUtils} from "@src/utils/ERC721BarterUtils.sol";
+import {ERC1155BarterUtils} from "@src/utils/ERC1155BarterUtils.sol";
 
 import {ERC20EscrowObligation} from "@src/obligations/ERC20EscrowObligation.sol";
 import {ERC20PaymentObligation} from "@src/obligations/ERC20PaymentObligation.sol";
@@ -51,8 +51,8 @@ contract DeployCrossTokenBarter is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy cross token barter contracts
-        ERC20BarterCrossToken erc20BarterCrossToken = new ERC20BarterCrossToken(
+        // Deploy barter utils contracts
+        ERC20BarterUtils erc20BarterUtils = new ERC20BarterUtils(
             IEAS(easAddress),
             erc20Escrow,
             erc20Payment,
@@ -64,39 +64,36 @@ contract DeployCrossTokenBarter is Script {
             bundlePayment
         );
 
-        ERC721BarterCrossToken erc721BarterCrossToken = new ERC721BarterCrossToken(
-                IEAS(easAddress),
-                erc20Escrow,
-                erc20Payment,
-                erc721Escrow,
-                erc721Payment,
-                erc1155Escrow,
-                erc1155Payment,
-                bundleEscrow,
-                bundlePayment
-            );
+        ERC721BarterUtils erc721BarterUtils = new ERC721BarterUtils(
+            IEAS(easAddress),
+            erc20Escrow,
+            erc20Payment,
+            erc721Escrow,
+            erc721Payment,
+            erc1155Escrow,
+            erc1155Payment,
+            bundleEscrow,
+            bundlePayment
+        );
 
-        ERC1155BarterCrossToken erc1155BarterCrossToken = new ERC1155BarterCrossToken(
-                IEAS(easAddress),
-                erc20Escrow,
-                erc20Payment,
-                erc721Escrow,
-                erc721Payment,
-                erc1155Escrow,
-                erc1155Payment,
-                bundleEscrow,
-                bundlePayment
-            );
+        ERC1155BarterUtils erc1155BarterUtils = new ERC1155BarterUtils(
+            IEAS(easAddress),
+            erc20Escrow,
+            erc20Payment,
+            erc721Escrow,
+            erc721Payment,
+            erc1155Escrow,
+            erc1155Payment,
+            bundleEscrow,
+            bundlePayment
+        );
 
         vm.stopBroadcast();
 
         // Print deployed addresses
-        console.log("\nCross Token Barter Contracts:");
-        console.log("ERC20BarterCrossToken:", address(erc20BarterCrossToken));
-        console.log("ERC721BarterCrossToken:", address(erc721BarterCrossToken));
-        console.log(
-            "ERC1155BarterCrossToken:",
-            address(erc1155BarterCrossToken)
-        );
+        console.log("\nBarter Utils Contracts:");
+        console.log("ERC20BarterUtils:", address(erc20BarterUtils));
+        console.log("ERC721BarterUtils:", address(erc721BarterUtils));
+        console.log("ERC1155BarterUtils:", address(erc1155BarterUtils));
     }
 }
