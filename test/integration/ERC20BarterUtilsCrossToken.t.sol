@@ -10,7 +10,7 @@ import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
-import {ERC20BarterCrossToken} from "@src/utils/ERC20BarterCrossToken.sol";
+import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -47,7 +47,7 @@ contract MockERC1155 is ERC1155 {
     }
 }
 
-contract ERC20BarterCrossTokenTest is Test {
+contract ERC20BarterUtilsCrossTokenTest is Test {
     ERC20EscrowObligation public escrowObligation;
     ERC20PaymentObligation public paymentObligation;
     ERC721EscrowObligation public erc721Escrow;
@@ -56,7 +56,7 @@ contract ERC20BarterCrossTokenTest is Test {
     ERC1155PaymentObligation public erc1155Payment;
     TokenBundleEscrowObligation public bundleEscrow;
     TokenBundlePaymentObligation public bundlePayment;
-    ERC20BarterCrossToken public barterCross;
+    ERC20BarterUtils public barterUtils;
 
     MockERC20Permit public bidToken;
     MockERC721 public erc721Token;
@@ -93,8 +93,8 @@ contract ERC20BarterCrossTokenTest is Test {
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
 
-        // Deploy barter cross token contract
-        barterCross = new ERC20BarterCrossToken(
+        // Deploy barter utils contract
+        barterUtils = new ERC20BarterUtils(
             eas,
             escrowObligation,
             paymentObligation,
@@ -120,7 +120,7 @@ contract ERC20BarterCrossTokenTest is Test {
         // Alice makes bid
         vm.startPrank(alice);
         bidToken.approve(address(escrowObligation), bidAmount);
-        bytes32 buyAttestation = barterCross.buyErc721WithErc20(
+        bytes32 buyAttestation = barterUtils.buyErc721WithErc20(
             address(bidToken),
             bidAmount,
             address(erc721Token),
@@ -169,7 +169,7 @@ contract ERC20BarterCrossTokenTest is Test {
         // Alice makes bid
         vm.startPrank(alice);
         bidToken.approve(address(escrowObligation), bidAmount);
-        bytes32 buyAttestation = barterCross.buyErc1155WithErc20(
+        bytes32 buyAttestation = barterUtils.buyErc1155WithErc20(
             address(bidToken),
             bidAmount,
             address(erc1155Token),
@@ -228,7 +228,7 @@ contract ERC20BarterCrossTokenTest is Test {
 
         // Alice makes bid with permit
         vm.prank(alice);
-        bytes32 buyAttestation = barterCross.permitAndBuyErc721WithErc20(
+        bytes32 buyAttestation = barterUtils.permitAndBuyErc721WithErc20(
             address(bidToken),
             bidAmount,
             address(erc721Token),

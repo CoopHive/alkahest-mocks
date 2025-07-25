@@ -7,6 +7,12 @@ import {ERC20PaymentObligation} from "@src/obligations/ERC20PaymentObligation.so
 import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.sol";
+import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
+import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.sol";
+import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
+import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
+import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
@@ -22,6 +28,12 @@ contract MockERC20Permit is ERC20Permit {
 contract ERC20BarterUtilsIntegrationTest is Test {
     ERC20EscrowObligation public escrowObligation;
     ERC20PaymentObligation public paymentObligation;
+    ERC721EscrowObligation public erc721Escrow;
+    ERC721PaymentObligation public erc721Payment;
+    ERC1155EscrowObligation public erc1155Escrow;
+    ERC1155PaymentObligation public erc1155Payment;
+    TokenBundleEscrowObligation public bundleEscrow;
+    TokenBundlePaymentObligation public bundlePayment;
     ERC20BarterUtils public barterUtils;
     MockERC20Permit public erc1155TokenA;
     MockERC20Permit public erc1155TokenB;
@@ -46,10 +58,23 @@ contract ERC20BarterUtilsIntegrationTest is Test {
 
         escrowObligation = new ERC20EscrowObligation(eas, schemaRegistry);
         paymentObligation = new ERC20PaymentObligation(eas, schemaRegistry);
+        erc721Escrow = new ERC721EscrowObligation(eas, schemaRegistry);
+        erc721Payment = new ERC721PaymentObligation(eas, schemaRegistry);
+        erc1155Escrow = new ERC1155EscrowObligation(eas, schemaRegistry);
+        erc1155Payment = new ERC1155PaymentObligation(eas, schemaRegistry);
+        bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
+        bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
+
         barterUtils = new ERC20BarterUtils(
             eas,
             escrowObligation,
-            paymentObligation
+            paymentObligation,
+            erc721Escrow,
+            erc721Payment,
+            erc1155Escrow,
+            erc1155Payment,
+            bundleEscrow,
+            bundlePayment
         );
 
         erc1155TokenA.transfer(alice, 1000 * 10 ** 18);
