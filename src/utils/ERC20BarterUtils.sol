@@ -11,6 +11,8 @@ import {ERC1155EscrowObligation} from "../obligations/ERC1155EscrowObligation.so
 import {ERC1155PaymentObligation} from "../obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "../obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "../obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "../obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "../obligations/NativeTokenPaymentObligation.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 contract ERC20BarterUtils {
@@ -23,6 +25,8 @@ contract ERC20BarterUtils {
     ERC1155PaymentObligation internal erc1155Payment;
     TokenBundleEscrowObligation internal bundleEscrow;
     TokenBundlePaymentObligation internal bundlePayment;
+    NativeTokenEscrowObligation internal nativeEscrow;
+    NativeTokenPaymentObligation internal nativePayment;
 
     error CouldntCollectEscrow();
     error PermitFailed(address token, string reason);
@@ -37,7 +41,9 @@ contract ERC20BarterUtils {
         ERC1155EscrowObligation _erc1155Escrow,
         ERC1155PaymentObligation _erc1155Payment,
         TokenBundleEscrowObligation _bundleEscrow,
-        TokenBundlePaymentObligation _bundlePayment
+        TokenBundlePaymentObligation _bundlePayment,
+        NativeTokenEscrowObligation _nativeEscrow,
+        NativeTokenPaymentObligation _nativePayment
     ) {
         eas = _eas;
         erc20Escrow = _erc20Escrow;
@@ -48,6 +54,8 @@ contract ERC20BarterUtils {
         erc1155Payment = _erc1155Payment;
         bundleEscrow = _bundleEscrow;
         bundlePayment = _bundlePayment;
+        nativeEscrow = _nativeEscrow;
+        nativePayment = _nativePayment;
     }
 
     // ============ ERC20 to ERC20 Functions ============
@@ -697,5 +705,115 @@ contract ERC20BarterUtils {
 
         _permitPayment(demand, deadline, v, r, s);
         return _payErc20ForBundle(buyAttestation, demand);
+    }
+
+    // ============ ERC20 to Native Token Functions ============
+
+    function _buyEthWithErc20(
+        address bidToken,
+        uint256 bidAmount,
+        uint256 askAmount,
+        uint64 expiration
+    ) internal returns (bytes32) {
+        return
+            erc20Escrow.doObligationFor(
+                ERC20EscrowObligation.ObligationData({
+                    token: bidToken,
+                    amount: bidAmount,
+                    arbiter: address(nativePayment),
+                    demand: abi.encode(
+                        NativeTokenPaymentObligation.ObligationData({
+                            amount: askAmount,
+                            payee: msg.sender
+                        })
+                    )
+                }),
+                expiration,
+                msg.sender,
+                msg.sender
+            );
+    }
+
+    function _payErc20ForEth(
+        bytes32 buyAttestation,
+        ERC20PaymentObligation.ObligationData memory demand
+    ) internal returns (bytes32) {
+        bytes32 sellAttestation = erc20Payment.doObligationFor(
+            demand,
+            msg.sender,
+            msg.sender
+        );
+
+        if (!nativeEscrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
+        }
+
+        return sellAttestation;
+    }
+
+    function buyEthWithErc20(
+        address bidToken,
+        uint256 bidAmount,
+        uint256 askAmount,
+        uint64 expiration
+    ) external returns (bytes32) {
+        return _buyEthWithErc20(bidToken, bidAmount, askAmount, expiration);
+    }
+
+    function permitAndBuyEthWithErc20(
+        address bidToken,
+        uint256 bidAmount,
+        uint256 askAmount,
+        uint64 expiration,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external returns (bytes32) {
+        IERC20Permit bidTokenC = IERC20Permit(bidToken);
+        bidTokenC.permit(
+            msg.sender,
+            address(erc20Escrow),
+            bidAmount,
+            deadline,
+            v,
+            r,
+            s
+        );
+        return _buyEthWithErc20(bidToken, bidAmount, askAmount, expiration);
+    }
+
+    function payErc20ForEth(bytes32 buyAttestation) external returns (bytes32) {
+        Attestation memory bid = eas.getAttestation(buyAttestation);
+        if (bid.uid == bytes32(0)) {
+            revert AttestationNotFound(buyAttestation);
+        }
+        NativeTokenEscrowObligation.ObligationData memory escrowData = abi
+            .decode(bid.data, (NativeTokenEscrowObligation.ObligationData));
+        ERC20PaymentObligation.ObligationData memory demand = abi.decode(
+            escrowData.demand,
+            (ERC20PaymentObligation.ObligationData)
+        );
+
+        return _payErc20ForEth(buyAttestation, demand);
+    }
+
+    function permitAndPayErc20ForEth(
+        bytes32 buyAttestation,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external returns (bytes32) {
+        Attestation memory bid = eas.getAttestation(buyAttestation);
+        NativeTokenEscrowObligation.ObligationData memory escrowData = abi
+            .decode(bid.data, (NativeTokenEscrowObligation.ObligationData));
+        ERC20PaymentObligation.ObligationData memory demand = abi.decode(
+            escrowData.demand,
+            (ERC20PaymentObligation.ObligationData)
+        );
+
+        _permitPayment(demand, deadline, v, r, s);
+        return _payErc20ForEth(buyAttestation, demand);
     }
 }
