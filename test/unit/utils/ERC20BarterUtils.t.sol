@@ -11,6 +11,8 @@ import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";
@@ -54,9 +56,11 @@ contract ERC20BarterUtilsUnitTest is Test {
     ERC721EscrowObligation public erc721Escrow;
     ERC721PaymentObligation public erc721Payment;
     ERC1155EscrowObligation public erc1155Escrow;
-    ERC1155PaymentObligation public erc1155Payment;
-    TokenBundleEscrowObligation public bundleEscrow;
-    TokenBundlePaymentObligation public bundlePayment;
+    ERC1155PaymentObligation erc1155Payment;
+    TokenBundleEscrowObligation bundleEscrow;
+    TokenBundlePaymentObligation bundlePayment;
+    NativeTokenEscrowObligation nativeEscrow;
+    NativeTokenPaymentObligation nativePayment;
     ERC20BarterUtils public barterUtils;
     MockERC20Permit public erc20TokenA;
     MockERC20Permit public erc20TokenB;
@@ -72,6 +76,10 @@ contract ERC20BarterUtilsUnitTest is Test {
     address public bob;
 
     function setUp() public {
+        // Set up test addresses from private keys
+        alice = vm.addr(ALICE_PRIVATE_KEY);
+        bob = vm.addr(BOB_PRIVATE_KEY);
+
         EASDeployer easDeployer = new EASDeployer();
         (eas, schemaRegistry) = easDeployer.deployEAS();
 
@@ -91,6 +99,8 @@ contract ERC20BarterUtilsUnitTest is Test {
         erc1155Payment = new ERC1155PaymentObligation(eas, schemaRegistry);
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        nativeEscrow = new NativeTokenEscrowObligation(eas, schemaRegistry);
+        nativePayment = new NativeTokenPaymentObligation(eas, schemaRegistry);
 
         barterUtils = new ERC20BarterUtils(
             eas,
@@ -101,13 +111,18 @@ contract ERC20BarterUtilsUnitTest is Test {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         erc20TokenA.transfer(alice, 1000 * 10 ** 18);
         erc20TokenB.transfer(bob, 1000 * 10 ** 18);
         askErc721Token.mint(bob); // tokenId 1
         askErc1155Token.mint(bob, 1, 100);
+
+        // Setup for native token tests
+        vm.deal(bob, 100 ether);
     }
 
     function testBuyErc20ForErc20() public {
@@ -786,5 +801,210 @@ contract ERC20BarterUtilsUnitTest is Test {
             100 + erc1155Amount,
             "Bob should receive ERC1155 tokens"
         );
+    }
+
+    // ============ Native Token Exchange Tests ============
+
+    function testBuyEthWithErc20() public {
+        uint256 erc20Amount = 100 * 10 ** 18;
+        uint256 ethAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 hours);
+
+        vm.startPrank(alice);
+
+        // Approve the escrow contract
+        erc20TokenA.approve(address(escrowObligation), erc20Amount);
+
+        // Create buy order (offering ERC20 for ETH)
+        bytes32 escrowId = barterUtils.buyEthWithErc20(
+            address(erc20TokenA),
+            erc20Amount,
+            ethAmount,
+            expiration
+        );
+
+        vm.stopPrank();
+
+        // Verify the escrow was created
+        assertTrue(escrowId != bytes32(0));
+
+        // Bob fulfills the order by sending ETH
+        vm.startPrank(bob);
+
+        // Bob needs to create a native token payment obligation
+        bytes32 paymentId = nativePayment.doObligation{value: ethAmount}(
+            NativeTokenPaymentObligation.ObligationData({
+                amount: ethAmount,
+                payee: alice
+            })
+        );
+
+        // Collect the escrow through the ERC20 escrow contract
+        assertTrue(escrowObligation.collectEscrow(escrowId, paymentId));
+
+        vm.stopPrank();
+
+        // Verify the swap completed
+        assertEq(alice.balance, ethAmount);
+        assertEq(erc20TokenA.balanceOf(bob), erc20Amount);
+    }
+
+    function testPayErc20ForEth() public {
+        uint256 erc20Amount = 100 * 10 ** 18;
+        uint256 ethAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 hours);
+
+        // Bob creates an escrow offering ETH for ERC20
+        vm.startPrank(bob);
+
+        bytes32 escrowId = nativeEscrow.doObligation{value: ethAmount}(
+            NativeTokenEscrowObligation.ObligationData({
+                arbiter: address(paymentObligation),
+                demand: abi.encode(
+                    ERC20PaymentObligation.ObligationData({
+                        token: address(erc20TokenA),
+                        amount: erc20Amount,
+                        payee: bob
+                    })
+                ),
+                amount: ethAmount
+            }),
+            expiration
+        );
+
+        vm.stopPrank();
+
+        // Alice fulfills by paying ERC20
+        vm.startPrank(alice);
+
+        erc20TokenA.approve(address(paymentObligation), erc20Amount);
+
+        bytes32 paymentId = barterUtils.payErc20ForEth(escrowId);
+
+        vm.stopPrank();
+
+        // Verify the swap completed
+        assertEq(alice.balance, ethAmount);
+        assertEq(erc20TokenA.balanceOf(bob), erc20Amount);
+        assertTrue(paymentId != bytes32(0));
+    }
+
+    function testPermitAndBuyEthWithErc20() public {
+        uint256 erc20Amount = 100 * 10 ** 18;
+        uint256 ethAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 hours);
+        uint256 deadline = block.timestamp + 1 hours;
+
+        // Create permit signature
+        bytes32 permitHash = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                erc20TokenA.DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+                        ),
+                        alice,
+                        address(escrowObligation),
+                        erc20Amount,
+                        erc20TokenA.nonces(alice),
+                        deadline
+                    )
+                )
+            )
+        );
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            ALICE_PRIVATE_KEY,
+            permitHash
+        );
+
+        vm.prank(alice);
+
+        // Create buy order with permit
+        bytes32 escrowId = barterUtils.permitAndBuyEthWithErc20(
+            address(erc20TokenA),
+            erc20Amount,
+            ethAmount,
+            expiration,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        // Verify the escrow was created
+        assertTrue(escrowId != bytes32(0));
+        assertEq(erc20TokenA.allowance(alice, address(escrowObligation)), 0); // Permit was used
+    }
+
+    function testPermitAndPayErc20ForEth() public {
+        uint256 erc20Amount = 100 * 10 ** 18;
+        uint256 ethAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 hours);
+        uint256 deadline = block.timestamp + 1 hours;
+
+        // Bob creates an escrow offering ETH for ERC20
+        vm.startPrank(bob);
+
+        bytes32 escrowId = nativeEscrow.doObligation{value: ethAmount}(
+            NativeTokenEscrowObligation.ObligationData({
+                arbiter: address(paymentObligation),
+                demand: abi.encode(
+                    ERC20PaymentObligation.ObligationData({
+                        token: address(erc20TokenA),
+                        amount: erc20Amount,
+                        payee: bob
+                    })
+                ),
+                amount: ethAmount
+            }),
+            expiration
+        );
+
+        vm.stopPrank();
+
+        // Create permit signature for Alice
+        bytes32 permitHash = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                erc20TokenA.DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+                        ),
+                        alice,
+                        address(paymentObligation),
+                        erc20Amount,
+                        erc20TokenA.nonces(alice),
+                        deadline
+                    )
+                )
+            )
+        );
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            ALICE_PRIVATE_KEY,
+            permitHash
+        );
+
+        vm.prank(alice);
+
+        // Fulfill with permit
+        bytes32 paymentId = barterUtils.permitAndPayErc20ForEth(
+            escrowId,
+            deadline,
+            v,
+            r,
+            s
+        );
+
+        // Verify the swap completed
+        assertEq(alice.balance, ethAmount);
+        assertEq(erc20TokenA.balanceOf(bob), erc20Amount);
+        assertTrue(paymentId != bytes32(0));
+        assertEq(erc20TokenA.allowance(alice, address(paymentObligation)), 0); // Permit was used
     }
 }

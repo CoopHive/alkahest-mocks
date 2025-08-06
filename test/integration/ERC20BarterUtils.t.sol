@@ -13,6 +13,8 @@ import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
@@ -34,6 +36,8 @@ contract ERC20BarterUtilsIntegrationTest is Test {
     ERC1155PaymentObligation public erc1155Payment;
     TokenBundleEscrowObligation public bundleEscrow;
     TokenBundlePaymentObligation public bundlePayment;
+    NativeTokenEscrowObligation public nativeEscrow;
+    NativeTokenPaymentObligation public nativePayment;
     ERC20BarterUtils public barterUtils;
     MockERC20Permit public erc1155TokenA;
     MockERC20Permit public erc1155TokenB;
@@ -64,6 +68,8 @@ contract ERC20BarterUtilsIntegrationTest is Test {
         erc1155Payment = new ERC1155PaymentObligation(eas, schemaRegistry);
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        nativeEscrow = new NativeTokenEscrowObligation(eas, schemaRegistry);
+        nativePayment = new NativeTokenPaymentObligation(eas, schemaRegistry);
 
         barterUtils = new ERC20BarterUtils(
             eas,
@@ -74,7 +80,9 @@ contract ERC20BarterUtilsIntegrationTest is Test {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         erc1155TokenA.transfer(alice, 1000 * 10 ** 18);

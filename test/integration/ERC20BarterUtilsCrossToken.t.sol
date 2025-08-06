@@ -10,6 +10,8 @@ import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
@@ -56,6 +58,8 @@ contract ERC20BarterUtilsCrossTokenTest is Test {
     ERC1155PaymentObligation public erc1155Payment;
     TokenBundleEscrowObligation public bundleEscrow;
     TokenBundlePaymentObligation public bundlePayment;
+    NativeTokenEscrowObligation public nativeEscrow;
+    NativeTokenPaymentObligation public nativePayment;
     ERC20BarterUtils public barterUtils;
 
     MockERC20Permit public bidToken;
@@ -92,6 +96,8 @@ contract ERC20BarterUtilsCrossTokenTest is Test {
         erc1155Payment = new ERC1155PaymentObligation(eas, schemaRegistry);
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        nativeEscrow = new NativeTokenEscrowObligation(eas, schemaRegistry);
+        nativePayment = new NativeTokenPaymentObligation(eas, schemaRegistry);
 
         // Deploy barter utils contract
         barterUtils = new ERC20BarterUtils(
@@ -103,7 +109,9 @@ contract ERC20BarterUtilsCrossTokenTest is Test {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         // Setup initial token balances
