@@ -26,6 +26,10 @@ import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObl
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
 import {TokenBundleBarterUtils} from "@src/utils/TokenBundleBarterUtils.sol";
 
+// Native Token Contracts
+import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
+
 // Attestation Contracts
 import {AttestationEscrowObligation} from "@src/obligations/AttestationEscrowObligation.sol";
 import {AttestationEscrowObligation2} from "@src/obligations/AttestationEscrowObligation2.sol";
@@ -201,6 +205,16 @@ contract Deploy is Script {
             bundlePayment
         );
 
+        // Deploy Native Token contracts
+        NativeTokenEscrowObligation nativeEscrow = new NativeTokenEscrowObligation(
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
+        NativeTokenPaymentObligation nativePayment = new NativeTokenPaymentObligation(
+                IEAS(easAddress),
+                ISchemaRegistry(schemaRegistryAddress)
+            );
+
         // Deploy barter utils contracts
         ERC20BarterUtils erc20BarterUtils = new ERC20BarterUtils(
             IEAS(easAddress),
@@ -211,7 +225,9 @@ contract Deploy is Script {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         ERC721BarterUtils erc721BarterUtils = new ERC721BarterUtils(

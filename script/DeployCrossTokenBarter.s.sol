@@ -16,6 +16,8 @@ import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 
 contract DeployCrossTokenBarter is Script {
     function run() external {
@@ -48,6 +50,12 @@ contract DeployCrossTokenBarter is Script {
         TokenBundlePaymentObligation bundlePayment = TokenBundlePaymentObligation(
                 payable(0x678f5601fe66485CEeD3d41D7385983881411c70)
             );
+        NativeTokenEscrowObligation nativeEscrow = NativeTokenEscrowObligation(
+            payable(address(0)) // TODO: Replace with deployed address
+        );
+        NativeTokenPaymentObligation nativePayment = NativeTokenPaymentObligation(
+            payable(address(0)) // TODO: Replace with deployed address
+        );
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -61,7 +69,9 @@ contract DeployCrossTokenBarter is Script {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         ERC721BarterUtils erc721BarterUtils = new ERC721BarterUtils(
