@@ -11,6 +11,8 @@ import {ERC1155EscrowObligation} from "../obligations/ERC1155EscrowObligation.so
 import {ERC1155PaymentObligation} from "../obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "../obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "../obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "../obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "../obligations/NativeTokenPaymentObligation.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract ERC721BarterUtils {
@@ -23,6 +25,8 @@ contract ERC721BarterUtils {
     ERC1155PaymentObligation internal erc1155Payment;
     TokenBundleEscrowObligation internal bundleEscrow;
     TokenBundlePaymentObligation internal bundlePayment;
+    NativeTokenEscrowObligation internal nativeEscrow;
+    NativeTokenPaymentObligation internal nativePayment;
 
     error CouldntCollectEscrow();
     error AttestationNotFound(bytes32 attestationId);
@@ -36,7 +40,9 @@ contract ERC721BarterUtils {
         ERC1155EscrowObligation _erc1155Escrow,
         ERC1155PaymentObligation _erc1155Payment,
         TokenBundleEscrowObligation _bundleEscrow,
-        TokenBundlePaymentObligation _bundlePayment
+        TokenBundlePaymentObligation _bundlePayment,
+        NativeTokenEscrowObligation _nativeEscrow,
+        NativeTokenPaymentObligation _nativePayment
     ) {
         eas = _eas;
         erc20Escrow = _erc20Escrow;
@@ -47,6 +53,8 @@ contract ERC721BarterUtils {
         erc1155Payment = _erc1155Payment;
         bundleEscrow = _bundleEscrow;
         bundlePayment = _bundlePayment;
+        nativeEscrow = _nativeEscrow;
+        nativePayment = _nativePayment;
     }
 
     // ============ ERC721 to ERC721 Functions ============
@@ -290,6 +298,87 @@ contract ERC721BarterUtils {
         // Fix: Use bundleEscrow instead of erc721Escrow
         // The original escrow was made with TokenBundleEscrowObligation
         if (!bundleEscrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
+        }
+
+        return sellAttestation;
+    }
+
+    // ============ ERC721 to Native Token (ETH) Functions ============
+
+    function buyEthWithErc721(
+        address bidToken,
+        uint256 bidTokenId,
+        uint256 askAmount,
+        uint64 expiration
+    ) external returns (bytes32) {
+        return
+            erc721Escrow.doObligationFor(
+                ERC721EscrowObligation.ObligationData({
+                    token: bidToken,
+                    tokenId: bidTokenId,
+                    arbiter: address(nativePayment),
+                    demand: abi.encode(
+                        NativeTokenPaymentObligation.ObligationData({
+                            amount: askAmount,
+                            payee: msg.sender
+                        })
+                    )
+                }),
+                expiration,
+                msg.sender,
+                msg.sender
+            );
+    }
+
+    function payErc721ForEth(
+        bytes32 buyAttestation
+    ) external returns (bytes32) {
+        Attestation memory bid = eas.getAttestation(buyAttestation);
+        if (bid.uid == bytes32(0)) {
+            revert AttestationNotFound(buyAttestation);
+        }
+        NativeTokenEscrowObligation.ObligationData memory escrowData = abi
+            .decode(bid.data, (NativeTokenEscrowObligation.ObligationData));
+        ERC721PaymentObligation.ObligationData memory demand = abi.decode(
+            escrowData.demand,
+            (ERC721PaymentObligation.ObligationData)
+        );
+
+        bytes32 sellAttestation = erc721Payment.doObligationFor(
+            demand,
+            msg.sender,
+            msg.sender
+        );
+
+        if (!nativeEscrow.collectEscrow(buyAttestation, sellAttestation)) {
+            revert CouldntCollectEscrow();
+        }
+
+        return sellAttestation;
+    }
+
+    function payEthForErc721(
+        bytes32 buyAttestation
+    ) external payable returns (bytes32) {
+        Attestation memory bid = eas.getAttestation(buyAttestation);
+        if (bid.uid == bytes32(0)) {
+            revert AttestationNotFound(buyAttestation);
+        }
+        ERC721EscrowObligation.ObligationData memory escrowData = abi.decode(
+            bid.data,
+            (ERC721EscrowObligation.ObligationData)
+        );
+        NativeTokenPaymentObligation.ObligationData memory demand = abi.decode(
+            escrowData.demand,
+            (NativeTokenPaymentObligation.ObligationData)
+        );
+
+        bytes32 sellAttestation = nativePayment.doObligationFor{
+            value: demand.amount
+        }(demand, msg.sender, msg.sender);
+
+        if (!erc721Escrow.collectEscrow(buyAttestation, sellAttestation)) {
             revert CouldntCollectEscrow();
         }
 

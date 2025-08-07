@@ -10,6 +10,8 @@ import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 import {ERC721BarterUtils} from "@src/utils/ERC721BarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
@@ -54,6 +56,8 @@ contract ERC721BarterUtilsUnitTest is Test {
     ERC1155PaymentObligation public erc1155Payment;
     TokenBundleEscrowObligation public bundleEscrow;
     TokenBundlePaymentObligation public bundlePayment;
+    NativeTokenEscrowObligation public nativeEscrow;
+    NativeTokenPaymentObligation public nativePayment;
     ERC721BarterUtils public barterUtils;
     MockERC721 public erc721TokenA;
     MockERC721 public erc721TokenB;
@@ -93,6 +97,8 @@ contract ERC721BarterUtilsUnitTest is Test {
         erc1155Payment = new ERC1155PaymentObligation(eas, schemaRegistry);
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        nativeEscrow = new NativeTokenEscrowObligation(eas, schemaRegistry);
+        nativePayment = new NativeTokenPaymentObligation(eas, schemaRegistry);
 
         // Deploy barter utils contract
         barterUtils = new ERC721BarterUtils(
@@ -104,7 +110,9 @@ contract ERC721BarterUtilsUnitTest is Test {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         // Setup initial token balances
@@ -717,6 +725,178 @@ contract ERC721BarterUtilsUnitTest is Test {
         // This should revert because the payment doesn't match the demand
         vm.expectRevert();
         erc20Escrow.collectEscrow(bobSellOrder, wrongPayment);
+        vm.stopPrank();
+    }
+
+    // ============ Native Token (ETH) Tests ============
+
+    function testBuyEthWithErc721() public {
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        vm.startPrank(alice);
+        uint256 erc721Id = erc721TokenA.mint(alice);
+        erc721TokenA.approve(address(escrowObligation), erc721Id);
+
+        // Alice creates buy order: offering ERC721 for ETH
+        bytes32 buyAttestation = barterUtils.buyEthWithErc721(
+            address(erc721TokenA),
+            erc721Id,
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Check that the ERC721 token is now held in escrow
+        assertEq(erc721TokenA.ownerOf(erc721Id), address(escrowObligation));
+
+        // Verify attestation data
+        Attestation memory attestation = eas.getAttestation(buyAttestation);
+        assertEq(attestation.recipient, alice);
+
+        ERC721EscrowObligation.ObligationData memory escrowData = abi.decode(
+            attestation.data,
+            (ERC721EscrowObligation.ObligationData)
+        );
+        assertEq(escrowData.token, address(erc721TokenA));
+        assertEq(escrowData.tokenId, erc721Id);
+        assertEq(escrowData.arbiter, address(nativePayment));
+    }
+
+    function testPayEthForErc721() public {
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Alice creates buy order: offering ERC721 for ETH
+        vm.startPrank(alice);
+        uint256 erc721Id = erc721TokenA.mint(alice);
+        erc721TokenA.approve(address(escrowObligation), erc721Id);
+
+        bytes32 buyAttestation = barterUtils.buyEthWithErc721(
+            address(erc721TokenA),
+            erc721Id,
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Bob fulfills the order by paying ETH
+        vm.deal(bob, 2 ether);
+        vm.startPrank(bob);
+
+        uint256 bobBalanceBefore = bob.balance;
+        uint256 aliceBalanceBefore = alice.balance;
+
+        bytes32 sellAttestation = barterUtils.payEthForErc721{value: askAmount}(
+            buyAttestation
+        );
+        vm.stopPrank();
+
+        // Verify the ERC721 token was transferred to Bob
+        assertEq(erc721TokenA.ownerOf(erc721Id), bob);
+
+        // Verify ETH was transferred
+        assertEq(bob.balance, bobBalanceBefore - askAmount);
+        assertEq(alice.balance, aliceBalanceBefore + askAmount);
+
+        // Verify sell attestation exists
+        Attestation memory sellAtt = eas.getAttestation(sellAttestation);
+        assertEq(sellAtt.recipient, bob);
+    }
+
+    function testPayErc721ForEth() public {
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Bob creates escrow: offering ETH for ERC721
+        vm.deal(bob, 2 ether);
+        vm.startPrank(bob);
+
+        bytes32 buyAttestation = nativeEscrow.doObligationFor{value: askAmount}(
+            NativeTokenEscrowObligation.ObligationData({
+                arbiter: address(paymentObligation),
+                demand: abi.encode(
+                    ERC721PaymentObligation.ObligationData({
+                        token: address(erc721TokenA),
+                        tokenId: 1,
+                        payee: bob
+                    })
+                ),
+                amount: askAmount
+            }),
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice fulfills the order by paying ERC721
+        vm.startPrank(alice);
+        uint256 erc721Id = erc721TokenA.mint(alice);
+
+        // Update the demand to use the correct tokenId
+        vm.stopPrank();
+        vm.startPrank(bob);
+        buyAttestation = nativeEscrow.doObligationFor{value: askAmount}(
+            NativeTokenEscrowObligation.ObligationData({
+                arbiter: address(paymentObligation),
+                demand: abi.encode(
+                    ERC721PaymentObligation.ObligationData({
+                        token: address(erc721TokenA),
+                        tokenId: erc721Id,
+                        payee: bob
+                    })
+                ),
+                amount: askAmount
+            }),
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        erc721TokenA.approve(address(paymentObligation), erc721Id);
+
+        uint256 aliceBalanceBefore = alice.balance;
+
+        bytes32 sellAttestation = barterUtils.payErc721ForEth(buyAttestation);
+        vm.stopPrank();
+
+        // Verify the ERC721 token was transferred to Bob
+        assertEq(erc721TokenA.ownerOf(erc721Id), bob);
+
+        // Verify ETH was transferred to Alice
+        assertEq(alice.balance, aliceBalanceBefore + askAmount);
+
+        // Verify sell attestation exists
+        Attestation memory sellAtt = eas.getAttestation(sellAttestation);
+        assertEq(sellAtt.recipient, alice);
+    }
+
+    function test_RevertWhen_InsufficientEthPayment() public {
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Alice creates buy order: offering ERC721 for ETH
+        vm.startPrank(alice);
+        uint256 erc721Id = erc721TokenA.mint(alice);
+        erc721TokenA.approve(address(escrowObligation), erc721Id);
+
+        bytes32 buyAttestation = barterUtils.buyEthWithErc721(
+            address(erc721TokenA),
+            erc721Id,
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Bob tries to fulfill with insufficient ETH
+        vm.deal(bob, 0.5 ether);
+        vm.startPrank(bob);
+
+        vm.expectRevert();
+        barterUtils.payEthForErc721{value: 0.5 ether}(buyAttestation);
         vm.stopPrank();
     }
 }

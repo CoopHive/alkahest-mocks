@@ -11,6 +11,8 @@ import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.so
 import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
 import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
+import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {Attestation} from "@eas/Common.sol";
@@ -55,6 +57,8 @@ contract ERC1155BarterUtilsUnitTest is Test {
     ERC721PaymentObligation public erc721Payment;
     TokenBundleEscrowObligation public bundleEscrow;
     TokenBundlePaymentObligation public bundlePayment;
+    NativeTokenEscrowObligation public nativeEscrow;
+    NativeTokenPaymentObligation public nativePayment;
     ERC1155BarterUtils public barterUtils;
 
     MockERC1155 public erc1155TokenA;
@@ -99,6 +103,8 @@ contract ERC1155BarterUtilsUnitTest is Test {
         erc721Payment = new ERC721PaymentObligation(eas, schemaRegistry);
         bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
         bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        nativeEscrow = new NativeTokenEscrowObligation(eas, schemaRegistry);
+        nativePayment = new NativeTokenPaymentObligation(eas, schemaRegistry);
 
         // Deploy barter utils contract
         barterUtils = new ERC1155BarterUtils(
@@ -110,7 +116,9 @@ contract ERC1155BarterUtilsUnitTest is Test {
             escrowObligation,
             paymentObligation,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         // Setup initial token balances
@@ -824,6 +832,173 @@ contract ERC1155BarterUtilsUnitTest is Test {
         // This should revert because the payment doesn't match the demand
         vm.expectRevert();
         erc20Escrow.collectEscrow(aliceSellOrder, wrongPayment);
+        vm.stopPrank();
+    }
+
+    // ============ Native Token (ETH) Tests ============
+
+    function testBuyEthWithErc1155() public {
+        uint256 erc1155TokenId = 1;
+        uint256 erc1155Amount = 10;
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        vm.startPrank(alice);
+        erc1155TokenA.mint(alice, erc1155TokenId, erc1155Amount);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
+
+        // Alice creates buy order: offering ERC1155 for ETH
+        bytes32 buyAttestation = barterUtils.buyEthWithErc1155(
+            address(erc1155TokenA),
+            erc1155TokenId,
+            erc1155Amount,
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Check that the ERC1155 tokens are now held in escrow
+        assertEq(
+            erc1155TokenA.balanceOf(address(escrowObligation), erc1155TokenId),
+            erc1155Amount
+        );
+
+        // Verify attestation data
+        Attestation memory attestation = eas.getAttestation(buyAttestation);
+        assertEq(attestation.recipient, alice);
+
+        ERC1155EscrowObligation.ObligationData memory escrowData = abi.decode(
+            attestation.data,
+            (ERC1155EscrowObligation.ObligationData)
+        );
+        assertEq(escrowData.token, address(erc1155TokenA));
+        assertEq(escrowData.tokenId, erc1155TokenId);
+        assertEq(escrowData.amount, erc1155Amount);
+        assertEq(escrowData.arbiter, address(nativePayment));
+    }
+
+    function testPayEthForErc1155() public {
+        uint256 erc1155TokenId = 1;
+        uint256 erc1155Amount = 10;
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Alice creates buy order: offering ERC1155 for ETH
+        vm.startPrank(alice);
+        erc1155TokenA.mint(alice, erc1155TokenId, erc1155Amount);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
+
+        bytes32 buyAttestation = barterUtils.buyEthWithErc1155(
+            address(erc1155TokenA),
+            erc1155TokenId,
+            erc1155Amount,
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Bob fulfills the order by paying ETH
+        vm.deal(bob, 2 ether);
+        vm.startPrank(bob);
+
+        uint256 bobBalanceBefore = bob.balance;
+        uint256 aliceBalanceBefore = alice.balance;
+
+        bytes32 sellAttestation = barterUtils.payEthForErc1155{
+            value: askAmount
+        }(buyAttestation);
+        vm.stopPrank();
+
+        // Verify the ERC1155 tokens were transferred to Bob
+        assertEq(erc1155TokenA.balanceOf(bob, erc1155TokenId), erc1155Amount);
+        assertEq(erc1155TokenA.balanceOf(alice, erc1155TokenId), 50);
+
+        // Verify ETH was transferred
+        assertEq(bob.balance, bobBalanceBefore - askAmount);
+        assertEq(alice.balance, aliceBalanceBefore + askAmount);
+
+        // Verify sell attestation exists
+        Attestation memory sellAtt = eas.getAttestation(sellAttestation);
+        assertEq(sellAtt.recipient, bob);
+    }
+
+    function testPayErc1155ForEth() public {
+        uint256 erc1155TokenId = 1;
+        uint256 erc1155Amount = 10;
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Bob creates escrow: offering ETH for ERC1155
+        vm.deal(bob, 2 ether);
+        vm.startPrank(bob);
+
+        bytes32 buyAttestation = nativeEscrow.doObligationFor{value: askAmount}(
+            NativeTokenEscrowObligation.ObligationData({
+                arbiter: address(paymentObligation),
+                demand: abi.encode(
+                    ERC1155PaymentObligation.ObligationData({
+                        token: address(erc1155TokenA),
+                        tokenId: erc1155TokenId,
+                        amount: erc1155Amount,
+                        payee: bob
+                    })
+                ),
+                amount: askAmount
+            }),
+            expiration,
+            bob,
+            bob
+        );
+        vm.stopPrank();
+
+        // Alice fulfills the order by paying ERC1155
+        vm.startPrank(alice);
+        erc1155TokenA.mint(alice, erc1155TokenId, erc1155Amount);
+        erc1155TokenA.setApprovalForAll(address(paymentObligation), true);
+
+        uint256 aliceBalanceBefore = alice.balance;
+
+        bytes32 sellAttestation = barterUtils.payErc1155ForEth(buyAttestation);
+        vm.stopPrank();
+
+        // Verify the ERC1155 tokens were transferred to Bob
+        assertEq(erc1155TokenA.balanceOf(bob, erc1155TokenId), erc1155Amount);
+        assertEq(erc1155TokenA.balanceOf(alice, erc1155TokenId), 50);
+
+        // Verify ETH was transferred to Alice
+        assertEq(alice.balance, aliceBalanceBefore + askAmount);
+
+        // Verify sell attestation exists
+        Attestation memory sellAtt = eas.getAttestation(sellAttestation);
+        assertEq(sellAtt.recipient, alice);
+    }
+
+    function test_RevertWhen_InsufficientEthPayment() public {
+        uint256 erc1155TokenId = 1;
+        uint256 erc1155Amount = 10;
+        uint256 askAmount = 1 ether;
+        uint64 expiration = uint64(block.timestamp + 1 days);
+
+        // Alice creates buy order: offering ERC1155 for ETH
+        vm.startPrank(alice);
+        erc1155TokenA.mint(alice, erc1155TokenId, erc1155Amount);
+        erc1155TokenA.setApprovalForAll(address(escrowObligation), true);
+
+        bytes32 buyAttestation = barterUtils.buyEthWithErc1155(
+            address(erc1155TokenA),
+            erc1155TokenId,
+            erc1155Amount,
+            askAmount,
+            expiration
+        );
+        vm.stopPrank();
+
+        // Bob tries to fulfill with insufficient ETH
+        vm.deal(bob, 0.5 ether);
+        vm.startPrank(bob);
+
+        vm.expectRevert();
+        barterUtils.payEthForErc1155{value: 0.5 ether}(buyAttestation);
         vm.stopPrank();
     }
 }
