@@ -14,8 +14,8 @@ import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.so
 import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
 import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.sol";
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
-import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {TokenBundleEscrowObligation2} from "@src/obligations/TokenBundleEscrowObligation2.sol";
+import {TokenBundlePaymentObligation2} from "@src/obligations/TokenBundlePaymentObligation2.sol";
 import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
 import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 
@@ -44,10 +44,10 @@ contract DeployCrossTokenBarter is Script {
         ERC1155PaymentObligation erc1155Payment = ERC1155PaymentObligation(
             payable(0x1395A7b129503E23eDAa7823b5F5994D65a26BF0)
         );
-        TokenBundleEscrowObligation bundleEscrow = TokenBundleEscrowObligation(
-            payable(0x7cCE97b9552dFf0105eC96A46f5721764a24D9AC)
-        );
-        TokenBundlePaymentObligation bundlePayment = TokenBundlePaymentObligation(
+        TokenBundleEscrowObligation2 bundleEscrow = TokenBundleEscrowObligation2(
+                payable(0x7cCE97b9552dFf0105eC96A46f5721764a24D9AC)
+            );
+        TokenBundlePaymentObligation2 bundlePayment = TokenBundlePaymentObligation2(
                 payable(0x678f5601fe66485CEeD3d41D7385983881411c70)
             );
         NativeTokenEscrowObligation nativeEscrow = NativeTokenEscrowObligation(
@@ -83,7 +83,9 @@ contract DeployCrossTokenBarter is Script {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         ERC1155BarterUtils erc1155BarterUtils = new ERC1155BarterUtils(
@@ -95,7 +97,9 @@ contract DeployCrossTokenBarter is Script {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         vm.stopBroadcast();

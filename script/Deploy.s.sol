@@ -22,8 +22,8 @@ import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligatio
 import {ERC1155BarterUtils} from "@src/utils/ERC1155BarterUtils.sol";
 
 // TokenBundle Contracts
-import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {TokenBundleEscrowObligation2} from "@src/obligations/TokenBundleEscrowObligation2.sol";
+import {TokenBundlePaymentObligation2} from "@src/obligations/TokenBundlePaymentObligation2.sol";
 import {TokenBundleBarterUtils} from "@src/utils/TokenBundleBarterUtils.sol";
 
 // Native Token Contracts
@@ -191,11 +191,11 @@ contract Deploy is Script {
         // );
 
         // Deploy TokenBundle contracts
-        TokenBundleEscrowObligation bundleEscrow = new TokenBundleEscrowObligation(
+        TokenBundleEscrowObligation2 bundleEscrow = new TokenBundleEscrowObligation2(
                 IEAS(easAddress),
                 ISchemaRegistry(schemaRegistryAddress)
             );
-        TokenBundlePaymentObligation bundlePayment = new TokenBundlePaymentObligation(
+        TokenBundlePaymentObligation2 bundlePayment = new TokenBundlePaymentObligation2(
                 IEAS(easAddress),
                 ISchemaRegistry(schemaRegistryAddress)
             );
@@ -239,7 +239,9 @@ contract Deploy is Script {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         ERC1155BarterUtils erc1155BarterUtils = new ERC1155BarterUtils(
@@ -251,7 +253,9 @@ contract Deploy is Script {
             erc1155Escrow,
             erc1155Payment,
             bundleEscrow,
-            bundlePayment
+            bundlePayment,
+            nativeEscrow,
+            nativePayment
         );
 
         // Deploy attestation barter contracts
@@ -396,8 +400,8 @@ contract Deploy is Script {
         console.log("ERC1155BarterUtils:", address(erc1155BarterUtils));
 
         console.log("\nTokenBundle Contracts:");
-        console.log("TokenBundleEscrowObligation:", address(bundleEscrow));
-        console.log("TokenBundlePaymentObligation:", address(bundlePayment));
+        console.log("TokenBundleEscrowObligation2:", address(bundleEscrow));
+        console.log("TokenBundlePaymentObligation2:", address(bundlePayment));
         console.log("TokenBundleBarterUtils:", address(bundleBarterUtils));
 
         console.log("\nAttestation Barter Contracts:");
