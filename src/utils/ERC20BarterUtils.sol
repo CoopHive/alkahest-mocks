@@ -9,8 +9,8 @@ import {ERC721EscrowObligation} from "../obligations/ERC721EscrowObligation.sol"
 import {ERC721PaymentObligation} from "../obligations/ERC721PaymentObligation.sol";
 import {ERC1155EscrowObligation} from "../obligations/ERC1155EscrowObligation.sol";
 import {ERC1155PaymentObligation} from "../obligations/ERC1155PaymentObligation.sol";
-import {TokenBundleEscrowObligation} from "../obligations/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "../obligations/TokenBundlePaymentObligation.sol";
+import {TokenBundleEscrowObligation2} from "../obligations/TokenBundleEscrowObligation2.sol";
+import {TokenBundlePaymentObligation2} from "../obligations/TokenBundlePaymentObligation2.sol";
 import {NativeTokenEscrowObligation} from "../obligations/NativeTokenEscrowObligation.sol";
 import {NativeTokenPaymentObligation} from "../obligations/NativeTokenPaymentObligation.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
@@ -23,8 +23,8 @@ contract ERC20BarterUtils {
     ERC721PaymentObligation internal erc721Payment;
     ERC1155EscrowObligation internal erc1155Escrow;
     ERC1155PaymentObligation internal erc1155Payment;
-    TokenBundleEscrowObligation internal bundleEscrow;
-    TokenBundlePaymentObligation internal bundlePayment;
+    TokenBundleEscrowObligation2 internal bundleEscrow;
+    TokenBundlePaymentObligation2 internal bundlePayment;
     NativeTokenEscrowObligation internal nativeEscrow;
     NativeTokenPaymentObligation internal nativePayment;
 
@@ -40,8 +40,8 @@ contract ERC20BarterUtils {
         ERC721PaymentObligation _erc721Payment,
         ERC1155EscrowObligation _erc1155Escrow,
         ERC1155PaymentObligation _erc1155Payment,
-        TokenBundleEscrowObligation _bundleEscrow,
-        TokenBundlePaymentObligation _bundlePayment,
+        TokenBundleEscrowObligation2 _bundleEscrow,
+        TokenBundlePaymentObligation2 _bundlePayment,
         NativeTokenEscrowObligation _nativeEscrow,
         NativeTokenPaymentObligation _nativePayment
     ) {
@@ -593,7 +593,7 @@ contract ERC20BarterUtils {
     function _buyBundleWithErc20(
         address bidToken,
         uint256 bidAmount,
-        TokenBundlePaymentObligation.ObligationData memory askData,
+        TokenBundlePaymentObligation2.ObligationData memory askData,
         uint64 expiration
     ) internal returns (bytes32) {
         return
@@ -630,7 +630,7 @@ contract ERC20BarterUtils {
     function buyBundleWithErc20(
         address bidToken,
         uint256 bidAmount,
-        TokenBundlePaymentObligation.ObligationData calldata askData,
+        TokenBundlePaymentObligation2.ObligationData calldata askData,
         uint64 expiration
     ) external returns (bytes32) {
         return _buyBundleWithErc20(bidToken, bidAmount, askData, expiration);
@@ -639,7 +639,7 @@ contract ERC20BarterUtils {
     function permitAndBuyBundleWithErc20(
         address bidToken,
         uint256 bidAmount,
-        TokenBundlePaymentObligation.ObligationData calldata askData,
+        TokenBundlePaymentObligation2.ObligationData calldata askData,
         uint64 expiration,
         uint256 deadline,
         uint8 v,
@@ -678,8 +678,8 @@ contract ERC20BarterUtils {
             revert AttestationNotFound(buyAttestation);
         }
 
-        TokenBundleEscrowObligation.ObligationData memory escrowData = abi
-            .decode(bid.data, (TokenBundleEscrowObligation.ObligationData));
+        TokenBundleEscrowObligation2.ObligationData memory escrowData = abi
+            .decode(bid.data, (TokenBundleEscrowObligation2.ObligationData));
         ERC20PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
             (ERC20PaymentObligation.ObligationData)
@@ -696,8 +696,8 @@ contract ERC20BarterUtils {
         bytes32 s
     ) external returns (bytes32) {
         Attestation memory bid = eas.getAttestation(buyAttestation);
-        TokenBundleEscrowObligation.ObligationData memory escrowData = abi
-            .decode(bid.data, (TokenBundleEscrowObligation.ObligationData));
+        TokenBundleEscrowObligation2.ObligationData memory escrowData = abi
+            .decode(bid.data, (TokenBundleEscrowObligation2.ObligationData));
         ERC20PaymentObligation.ObligationData memory demand = abi.decode(
             escrowData.demand,
             (ERC20PaymentObligation.ObligationData)
