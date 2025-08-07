@@ -8,8 +8,8 @@ import {ERC721EscrowObligation} from "@src/obligations/ERC721EscrowObligation.so
 import {ERC721PaymentObligation} from "@src/obligations/ERC721PaymentObligation.sol";
 import {ERC1155EscrowObligation} from "@src/obligations/ERC1155EscrowObligation.sol";
 import {ERC1155PaymentObligation} from "@src/obligations/ERC1155PaymentObligation.sol";
-import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {TokenBundleEscrowObligation2} from "@src/obligations/TokenBundleEscrowObligation2.sol";
+import {TokenBundlePaymentObligation2} from "@src/obligations/TokenBundlePaymentObligation2.sol";
 import {NativeTokenEscrowObligation} from "@src/obligations/NativeTokenEscrowObligation.sol";
 import {NativeTokenPaymentObligation} from "@src/obligations/NativeTokenPaymentObligation.sol";
 import {ERC20BarterUtils} from "@src/utils/ERC20BarterUtils.sol";
@@ -56,8 +56,8 @@ contract ERC20BarterUtilsCrossTokenTest is Test {
     ERC721PaymentObligation public erc721Payment;
     ERC1155EscrowObligation public erc1155Escrow;
     ERC1155PaymentObligation public erc1155Payment;
-    TokenBundleEscrowObligation public bundleEscrow;
-    TokenBundlePaymentObligation public bundlePayment;
+    TokenBundleEscrowObligation2 public bundleEscrow;
+    TokenBundlePaymentObligation2 public bundlePayment;
     NativeTokenEscrowObligation public nativeEscrow;
     NativeTokenPaymentObligation public nativePayment;
     ERC20BarterUtils public barterUtils;
@@ -94,8 +94,8 @@ contract ERC20BarterUtilsCrossTokenTest is Test {
         erc721Payment = new ERC721PaymentObligation(eas, schemaRegistry);
         erc1155Escrow = new ERC1155EscrowObligation(eas, schemaRegistry);
         erc1155Payment = new ERC1155PaymentObligation(eas, schemaRegistry);
-        bundleEscrow = new TokenBundleEscrowObligation(eas, schemaRegistry);
-        bundlePayment = new TokenBundlePaymentObligation(eas, schemaRegistry);
+        bundleEscrow = new TokenBundleEscrowObligation2(eas, schemaRegistry);
+        bundlePayment = new TokenBundlePaymentObligation2(eas, schemaRegistry);
         nativeEscrow = new NativeTokenEscrowObligation(eas, schemaRegistry);
         nativePayment = new NativeTokenPaymentObligation(eas, schemaRegistry);
 
