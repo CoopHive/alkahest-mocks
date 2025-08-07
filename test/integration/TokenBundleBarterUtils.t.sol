@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {TokenBundleEscrowObligation} from "@src/obligations/TokenBundleEscrowObligation.sol";
-import {TokenBundlePaymentObligation} from "@src/obligations/TokenBundlePaymentObligation.sol";
+import {TokenBundleEscrowObligation2} from "@src/obligations/TokenBundleEscrowObligation2.sol";
+import {TokenBundlePaymentObligation2} from "@src/obligations/TokenBundlePaymentObligation2.sol";
 import {TokenBundleBarterUtils} from "@src/utils/TokenBundleBarterUtils.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
@@ -39,8 +39,8 @@ contract MockERC1155 is ERC1155 {
 }
 
 contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
-    TokenBundleEscrowObligation public escrowObligation;
-    TokenBundlePaymentObligation public paymentObligation;
+    TokenBundleEscrowObligation2 public escrowObligation;
+    TokenBundlePaymentObligation2 public paymentObligation;
     TokenBundleBarterUtils public barterUtils;
 
     MockERC20Permit public erc20TokenA;
@@ -75,8 +75,11 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         askErc1155TokenA = new MockERC1155();
         askErc1155TokenB = new MockERC1155();
 
-        escrowObligation = new TokenBundleEscrowObligation(eas, schemaRegistry);
-        paymentObligation = new TokenBundlePaymentObligation(
+        escrowObligation = new TokenBundleEscrowObligation2(
+            eas,
+            schemaRegistry
+        );
+        paymentObligation = new TokenBundlePaymentObligation2(
             eas,
             schemaRegistry
         );
@@ -111,7 +114,7 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     function _createBidBundle()
         internal
         pure
-        returns (TokenBundleEscrowObligation.ObligationData memory)
+        returns (TokenBundleEscrowObligation2.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         uint256[] memory erc20Amounts = new uint256[](1);
@@ -130,23 +133,24 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         erc1155Amounts[0] = 10;
 
         return
-            TokenBundleEscrowObligation.ObligationData({
+            TokenBundleEscrowObligation2.ObligationData({
+                arbiter: address(0), // Will be set in test
+                demand: "", // Will be set in test
+                nativeAmount: 0,
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
                 erc721TokenIds: erc721TokenIds,
                 erc1155Tokens: erc1155Tokens,
                 erc1155TokenIds: erc1155TokenIds,
-                erc1155Amounts: erc1155Amounts,
-                arbiter: address(0), // Will be set in test
-                demand: "" // Will be set in test
+                erc1155Amounts: erc1155Amounts
             });
     }
 
     function _createAskBundle()
         internal
         pure
-        returns (TokenBundlePaymentObligation.ObligationData memory)
+        returns (TokenBundlePaymentObligation2.ObligationData memory)
     {
         address[] memory erc20Tokens = new address[](1);
         uint256[] memory erc20Amounts = new uint256[](1);
@@ -165,7 +169,8 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
         erc1155Amounts[0] = 20;
 
         return
-            TokenBundlePaymentObligation.ObligationData({
+            TokenBundlePaymentObligation2.ObligationData({
+                nativeAmount: 0,
                 erc20Tokens: erc20Tokens,
                 erc20Amounts: erc20Amounts,
                 erc721Tokens: erc721Tokens,
@@ -221,13 +226,13 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
     function testBundleTradeWithManualApprovals() public {
         // Setup bundles
-        TokenBundleEscrowObligation.ObligationData
+        TokenBundleEscrowObligation2.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
 
-        TokenBundlePaymentObligation.ObligationData
+        TokenBundlePaymentObligation2.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
@@ -383,13 +388,13 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     }
 
     function test_RevertWhen_BundleTradeHasNoApprovals() public {
-        TokenBundleEscrowObligation.ObligationData
+        TokenBundleEscrowObligation2.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
 
-        TokenBundlePaymentObligation.ObligationData
+        TokenBundlePaymentObligation2.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
@@ -410,14 +415,14 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
     }
 
     function test_RevertWhen_BundleTradeHasInsufficientBalance() public {
-        TokenBundleEscrowObligation.ObligationData
+        TokenBundleEscrowObligation2.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
         bidBundle.erc20Amounts[0] = 1000000 * 10 ** 18; // Amount larger than balance
 
-        TokenBundlePaymentObligation.ObligationData
+        TokenBundlePaymentObligation2.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
@@ -449,13 +454,13 @@ contract TokenBundleBarterUtilsTest is Test, IERC1155Receiver {
 
     function testBundleTradeWithPermits() public {
         // Setup bundles
-        TokenBundleEscrowObligation.ObligationData
+        TokenBundleEscrowObligation2.ObligationData
             memory bidBundle = _createBidBundle();
         bidBundle.erc20Tokens[0] = address(erc20TokenA);
         bidBundle.erc721Tokens[0] = address(askErc721TokenA);
         bidBundle.erc1155Tokens[0] = address(askErc1155TokenA);
 
-        TokenBundlePaymentObligation.ObligationData
+        TokenBundlePaymentObligation2.ObligationData
             memory askBundle = _createAskBundle();
         askBundle.erc20Tokens[0] = address(erc20TokenB);
         askBundle.erc721Tokens[0] = address(askErc721TokenB);
