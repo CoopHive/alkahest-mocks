@@ -27,7 +27,7 @@ contract TrustedOracleArbiter is IArbiter {
     error UnauthorizedArbitrationRequest();
 
     IEAS eas;
-    mapping(address => mapping(bytes32 => bool)) decisions;
+    mapping(address => mapping(bytes32 => bool)) internal decisions;
 
     constructor(IEAS _eas) {
         eas = _eas;
@@ -52,7 +52,7 @@ contract TrustedOracleArbiter is IArbiter {
         Attestation memory obligation,
         bytes memory demand,
         bytes32 /*counteroffer*/
-    ) public view override returns (bool) {
+    ) public view virtual override returns (bool) {
         DemandData memory demand_ = abi.decode(demand, (DemandData));
         return decisions[demand_.oracle][obligation.uid];
     }
