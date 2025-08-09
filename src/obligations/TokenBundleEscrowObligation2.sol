@@ -134,20 +134,7 @@ contract TokenBundleEscrowObligation2 is
 
     // Return tokens to original owner on expiry
     function _returnEscrow(bytes memory data, address to) internal override {
-        ObligationData memory decoded = abi.decode(data, (ObligationData));
-
-        // Return native tokens
-        if (decoded.nativeAmount > 0) {
-            (bool success, ) = payable(to).call{value: decoded.nativeAmount}(
-                ""
-            );
-            if (!success) {
-                revert NativeTokenTransferFailed(to, decoded.nativeAmount);
-            }
-        }
-
-        // Return token bundle
-        transferOutTokenBundle(decoded, to);
+        _releaseEscrow(data, to, bytes32(0));
     }
 
     function transferInTokenBundle(

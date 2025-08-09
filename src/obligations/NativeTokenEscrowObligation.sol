@@ -73,12 +73,7 @@ contract NativeTokenEscrowObligation is BaseEscrowObligation, IArbiter {
 
     // Return native tokens to original owner on expiry
     function _returnEscrow(bytes memory data, address to) internal override {
-        ObligationData memory decoded = abi.decode(data, (ObligationData));
-
-        (bool success, ) = payable(to).call{value: decoded.amount}("");
-        if (!success) {
-            revert NativeTokenTransferFailed(to, decoded.amount);
-        }
+        _releaseEscrow(data, to, bytes32(0));
     }
 
     // Implement IArbiter

@@ -114,27 +114,7 @@ contract ERC1155EscrowObligation is
 
     // Return tokens to original owner on expiry
     function _returnEscrow(bytes memory data, address to) internal override {
-        ObligationData memory decoded = abi.decode(data, (ObligationData));
-
-        try
-            IERC1155(decoded.token).safeTransferFrom(
-                address(this),
-                to,
-                decoded.tokenId,
-                decoded.amount,
-                ""
-            )
-        {
-            // Transfer succeeded
-        } catch {
-            revert ERC1155TransferFailed(
-                decoded.token,
-                address(this),
-                to,
-                decoded.tokenId,
-                decoded.amount
-            );
-        }
+        _releaseEscrow(data, to, bytes32(0));
     }
 
     // Implement IArbiter

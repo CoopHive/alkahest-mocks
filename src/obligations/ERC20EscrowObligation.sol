@@ -108,25 +108,7 @@ contract ERC20EscrowObligation is BaseEscrowObligation, IArbiter {
 
     // Return tokens to original owner on expiry
     function _returnEscrow(bytes memory data, address to) internal override {
-        ObligationData memory decoded = abi.decode(data, (ObligationData));
-
-        bool success;
-        try IERC20(decoded.token).transfer(to, decoded.amount) returns (
-            bool result
-        ) {
-            success = result;
-        } catch {
-            success = false;
-        }
-
-        if (!success) {
-            revert ERC20TransferFailed(
-                decoded.token,
-                address(this),
-                to,
-                decoded.amount
-            );
-        }
+        _releaseEscrow(data, to, bytes32(0));
     }
 
     // Implement IArbiter

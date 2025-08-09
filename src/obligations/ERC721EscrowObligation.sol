@@ -97,22 +97,7 @@ contract ERC721EscrowObligation is BaseEscrowObligation, IArbiter {
 
     // Return token to original owner on expiry
     function _returnEscrow(bytes memory data, address to) internal override {
-        ObligationData memory decoded = abi.decode(data, (ObligationData));
-
-        try
-            IERC721(decoded.token).transferFrom(
-                address(this),
-                to,
-                decoded.tokenId
-            )
-        {} catch {
-            revert ERC721TransferFailed(
-                decoded.token,
-                address(this),
-                to,
-                decoded.tokenId
-            );
-        }
+        _releaseEscrow(data, to, bytes32(0));
     }
 
     // Implement IArbiter

@@ -109,8 +109,7 @@ contract TokenBundleEscrowObligation is
 
     // Return tokens to original owner on expiry
     function _returnEscrow(bytes memory data, address to) internal override {
-        ObligationData memory decoded = abi.decode(data, (ObligationData));
-        transferOutTokenBundle(decoded, to);
+        _releaseEscrow(data, to, bytes32(0));
     }
 
     function transferInTokenBundle(
