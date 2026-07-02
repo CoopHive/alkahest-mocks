@@ -120,6 +120,8 @@ TypeScript exposes ergonomic helpers for:
 
 Rust and Python include generated contract bindings and deployed addresses, but do not currently expose ergonomic client methods for the atomic attestation-reference escrow flows.
 
+Status: addressed. Rust now exposes atomic attestation-reference escrow helpers on `attestation().util()`, including default and unconditional reference escrow variants. Python exposes matching `client.attestation.util.attest_and_create_reference_escrow(...)` and `attest_and_create_unconditional_reference_escrow(...)` helpers.
+
 Affected contract:
 
 - `AtomicAttestationUtils`

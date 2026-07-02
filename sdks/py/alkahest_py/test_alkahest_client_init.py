@@ -56,6 +56,12 @@ async def test_alkahest_client_init_default(env):
     assert hasattr(splitters_client, 'arbitrate_bundle'), "Splitters client should arbitrate bundle splits"
     assert hasattr(splitters_client, 'collect_and_distribute'), "Splitters client should collect and distribute"
     assert hasattr(splitters_client, 'attestation_intent_hash'), "Splitters client should hash attestation intents"
+    assert hasattr(attestation_client.util, 'attest_and_create_reference_escrow'), (
+        "Attestation util should have atomic reference escrow helper"
+    )
+    assert hasattr(attestation_client.util, 'attest_and_create_unconditional_reference_escrow'), (
+        "Attestation util should have atomic unconditional reference escrow helper"
+    )
     # Token bundle and other clients exist but may have different method names
     assert token_bundle_client is not None, "Token bundle client should exist"
 

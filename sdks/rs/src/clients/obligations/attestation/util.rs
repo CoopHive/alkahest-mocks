@@ -7,6 +7,7 @@ use alloy::rpc::types::TransactionReceipt;
 
 use crate::contracts;
 use crate::contracts::IEAS::{Attestation, AttestationRequest};
+use crate::contracts::utils::AtomicAttestationUtils;
 
 use super::AttestationModule;
 
@@ -66,6 +67,68 @@ impl<'a> Util<'a> {
 
         let receipt = eas_contract
             .attest(attestation)
+            .send()
+            .await?
+            .get_receipt()
+            .await?;
+
+        Ok(receipt)
+    }
+
+    /// Creates an EAS attestation and a default attestation-reference escrow in one transaction.
+    pub async fn attest_and_create_reference_escrow(
+        &self,
+        request: AttestationRequest,
+        escrow_data: AtomicAttestationUtils::ReferenceEscrowData,
+        escrow_expiration_time: u64,
+    ) -> eyre::Result<TransactionReceipt> {
+        let value = request.data.value;
+        let atomic_utils = AtomicAttestationUtils::new(
+            self.module.addresses.atomic_attestation_utils,
+            &self.module.wallet_provider,
+        );
+
+        let receipt = atomic_utils
+            .attestAndCreateReferenceEscrow(
+                self.module
+                    .addresses
+                    .attestation_reference_escrow_obligation_default,
+                request.into(),
+                escrow_data,
+                escrow_expiration_time,
+            )
+            .value(value)
+            .send()
+            .await?
+            .get_receipt()
+            .await?;
+
+        Ok(receipt)
+    }
+
+    /// Creates an EAS attestation and an unconditional attestation-reference escrow in one transaction.
+    pub async fn attest_and_create_unconditional_reference_escrow(
+        &self,
+        request: AttestationRequest,
+        escrow_data: AtomicAttestationUtils::ReferenceEscrowData,
+        escrow_expiration_time: u64,
+    ) -> eyre::Result<TransactionReceipt> {
+        let value = request.data.value;
+        let atomic_utils = AtomicAttestationUtils::new(
+            self.module.addresses.atomic_attestation_utils,
+            &self.module.wallet_provider,
+        );
+
+        let receipt = atomic_utils
+            .attestAndCreateUnconditionalReferenceEscrow(
+                self.module
+                    .addresses
+                    .attestation_reference_escrow_obligation_unconditional,
+                request.into(),
+                escrow_data,
+                escrow_expiration_time,
+            )
+            .value(value)
             .send()
             .await?
             .get_receipt()

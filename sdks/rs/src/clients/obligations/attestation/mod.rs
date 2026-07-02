@@ -16,6 +16,7 @@ use crate::addresses::BASE_SEPOLIA_ADDRESSES;
 use crate::contracts::{
     self, IEAS, obligations::escrow::default_escrow::AttestationEscrowObligation,
     obligations::escrow::unconditional::UnconditionalAttestationEscrowObligation,
+    utils::AtomicAttestationUtils,
 };
 use crate::extensions::{AlkahestExtension, ContractModule};
 use crate::impl_abi_conversions;
@@ -51,6 +52,7 @@ macro_rules! impl_attestation_request {
 
 impl_attestation_request!(AttestationEscrowObligation);
 impl_attestation_request!(UnconditionalAttestationEscrowObligation);
+impl_attestation_request!(AtomicAttestationUtils);
 
 // --- ABI conversions for Attestation obligation types ---
 impl_abi_conversions!(
