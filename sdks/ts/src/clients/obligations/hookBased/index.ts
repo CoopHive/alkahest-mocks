@@ -1,4 +1,4 @@
-import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from "viem";
+import { decodeAbiParameters, encodeAbiParameters, getAbiItem, type Abi } from "viem";
 import { abi as hookEscrowAbi } from "../../../contracts/obligations/escrow/hook-based/HookEscrowObligation";
 import { abi as hooksEscrowAbi } from "../../../contracts/obligations/escrow/hook-based/HooksEscrowObligation";
 import { abi as attestationEscrowHookAbi } from "../../../contracts/obligations/escrow/hook-based/hooks/AttestationEscrowHook";
@@ -57,6 +57,41 @@ const attestationReferenceHookDataType = getAbiItem({
   abi: attestationReferenceEscrowHookAbi.abi,
   name: "encodeHookData",
 }).inputs[0];
+
+const makeEscrowApprovalClient = (
+  viemClient: ViemClient,
+  address: `0x${string}`,
+  abi: Abi,
+) => ({
+  approveEscrow: async (escrow: `0x${string}`) =>
+    await writeContract(viemClient, {
+      address,
+      abi,
+      functionName: "approveEscrow",
+      args: [escrow],
+    } as unknown as Parameters<typeof writeContract>[1]),
+  unapproveEscrow: async (escrow: `0x${string}`) =>
+    await writeContract(viemClient, {
+      address,
+      abi,
+      functionName: "unapproveEscrow",
+      args: [escrow],
+    } as unknown as Parameters<typeof writeContract>[1]),
+  isEscrowApproved: async (owner: `0x${string}`, escrow: `0x${string}`) =>
+    await readContract<boolean>(viemClient, {
+      address,
+      abi,
+      functionName: "isEscrowApproved",
+      args: [owner, escrow],
+    }),
+  approvedEscrows: async (owner: `0x${string}`, escrow: `0x${string}`) =>
+    await readContract<boolean>(viemClient, {
+      address,
+      abi,
+      functionName: "approvedEscrows",
+      args: [owner, escrow],
+    }),
+});
 
 /** Obligation data for a hook-based escrow with one hook. */
 export type HookEscrowObligationData = {
@@ -273,6 +308,7 @@ export const makeHookBasedClient = (viemClient: ViemClient, addresses: HookBased
   hooks: {
     erc20: {
       address: addresses.erc20EscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.erc20EscrowHook, erc20EscrowHookAbi.abi),
       encodeHookData: (data: AmountSplitHookData) => encodeAbiParameters([erc20HookDataType], [data]),
       decodeHookData: (data: `0x${string}`) => decodeAbiParameters([erc20HookDataType], data)[0] as AmountSplitHookData,
       approve: async (token: AmountSplitHookData) =>
@@ -292,6 +328,7 @@ export const makeHookBasedClient = (viemClient: ViemClient, addresses: HookBased
     },
     erc721: {
       address: addresses.erc721EscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.erc721EscrowHook, erc721EscrowHookAbi.abi),
       encodeHookData: (data: TokenIdHookData) => encodeAbiParameters([erc721HookDataType], [data]),
       decodeHookData: (data: `0x${string}`) => decodeAbiParameters([erc721HookDataType], data)[0] as TokenIdHookData,
       approve: async (token: TokenIdHookData) =>
@@ -311,6 +348,7 @@ export const makeHookBasedClient = (viemClient: ViemClient, addresses: HookBased
     },
     erc1155: {
       address: addresses.erc1155EscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.erc1155EscrowHook, erc1155EscrowHookAbi.abi),
       encodeHookData: (data: Erc1155HookData) => encodeAbiParameters([erc1155HookDataType], [data]),
       decodeHookData: (data: `0x${string}`) => decodeAbiParameters([erc1155HookDataType], data)[0] as Erc1155HookData,
       setApprovalForAll: async (token: `0x${string}`, approved = true) =>
@@ -330,6 +368,7 @@ export const makeHookBasedClient = (viemClient: ViemClient, addresses: HookBased
     },
     nativeToken: {
       address: addresses.nativeTokenEscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.nativeTokenEscrowHook, nativeTokenEscrowHookAbi.abi),
       encodeHookData: (data: NativeTokenHookData) => encodeAbiParameters([nativeTokenHookDataType], [data]),
       decodeHookData: (data: `0x${string}`) => decodeAbiParameters([nativeTokenHookDataType], data)[0] as NativeTokenHookData,
       deposit: async (caller: `0x${string}`) =>
@@ -342,12 +381,18 @@ export const makeHookBasedClient = (viemClient: ViemClient, addresses: HookBased
     },
     attestation: {
       address: addresses.attestationEscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.attestationEscrowHook, attestationEscrowHookAbi.abi),
       encodeHookData: (data: AttestationEscrowHookData) => encodeAbiParameters([attestationHookDataType], [data]),
       decodeHookData: (data: `0x${string}`) =>
         decodeAbiParameters([attestationHookDataType], data)[0] as AttestationEscrowHookData,
     },
     attestationReference: {
       address: addresses.attestationReferenceEscrowHook,
+      ...makeEscrowApprovalClient(
+        viemClient,
+        addresses.attestationReferenceEscrowHook,
+        attestationReferenceEscrowHookAbi.abi,
+      ),
       encodeHookData: (data: AttestationReferenceEscrowHookData) =>
         encodeAbiParameters([attestationReferenceHookDataType], [data]),
       decodeHookData: (data: `0x${string}`) =>

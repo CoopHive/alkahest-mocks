@@ -141,6 +141,8 @@ Rust and Python primarily expose hook-based escrow data codecs and addresses. Th
 
 The approval methods are the most important part of this gap because users must approve packaged escrow contracts before using packaged hooks.
 
+Status: addressed. TypeScript now exposes hook-local `approveEscrow`, `unapproveEscrow`, `isEscrowApproved`, and `approvedEscrows` helpers on each packaged hook client. Rust exposes packaged hook approval helpers, typed hook data codecs, and deposit/pending reads on `HookBasedModule`. Python exposes matching approval helpers, hook data encode/decode helpers, and deposit/pending reads on `client.hook_based`.
+
 Affected contracts:
 
 - `ApprovedEscrowHook`

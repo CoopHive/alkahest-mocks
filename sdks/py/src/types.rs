@@ -618,7 +618,7 @@ impl From<Attested> for AttestedLog {
     }
 }
 
-#[derive(FromPyObject)]
+#[derive(Clone, FromPyObject)]
 pub struct AttestationRequestData {
     pub recipient: String,
     pub expiration_time: u64,
@@ -628,7 +628,7 @@ pub struct AttestationRequestData {
     pub value: u128,
 }
 
-#[derive(FromPyObject)]
+#[derive(Clone, FromPyObject)]
 pub struct AttestationRequest {
     pub schema: String,
     pub data: AttestationRequestData,

@@ -1141,41 +1141,65 @@ declare const makeDefaultExtension: (client: any) => {
         };
         hooks: {
             erc20: {
-                address: `0x${string}`;
                 encodeHookData: (data: AmountSplitHookData) => `0x${string}`;
                 decodeHookData: (data: `0x${string}`) => AmountSplitHookData;
                 approve: (token: AmountSplitHookData) => Promise<`0x${string}`>;
                 deposit: (caller: `0x${string}`, token: `0x${string}`) => Promise<bigint>;
+                approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                address: `0x${string}`;
             };
             erc721: {
-                address: `0x${string}`;
                 encodeHookData: (data: TokenIdHookData) => `0x${string}`;
                 decodeHookData: (data: `0x${string}`) => TokenIdHookData;
                 approve: (token: TokenIdHookData) => Promise<`0x${string}`>;
                 deposit: (caller: `0x${string}`, token: `0x${string}`, tokenId: bigint) => Promise<boolean>;
+                approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                address: `0x${string}`;
             };
             erc1155: {
-                address: `0x${string}`;
                 encodeHookData: (data: Erc1155HookData) => `0x${string}`;
                 decodeHookData: (data: `0x${string}`) => Erc1155HookData;
                 setApprovalForAll: (token: `0x${string}`, approved?: boolean) => Promise<`0x${string}`>;
                 deposit: (caller: `0x${string}`, token: `0x${string}`, tokenId: bigint) => Promise<bigint>;
+                approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                address: `0x${string}`;
             };
             nativeToken: {
-                address: `0x${string}`;
                 encodeHookData: (data: NativeTokenHookData) => `0x${string}`;
                 decodeHookData: (data: `0x${string}`) => NativeTokenHookData;
                 deposit: (caller: `0x${string}`) => Promise<bigint>;
+                approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                address: `0x${string}`;
             };
             attestation: {
-                address: `0x${string}`;
                 encodeHookData: (data: AttestationEscrowHookData) => `0x${string}`;
                 decodeHookData: (data: `0x${string}`) => AttestationEscrowHookData;
+                approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                address: `0x${string}`;
             };
             attestationReference: {
-                address: `0x${string}`;
                 encodeHookData: (data: AttestationReferenceEscrowHookData) => `0x${string}`;
                 decodeHookData: (data: `0x${string}`) => AttestationReferenceEscrowHookData;
+                approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+                isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                address: `0x${string}`;
             };
         };
     };
@@ -12476,41 +12500,65 @@ declare const makeHookBasedClient: (viemClient: ViemClient, addresses: HookBased
     };
     hooks: {
         erc20: {
-            address: `0x${string}`;
             encodeHookData: (data: AmountSplitHookData) => `0x${string}`;
             decodeHookData: (data: `0x${string}`) => AmountSplitHookData;
             approve: (token: AmountSplitHookData) => Promise<`0x${string}`>;
             deposit: (caller: `0x${string}`, token: `0x${string}`) => Promise<bigint>;
+            approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            address: `0x${string}`;
         };
         erc721: {
-            address: `0x${string}`;
             encodeHookData: (data: TokenIdHookData) => `0x${string}`;
             decodeHookData: (data: `0x${string}`) => TokenIdHookData;
             approve: (token: TokenIdHookData) => Promise<`0x${string}`>;
             deposit: (caller: `0x${string}`, token: `0x${string}`, tokenId: bigint) => Promise<boolean>;
+            approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            address: `0x${string}`;
         };
         erc1155: {
-            address: `0x${string}`;
             encodeHookData: (data: Erc1155HookData) => `0x${string}`;
             decodeHookData: (data: `0x${string}`) => Erc1155HookData;
             setApprovalForAll: (token: `0x${string}`, approved?: boolean) => Promise<`0x${string}`>;
             deposit: (caller: `0x${string}`, token: `0x${string}`, tokenId: bigint) => Promise<bigint>;
+            approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            address: `0x${string}`;
         };
         nativeToken: {
-            address: `0x${string}`;
             encodeHookData: (data: NativeTokenHookData) => `0x${string}`;
             decodeHookData: (data: `0x${string}`) => NativeTokenHookData;
             deposit: (caller: `0x${string}`) => Promise<bigint>;
+            approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            address: `0x${string}`;
         };
         attestation: {
-            address: `0x${string}`;
             encodeHookData: (data: AttestationEscrowHookData) => `0x${string}`;
             decodeHookData: (data: `0x${string}`) => AttestationEscrowHookData;
+            approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            address: `0x${string}`;
         };
         attestationReference: {
-            address: `0x${string}`;
             encodeHookData: (data: AttestationReferenceEscrowHookData) => `0x${string}`;
             decodeHookData: (data: `0x${string}`) => AttestationReferenceEscrowHookData;
+            approveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            unapproveEscrow: (escrow: `0x${string}`) => Promise<`0x${string}`>;
+            isEscrowApproved: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            approvedEscrows: (owner: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            address: `0x${string}`;
         };
     };
 };

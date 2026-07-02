@@ -28,6 +28,7 @@ async def test_alkahest_client_init_default(env):
     assert hasattr(client, 'oracle'), "Client should have oracle extension"
     assert hasattr(client, 'arbiters'), "Client should have arbiters extension"
     assert hasattr(client, 'splitters'), "Client should have splitters extension"
+    assert hasattr(client, 'hook_based'), "Client should have hook-based extension"
 
     # Verify extensions are accessible (should not raise errors)
     erc20_client = client.erc20
@@ -40,6 +41,7 @@ async def test_alkahest_client_init_default(env):
     oracle_client = client.oracle
     arbiters_client = client.arbiters
     splitters_client = client.splitters
+    hook_based_client = client.hook_based
 
     # Verify extensions have expected methods through util submodule
     assert hasattr(erc20_client, 'util'), "ERC20 client should have util submodule"
@@ -62,6 +64,9 @@ async def test_alkahest_client_init_default(env):
     assert hasattr(attestation_client.util, 'attest_and_create_unconditional_reference_escrow'), (
         "Attestation util should have atomic unconditional reference escrow helper"
     )
+    assert hasattr(hook_based_client, 'approve_escrow'), "Hook-based client should approve escrow hooks"
+    assert hasattr(hook_based_client, 'unapprove_escrow'), "Hook-based client should unapprove escrow hooks"
+    assert hasattr(hook_based_client, 'is_escrow_approved'), "Hook-based client should read hook approvals"
     # Token bundle and other clients exist but may have different method names
     assert token_bundle_client is not None, "Token bundle client should exist"
 

@@ -73059,6 +73059,32 @@ var attestationReferenceHookDataType = (0, import_viem42.getAbiItem)({
   abi: abi46.abi,
   name: "encodeHookData"
 }).inputs[0];
+var makeEscrowApprovalClient = (viemClient, address, abi81) => ({
+  approveEscrow: async (escrow) => await writeContract(viemClient, {
+    address,
+    abi: abi81,
+    functionName: "approveEscrow",
+    args: [escrow]
+  }),
+  unapproveEscrow: async (escrow) => await writeContract(viemClient, {
+    address,
+    abi: abi81,
+    functionName: "unapproveEscrow",
+    args: [escrow]
+  }),
+  isEscrowApproved: async (owner, escrow) => await readContract(viemClient, {
+    address,
+    abi: abi81,
+    functionName: "isEscrowApproved",
+    args: [owner, escrow]
+  }),
+  approvedEscrows: async (owner, escrow) => await readContract(viemClient, {
+    address,
+    abi: abi81,
+    functionName: "approvedEscrows",
+    args: [owner, escrow]
+  })
+});
 var encodeHookEscrowObligation = (data) => (0, import_viem42.encodeAbiParameters)([hookEscrowObligationDataType], [data]);
 var decodeHookEscrowObligation = (data) => (0, import_viem42.decodeAbiParameters)([hookEscrowObligationDataType], data)[0];
 var encodeHooksEscrowObligation = (data) => (0, import_viem42.encodeAbiParameters)([hooksEscrowObligationDataType], [data]);
@@ -73177,6 +73203,7 @@ var makeHookBasedClient = (viemClient, addresses) => ({
   hooks: {
     erc20: {
       address: addresses.erc20EscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.erc20EscrowHook, abi47.abi),
       encodeHookData: (data) => (0, import_viem42.encodeAbiParameters)([erc20HookDataType], [data]),
       decodeHookData: (data) => (0, import_viem42.decodeAbiParameters)([erc20HookDataType], data)[0],
       approve: async (token) => await writeContract(viemClient, {
@@ -73194,6 +73221,7 @@ var makeHookBasedClient = (viemClient, addresses) => ({
     },
     erc721: {
       address: addresses.erc721EscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.erc721EscrowHook, abi48.abi),
       encodeHookData: (data) => (0, import_viem42.encodeAbiParameters)([erc721HookDataType], [data]),
       decodeHookData: (data) => (0, import_viem42.decodeAbiParameters)([erc721HookDataType], data)[0],
       approve: async (token) => await writeContract(viemClient, {
@@ -73211,6 +73239,7 @@ var makeHookBasedClient = (viemClient, addresses) => ({
     },
     erc1155: {
       address: addresses.erc1155EscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.erc1155EscrowHook, abi49.abi),
       encodeHookData: (data) => (0, import_viem42.encodeAbiParameters)([erc1155HookDataType], [data]),
       decodeHookData: (data) => (0, import_viem42.decodeAbiParameters)([erc1155HookDataType], data)[0],
       setApprovalForAll: async (token, approved = true) => await writeContract(viemClient, {
@@ -73228,6 +73257,7 @@ var makeHookBasedClient = (viemClient, addresses) => ({
     },
     nativeToken: {
       address: addresses.nativeTokenEscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.nativeTokenEscrowHook, abi50.abi),
       encodeHookData: (data) => (0, import_viem42.encodeAbiParameters)([nativeTokenHookDataType], [data]),
       decodeHookData: (data) => (0, import_viem42.decodeAbiParameters)([nativeTokenHookDataType], data)[0],
       deposit: async (caller) => await readContract(viemClient, {
@@ -73239,11 +73269,17 @@ var makeHookBasedClient = (viemClient, addresses) => ({
     },
     attestation: {
       address: addresses.attestationEscrowHook,
+      ...makeEscrowApprovalClient(viemClient, addresses.attestationEscrowHook, abi45.abi),
       encodeHookData: (data) => (0, import_viem42.encodeAbiParameters)([attestationHookDataType], [data]),
       decodeHookData: (data) => (0, import_viem42.decodeAbiParameters)([attestationHookDataType], data)[0]
     },
     attestationReference: {
       address: addresses.attestationReferenceEscrowHook,
+      ...makeEscrowApprovalClient(
+        viemClient,
+        addresses.attestationReferenceEscrowHook,
+        abi46.abi
+      ),
       encodeHookData: (data) => (0, import_viem42.encodeAbiParameters)([attestationReferenceHookDataType], [data]),
       decodeHookData: (data) => (0, import_viem42.decodeAbiParameters)([attestationReferenceHookDataType], data)[0]
     }

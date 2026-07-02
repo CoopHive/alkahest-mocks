@@ -57,7 +57,11 @@ use crate::{
             erc1155::{PyERC1155EscrowObligationData, PyERC1155PaymentObligationData},
             erc20::{PyERC20EscrowObligationData, PyERC20PaymentObligationData},
             erc721::{PyERC721EscrowObligationData, PyERC721PaymentObligationData},
-            hook_based::{PyHookEscrowObligationData, PyHooksEscrowObligationData},
+            hook_based::{
+                PyAmountHookData, PyAttestationHookData, PyAttestationReferenceHookData,
+                PyErc1155HookData, PyHookEscrowObligationData, PyHooksEscrowObligationData,
+                PyNativeTokenHookData, PyTokenIdHookData,
+            },
             native_token::{PyNativeTokenEscrowObligationData, PyNativeTokenPaymentObligationData},
             string::PyStringObligationData,
             token_bundle::{PyTokenBundleEscrowObligationData, PyTokenBundlePaymentObligationData},
@@ -656,6 +660,12 @@ fn alkahest_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<HookBasedClient>()?;
     m.add_class::<PyHookEscrowObligationData>()?;
     m.add_class::<PyHooksEscrowObligationData>()?;
+    m.add_class::<PyAmountHookData>()?;
+    m.add_class::<PyTokenIdHookData>()?;
+    m.add_class::<PyErc1155HookData>()?;
+    m.add_class::<PyNativeTokenHookData>()?;
+    m.add_class::<PyAttestationHookData>()?;
+    m.add_class::<PyAttestationReferenceHookData>()?;
     m.add_class::<SplittersClient>()?;
     m.add_class::<PySplitterDemandData>()?;
     m.add_class::<PyAmountSplit>()?;
