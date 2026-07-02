@@ -49,6 +49,9 @@ async def test_alkahest_client_init_default(env):
     assert hasattr(erc1155_client, 'util'), "ERC1155 client should have util submodule"
     assert hasattr(erc1155_client.util, 'approve_all'), "ERC1155 util should have approve_all method"
     assert hasattr(arbiters_client, 'check'), "Arbiters client should have check method"
+    assert hasattr(arbiters_client.trusted_oracle, 'commitment_arbitrate_for_demand'), (
+        "Trusted oracle client should have commitment arbitration methods"
+    )
     assert hasattr(splitters_client, 'arbitrate_amount'), "Splitters client should arbitrate amount splits"
     assert hasattr(splitters_client, 'arbitrate_bundle'), "Splitters client should arbitrate bundle splits"
     assert hasattr(splitters_client, 'collect_and_distribute'), "Splitters client should collect and distribute"

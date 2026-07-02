@@ -26,8 +26,9 @@ use crate::{
 
 // Re-export main types for backwards compatibility
 pub use trusted_oracle::{
-    OracleClient, PyArbitrationMode, PyAttestationWithDemand, PyDecision, PyOracleAddresses,
-    PyOracleAttestation, PyTrustedOracleArbiterDemandData, TrustedOracle,
+    OracleClient, PyArbitrationMode, PyAttestationWithDemand, PyCommitmentArbitrationMadeLog,
+    PyCommitmentArbitrationRequestedLog, PyCommitmentTrustedOracleArbiterDemandData, PyDecision,
+    PyOracleAddresses, PyOracleAttestation, PyTrustedOracleArbiterDemandData, TrustedOracle,
 };
 
 // Re-export confirmation types

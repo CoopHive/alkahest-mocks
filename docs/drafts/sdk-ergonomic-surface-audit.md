@@ -82,6 +82,8 @@ TypeScript exposes a distinct `CommitmentTrustedOracleArbiter` ergonomic client 
 
 Rust and Python expose trusted-oracle address selection for fulfillment vs commitment variants, but their ergonomic trusted-oracle methods still target the fulfillment-based `TrustedOracleArbiter` workflow.
 
+Status: addressed. Rust and Python now expose commitment trusted-oracle helpers for demand encoding/decoding, attestation intent hashes, decision keys, arbitration requests, arbitration writes, and request/decision log reads. The legacy `oracle` module and the `arbiters.trusted_oracle` accessor both carry the commitment arbiter address.
+
 Affected contract:
 
 - `CommitmentTrustedOracleArbiter`

@@ -1,9 +1,14 @@
 use alkahest_rs::{
-    clients::arbiters::TrustedOracleDecisionTarget, contracts::arbiters::TrustedOracleArbiter,
-    contracts::obligations::StringObligation, extensions::ArbitersModule,
+    clients::arbiters::{
+        commitment_attestation_intent_hash, commitment_decision_key_for,
+        TrustedOracleDecisionTarget,
+    },
+    contracts::arbiters::{CommitmentTrustedOracleArbiter, TrustedOracleArbiter},
+    contracts::obligations::StringObligation,
+    extensions::ArbitersModule,
     extensions::OracleModule as InnerOracleClient,
 };
-use alloy::primitives::FixedBytes;
+use alloy::primitives::{Address, Bytes, FixedBytes};
 use alloy::sol_types::SolValue;
 use pyo3::{pyclass, pymethods, types::PyAnyMethods, PyAny, PyObject, PyResult, Python};
 use pyo3_async_runtimes::tokio::{future_into_py, into_future};
@@ -37,6 +42,33 @@ impl OracleClient {
         format!("{:?}", self.inner.addresses.trusted_oracle_arbiter)
     }
 
+    pub fn get_commitment_trusted_oracle_arbiter_address(&self) -> String {
+        format!(
+            "{:?}",
+            self.inner.addresses.commitment_trusted_oracle_arbiter
+        )
+    }
+
+    pub fn commitment_attestation_intent_hash(
+        &self,
+        attestation: PyOracleAttestation,
+    ) -> PyResult<String> {
+        let attestation = py_oracle_attestation_to_rust(attestation)?;
+        Ok(commitment_attestation_intent_hash(&attestation).to_string())
+    }
+
+    pub fn commitment_decision_key_for(
+        &self,
+        intent_hash: String,
+        demand: Vec<u8>,
+    ) -> PyResult<String> {
+        Ok(commitment_decision_key_for(
+            intent_hash.parse().map_err(map_parse_to_pyerr)?,
+            demand.into(),
+        )
+        .to_string())
+    }
+
     pub fn request_arbitration<'py>(
         &self,
         py: Python<'py>,
@@ -59,6 +91,28 @@ impl OracleClient {
                 "0x{}",
                 alloy::hex::encode(receipt.transaction_hash.as_slice())
             ))
+        })
+    }
+
+    pub fn commitment_request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .commitment_request_arbitration(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(receipt.transaction_hash.to_string())
         })
     }
 
@@ -164,6 +218,97 @@ impl OracleClient {
                 .await
                 .map_err(map_eyre_to_pyerr)?;
             Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn commitment_arbitrate_for_demand<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        demand: Vec<u8>,
+        decision: bool,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .commitment_arbitrate_for_demand(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                    decision,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn commitment_arbitrate_raw<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        decision_context: Vec<u8>,
+        decision: bool,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .commitment_arbitrate_raw(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    decision_context.into(),
+                    decision,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    #[pyo3(signature = (from_block=None, to_block=None))]
+    pub fn commitment_arbitration_requests<'py>(
+        &self,
+        py: Python<'py>,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let logs = inner
+                .commitment_arbitration_requests(from_block, to_block)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(logs
+                .into_iter()
+                .map(|log| PyCommitmentArbitrationRequestedLog {
+                    intent_hash: log.inner.data.intentHash.to_string(),
+                    oracle: format!("{:?}", log.inner.data.oracle),
+                    demand: log.inner.data.demand.to_vec(),
+                })
+                .collect::<Vec<_>>())
+        })
+    }
+
+    #[pyo3(signature = (from_block=None, to_block=None))]
+    pub fn commitment_arbitration_decisions<'py>(
+        &self,
+        py: Python<'py>,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let logs = inner
+                .commitment_arbitration_decisions(from_block, to_block)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(logs
+                .into_iter()
+                .map(|log| PyCommitmentArbitrationMadeLog {
+                    decision_key: log.inner.data.decisionKey.to_string(),
+                    intent_hash: log.inner.data.intentHash.to_string(),
+                    oracle: format!("{:?}", log.inner.data.oracle),
+                    decision: log.inner.data.decision,
+                })
+                .collect::<Vec<_>>())
         })
     }
 
@@ -592,22 +737,29 @@ pub struct PyOracleAddresses {
     pub eas: String,
     #[pyo3(get)]
     pub trusted_oracle_arbiter: String,
+    #[pyo3(get)]
+    pub commitment_trusted_oracle_arbiter: String,
 }
 
 #[pymethods]
 impl PyOracleAddresses {
     #[new]
-    pub fn __new__(eas: String, trusted_oracle_arbiter: String) -> Self {
+    pub fn __new__(
+        eas: String,
+        trusted_oracle_arbiter: String,
+        commitment_trusted_oracle_arbiter: String,
+    ) -> Self {
         Self {
             eas,
             trusted_oracle_arbiter,
+            commitment_trusted_oracle_arbiter,
         }
     }
 
     pub fn __str__(&self) -> String {
         format!(
-            "PyOracleAddresses(eas={}, trusted_oracle_arbiter={})",
-            self.eas, self.trusted_oracle_arbiter
+            "PyOracleAddresses(eas={}, trusted_oracle_arbiter={}, commitment_trusted_oracle_arbiter={})",
+            self.eas, self.trusted_oracle_arbiter, self.commitment_trusted_oracle_arbiter
         )
     }
 
@@ -623,6 +775,7 @@ impl TryFrom<PyOracleAddresses> for alkahest_rs::clients::oracle::OracleAddresse
         Ok(Self {
             eas: value.eas.parse()?,
             trusted_oracle_arbiter: value.trusted_oracle_arbiter.parse()?,
+            commitment_trusted_oracle_arbiter: value.commitment_trusted_oracle_arbiter.parse()?,
         })
     }
 }
@@ -800,6 +953,36 @@ impl From<alkahest_rs::contracts::IEAS::Attestation> for PyOracleAttestation {
     }
 }
 
+fn decode_hex_bytes(value: &str, field: &str) -> PyResult<Vec<u8>> {
+    alloy::hex::decode(value.strip_prefix("0x").unwrap_or(value))
+        .map_err(|e| map_eyre_to_pyerr(eyre::eyre!("Failed to decode {}: {}", field, e)))
+}
+
+fn fixed_bytes32_from_hex(value: &str, field: &str) -> PyResult<FixedBytes<32>> {
+    let bytes = decode_hex_bytes(value, field)?;
+    bytes
+        .as_slice()
+        .try_into()
+        .map_err(|_| map_eyre_to_pyerr(eyre::eyre!("Invalid {} length", field)))
+}
+
+fn py_oracle_attestation_to_rust(
+    attestation: PyOracleAttestation,
+) -> PyResult<alkahest_rs::contracts::IEAS::Attestation> {
+    Ok(alkahest_rs::contracts::IEAS::Attestation {
+        uid: fixed_bytes32_from_hex(&attestation.uid, "uid")?,
+        schema: fixed_bytes32_from_hex(&attestation.schema, "schema")?,
+        refUID: fixed_bytes32_from_hex(&attestation.ref_uid, "ref_uid")?,
+        time: attestation.time,
+        expirationTime: attestation.expiration_time,
+        revocationTime: attestation.revocation_time,
+        recipient: attestation.recipient.parse().map_err(map_parse_to_pyerr)?,
+        attester: attestation.attester.parse().map_err(map_parse_to_pyerr)?,
+        revocable: attestation.revocable,
+        data: decode_hex_bytes(&attestation.data, "data")?.into(),
+    })
+}
+
 /// An attestation paired with its demand data from the ArbitrationRequested event
 #[pyclass]
 #[derive(Clone)]
@@ -839,6 +1022,52 @@ impl From<&alkahest_rs::clients::oracle::AttestationWithDemand> for PyAttestatio
             attestation: PyOracleAttestation::from(&awd.attestation),
             demand: awd.demand.to_vec(),
         }
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyCommitmentArbitrationRequestedLog {
+    #[pyo3(get)]
+    pub intent_hash: String,
+    #[pyo3(get)]
+    pub oracle: String,
+    #[pyo3(get)]
+    pub demand: Vec<u8>,
+}
+
+#[pymethods]
+impl PyCommitmentArbitrationRequestedLog {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "PyCommitmentArbitrationRequestedLog(intent_hash='{}', oracle='{}', demand={} bytes)",
+            self.intent_hash,
+            self.oracle,
+            self.demand.len()
+        )
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyCommitmentArbitrationMadeLog {
+    #[pyo3(get)]
+    pub decision_key: String,
+    #[pyo3(get)]
+    pub intent_hash: String,
+    #[pyo3(get)]
+    pub oracle: String,
+    #[pyo3(get)]
+    pub decision: bool,
+}
+
+#[pymethods]
+impl PyCommitmentArbitrationMadeLog {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "PyCommitmentArbitrationMadeLog(decision_key='{}', intent_hash='{}', oracle='{}', decision={})",
+            self.decision_key, self.intent_hash, self.oracle, self.decision
+        )
     }
 }
 
@@ -953,6 +1182,60 @@ impl TryFrom<PyTrustedOracleArbiterDemandData> for TrustedOracleArbiter::DemandD
     }
 }
 
+#[pyclass]
+#[derive(Clone)]
+pub struct PyCommitmentTrustedOracleArbiterDemandData {
+    #[pyo3(get)]
+    pub oracle: String,
+    #[pyo3(get)]
+    pub data: Vec<u8>,
+}
+
+#[pymethods]
+impl PyCommitmentTrustedOracleArbiterDemandData {
+    #[new]
+    pub fn new(oracle: String, data: Vec<u8>) -> Self {
+        Self { oracle, data }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "PyCommitmentTrustedOracleArbiterDemandData(oracle='{}', data={} bytes)",
+            self.oracle,
+            self.data.len()
+        )
+    }
+
+    #[staticmethod]
+    pub fn decode(demand_bytes: Vec<u8>) -> eyre::Result<Self> {
+        let bytes = Bytes::from(demand_bytes);
+        let decoded = CommitmentTrustedOracleArbiter::DemandData::abi_decode(&bytes)?;
+        Ok(decoded.into())
+    }
+
+    #[staticmethod]
+    pub fn encode(demand_data: &Self) -> eyre::Result<Vec<u8>> {
+        let oracle: Address = demand_data.oracle.parse()?;
+        let data = Bytes::from(demand_data.data.clone());
+        Ok(CommitmentTrustedOracleArbiter::DemandData { oracle, data }.abi_encode())
+    }
+
+    pub fn encode_self(&self) -> eyre::Result<Vec<u8>> {
+        Self::encode(self)
+    }
+}
+
+impl From<CommitmentTrustedOracleArbiter::DemandData>
+    for PyCommitmentTrustedOracleArbiterDemandData
+{
+    fn from(data: CommitmentTrustedOracleArbiter::DemandData) -> Self {
+        Self {
+            oracle: format!("{:?}", data.oracle),
+            data: data.data.to_vec(),
+        }
+    }
+}
+
 /// TrustedOracleArbiter-specific API (accessed via arbiters.trusted_oracle)
 ///
 /// This provides access to trusted oracle arbitration methods through the ArbitersModule.
@@ -973,6 +1256,34 @@ impl TrustedOracle {
     /// Get the TrustedOracleArbiter contract address
     pub fn address(&self) -> String {
         format!("{:?}", self.inner.addresses.trusted_oracle_arbiter)
+    }
+
+    /// Get the CommitmentTrustedOracleArbiter contract address.
+    pub fn commitment_address(&self) -> String {
+        format!(
+            "{:?}",
+            self.inner.addresses.commitment_trusted_oracle_arbiter
+        )
+    }
+
+    pub fn commitment_attestation_intent_hash(
+        &self,
+        attestation: PyOracleAttestation,
+    ) -> PyResult<String> {
+        let attestation = py_oracle_attestation_to_rust(attestation)?;
+        Ok(commitment_attestation_intent_hash(&attestation).to_string())
+    }
+
+    pub fn commitment_decision_key_for(
+        &self,
+        intent_hash: String,
+        demand: Vec<u8>,
+    ) -> PyResult<String> {
+        Ok(commitment_decision_key_for(
+            intent_hash.parse().map_err(map_parse_to_pyerr)?,
+            demand.into(),
+        )
+        .to_string())
     }
 
     /// Get a trusted-oracle arbiter address by decision target.
@@ -1041,6 +1352,123 @@ impl TrustedOracle {
         })
     }
 
+    pub fn commitment_request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .trusted_oracle()
+                .commitment_request_arbitration(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn commitment_arbitrate_for_demand<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        demand: Vec<u8>,
+        decision: bool,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .trusted_oracle()
+                .commitment_arbitrate_for_demand(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                    decision,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn commitment_arbitrate_raw<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        decision_context: Vec<u8>,
+        decision: bool,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .trusted_oracle()
+                .commitment_arbitrate_raw(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    decision_context.into(),
+                    decision,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    #[pyo3(signature = (from_block=None, to_block=None))]
+    pub fn commitment_arbitration_requests<'py>(
+        &self,
+        py: Python<'py>,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let logs = inner
+                .trusted_oracle()
+                .commitment_arbitration_requests(from_block, to_block)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(logs
+                .into_iter()
+                .map(|log| PyCommitmentArbitrationRequestedLog {
+                    intent_hash: log.inner.data.intentHash.to_string(),
+                    oracle: format!("{:?}", log.inner.data.oracle),
+                    demand: log.inner.data.demand.to_vec(),
+                })
+                .collect::<Vec<_>>())
+        })
+    }
+
+    #[pyo3(signature = (from_block=None, to_block=None))]
+    pub fn commitment_arbitration_decisions<'py>(
+        &self,
+        py: Python<'py>,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let logs = inner
+                .trusted_oracle()
+                .commitment_arbitration_decisions(from_block, to_block)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(logs
+                .into_iter()
+                .map(|log| PyCommitmentArbitrationMadeLog {
+                    decision_key: log.inner.data.decisionKey.to_string(),
+                    intent_hash: log.inner.data.intentHash.to_string(),
+                    oracle: format!("{:?}", log.inner.data.oracle),
+                    decision: log.inner.data.decision,
+                })
+                .collect::<Vec<_>>())
+        })
+    }
+
     /// Wait for a trusted oracle arbitration event
     ///
     /// # Arguments
@@ -1099,5 +1527,34 @@ impl TrustedOracle {
         };
 
         Ok(demand_data.abi_encode())
+    }
+
+    /// Decode CommitmentTrustedOracleArbiter demand data from raw bytes.
+    pub fn decode_commitment(
+        &self,
+        demand_bytes: Vec<u8>,
+    ) -> PyResult<PyCommitmentTrustedOracleArbiterDemandData> {
+        let demand: CommitmentTrustedOracleArbiter::DemandData =
+            CommitmentTrustedOracleArbiter::DemandData::abi_decode(&demand_bytes).map_err(|e| {
+                map_eyre_to_pyerr(eyre::eyre!(
+                    "Failed to decode CommitmentTrustedOracleArbiter demand: {}",
+                    e
+                ))
+            })?;
+        Ok(PyCommitmentTrustedOracleArbiterDemandData::from(demand))
+    }
+
+    /// Encode CommitmentTrustedOracleArbiter demand data to raw bytes.
+    #[staticmethod]
+    pub fn encode_commitment(oracle: String, data: Vec<u8>) -> PyResult<Vec<u8>> {
+        let oracle_address: Address = oracle.parse().map_err(|e| {
+            pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Invalid address: {}", e))
+        })?;
+
+        Ok(CommitmentTrustedOracleArbiter::DemandData {
+            oracle: oracle_address,
+            data: data.into(),
+        }
+        .abi_encode())
     }
 }

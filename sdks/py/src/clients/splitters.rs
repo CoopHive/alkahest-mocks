@@ -311,7 +311,10 @@ impl SplittersClient {
                 )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
-            Ok(splits.into_iter().map(PyAmountSplit::from).collect::<Vec<_>>())
+            Ok(splits
+                .into_iter()
+                .map(PyAmountSplit::from)
+                .collect::<Vec<_>>())
         })
     }
 
@@ -334,7 +337,10 @@ impl SplittersClient {
                 )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
-            Ok(splits.into_iter().map(PyBundleSplit::from).collect::<Vec<_>>())
+            Ok(splits
+                .into_iter()
+                .map(PyBundleSplit::from)
+                .collect::<Vec<_>>())
         })
     }
 

@@ -175,6 +175,10 @@ impl AlkahestExtension for BaseExtensions {
                 .arbiters_addresses
                 .trusted_oracle_arbiter
                 .clone(),
+            commitment_trusted_oracle_arbiter: full_config
+                .arbiters_addresses
+                .commitment_trusted_oracle_arbiter
+                .clone(),
         });
 
         // Initialize each module with its specific configuration

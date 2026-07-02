@@ -45,8 +45,9 @@ use crate::{
     clients::splitters::{PyAmountSplit, PyBundleSplit, PySplitterDemandData},
     clients::{
         arbiters::trusted_oracle::{
-            PyArbitrationMode, PyAttestationWithDemand, PyDecision, PyOracleAddresses,
-            PyOracleAttestation, PyTrustedOracleArbiterDemandData,
+            PyArbitrationMode, PyAttestationWithDemand, PyCommitmentArbitrationMadeLog,
+            PyCommitmentArbitrationRequestedLog, PyCommitmentTrustedOracleArbiterDemandData,
+            PyDecision, PyOracleAddresses, PyOracleAttestation, PyTrustedOracleArbiterDemandData,
         },
         obligations::{
             attestation::{
@@ -634,6 +635,9 @@ fn alkahest_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyDecision>()?;
     m.add_class::<PyArbitrationMode>()?;
     m.add_class::<PyTrustedOracleArbiterDemandData>()?;
+    m.add_class::<PyCommitmentTrustedOracleArbiterDemandData>()?;
+    m.add_class::<PyCommitmentArbitrationRequestedLog>()?;
+    m.add_class::<PyCommitmentArbitrationMadeLog>()?;
     m.add_class::<EnvTestManager>()?;
     m.add_class::<PyWalletProvider>()?;
     m.add_class::<PyMockERC20>()?;

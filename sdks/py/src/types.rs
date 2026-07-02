@@ -25,6 +25,7 @@ client_address_config!(NativeTokenAddresses);
 pub struct OracleAddresses {
     pub eas: String,
     pub trusted_oracle_arbiter: String,
+    pub commitment_trusted_oracle_arbiter: String,
 }
 
 #[derive(FromPyObject)]
@@ -311,6 +312,7 @@ impl TryFrom<OracleAddresses> for alkahest_rs::clients::oracle::OracleAddresses 
         Ok(Self {
             eas: parse_address!(eas),
             trusted_oracle_arbiter: parse_address!(trusted_oracle_arbiter),
+            commitment_trusted_oracle_arbiter: parse_address!(commitment_trusted_oracle_arbiter),
         })
     }
 }

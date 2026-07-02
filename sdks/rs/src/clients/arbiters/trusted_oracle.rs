@@ -21,7 +21,7 @@ use crate::{
     addresses::BASE_SEPOLIA_ADDRESSES,
     contracts::{
         IEAS::{self, Attestation},
-        arbiters::TrustedOracleArbiter,
+        arbiters::{CommitmentTrustedOracleArbiter, TrustedOracleArbiter},
     },
     extensions::AlkahestExtension,
     types::{SharedPublicProvider, SharedWalletProvider},
@@ -74,6 +74,7 @@ impl SubscriptionHandle {
 pub struct TrustedOracleAddresses {
     pub eas: Address,
     pub trusted_oracle_arbiter: Address,
+    pub commitment_trusted_oracle_arbiter: Address,
 }
 
 #[derive(Clone)]
@@ -96,6 +97,9 @@ impl Default for TrustedOracleAddresses {
             trusted_oracle_arbiter: BASE_SEPOLIA_ADDRESSES
                 .arbiters_addresses
                 .trusted_oracle_arbiter,
+            commitment_trusted_oracle_arbiter: BASE_SEPOLIA_ADDRESSES
+                .arbiters_addresses
+                .commitment_trusted_oracle_arbiter,
         }
     }
 }
@@ -171,6 +175,68 @@ fn decision_context_from_encoded_demand(
         );
     }
     Ok(decoded.data)
+}
+
+fn commitment_decision_context_from_encoded_demand(
+    demand: &Bytes,
+    expected_oracle: Address,
+) -> eyre::Result<Bytes> {
+    let decoded =
+        <CommitmentTrustedOracleArbiter::DemandData as SolType>::abi_decode(demand.as_ref())?;
+    if decoded.oracle != expected_oracle {
+        eyre::bail!(
+            "CommitmentTrustedOracle demand is for oracle {}, not this client {}",
+            decoded.oracle,
+            expected_oracle
+        );
+    }
+    Ok(decoded.data)
+}
+
+/// Hashes the attestation fields that `CommitmentTrustedOracleArbiter` approves before a UID exists.
+pub fn commitment_attestation_intent_hash(attestation: &Attestation) -> FixedBytes<32> {
+    commitment_attestation_intent_hash_raw(
+        attestation.schema,
+        attestation.attester,
+        attestation.recipient,
+        attestation.expirationTime,
+        attestation.revocable,
+        attestation.refUID,
+        alloy::primitives::keccak256(&attestation.data),
+    )
+}
+
+/// Hashes a commitment-oracle attestation intent from a precomputed data hash.
+pub fn commitment_attestation_intent_hash_raw(
+    schema: FixedBytes<32>,
+    attester: Address,
+    recipient: Address,
+    expiration_time: u64,
+    revocable: bool,
+    ref_uid: FixedBytes<32>,
+    data_hash: FixedBytes<32>,
+) -> FixedBytes<32> {
+    use alloy::sol_types::SolValue as _;
+
+    alloy::primitives::keccak256(
+        (
+            schema,
+            attester,
+            recipient,
+            expiration_time,
+            revocable,
+            ref_uid,
+            data_hash,
+        )
+            .abi_encode(),
+    )
+}
+
+/// Returns the commitment-oracle decision key for an intent hash and inner decision context.
+pub fn commitment_decision_key_for(intent_hash: FixedBytes<32>, demand: Bytes) -> FixedBytes<32> {
+    use alloy::sol_types::SolValue as _;
+
+    alloy::primitives::keccak256((intent_hash, demand).abi_encode())
 }
 
 impl TrustedOracleModule {
@@ -366,6 +432,26 @@ impl TrustedOracleModule {
         Ok(receipt)
     }
 
+    /// Request oracle review for a future attestation intent.
+    pub async fn commitment_request_arbitration(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        let arbiter = CommitmentTrustedOracleArbiter::new(
+            self.addresses.commitment_trusted_oracle_arbiter,
+            &*self.wallet_provider,
+        );
+
+        Ok(arbiter
+            .requestArbitration(intent_hash, oracle, demand)
+            .send()
+            .await?
+            .get_receipt()
+            .await?)
+    }
+
     /// Arbitrate as a trusted oracle using encoded `TrustedOracleArbiter.DemandData`.
     ///
     /// # Arguments
@@ -408,6 +494,93 @@ impl TrustedOracleModule {
             .await?;
 
         Ok(receipt)
+    }
+
+    /// Arbitrate a future attestation intent using encoded `CommitmentTrustedOracleArbiter.DemandData`.
+    pub async fn commitment_arbitrate_for_demand(
+        &self,
+        intent_hash: FixedBytes<32>,
+        demand: Bytes,
+        decision: bool,
+    ) -> eyre::Result<TransactionReceipt> {
+        let decision_context =
+            commitment_decision_context_from_encoded_demand(&demand, self.signer_address)?;
+        self.commitment_arbitrate_raw(intent_hash, decision_context, decision)
+            .await
+    }
+
+    /// Arbitrate a future attestation intent using the raw inner decision context.
+    pub async fn commitment_arbitrate_raw(
+        &self,
+        intent_hash: FixedBytes<32>,
+        decision_context: Bytes,
+        decision: bool,
+    ) -> eyre::Result<TransactionReceipt> {
+        let arbiter = CommitmentTrustedOracleArbiter::new(
+            self.addresses.commitment_trusted_oracle_arbiter,
+            &*self.wallet_provider,
+        );
+
+        Ok(arbiter
+            .arbitrate(intent_hash, decision_context, decision)
+            .send()
+            .await?
+            .get_receipt()
+            .await?)
+    }
+
+    /// Read commitment arbitration request logs for this oracle.
+    pub async fn commitment_arbitration_requests(
+        &self,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> eyre::Result<Vec<Log<CommitmentTrustedOracleArbiter::ArbitrationRequested>>> {
+        let mut filter = Filter::new()
+            .address(self.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationRequested::SIGNATURE_HASH)
+            .topic2(self.signer_address)
+            .from_block(from_block.unwrap_or(0));
+
+        if let Some(to_block) = to_block {
+            filter = filter.to_block(to_block);
+        }
+
+        self.public_provider
+            .get_logs(&filter)
+            .await?
+            .into_iter()
+            .map(|log| {
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()
+                    .map_err(Into::into)
+            })
+            .collect()
+    }
+
+    /// Read commitment arbitration decision logs for this oracle.
+    pub async fn commitment_arbitration_decisions(
+        &self,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> eyre::Result<Vec<Log<CommitmentTrustedOracleArbiter::ArbitrationMade>>> {
+        let mut filter = Filter::new()
+            .address(self.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic3(self.signer_address)
+            .from_block(from_block.unwrap_or(0));
+
+        if let Some(to_block) = to_block {
+            filter = filter.to_block(to_block);
+        }
+
+        self.public_provider
+            .get_logs(&filter)
+            .await?
+            .into_iter()
+            .map(|log| {
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationMade>()
+                    .map_err(Into::into)
+            })
+            .collect()
     }
 
     fn make_arbitration_requested_filter(&self) -> Filter {
@@ -1276,6 +1449,45 @@ impl<'a> TrustedOracle<'a> {
         self.module.addresses.trusted_oracle_arbiter
     }
 
+    /// Get the CommitmentTrustedOracleArbiter contract address.
+    pub fn commitment_address(&self) -> Address {
+        self.module.addresses.commitment_trusted_oracle_arbiter
+    }
+
+    /// Hashes the attestation fields that commitment oracle decisions approve before a UID exists.
+    pub fn commitment_attestation_intent_hash(attestation: &Attestation) -> FixedBytes<32> {
+        commitment_attestation_intent_hash(attestation)
+    }
+
+    /// Hashes a commitment-oracle attestation intent from a precomputed data hash.
+    pub fn commitment_attestation_intent_hash_raw(
+        schema: FixedBytes<32>,
+        attester: Address,
+        recipient: Address,
+        expiration_time: u64,
+        revocable: bool,
+        ref_uid: FixedBytes<32>,
+        data_hash: FixedBytes<32>,
+    ) -> FixedBytes<32> {
+        commitment_attestation_intent_hash_raw(
+            schema,
+            attester,
+            recipient,
+            expiration_time,
+            revocable,
+            ref_uid,
+            data_hash,
+        )
+    }
+
+    /// Returns the commitment-oracle decision key for an intent hash and inner decision context.
+    pub fn commitment_decision_key_for(
+        intent_hash: FixedBytes<32>,
+        demand: Bytes,
+    ) -> FixedBytes<32> {
+        commitment_decision_key_for(intent_hash, demand)
+    }
+
     /// Arbitrate as a trusted oracle using encoded `TrustedOracleArbiter.DemandData`.
     ///
     /// # Arguments
@@ -1321,6 +1533,115 @@ impl<'a> TrustedOracle<'a> {
         Ok(receipt)
     }
 
+    /// Request oracle review for a future attestation intent.
+    pub async fn commitment_request_arbitration(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        let arbiter = CommitmentTrustedOracleArbiter::new(
+            self.module.addresses.commitment_trusted_oracle_arbiter,
+            &*self.module.wallet_provider,
+        );
+
+        Ok(arbiter
+            .requestArbitration(intent_hash, oracle, demand)
+            .send()
+            .await?
+            .get_receipt()
+            .await?)
+    }
+
+    /// Arbitrate a future attestation intent using encoded `CommitmentTrustedOracleArbiter.DemandData`.
+    pub async fn commitment_arbitrate_for_demand(
+        &self,
+        intent_hash: FixedBytes<32>,
+        demand: Bytes,
+        decision: bool,
+    ) -> eyre::Result<TransactionReceipt> {
+        let decision_context =
+            commitment_decision_context_from_encoded_demand(&demand, self.module.signer.address())?;
+        self.commitment_arbitrate_raw(intent_hash, decision_context, decision)
+            .await
+    }
+
+    /// Arbitrate a future attestation intent using the raw inner decision context.
+    pub async fn commitment_arbitrate_raw(
+        &self,
+        intent_hash: FixedBytes<32>,
+        decision_context: Bytes,
+        decision: bool,
+    ) -> eyre::Result<TransactionReceipt> {
+        let arbiter = CommitmentTrustedOracleArbiter::new(
+            self.module.addresses.commitment_trusted_oracle_arbiter,
+            &*self.module.wallet_provider,
+        );
+
+        Ok(arbiter
+            .arbitrate(intent_hash, decision_context, decision)
+            .send()
+            .await?
+            .get_receipt()
+            .await?)
+    }
+
+    /// Read commitment arbitration request logs for this oracle.
+    pub async fn commitment_arbitration_requests(
+        &self,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> eyre::Result<Vec<Log<CommitmentTrustedOracleArbiter::ArbitrationRequested>>> {
+        let mut filter = Filter::new()
+            .address(self.module.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationRequested::SIGNATURE_HASH)
+            .topic2(self.module.signer.address())
+            .from_block(from_block.unwrap_or(0));
+
+        if let Some(to_block) = to_block {
+            filter = filter.to_block(to_block);
+        }
+
+        self.module
+            .public_provider
+            .get_logs(&filter)
+            .await?
+            .into_iter()
+            .map(|log| {
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()
+                    .map_err(Into::into)
+            })
+            .collect()
+    }
+
+    /// Read commitment arbitration decision logs for this oracle.
+    pub async fn commitment_arbitration_decisions(
+        &self,
+        from_block: Option<u64>,
+        to_block: Option<u64>,
+    ) -> eyre::Result<Vec<Log<CommitmentTrustedOracleArbiter::ArbitrationMade>>> {
+        let mut filter = Filter::new()
+            .address(self.module.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic3(self.module.signer.address())
+            .from_block(from_block.unwrap_or(0));
+
+        if let Some(to_block) = to_block {
+            filter = filter.to_block(to_block);
+        }
+
+        self.module
+            .public_provider
+            .get_logs(&filter)
+            .await?
+            .into_iter()
+            .map(|log| {
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationMade>()
+                    .map_err(Into::into)
+            })
+            .collect()
+    }
+
     /// Wait for a trusted oracle arbitration event
     ///
     /// # Arguments
@@ -1350,5 +1671,63 @@ impl<'a> TrustedOracle<'a> {
         .await?;
         let decoded = log.log_decode::<TrustedOracleArbiter::ArbitrationMade>()?;
         Ok(decoded.inner.data)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use alloy::primitives::Address;
+    use alloy::sol_types::SolValue as _;
+
+    #[test]
+    fn commitment_oracle_hash_helpers_are_stable() {
+        let attestation = Attestation {
+            uid: FixedBytes::<32>::repeat_byte(0x01),
+            schema: FixedBytes::<32>::repeat_byte(0x02),
+            time: 10,
+            expirationTime: 20,
+            revocationTime: 0,
+            refUID: FixedBytes::<32>::repeat_byte(0x03),
+            recipient: Address::repeat_byte(0x04),
+            attester: Address::repeat_byte(0x05),
+            revocable: false,
+            data: Bytes::from_static(&[0x12, 0x34]),
+        };
+
+        let intent_hash = commitment_attestation_intent_hash(&attestation);
+        let raw_hash = commitment_attestation_intent_hash_raw(
+            attestation.schema,
+            attestation.attester,
+            attestation.recipient,
+            attestation.expirationTime,
+            attestation.revocable,
+            attestation.refUID,
+            alloy::primitives::keccak256(&attestation.data),
+        );
+        let decision_key = commitment_decision_key_for(intent_hash, Bytes::from_static(b"context"));
+
+        assert_eq!(intent_hash, raw_hash);
+        assert_ne!(intent_hash, FixedBytes::<32>::ZERO);
+        assert_ne!(decision_key, FixedBytes::<32>::ZERO);
+        assert_ne!(intent_hash, decision_key);
+    }
+
+    #[test]
+    fn commitment_demand_oracle_is_checked() {
+        let oracle = Address::repeat_byte(0x11);
+        let encoded = CommitmentTrustedOracleArbiter::DemandData {
+            oracle,
+            data: Bytes::from_static(b"context"),
+        }
+        .abi_encode()
+        .into();
+
+        let context = commitment_decision_context_from_encoded_demand(&encoded, oracle).unwrap();
+        assert_eq!(context, Bytes::from_static(b"context"));
+        assert!(
+            commitment_decision_context_from_encoded_demand(&encoded, Address::repeat_byte(0x12))
+                .is_err()
+        );
     }
 }
