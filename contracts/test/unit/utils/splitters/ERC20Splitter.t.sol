@@ -2,13 +2,13 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseSplitter} from "@src/utils/splitters/default/BaseSplitter.sol";
+import {BaseSplitter} from "@src/utils/splitters/BaseSplitter.sol";
 import {ERC20Splitter} from "@src/utils/splitters/default/ERC20Splitter.sol";
 import {SplitterVerification} from "@src/utils/splitters/SplitterVerification.sol";
 import {ERC20EscrowObligation} from "@src/obligations/escrow/default/ERC20EscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
-import {BaseObligation} from "@src/BaseObligation.sol";
-import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
+import {BaseObligation} from "@src/obligations/BaseObligation.sol";
+import {BaseEscrowObligation} from "@src/obligations/escrow/BaseEscrowObligation.sol";
 import {IEscrow} from "@src/IEscrow.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/obligations/escrow/BaseEscrowObligation.sol";
 import {CommitmentERC20Splitter} from "@src/utils/splitters/commitment/CommitmentERC20Splitter.sol";
 import {ERC20EscrowObligation} from "@src/obligations/escrow/default/ERC20EscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";

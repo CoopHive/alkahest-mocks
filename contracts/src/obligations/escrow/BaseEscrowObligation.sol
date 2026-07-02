@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import {BaseObligation} from "./BaseObligation.sol";
-import {IArbiter} from "./IArbiter.sol";
-import {IEscrow} from "./IEscrow.sol";
-import {ArbiterUtils} from "./libraries/ArbiterUtils.sol";
+import {BaseObligation} from "../BaseObligation.sol";
+import {IArbiter} from "../../IArbiter.sol";
+import {IEscrow} from "../../IEscrow.sol";
+import {ArbiterUtils} from "../../libraries/ArbiterUtils.sol";
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, RevocationRequest, RevocationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";

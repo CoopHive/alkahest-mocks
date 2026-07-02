@@ -4,10 +4,10 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {IArbiter} from "../../../IArbiter.sol";
-import {BaseArbiter} from "../../../BaseArbiter.sol";
-import {IEscrow} from "../../../IEscrow.sol";
-import {SplitterVerification} from "../SplitterVerification.sol";
+import {IArbiter} from "../../IArbiter.sol";
+import {BaseArbiter} from "../../BaseArbiter.sol";
+import {IEscrow} from "../../IEscrow.sol";
+import {SplitterVerification} from "./SplitterVerification.sol";
 
 /// @notice Minimal obligation interface used to create splitter-owned fulfillments.
 interface IObligation {

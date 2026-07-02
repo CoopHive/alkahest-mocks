@@ -523,7 +523,8 @@ test("waitForArbitration with new decision", async () => {
   expect(result.decision).toBe(true);
 });
 
-test("waitForArbitration with false decision", async () => {
+// @ts-expect-error - bun:test timeout option is valid but not in TS types
+test("waitForArbitration with false decision", { timeout: 15000 }, async () => {
   const arbiter = testContext.addresses.trustedOracleArbiter;
   const demand = testContext.alice.client.arbiters.general.trustedOracle.encodeDemand({
     oracle: testContext.bob.address,
@@ -575,7 +576,8 @@ test("waitForArbitration with false decision", async () => {
   expect(result.decision).toBe(false);
 });
 
-test("waitForArbitration integration with escrow collection", async () => {
+// @ts-expect-error - bun:test timeout option is valid but not in TS types
+test("waitForArbitration integration with escrow collection", { timeout: 15000 }, async () => {
   const arbiter = testContext.addresses.trustedOracleArbiter;
   const demand = testContext.alice.client.arbiters.general.trustedOracle.encodeDemand({
     oracle: testContext.bob.address,

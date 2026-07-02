@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import {
     AttestationReferenceEscrowObligation
 } from "@src/obligations/escrow/default/AttestationReferenceEscrowObligation.sol";
-import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/obligations/escrow/BaseEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {MockArbiter} from "../../fixtures/MockArbiter.sol";

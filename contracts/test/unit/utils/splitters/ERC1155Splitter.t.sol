@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseSplitter} from "@src/utils/splitters/default/BaseSplitter.sol";
+import {BaseSplitter} from "@src/utils/splitters/BaseSplitter.sol";
 import {ERC1155Splitter} from "@src/utils/splitters/default/ERC1155Splitter.sol";
 import {ERC1155EscrowObligation} from "@src/obligations/escrow/default/ERC1155EscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";

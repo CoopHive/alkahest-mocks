@@ -74,14 +74,14 @@ export * as CommitRevealObligation from "./obligations/CommitRevealObligation";
 // Utils
 export * as AtomicPaymentUtils from "./utils/AtomicPaymentUtils";
 export * as AtomicAttestationUtils from "./utils/AtomicAttestationUtils";
-export * as CommitmentBaseSplitter from "./utils/splitters/commitment/CommitmentBaseSplitter";
+export * as CommitmentBaseSplitter from "./utils/splitters/CommitmentBaseSplitter";
 export * as CommitmentERC20Splitter from "./utils/splitters/commitment/CommitmentERC20Splitter";
 export * as CommitmentERC1155Splitter from "./utils/splitters/commitment/CommitmentERC1155Splitter";
 export * as CommitmentNativeTokenSplitter from "./utils/splitters/commitment/CommitmentNativeTokenSplitter";
 export * as CommitmentTokenBundleSplitter from "./utils/splitters/commitment/CommitmentTokenBundleSplitter";
 export * as CommitmentTokenBundleSplitterBase from "./utils/splitters/commitment/CommitmentTokenBundleSplitterBase";
 export * as CommitmentTokenBundleSplitterUnvalidated from "./utils/splitters/commitment/CommitmentTokenBundleSplitterUnvalidated";
-export * as BaseSplitter from "./utils/splitters/default/BaseSplitter";
+export * as BaseSplitter from "./utils/splitters/BaseSplitter";
 export * as ERC20Splitter from "./utils/splitters/default/ERC20Splitter";
 export * as ERC1155Splitter from "./utils/splitters/default/ERC1155Splitter";
 export * as NativeTokenSplitter from "./utils/splitters/default/NativeTokenSplitter";

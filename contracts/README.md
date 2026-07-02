@@ -27,31 +27,33 @@ Alkahest has been audited by [Zellic](https://www.zellic.io/). The full audit re
 ### Base Contracts
 
 - [IArbiter](src/IArbiter.sol) - Interface for arbiter validation logic
-- [ArbiterUtils](src/ArbiterUtils.sol) - Shared utilities for arbiter implementations
-- [BaseObligation](src/BaseObligation.sol) - Base contract for all obligation types
-- [BaseEscrowObligation](src/BaseEscrowObligation.sol) - Base contract for non-tierable escrow obligations
-- [BaseEscrowObligationTierable](src/BaseEscrowObligationTierable.sol) - Base contract for tierable escrow obligations
+- [ArbiterUtils](src/libraries/ArbiterUtils.sol) - Shared utilities for arbiter implementations
+- [BaseObligation](src/obligations/BaseObligation.sol) - Base contract for all obligation types
+- [BaseEscrowObligation](src/obligations/escrow/BaseEscrowObligation.sol) - Base contract for default escrow obligations
+- [BaseEscrowObligationUnconditional](src/obligations/escrow/BaseEscrowObligationUnconditional.sol) - Base contract for unconditional escrow obligations
 - [BaseAttester](src/BaseAttester.sol) - Base contract for EAS attestation integration
 
 ### Obligations
 
 **Escrow Obligations** - Lock assets until arbiter conditions are met:
 
-Non-tierable (one escrow per fulfillment):
-- [ERC20EscrowObligation](src/obligations/escrow/non-tierable/ERC20EscrowObligation.sol)
-- [ERC721EscrowObligation](src/obligations/escrow/non-tierable/ERC721EscrowObligation.sol)
-- [ERC1155EscrowObligation](src/obligations/escrow/non-tierable/ERC1155EscrowObligation.sol)
-- [NativeTokenEscrowObligation](src/obligations/escrow/non-tierable/NativeTokenEscrowObligation.sol)
-- [TokenBundleEscrowObligation](src/obligations/escrow/non-tierable/TokenBundleEscrowObligation.sol)
-- [AttestationEscrowObligation](src/obligations/escrow/non-tierable/AttestationEscrowObligation.sol)
+Default (one escrow per fulfillment, with default fulfillment checks):
+- [ERC20EscrowObligation](src/obligations/escrow/default/ERC20EscrowObligation.sol)
+- [ERC721EscrowObligation](src/obligations/escrow/default/ERC721EscrowObligation.sol)
+- [ERC1155EscrowObligation](src/obligations/escrow/default/ERC1155EscrowObligation.sol)
+- [NativeTokenEscrowObligation](src/obligations/escrow/default/NativeTokenEscrowObligation.sol)
+- [TokenBundleEscrowObligation](src/obligations/escrow/default/TokenBundleEscrowObligation.sol)
+- [AttestationEscrowObligation](src/obligations/escrow/default/AttestationEscrowObligation.sol)
+- [AttestationReferenceEscrowObligation](src/obligations/escrow/default/AttestationReferenceEscrowObligation.sol)
 
-Tierable (a single fulfillment can claim multiple escrows whose conditions it satisfies):
-- [ERC20EscrowObligation](src/obligations/escrow/tierable/ERC20EscrowObligation.sol)
-- [ERC721EscrowObligation](src/obligations/escrow/tierable/ERC721EscrowObligation.sol)
-- [ERC1155EscrowObligation](src/obligations/escrow/tierable/ERC1155EscrowObligation.sol)
-- [NativeTokenEscrowObligation](src/obligations/escrow/tierable/NativeTokenEscrowObligation.sol)
-- [TokenBundleEscrowObligation](src/obligations/escrow/tierable/TokenBundleEscrowObligation.sol)
-- [AttestationEscrowObligation](src/obligations/escrow/tierable/AttestationEscrowObligation.sol)
+Unconditional (no default fulfillment checks):
+- [UnconditionalERC20EscrowObligation](src/obligations/escrow/unconditional/UnconditionalERC20EscrowObligation.sol)
+- [UnconditionalERC721EscrowObligation](src/obligations/escrow/unconditional/UnconditionalERC721EscrowObligation.sol)
+- [UnconditionalERC1155EscrowObligation](src/obligations/escrow/unconditional/UnconditionalERC1155EscrowObligation.sol)
+- [UnconditionalNativeTokenEscrowObligation](src/obligations/escrow/unconditional/UnconditionalNativeTokenEscrowObligation.sol)
+- [UnconditionalTokenBundleEscrowObligation](src/obligations/escrow/unconditional/UnconditionalTokenBundleEscrowObligation.sol)
+- [UnconditionalAttestationEscrowObligation](src/obligations/escrow/unconditional/UnconditionalAttestationEscrowObligation.sol)
+- [UnconditionalAttestationReferenceEscrowObligation](src/obligations/escrow/unconditional/UnconditionalAttestationReferenceEscrowObligation.sol)
 
 **Payment Obligations** - Transfer assets and produce attestations, used as fulfillments for escrows:
 - [ERC20PaymentObligation](src/obligations/payment/ERC20PaymentObligation.sol)

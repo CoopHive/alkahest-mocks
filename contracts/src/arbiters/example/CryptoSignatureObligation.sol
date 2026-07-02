@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
-import {BaseObligation} from "../../BaseObligation.sol";
+import {BaseObligation} from "../../obligations/BaseObligation.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {BaseArbiter} from "../../BaseArbiter.sol";
 import {ArbiterUtils} from "../../libraries/ArbiterUtils.sol";

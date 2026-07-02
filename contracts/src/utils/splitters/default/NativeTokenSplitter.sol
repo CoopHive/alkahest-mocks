@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {SplitterVerification} from "../SplitterVerification.sol";
-import {BaseSplitter} from "./BaseSplitter.sol";
+import {BaseSplitter} from "../BaseSplitter.sol";
 import {NativeTokenEscrowObligation} from "../../../obligations/escrow/default/NativeTokenEscrowObligation.sol";
 
 /// @title NativeTokenSplitter

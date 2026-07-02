@@ -10,7 +10,7 @@ import {ApprovedEscrowHook} from "@src/obligations/escrow/hook-based/hooks/Appro
 import {ERC721EscrowHook} from "@src/obligations/escrow/hook-based/hooks/ERC721EscrowHook.sol";
 import {ERC1155EscrowHook} from "@src/obligations/escrow/hook-based/hooks/ERC1155EscrowHook.sol";
 import {NativeTokenEscrowHook} from "@src/obligations/escrow/hook-based/hooks/NativeTokenEscrowHook.sol";
-import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/obligations/escrow/BaseEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {MockArbiter} from "../../../../unit/obligations/fixtures/MockArbiter.sol";

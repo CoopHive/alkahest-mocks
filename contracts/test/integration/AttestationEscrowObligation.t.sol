@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import {AttestationEscrowObligation} from "@src/obligations/escrow/default/AttestationEscrowObligation.sol";
-import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/obligations/escrow/BaseEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IArbiter} from "@src/IArbiter.sol";
 import {BaseArbiter} from "@src/BaseArbiter.sol";

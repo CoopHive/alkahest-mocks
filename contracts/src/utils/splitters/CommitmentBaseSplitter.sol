@@ -3,9 +3,9 @@ pragma solidity ^0.8.26;
 
 import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
-import {IEscrow} from "../../../IEscrow.sol";
-import {SplitterDemandData, BaseSplitter} from "../default/BaseSplitter.sol";
-import {SplitterVerification} from "../SplitterVerification.sol";
+import {IEscrow} from "../../IEscrow.sol";
+import {SplitterDemandData, BaseSplitter} from "./BaseSplitter.sol";
+import {SplitterVerification} from "./SplitterVerification.sol";
 
 /// @title CommitmentBaseSplitter
 /// @notice Base for splitter variants whose oracle decisions are made before the fulfillment UID exists.

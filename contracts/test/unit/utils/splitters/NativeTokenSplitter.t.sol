@@ -2,9 +2,9 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseSplitter} from "@src/utils/splitters/default/BaseSplitter.sol";
+import {BaseSplitter} from "@src/utils/splitters/BaseSplitter.sol";
 import {NativeTokenSplitter} from "@src/utils/splitters/default/NativeTokenSplitter.sol";
-import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
+import {BaseEscrowObligation} from "@src/obligations/escrow/BaseEscrowObligation.sol";
 import {NativeTokenEscrowObligation} from "@src/obligations/escrow/default/NativeTokenEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IEscrow} from "@src/IEscrow.sol";

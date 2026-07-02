@@ -6,7 +6,7 @@ import {IEAS} from "@eas/IEAS.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {SplitterVerification} from "../SplitterVerification.sol";
-import {BaseSplitter} from "./BaseSplitter.sol";
+import {BaseSplitter} from "../BaseSplitter.sol";
 import {ERC20EscrowObligation} from "../../../obligations/escrow/default/ERC20EscrowObligation.sol";
 
 /// @title ERC20Splitter

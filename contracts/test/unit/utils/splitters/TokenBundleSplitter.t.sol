@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseSplitter} from "@src/utils/splitters/default/BaseSplitter.sol";
+import {BaseSplitter} from "@src/utils/splitters/BaseSplitter.sol";
 import {TokenBundleSplitter} from "@src/utils/splitters/default/TokenBundleSplitter.sol";
 import {TokenBundleSplitterBase} from "@src/utils/splitters/default/TokenBundleSplitterBase.sol";
 import {TokenBundleEscrowObligation} from "@src/obligations/escrow/default/TokenBundleEscrowObligation.sol";

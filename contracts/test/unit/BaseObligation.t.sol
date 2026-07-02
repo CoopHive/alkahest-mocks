@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseObligation} from "@src/BaseObligation.sol";
+import {BaseObligation} from "@src/obligations/BaseObligation.sol";
 import {BaseAttester} from "@src/BaseAttester.sol";
 import {SchemaResolver} from "@eas/resolver/SchemaResolver.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";

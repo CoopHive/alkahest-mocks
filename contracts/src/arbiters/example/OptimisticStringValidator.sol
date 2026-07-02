@@ -12,7 +12,7 @@ import {
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {IArbiter} from "../../IArbiter.sol";
 import {BaseArbiter} from "../../BaseArbiter.sol";
-import {BaseObligation} from "../../BaseObligation.sol";
+import {BaseObligation} from "../../obligations/BaseObligation.sol";
 import {StringResultObligation} from "../../obligations/example/StringResultObligation.sol";
 import {ArbiterUtils} from "../../libraries/ArbiterUtils.sol";
 
