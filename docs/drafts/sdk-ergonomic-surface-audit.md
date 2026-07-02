@@ -52,6 +52,8 @@ TypeScript exposes operational splitter clients for default and commitment split
 
 Rust and Python currently expose splitter addresses, asset/target address selection, demand codecs, split codecs, and decision key helpers, but not the operational transaction/read methods above.
 
+Status: addressed. Rust and Python now expose operational splitter helpers matching the TypeScript surface, including amount and bundle arbitration, arbitration requests, fulfillment creation, collection/distribution, split reads, decision reads, and commitment intent hash helpers. The SDKs keep the variant selection explicit by accepting the packaged splitter contract key.
+
 Affected contracts:
 
 - `ERC20Splitter`

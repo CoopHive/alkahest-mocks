@@ -8,7 +8,7 @@
 //! tooling so far.
 
 use alkahest_rs::{
-    clients::splitters::{SplitterAsset, SplitterDecisionTarget},
+    clients::splitters::{SplitterAsset, SplitterContract, SplitterDecisionTarget},
     contracts,
     extensions::SplittersModule,
 };
@@ -16,9 +16,13 @@ use alloy::{
     primitives::{keccak256, Address, Bytes, FixedBytes, U256},
     sol_types::SolValue,
 };
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pyclass, pymethods, PyAny, PyResult, Python};
+use pyo3_async_runtimes::tokio::future_into_py;
 
-use crate::error_handling::{map_parse_to_pyerr, map_sol_decode_to_pyerr};
+use crate::{
+    contract::PyAttestation,
+    error_handling::{map_eyre_to_pyerr, map_parse_to_pyerr, map_sol_decode_to_pyerr},
+};
 
 type BundleSplit = contracts::utils::splitters::token_bundle::TokenBundleSplitterBase::BundleSplit;
 
@@ -98,6 +102,281 @@ impl SplittersClient {
         packed.extend_from_slice(fulfillment.as_slice());
         packed.extend_from_slice(escrow.as_slice());
         Ok(keccak256(packed).to_string())
+    }
+
+    /// Hash the attestation fields that commitment splitters approve before a UID exists.
+    pub fn attestation_intent_hash(&self, attestation: PyAttestation) -> PyResult<String> {
+        let attestation = attestation.try_into().map_err(map_eyre_to_pyerr)?;
+        Ok(SplittersModule::attestation_intent_hash(&attestation).to_string())
+    }
+
+    /// Hash a splitter fulfillment intent, binding attestation fields to a recorded fulfiller.
+    pub fn fulfillment_intent_hash(
+        &self,
+        attestation: PyAttestation,
+        fulfiller: String,
+    ) -> PyResult<String> {
+        let attestation = attestation.try_into().map_err(map_eyre_to_pyerr)?;
+        let fulfiller = fulfiller.parse().map_err(map_parse_to_pyerr)?;
+        Ok(SplittersModule::fulfillment_intent_hash(&attestation, fulfiller).to_string())
+    }
+
+    pub fn arbitrate_amount<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        fulfillment_or_intent: String,
+        escrow: String,
+        splits: Vec<PyAmountSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .arbitrate_amount(
+                    parse_splitter_contract(&contract)?,
+                    fulfillment_or_intent.parse().map_err(map_parse_to_pyerr)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                    parse_amount_splits(&splits)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn arbitrate_bundle<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        fulfillment_or_intent: String,
+        escrow: String,
+        splits: Vec<PyBundleSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .arbitrate_bundle(
+                    parse_splitter_contract(&contract)?,
+                    fulfillment_or_intent.parse().map_err(map_parse_to_pyerr)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                    parse_bundle_splits(&splits)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        fulfillment_or_intent: String,
+        escrow: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .request_arbitration(
+                    parse_splitter_contract(&contract)?,
+                    fulfillment_or_intent.parse().map_err(map_parse_to_pyerr)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    #[pyo3(signature = (contract, obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .create_fulfillment(
+                    parse_splitter_contract(&contract)?,
+                    obligation_contract.parse().map_err(map_parse_to_pyerr)?,
+                    data.into(),
+                    expiration_time,
+                    ref_uid.parse().map_err(map_parse_to_pyerr)?,
+                    value.parse().map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    #[pyo3(signature = (contract, escrow, obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment_and_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        escrow: String,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .create_fulfillment_and_collect_and_distribute(
+                    parse_splitter_contract(&contract)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                    obligation_contract.parse().map_err(map_parse_to_pyerr)?,
+                    data.into(),
+                    expiration_time,
+                    ref_uid.parse().map_err(map_parse_to_pyerr)?,
+                    value.parse().map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .collect_and_distribute(
+                    parse_splitter_contract(&contract)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                    fulfillment.parse().map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn unsafe_partially_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .unsafe_partially_collect_and_distribute(
+                    parse_splitter_contract(&contract)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                    fulfillment.parse().map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn get_amount_splits<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        oracle: String,
+        fulfillment_or_intent: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let splits = inner
+                .get_amount_splits(
+                    parse_splitter_contract(&contract)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    fulfillment_or_intent.parse().map_err(map_parse_to_pyerr)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(splits.into_iter().map(PyAmountSplit::from).collect::<Vec<_>>())
+        })
+    }
+
+    pub fn get_bundle_splits<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        oracle: String,
+        fulfillment_or_intent: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let splits = inner
+                .get_bundle_splits(
+                    parse_splitter_contract(&contract)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    fulfillment_or_intent.parse().map_err(map_parse_to_pyerr)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(splits.into_iter().map(PyBundleSplit::from).collect::<Vec<_>>())
+        })
+    }
+
+    pub fn has_decision<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        oracle: String,
+        decision_key: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let has_decision = inner
+                .has_decision(
+                    parse_splitter_contract(&contract)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    decision_key.parse().map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(has_decision)
+        })
+    }
+}
+
+fn parse_splitter_contract(contract: &str) -> PyResult<SplitterContract> {
+    match contract {
+        "erc20_splitter" => Ok(SplitterContract::Erc20Splitter),
+        "erc1155_splitter" => Ok(SplitterContract::Erc1155Splitter),
+        "native_token_splitter" => Ok(SplitterContract::NativeTokenSplitter),
+        "token_bundle_splitter" => Ok(SplitterContract::TokenBundleSplitter),
+        "token_bundle_splitter_unvalidated" => Ok(SplitterContract::TokenBundleSplitterUnvalidated),
+        "commitment_erc20_splitter" => Ok(SplitterContract::CommitmentErc20Splitter),
+        "commitment_erc1155_splitter" => Ok(SplitterContract::CommitmentErc1155Splitter),
+        "commitment_native_token_splitter" => Ok(SplitterContract::CommitmentNativeTokenSplitter),
+        "commitment_token_bundle_splitter" => Ok(SplitterContract::CommitmentTokenBundleSplitter),
+        "commitment_token_bundle_splitter_unvalidated" => {
+            Ok(SplitterContract::CommitmentTokenBundleSplitterUnvalidated)
+        }
+        _ => Err(pyo3::exceptions::PyValueError::new_err(
+            "unknown splitter contract",
+        )),
     }
 }
 
@@ -215,6 +494,20 @@ impl From<contracts::utils::splitters::ERC20Splitter::Split> for PyAmountSplit {
     }
 }
 
+fn parse_amount_splits(
+    splits: &[PyAmountSplit],
+) -> PyResult<Vec<contracts::utils::splitters::ERC20Splitter::Split>> {
+    splits
+        .iter()
+        .map(|split| {
+            Ok(contracts::utils::splitters::ERC20Splitter::Split {
+                recipient: split.recipient.parse().map_err(map_parse_to_pyerr)?,
+                amount: split.amount.parse().map_err(map_parse_to_pyerr)?,
+            })
+        })
+        .collect()
+}
+
 #[pyclass]
 #[derive(Clone)]
 pub struct PyBundleSplit {
@@ -288,6 +581,21 @@ impl From<BundleSplit> for PyBundleSplit {
             erc1155_amounts: stringify_u256_vec(data.erc1155Amounts),
         }
     }
+}
+
+fn parse_bundle_splits(splits: &[PyBundleSplit]) -> PyResult<Vec<BundleSplit>> {
+    splits
+        .iter()
+        .map(|split| {
+            Ok(BundleSplit {
+                recipient: split.recipient.parse().map_err(map_parse_to_pyerr)?,
+                nativeAmount: split.native_amount.parse().map_err(map_parse_to_pyerr)?,
+                erc20Amounts: parse_u256_vec(&split.erc20_amounts)?,
+                erc721Indices: parse_u256_vec(&split.erc721_indices)?,
+                erc1155Amounts: parse_u256_vec(&split.erc1155_amounts)?,
+            })
+        })
+        .collect()
 }
 
 fn parse_u256_vec(values: &[String]) -> PyResult<Vec<U256>> {
