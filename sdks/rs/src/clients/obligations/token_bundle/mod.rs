@@ -182,6 +182,7 @@ pub enum TokenBundleContract {
 pub struct TokenBundleModule {
     pub(crate) signer: PrivateKeySigner,
     pub(crate) wallet_provider: SharedWalletProvider,
+    pub(crate) packaged_escrow_obligations: Vec<Address>,
     pub addresses: TokenBundleAddresses,
 }
 
@@ -205,11 +206,21 @@ impl TokenBundleModule {
         wallet_provider: SharedWalletProvider,
         addresses: Option<TokenBundleAddresses>,
     ) -> eyre::Result<Self> {
+        let addresses = addresses.unwrap_or_default();
+        let packaged_escrow_obligations = vec![
+            addresses.escrow_obligation_default,
+            addresses.escrow_obligation_unconditional,
+        ];
         Ok(TokenBundleModule {
             signer,
             wallet_provider,
-            addresses: addresses.unwrap_or_default(),
+            packaged_escrow_obligations,
+            addresses,
         })
+    }
+
+    pub(crate) fn set_packaged_escrow_obligations(&mut self, addresses: Vec<Address>) {
+        self.packaged_escrow_obligations = addresses;
     }
 
     /// Access escrow API

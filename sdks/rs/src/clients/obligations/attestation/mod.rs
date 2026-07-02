@@ -343,11 +343,10 @@ mod tests {
         let demand = Bytes::from(vec![4, 5, 6]);
 
         let escrow_data = contracts::obligations::escrow::default_escrow::AttestationReferenceEscrowObligation::ObligationData {
-            attestationUid: attestation_uid,
+            referencedAttestationUid: attestation_uid,
             arbiter,
             demand: demand.clone(),
-            validationExpirationTime: 0,
-            validationRevocable: true,
+            expirationTime: 0,
         };
 
         // Encode the data
@@ -359,13 +358,12 @@ mod tests {
 
         // Verify decoded data
         assert_eq!(
-            decoded.attestationUid, attestation_uid,
+            decoded.referencedAttestationUid, attestation_uid,
             "Attestation UID should match"
         );
         assert_eq!(decoded.arbiter, arbiter, "Arbiter should match");
         assert_eq!(decoded.demand, demand, "Demand should match");
-        assert_eq!(decoded.validationExpirationTime, 0);
-        assert!(decoded.validationRevocable);
+        assert_eq!(decoded.expirationTime, 0);
 
         Ok(())
     }
@@ -537,7 +535,7 @@ mod tests {
             data: IEAS::AttestationRequestData {
                 recipient: test.bob.address(),
                 expirationTime: expiration.into(),
-                revocable: true,
+                revocable: false,
                 refUID: FixedBytes::<32>::default(),
                 data: TestStruct {
                     value: "test attestation data".to_string(),
@@ -658,7 +656,7 @@ mod tests {
             .escrow()
             .reference()
             .default()
-            .create(attestation_uid, &demand_data, escrow_expiration)
+            .create(attestation_uid, &demand_data, escrow_expiration, 0)
             .await?;
 
         // Extract escrow attestation UID
@@ -729,7 +727,7 @@ mod tests {
             data: IEAS::AttestationRequestData {
                 recipient: test.bob.address(),
                 expirationTime: expiration.into(),
-                revocable: true,
+                revocable: false,
                 refUID: FixedBytes::<32>::default(),
                 data: TestStruct {
                     value: "test attestation data".to_string(),
@@ -867,7 +865,7 @@ mod tests {
             .escrow()
             .reference()
             .default()
-            .create(attestation_uid, &demand_data, escrow_expiration)
+            .create(attestation_uid, &demand_data, escrow_expiration, 0)
             .await?;
 
         // Extract escrow attestation UID
@@ -906,7 +904,7 @@ mod tests {
             .collect(escrow_uid, fulfillment_uid)
             .await?;
 
-        // Extract validation attestation UID
+        // Extract reference attestation UID
         let validation_event = DefaultAlkahestClient::get_attested_event(collection_receipt)?;
         let validation_uid = validation_event.uid;
 
@@ -914,10 +912,10 @@ mod tests {
         assert_ne!(
             validation_uid,
             FixedBytes::<32>::default(),
-            "Validation UID should not be empty"
+            "Reference attestation UID should not be empty"
         );
 
-        // Get the validation attestation
+        // Get the reference attestation
         let validation_attestation = test
             .bob_client
             .attestation()
@@ -925,23 +923,26 @@ mod tests {
             .get_attestation(validation_uid)
             .await?;
 
-        // Get the expected validation schema ID from the contract
+        // Get the expected reference attestation schema ID from the contract
         let escrow_contract = contracts::obligations::escrow::default_escrow::AttestationReferenceEscrowObligation::new(
             test.addresses.attestation_addresses.attestation_reference_escrow_obligation_default,
             &test.god_provider,
         );
 
-        let validation_schema = escrow_contract.VALIDATION_SCHEMA().call().await?;
+        let reference_schema = escrow_contract
+            .REFERENCE_ATTESTATION_SCHEMA()
+            .call()
+            .await?;
 
-        // Verify validation attestation details
+        // Verify reference attestation details
         assert_eq!(
-            validation_attestation.schema, validation_schema,
-            "Schema should match the contract's VALIDATION_SCHEMA"
+            validation_attestation.schema, reference_schema,
+            "Schema should match the contract's REFERENCE_ATTESTATION_SCHEMA"
         );
         assert_eq!(
             validation_attestation.recipient,
             test.bob.address(),
-            "Validation recipient should be Bob (who collected payment)"
+            "Reference attestation recipient should be Bob (who collected payment)"
         );
         assert_eq!(
             validation_attestation.refUID, attestation_uid,

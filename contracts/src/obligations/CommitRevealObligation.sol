@@ -12,12 +12,13 @@ import {IEscrow} from "../IEscrow.sol";
 import {ArbiterUtils} from "../libraries/ArbiterUtils.sol";
 
 /// @title CommitRevealObligation
-/// @notice Obligation with built-in commit-reveal anti-front-running checks.
+/// @notice Globally reusable obligation with built-in commit-reveal anti-front-running checks.
 ///         Each commitment locks the native-token bond supplied as msg.value.
 ///         Arbiter demand data specifies the exact bond amount and relative
-///         reveal deadline required for a particular escrow, so this contract
-///         composes cleanly under logical arbiters that pass nested demands to
-///         check.
+///         reveal deadline required by escrows, so one valid reveal can satisfy
+///         multiple escrows that intentionally accept the same revealed EAS
+///         attestation. Escrow-specific binding should be composed separately,
+///         for example with `ReferencesEscrowArbiter`.
 /// @dev Security note: This contract has not been included in professional manual audits and
 ///      has only been reviewed by automated audit tooling so far.
 contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
@@ -71,7 +72,7 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
     address public slashedBondRecipient;
 
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, address _slashedBondRecipient)
-        BaseObligation(_eas, _schemaRegistry, "bytes payload, bytes32 salt, bytes32 schema", true)
+        BaseObligation(_eas, _schemaRegistry, "bytes payload, bytes32 salt, bytes32 schema", false)
         Ownable(msg.sender)
     {
         slashedBondRecipient = _slashedBondRecipient;
@@ -95,10 +96,23 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
     ///         Validates the commitment, enforces the reveal deadline, and
     ///         atomically returns the committed bond to the committer.
     /// @param data Revealed data (must match a prior commit) and salt.
-    /// @param refUID Escrow attestation UID being fulfilled.
+    /// @param refUID Optional reference UID stored on the fulfillment attestation.
     function doObligation(ObligationData calldata data, bytes32 refUID) external returns (bytes32 uid_) {
+        uid_ = doObligation(data, 0, refUID);
+    }
+
+    /// @notice Creates a fulfillment attestation containing the payload and salt.
+    ///         Validates the commitment, enforces the reveal deadline, and
+    ///         atomically returns the committed bond to the committer.
+    /// @param data Revealed data (must match a prior commit) and salt.
+    /// @param expirationTime EAS expiration timestamp, or zero for no expiration.
+    /// @param refUID Optional reference UID stored on the fulfillment attestation.
+    function doObligation(ObligationData calldata data, uint64 expirationTime, bytes32 refUID)
+        public
+        returns (bytes32 uid_)
+    {
         bytes memory encodedData = abi.encode(data);
-        uid_ = _doObligationForRaw(encodedData, 0, msg.sender, refUID);
+        uid_ = _doObligationForRaw(encodedData, expirationTime, msg.sender, refUID);
     }
 
     /// @notice Creates a fulfillment attestation with an explicit recipient.
@@ -106,13 +120,27 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
     ///         must all be the same address.
     /// @param data Revealed data (must match a prior commit) and salt.
     /// @param recipient The address to set as the attestation recipient.
-    /// @param refUID Escrow attestation UID being fulfilled.
+    /// @param refUID Optional reference UID stored on the fulfillment attestation.
     function doObligationFor(ObligationData calldata data, address recipient, bytes32 refUID)
         external
         returns (bytes32 uid_)
     {
+        uid_ = doObligationFor(data, 0, recipient, refUID);
+    }
+
+    /// @notice Creates a fulfillment attestation with an explicit recipient.
+    ///         The reveal caller, original committer, and attestation recipient
+    ///         must all be the same address.
+    /// @param data Revealed data (must match a prior commit) and salt.
+    /// @param expirationTime EAS expiration timestamp, or zero for no expiration.
+    /// @param recipient The address to set as the attestation recipient.
+    /// @param refUID Optional reference UID stored on the fulfillment attestation.
+    function doObligationFor(ObligationData calldata data, uint64 expirationTime, address recipient, bytes32 refUID)
+        public
+        returns (bytes32 uid_)
+    {
         bytes memory encodedData = abi.encode(data);
-        uid_ = _doObligationForRaw(encodedData, 0, recipient, refUID);
+        uid_ = _doObligationForRaw(encodedData, expirationTime, recipient, refUID);
     }
 
     /// @notice Reveals a fulfillment and immediately collects the target escrow.
@@ -129,8 +157,27 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
         IEscrow escrowContract,
         bytes32 escrowUid
     ) external returns (bytes32 fulfillmentUid, bytes memory collectResult) {
+        (fulfillmentUid, collectResult) = revealAndCollect(data, 0, recipient, escrowContract, escrowUid);
+    }
+
+    /// @notice Reveals a fulfillment and immediately collects the target escrow.
+    /// @param data Revealed data and salt.
+    /// @param expirationTime EAS expiration timestamp, or zero for no expiration.
+    /// @param recipient Recipient to set on the fulfillment attestation; must
+    ///        equal the original committer and reveal caller.
+    /// @param escrowContract Escrow contract to collect after reveal.
+    /// @param escrowUid UID of the escrow attestation being fulfilled.
+    /// @return fulfillmentUid UID of the created fulfillment attestation.
+    /// @return collectResult Return data from the escrow contract's `collect` call.
+    function revealAndCollect(
+        ObligationData calldata data,
+        uint64 expirationTime,
+        address recipient,
+        IEscrow escrowContract,
+        bytes32 escrowUid
+    ) public returns (bytes32 fulfillmentUid, bytes memory collectResult) {
         bytes memory encodedData = abi.encode(data);
-        fulfillmentUid = _doObligationForRaw(encodedData, 0, recipient, escrowUid);
+        fulfillmentUid = _doObligationForRaw(encodedData, expirationTime, recipient, escrowUid);
 
         try escrowContract.collect(escrowUid, fulfillmentUid) returns (bytes memory result) {
             collectResult = result;
@@ -143,8 +190,7 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
     ///      reclaim the committed bond atomically. Deadline policy is enforced
     ///      by `check` against the escrow's demand.
     function _afterAttest(Attestation memory attestation) internal override {
-        bytes32 revealedCommitment =
-            keccak256(abi.encode(attestation.refUID, attestation.recipient, keccak256(attestation.data)));
+        bytes32 revealedCommitment = _attestationCommitment(attestation);
 
         CommitInfo memory info = commitments[revealedCommitment];
 
@@ -182,7 +228,7 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
     // ---------------------------------------------------------------------
 
     /// @notice Records a commitment hash, locking msg.value as its bond.
-    /// @param commitment keccak256(abi.encode(refUID, claimer, keccak256(abi.encode(data)))).
+    /// @param commitment keccak256(abi.encode(claimer, expirationTime, refUID, keccak256(data))).
     /// @param commitDeadline Relative reveal deadline, in seconds after commit, from the escrow demand.
     function commit(bytes32 commitment, uint256 commitDeadline) external payable {
         if (commitment == bytes32(0)) revert EmptyCommitment();
@@ -203,17 +249,45 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
         emit Committed(commitment, msg.sender, msg.value, commitDeadline);
     }
 
-    /// @notice Pure helper to compute the commitment expected by this contract.
-    /// @param refUID Reference UID that will be stored on the fulfillment attestation.
+    /// @notice Pure helper to compute the no-expiration commitment expected by this contract.
     /// @param claimer Recipient that will be stored on the fulfillment attestation.
+    /// @param refUID Reference UID that will be stored on the fulfillment attestation.
     /// @param data Obligation data that will be revealed.
     /// @return Commitment hash to submit in `commit`.
-    function computeCommitment(bytes32 refUID, address claimer, ObligationData calldata data)
+    function computeCommitment(address claimer, bytes32 refUID, ObligationData calldata data)
         external
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encode(refUID, claimer, keccak256(abi.encode(data))));
+        return _commitment(claimer, 0, refUID, abi.encode(data));
+    }
+
+    /// @notice Pure helper to compute the commitment expected by this contract.
+    /// @param claimer Recipient that will be stored on the fulfillment attestation.
+    /// @param expirationTime EAS expiration timestamp that will be stored on the fulfillment attestation.
+    /// @param refUID Reference UID that will be stored on the fulfillment attestation.
+    /// @param data Obligation data that will be revealed.
+    /// @return Commitment hash to submit in `commit`.
+    function computeCommitment(address claimer, uint64 expirationTime, bytes32 refUID, ObligationData calldata data)
+        external
+        pure
+        returns (bytes32)
+    {
+        return _commitment(claimer, expirationTime, refUID, abi.encode(data));
+    }
+
+    /// @notice Pure helper to compute a commitment for pre-encoded obligation data.
+    /// @param claimer Recipient that will be stored on the fulfillment attestation.
+    /// @param expirationTime EAS expiration timestamp that will be stored on the fulfillment attestation.
+    /// @param refUID Reference UID that will be stored on the fulfillment attestation.
+    /// @param data Pre-encoded obligation data that will be revealed.
+    /// @return Commitment hash to submit in `commit`.
+    function computeRawCommitment(address claimer, uint64 expirationTime, bytes32 refUID, bytes calldata data)
+        external
+        pure
+        returns (bytes32)
+    {
+        return _commitment(claimer, expirationTime, refUID, data);
     }
 
     // ---------------------------------------------------------------------
@@ -233,8 +307,7 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
     {
         if (obligation.schema != ATTESTATION_SCHEMA) return false;
 
-        bytes32 revealedCommitment =
-            keccak256(abi.encode(obligation.refUID, obligation.recipient, keccak256(obligation.data)));
+        bytes32 revealedCommitment = _attestationCommitment(obligation);
         CommitInfo memory info = commitments[revealedCommitment];
         if (info.committer == address(0)) {
             revert CommitmentMissing(revealedCommitment, obligation.recipient);
@@ -296,5 +369,17 @@ contract CommitRevealObligation is BaseObligation, BaseArbiter, Ownable {
     /// @notice Decodes ABI-encoded arbiter demand data.
     function decodeDemandData(bytes calldata data) external pure returns (DemandData memory) {
         return abi.decode(data, (DemandData));
+    }
+
+    function _attestationCommitment(Attestation memory attestation) internal pure returns (bytes32) {
+        return _commitment(attestation.recipient, attestation.expirationTime, attestation.refUID, attestation.data);
+    }
+
+    function _commitment(address recipient, uint64 expirationTime, bytes32 refUID, bytes memory data)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(recipient, expirationTime, refUID, keccak256(data)));
     }
 }

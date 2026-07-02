@@ -115,6 +115,32 @@ impl Default for DefaultExtensionConfig {
     }
 }
 
+impl DefaultExtensionConfig {
+    /// Returns all packaged escrow obligation contracts configured for this chain.
+    pub fn packaged_escrow_obligations(&self) -> Vec<Address> {
+        vec![
+            self.erc20_addresses.escrow_obligation_default,
+            self.erc20_addresses.escrow_obligation_unconditional,
+            self.erc721_addresses.escrow_obligation_default,
+            self.erc721_addresses.escrow_obligation_unconditional,
+            self.erc1155_addresses.escrow_obligation_default,
+            self.erc1155_addresses.escrow_obligation_unconditional,
+            self.native_token_addresses.escrow_obligation_default,
+            self.native_token_addresses.escrow_obligation_unconditional,
+            self.token_bundle_addresses.escrow_obligation_default,
+            self.token_bundle_addresses.escrow_obligation_unconditional,
+            self.attestation_addresses.escrow_obligation_default,
+            self.attestation_addresses.escrow_obligation_unconditional,
+            self.attestation_addresses
+                .attestation_reference_escrow_obligation_default,
+            self.attestation_addresses
+                .attestation_reference_escrow_obligation_unconditional,
+            self.hook_based_addresses.hook_escrow_obligation,
+            self.hook_based_addresses.hooks_escrow_obligation,
+        ]
+    }
+}
+
 #[derive(Clone)]
 pub struct AlkahestClient<Extensions: AlkahestExtension = extensions::NoExtension> {
     pub wallet_provider: SharedWalletProvider,
@@ -378,6 +404,9 @@ impl<Extensions: AlkahestExtension> AlkahestClient<Extensions> {
             ArbitersContract::TrivialArbiter => self.arbiters().addresses.trivial_arbiter,
             ArbitersContract::TrustedOracleArbiter => {
                 self.arbiters().addresses.trusted_oracle_arbiter
+            }
+            ArbitersContract::CommitmentTrustedOracleArbiter => {
+                self.arbiters().addresses.commitment_trusted_oracle_arbiter
             }
             ArbitersContract::IntrinsicsArbiter => self.arbiters().addresses.intrinsics_arbiter,
             ArbitersContract::ERC8004Arbiter => self.arbiters().addresses.erc8004_arbiter,

@@ -6,7 +6,8 @@ import SchemaRegistry from "./contracts/eas/SchemaRegistry.json";
 
 // Arbiters - General
 import TrivialArbiter from "./contracts/arbiters/TrivialArbiter.json";
-import TrustedOracleArbiter from "./contracts/arbiters/TrustedOracleArbiter.json";
+import TrustedOracleArbiter from "./contracts/arbiters/trusted-oracle/TrustedOracleArbiter.json";
+import CommitmentTrustedOracleArbiter from "./contracts/arbiters/trusted-oracle/CommitmentTrustedOracleArbiter.json";
 import IntrinsicsArbiter from "./contracts/arbiters/IntrinsicsArbiter.json";
 import ERC8004Arbiter from "./contracts/arbiters/ERC8004Arbiter.json";
 import ReferencesEscrowArbiter from "./contracts/arbiters/ReferencesEscrowArbiter.json";
@@ -73,11 +74,16 @@ import CommitRevealObligation from "./contracts/obligations/CommitRevealObligati
 // Utils
 import AtomicAttestationUtils from "./contracts/utils/AtomicAttestationUtils.json";
 import AtomicPaymentUtils from "./contracts/utils/AtomicPaymentUtils.json";
-import ERC20Splitter from "./contracts/utils/splitters/ERC20Splitter.json";
-import ERC1155Splitter from "./contracts/utils/splitters/ERC1155Splitter.json";
-import NativeTokenSplitter from "./contracts/utils/splitters/NativeTokenSplitter.json";
-import TokenBundleSplitter from "./contracts/utils/splitters/TokenBundleSplitter.json";
-import TokenBundleSplitterUnvalidated from "./contracts/utils/splitters/TokenBundleSplitterUnvalidated.json";
+import CommitmentERC20Splitter from "./contracts/utils/splitters/commitment/CommitmentERC20Splitter.json";
+import CommitmentERC1155Splitter from "./contracts/utils/splitters/commitment/CommitmentERC1155Splitter.json";
+import CommitmentNativeTokenSplitter from "./contracts/utils/splitters/commitment/CommitmentNativeTokenSplitter.json";
+import CommitmentTokenBundleSplitter from "./contracts/utils/splitters/commitment/CommitmentTokenBundleSplitter.json";
+import CommitmentTokenBundleSplitterUnvalidated from "./contracts/utils/splitters/commitment/CommitmentTokenBundleSplitterUnvalidated.json";
+import ERC20Splitter from "./contracts/utils/splitters/default/ERC20Splitter.json";
+import ERC1155Splitter from "./contracts/utils/splitters/default/ERC1155Splitter.json";
+import NativeTokenSplitter from "./contracts/utils/splitters/default/NativeTokenSplitter.json";
+import TokenBundleSplitter from "./contracts/utils/splitters/default/TokenBundleSplitter.json";
+import TokenBundleSplitterUnvalidated from "./contracts/utils/splitters/default/TokenBundleSplitterUnvalidated.json";
 
 export type DeployFn = (
   abi: any[],
@@ -133,6 +139,7 @@ export async function deployAlkahest(
     // Core arbiters
     result.trivialArbiter = await deploy(deployFn, TrivialArbiter as Artifact);
     result.trustedOracleArbiter = await deploy(deployFn, TrustedOracleArbiter as Artifact, [easAddress]);
+    result.commitmentTrustedOracleArbiter = await deploy(deployFn, CommitmentTrustedOracleArbiter as Artifact);
     result.intrinsicsArbiter = await deploy(deployFn, IntrinsicsArbiter as Artifact);
     result.erc8004Arbiter = await deploy(deployFn, ERC8004Arbiter as Artifact);
     result.referencesEscrowArbiter = await deploy(deployFn, ReferencesEscrowArbiter as Artifact);
@@ -253,10 +260,19 @@ export async function deployAlkahest(
     const erc1155Payment = result.erc1155PaymentObligation;
     const bundlePayment = result.tokenBundlePaymentObligation;
     const nativePayment = result.nativeTokenPaymentObligation;
+    const erc20Escrow = result.erc20EscrowObligation;
+    const erc1155Escrow = result.erc1155EscrowObligation;
+    const bundleEscrow = result.tokenBundleEscrowObligation;
+    const nativeEscrow = result.nativeTokenEscrowObligation;
 
     if (!erc20Payment || !erc721Payment || !erc1155Payment || !nativePayment || !bundlePayment) {
       throw new Error(
         "Cannot deploy utils without obligation addresses. Deploy obligations first or use scope 'all'.",
+      );
+    }
+    if (!erc20Escrow || !erc1155Escrow || !nativeEscrow || !bundleEscrow) {
+      throw new Error(
+        "Cannot deploy splitters without escrow obligation addresses. Deploy obligations first or use scope 'all'.",
       );
     }
 
@@ -277,13 +293,38 @@ export async function deployAlkahest(
     result.tokenBundleAtomicPaymentUtils = atomicPaymentUtils;
     result.atomicAttestationUtils = await deploy(deployFn, AtomicAttestationUtils as Artifact, [easAddress]);
 
-    result.erc20Splitter = await deploy(deployFn, ERC20Splitter as Artifact, [easAddress]);
-    result.erc1155Splitter = await deploy(deployFn, ERC1155Splitter as Artifact, [easAddress]);
-    result.nativeTokenSplitter = await deploy(deployFn, NativeTokenSplitter as Artifact, [easAddress]);
-    result.tokenBundleSplitter = await deploy(deployFn, TokenBundleSplitter as Artifact, [easAddress]);
+    result.erc20Splitter = await deploy(deployFn, ERC20Splitter as Artifact, [easAddress, erc20Escrow]);
+    result.erc1155Splitter = await deploy(deployFn, ERC1155Splitter as Artifact, [easAddress, erc1155Escrow]);
+    result.nativeTokenSplitter = await deploy(deployFn, NativeTokenSplitter as Artifact, [
+      easAddress,
+      nativeEscrow,
+    ]);
+    result.tokenBundleSplitter = await deploy(deployFn, TokenBundleSplitter as Artifact, [easAddress, bundleEscrow]);
     result.tokenBundleSplitterUnvalidated = await deploy(deployFn, TokenBundleSplitterUnvalidated as Artifact, [
       easAddress,
+      bundleEscrow,
     ]);
+    result.commitmentERC20Splitter = await deploy(deployFn, CommitmentERC20Splitter as Artifact, [
+      easAddress,
+      erc20Escrow,
+    ]);
+    result.commitmentERC1155Splitter = await deploy(deployFn, CommitmentERC1155Splitter as Artifact, [
+      easAddress,
+      erc1155Escrow,
+    ]);
+    result.commitmentNativeTokenSplitter = await deploy(deployFn, CommitmentNativeTokenSplitter as Artifact, [
+      easAddress,
+      nativeEscrow,
+    ]);
+    result.commitmentTokenBundleSplitter = await deploy(deployFn, CommitmentTokenBundleSplitter as Artifact, [
+      easAddress,
+      bundleEscrow,
+    ]);
+    result.commitmentTokenBundleSplitterUnvalidated = await deploy(
+      deployFn,
+      CommitmentTokenBundleSplitterUnvalidated as Artifact,
+      [easAddress, bundleEscrow],
+    );
   }
 
   return result;

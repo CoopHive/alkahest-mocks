@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseSplitter} from "@src/utils/splitters/BaseSplitter.sol";
-import {ERC1155Splitter} from "@src/utils/splitters/ERC1155Splitter.sol";
+import {BaseSplitter} from "@src/utils/splitters/default/BaseSplitter.sol";
+import {ERC1155Splitter} from "@src/utils/splitters/default/ERC1155Splitter.sol";
 import {ERC1155EscrowObligation} from "@src/obligations/escrow/default/ERC1155EscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {IEAS, Attestation} from "@eas/IEAS.sol";
@@ -17,21 +17,6 @@ contract MockERC1155 is ERC1155 {
 
     function mint(address to, uint256 id, uint256 amount) public {
         _mint(to, id, amount, "");
-    }
-}
-
-contract ERC1155SplitterRefundingStringObligation is StringObligation {
-    uint256 public immutable refundAmount;
-
-    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, uint256 _refundAmount)
-        StringObligation(_eas, _schemaRegistry)
-    {
-        refundAmount = _refundAmount;
-    }
-
-    function _afterAttest(Attestation memory attestation) internal override {
-        (bool success,) = payable(attestation.recipient).call{value: refundAmount}("");
-        require(success, "refund failed");
     }
 }
 
@@ -57,8 +42,8 @@ contract ERC1155SplitterTest is Test {
     function setUp() public {
         EASDeployer easDeployer = new EASDeployer();
         (eas, schemaRegistry) = easDeployer.deployEAS();
-        splitter = new ERC1155Splitter(eas);
         escrowObligation = new ERC1155EscrowObligation(eas, schemaRegistry);
+        splitter = new ERC1155Splitter(eas, escrowObligation);
         stringObligation = new StringObligation(eas, schemaRegistry);
         token = new MockERC1155();
         token.mint(buyer, TOKEN_ID, 1000);
@@ -94,27 +79,6 @@ contract ERC1155SplitterTest is Test {
         assertEq(f.recipient, address(splitter));
     }
 
-    function testCreateFulfillmentRefundsNativeBalanceIncreaseToFulfiller() public {
-        bytes32 escrowUid = _createEscrow(buyer, TOKEN_ID, AMOUNT, uint64(block.timestamp + EXPIRATION));
-        uint256 refundAmount = 0.3 ether;
-        uint256 spentAmount = 0.1 ether;
-        ERC1155SplitterRefundingStringObligation refundingObligation =
-            new ERC1155SplitterRefundingStringObligation(eas, schemaRegistry, refundAmount);
-        bytes memory obligationData =
-            abi.encode(StringObligation.ObligationData({item: "fulfillment", schema: bytes32(0)}));
-
-        uint256 executorBalanceBefore = executor.balance;
-
-        vm.prank(executor);
-        bytes32 fulfillmentUid = splitter.createFulfillment{value: refundAmount + spentAmount}(
-            address(refundingObligation), obligationData, 0, escrowUid
-        );
-
-        assertEq(splitter.fulfillers(fulfillmentUid), executor, "Fulfiller should be recorded");
-        assertEq(executor.balance, executorBalanceBefore - spentAmount, "executor only pays non-refunded value");
-        assertEq(address(splitter).balance, 0, "refund is not stranded in splitter");
-    }
-
     function testCollectAndDistribute() public {
         bytes32 escrowUid = _createEscrow(buyer, TOKEN_ID, AMOUNT, uint64(block.timestamp + EXPIRATION));
         bytes32 fulfillmentUid = _createFulfillmentViaSplitter(executor, escrowUid);
@@ -127,7 +91,7 @@ contract ERC1155SplitterTest is Test {
         splitter.arbitrate(fulfillmentUid, escrowUid, splits);
 
         vm.prank(carol);
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
 
         assertEq(token.balanceOf(alice, TOKEN_ID), 60);
         assertEq(token.balanceOf(bob, TOKEN_ID), 40);
@@ -147,7 +111,7 @@ contract ERC1155SplitterTest is Test {
 
         // Different caller — sentinel still resolves to executor
         vm.prank(carol);
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
 
         assertEq(token.balanceOf(executor, TOKEN_ID), 60, "Executor gets sentinel share");
         assertEq(token.balanceOf(carol, TOKEN_ID), 0, "Caller does NOT get sentinel share");
@@ -170,7 +134,7 @@ contract ERC1155SplitterTest is Test {
         assertFalse(splitter.check(attackerF, demand, escrowUid));
 
         Attestation memory f = eas.getAttestation(fulfillmentUid);
-        assertTrue(splitter.check(f, demand, escrowUid));
+        assertFalse(splitter.check(f, demand, escrowUid));
     }
 
     function testArbitrateRejectsZeroFulfillment() public {

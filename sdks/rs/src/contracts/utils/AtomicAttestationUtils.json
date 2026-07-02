@@ -85,14 +85,9 @@
               "internalType": "bytes"
             },
             {
-              "name": "validationExpirationTime",
+              "name": "expirationTime",
               "type": "uint64",
               "internalType": "uint64"
-            },
-            {
-              "name": "validationRevocable",
-              "type": "bool",
-              "internalType": "bool"
             }
           ]
         },
@@ -190,14 +185,9 @@
               "internalType": "bytes"
             },
             {
-              "name": "validationExpirationTime",
+              "name": "expirationTime",
               "type": "uint64",
               "internalType": "uint64"
-            },
-            {
-              "name": "validationRevocable",
-              "type": "bool",
-              "internalType": "bool"
             }
           ]
         },
@@ -235,6 +225,37 @@
       "stateMutability": "view"
     },
     {
+      "type": "event",
+      "name": "ReferenceEscrowCreated",
+      "inputs": [
+        {
+          "name": "escrow",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "attestationUid",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "escrowUid",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "unconditional",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
       "type": "error",
       "name": "IncorrectAttestationValue",
       "inputs": [
@@ -249,36 +270,41 @@
           "internalType": "uint256"
         }
       ]
+    },
+    {
+      "type": "error",
+      "name": "UnsupportedRevocableAttestation",
+      "inputs": []
     }
   ],
   "bytecode": {
-    "object": "0x60a034606d57601f6105e738819003918201601f19168301916001600160401b03831184841017607157808492602094604052833981010312606d57516001600160a01b0381168103606d57608052604051610561908161008682396080518181816101c701526104aa0152f35b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe60806040526004361015610011575f80fd5b5f3560e01c80637d1e90df1461003a5780638150864d146101b25763910452291461003a575f80fd5b608036600319011261019b576004356001600160a01b0381169081900361019b5760243567ffffffffffffffff811161019b576040600319823603011261019b576044359067ffffffffffffffff821161019b57816004016080600319843603011261019b5761014f9360209261011967ffffffffffffffff6100c76100be6101f6565b9360040161039c565b966100df6100d48761020d565b966024830190610221565b93906100f960646100f260448601610254565b9401610269565b94604051986101078a610276565b6001600160a01b0316895236916102c8565b87870152876040870152166060850152151560808401525f60405180978195829463271fd49360e11b845233916004850161030e565b03925af180156101a7575f90610170575b6040809350519182526020820152f35b506020823d60201161019f575b8161018a602093836102a6565b8101031261019b5760409151610160565b5f80fd5b3d915061017d565b6040513d5f823e3d90fd5b3461019b575f36600319011261019b576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b6064359067ffffffffffffffff8216820361019b57565b356001600160a01b038116810361019b5790565b903590601e198136030182121561019b570180359067ffffffffffffffff821161019b5760200191813603831361019b57565b3567ffffffffffffffff8116810361019b5790565b35801515810361019b5790565b60a0810190811067ffffffffffffffff82111761029257604052565b634e487b7160e01b5f52604160045260245ffd5b90601f8019910116810190811067ffffffffffffffff82111761029257604052565b92919267ffffffffffffffff821161029257604051916102f2601f8201601f1916602001846102a6565b82948184528183011161019b578281602093845f960137010152565b91939267ffffffffffffffff6040926060855260018060a01b038151166060860152608060c0606060208085015160a0858b01528051918291826101008d0152016101208b015e5f8383838c01010152601f801991011688010101918581015160a08801528360608201511660c08801520151151560e08601529516602084015260018060a01b0316910152565b60208101359060be198136030182121561019b5760a0828201013590813403610514576040805163f17325e760e01b815260206004820152823560248201526044810191909152920180356001600160a01b0381169081900361019b576064840152602081013567ffffffffffffffff811680910361019b576084840152604081013580151580910361019b5760a4840152606081013560c48401526080810135601e198236030181121561019b578101916020833593019267ffffffffffffffff811161019b57803603841361019b57610144858260a08296839560209960c060e487015281610124870152868601375f8484018601520135610104830152601f01601f191681010301917f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165af19081156101a7575f916104e5575090565b90506020813d60201161050c575b81610500602093836102a6565b8101031261019b575190565b3d91506104f3565b506351f15f6d60e01b5f526004523460245260445ffdfea26469706673582212205a905f26f73447d0593c5e177ff9bd53da35768538fc7dc3d72d32d1f2fd2eab64736f6c634300081b0033",
-    "sourceMap": "563:3231:95:-:0;;;;;;;;;;;;;-1:-1:-1;;563:3231:95;;;;-1:-1:-1;;;;;563:3231:95;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;563:3231:95;;;;;;1494:10;;563:3231;;;;;;;;1494:10;563:3231;;;;;;;;;;;;-1:-1:-1;563:3231:95;;;;;;-1:-1:-1;563:3231:95;;;;;-1:-1:-1;563:3231:95",
+    "object": "0x60a034606d57601f61072638819003918201601f19168301916001600160401b03831184841017607157808492602094604052833981010312606d57516001600160a01b0381168103606d576080526040516106a0908161008682396080518181816101df01526105da0152f35b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe60806040526004361015610011575f80fd5b5f3560e01c80634747e8211461020e5780638150864d146101ca5763b3bde17a1461003a575f80fd5b60803660031901126101b3576004356001600160a01b038116908190036101b3576024356001600160401b0381116101b357604060031982360301126101b357604435906001600160401b0382116101b3578160040190606060031984360301126101b357610138916020916001600160401b03604461010b6100c76100be610314565b946004016104ad565b976100eb6100e26100d78861032a565b97602484019061033e565b94909201610370565b92604051966100f988610384565b6001600160a01b0316875236916103d4565b8585015286604085015216606083015260405193849283926332bd03ad60e01b8452339160048501610419565b03815f875af19081156101bf575f91610188575b5080826040947ff9ccf65376e0262c5a0a0b0b757402ff3ef54d79544918cc18d27b5850015d466020875160018152a482519182526020820152f35b90506020813d6020116101b7575b816101a3602093836103b3565b810103126101b35751604061014c565b5f80fd5b3d9150610196565b6040513d5f823e3d90fd5b346101b3575f3660031901126101b3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b60803660031901126101b3576004356001600160a01b038116908190036101b3576024356001600160401b0381116101b357604060031982360301126101b357604435906001600160401b0382116101b3578160040190606060031984360301126101b357610292916020916001600160401b03604461010b6100c76100be610314565b03815f875af19081156101bf575f916102e1575b5080826040947ff9ccf65376e0262c5a0a0b0b757402ff3ef54d79544918cc18d27b5850015d46602087515f8152a482519182526020820152f35b90506020813d60201161030c575b816102fc602093836103b3565b810103126101b3575160406102a6565b3d91506102ef565b606435906001600160401b03821682036101b357565b356001600160a01b03811681036101b35790565b903590601e19813603018212156101b357018035906001600160401b0382116101b3576020019181360383136101b357565b356001600160401b03811681036101b35790565b608081019081106001600160401b0382111761039f57604052565b634e487b7160e01b5f52604160045260245ffd5b90601f801991011681019081106001600160401b0382111761039f57604052565b9291926001600160401b03821161039f57604051916103fd601f8201601f1916602001846103b3565b8294818452818301116101b3578281602093845f960137010152565b9193926001600160401b036040926060855260018060a01b03815116606086015281606060a08160e0896020808801516080808401528051809481940152016101008c015e5f8383838d01010152601f801991011689010101928681015160a089015201511660c08601529516602084015260018060a01b0316910152565b90359060be19813603018212156101b3570190565b602081019060a06104be8383610498565b01359060406104cd8483610498565b013580151581036101b35761065b578134036106445760405163f17325e760e01b8152602060048201528135602482015292353682900360be19018112156101b357604060448501520180356001600160a01b038116908190036101b357606484015260208101356001600160401b0381168091036101b357608484015260408101358015158091036101b35760a4840152606081013560c48401526080810135601e19823603018112156101b357810191602083359301926001600160401b0381116101b35780360384136101b357610144858260a08296839560209960c060e487015281610124870152868601375f8484018601520135610104830152601f01601f191681010301917f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165af19081156101bf575f91610615575090565b90506020813d60201161063c575b81610630602093836103b3565b810103126101b3575190565b3d9150610623565b506351f15f6d60e01b5f526004523460245260445ffd5b63c24c119360e01b5f5260045ffdfea26469706673582212207e918bab1fd8a8ed69dc1e827519cf9a5b0a05ae40e5216092022c472aa6f1d564736f6c634300081b0033",
+    "sourceMap": "724:3623:66:-:0;;;;;;;;;;;;;-1:-1:-1;;724:3623:66;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;1952:10;;724:3623;;;;;;;;1952:10;724:3623;;;;;;;;;;;;-1:-1:-1;724:3623:66;;;;;;-1:-1:-1;724:3623:66;;;;;-1:-1:-1;724:3623:66",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x60806040526004361015610011575f80fd5b5f3560e01c80637d1e90df1461003a5780638150864d146101b25763910452291461003a575f80fd5b608036600319011261019b576004356001600160a01b0381169081900361019b5760243567ffffffffffffffff811161019b576040600319823603011261019b576044359067ffffffffffffffff821161019b57816004016080600319843603011261019b5761014f9360209261011967ffffffffffffffff6100c76100be6101f6565b9360040161039c565b966100df6100d48761020d565b966024830190610221565b93906100f960646100f260448601610254565b9401610269565b94604051986101078a610276565b6001600160a01b0316895236916102c8565b87870152876040870152166060850152151560808401525f60405180978195829463271fd49360e11b845233916004850161030e565b03925af180156101a7575f90610170575b6040809350519182526020820152f35b506020823d60201161019f575b8161018a602093836102a6565b8101031261019b5760409151610160565b5f80fd5b3d915061017d565b6040513d5f823e3d90fd5b3461019b575f36600319011261019b576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b6064359067ffffffffffffffff8216820361019b57565b356001600160a01b038116810361019b5790565b903590601e198136030182121561019b570180359067ffffffffffffffff821161019b5760200191813603831361019b57565b3567ffffffffffffffff8116810361019b5790565b35801515810361019b5790565b60a0810190811067ffffffffffffffff82111761029257604052565b634e487b7160e01b5f52604160045260245ffd5b90601f8019910116810190811067ffffffffffffffff82111761029257604052565b92919267ffffffffffffffff821161029257604051916102f2601f8201601f1916602001846102a6565b82948184528183011161019b578281602093845f960137010152565b91939267ffffffffffffffff6040926060855260018060a01b038151166060860152608060c0606060208085015160a0858b01528051918291826101008d0152016101208b015e5f8383838c01010152601f801991011688010101918581015160a08801528360608201511660c08801520151151560e08601529516602084015260018060a01b0316910152565b60208101359060be198136030182121561019b5760a0828201013590813403610514576040805163f17325e760e01b815260206004820152823560248201526044810191909152920180356001600160a01b0381169081900361019b576064840152602081013567ffffffffffffffff811680910361019b576084840152604081013580151580910361019b5760a4840152606081013560c48401526080810135601e198236030181121561019b578101916020833593019267ffffffffffffffff811161019b57803603841361019b57610144858260a08296839560209960c060e487015281610124870152868601375f8484018601520135610104830152601f01601f191681010301917f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165af19081156101a7575f916104e5575090565b90506020813d60201161050c575b81610500602093836102a6565b8101031261019b575190565b3d91506104f3565b506351f15f6d60e01b5f526004523460245260445ffdfea26469706673582212205a905f26f73447d0593c5e177ff9bd53da35768538fc7dc3d72d32d1f2fd2eab64736f6c634300081b0033",
-    "sourceMap": "563:3231:95:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;563:3231:95;;;;;;-1:-1:-1;;;;;563:3231:95;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1988:455;563:3231;;;;;1950:16;563:3231;;:::i;:::-;;;;1950:16;:::i;:::-;2103:18;2147:17;2103:18;;;:::i;:::-;2147:17;563:3231;2147:17;;;;:::i;:::-;2256:35;;2330:30;563:3231;2256:35;563:3231;2256:35;;;:::i;:::-;2330:30;;;:::i;:::-;563:3231;;;;;;;:::i;:::-;-1:-1:-1;;;;;563:3231:95;;;;;;:::i;:::-;2024:351;;;563:3231;2024:351;563:3231;2024:351;;563:3231;;;2024:351;;563:3231;;;;2024:351;;563:3231;;;;;;;;;;;;;1988:455;;2423:10;1988:455;563:3231;1988:455;;;:::i;:::-;;;;;;;;;563:3231;1988:455;;;563:3231;;;;;;;;;;;;;;1988:455;;563:3231;1988:455;;563:3231;1988:455;;;;;;563:3231;1988:455;;;:::i;:::-;;;563:3231;;;;;;;1988:455;;563:3231;;;;1988:455;;;-1:-1:-1;1988:455:95;;;563:3231;;;;;;;;;;;;;;;-1:-1:-1;;563:3231:95;;;;;;659:25;-1:-1:-1;;;;;563:3231:95;;;;;;;;;;;;;;;;;:::o;:::-;;-1:-1:-1;;;;;563:3231:95;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;:::o;:::-;;;;-1:-1:-1;563:3231:95;;;;;-1:-1:-1;563:3231:95;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;-1:-1:-1;;563:3231:95;;;;;:::i;:::-;;;;;;;;;;;;;;;;;-1:-1:-1;563:3231:95;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;563:3231:95;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;3526:266::-;3633:12;;;563:3231;;;;;;;;;;;;;3633:18;563:3231;;;3633:18;563:3231;3665:9;;;:18;3661:74;;563:3231;;;-1:-1:-1;;;3752:33:95;;3633:12;3752:33;;;563:3231;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;563:3231:95;;;;;;;;;;;;3633:12;563:3231;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3633:12;563:3231;;;;;;;;;;;;;;;;;;;;3633:18;563:3231;;;;3633:12;563:3231;;;;;;;;;;;;;;;-1:-1:-1;563:3231:95;;;;;;;;;;;;;;-1:-1:-1;;563:3231:95;;;3752:33;;;:3;-1:-1:-1;;;;;563:3231:95;3752:33;;;;;;;-1:-1:-1;3752:33:95;;;3745:40;3526:266;:::o;3752:33::-;;;3633:12;3752:33;;3633:12;3752:33;;;;;;563:3231;3752:33;;;:::i;:::-;;;563:3231;;;;;3526:266;:::o;3752:33::-;;;-1:-1:-1;3752:33:95;;3661:74;3692:43;;;;-1:-1:-1;3692:43:95;;563:3231;3665:9;563:3231;;;-1:-1:-1;3692:43:95",
+    "object": "0x60806040526004361015610011575f80fd5b5f3560e01c80634747e8211461020e5780638150864d146101ca5763b3bde17a1461003a575f80fd5b60803660031901126101b3576004356001600160a01b038116908190036101b3576024356001600160401b0381116101b357604060031982360301126101b357604435906001600160401b0382116101b3578160040190606060031984360301126101b357610138916020916001600160401b03604461010b6100c76100be610314565b946004016104ad565b976100eb6100e26100d78861032a565b97602484019061033e565b94909201610370565b92604051966100f988610384565b6001600160a01b0316875236916103d4565b8585015286604085015216606083015260405193849283926332bd03ad60e01b8452339160048501610419565b03815f875af19081156101bf575f91610188575b5080826040947ff9ccf65376e0262c5a0a0b0b757402ff3ef54d79544918cc18d27b5850015d466020875160018152a482519182526020820152f35b90506020813d6020116101b7575b816101a3602093836103b3565b810103126101b35751604061014c565b5f80fd5b3d9150610196565b6040513d5f823e3d90fd5b346101b3575f3660031901126101b3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b60803660031901126101b3576004356001600160a01b038116908190036101b3576024356001600160401b0381116101b357604060031982360301126101b357604435906001600160401b0382116101b3578160040190606060031984360301126101b357610292916020916001600160401b03604461010b6100c76100be610314565b03815f875af19081156101bf575f916102e1575b5080826040947ff9ccf65376e0262c5a0a0b0b757402ff3ef54d79544918cc18d27b5850015d46602087515f8152a482519182526020820152f35b90506020813d60201161030c575b816102fc602093836103b3565b810103126101b3575160406102a6565b3d91506102ef565b606435906001600160401b03821682036101b357565b356001600160a01b03811681036101b35790565b903590601e19813603018212156101b357018035906001600160401b0382116101b3576020019181360383136101b357565b356001600160401b03811681036101b35790565b608081019081106001600160401b0382111761039f57604052565b634e487b7160e01b5f52604160045260245ffd5b90601f801991011681019081106001600160401b0382111761039f57604052565b9291926001600160401b03821161039f57604051916103fd601f8201601f1916602001846103b3565b8294818452818301116101b3578281602093845f960137010152565b9193926001600160401b036040926060855260018060a01b03815116606086015281606060a08160e0896020808801516080808401528051809481940152016101008c015e5f8383838d01010152601f801991011689010101928681015160a089015201511660c08601529516602084015260018060a01b0316910152565b90359060be19813603018212156101b3570190565b602081019060a06104be8383610498565b01359060406104cd8483610498565b013580151581036101b35761065b578134036106445760405163f17325e760e01b8152602060048201528135602482015292353682900360be19018112156101b357604060448501520180356001600160a01b038116908190036101b357606484015260208101356001600160401b0381168091036101b357608484015260408101358015158091036101b35760a4840152606081013560c48401526080810135601e19823603018112156101b357810191602083359301926001600160401b0381116101b35780360384136101b357610144858260a08296839560209960c060e487015281610124870152868601375f8484018601520135610104830152601f01601f191681010301917f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165af19081156101bf575f91610615575090565b90506020813d60201161063c575b81610630602093836103b3565b810103126101b3575190565b3d9150610623565b506351f15f6d60e01b5f526004523460245260445ffd5b63c24c119360e01b5f5260045ffdfea26469706673582212207e918bab1fd8a8ed69dc1e827519cf9a5b0a05ae40e5216092022c472aa6f1d564736f6c634300081b0033",
+    "sourceMap": "724:3623:66:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;724:3623:66;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;;;;;3427:389;724:3623;;;-1:-1:-1;;;;;724:3623:66;;3389:16;724:3623;;:::i;:::-;;;;3389:16;:::i;:::-;3555:18;3708:25;3599:17;3555:18;;;:::i;:::-;3599:17;724:3623;3599:17;;;;:::i;:::-;3708:25;;;;;:::i;:::-;724:3623;;;;;;;:::i;:::-;-1:-1:-1;;;;;724:3623:66;;;;;;:::i;:::-;3463:285;;;724:3623;3463:285;724:3623;3463:285;;724:3623;;;3463:285;;724:3623;;;;;;;;;;;3427:389;;3796:10;3427:389;724:3623;3427:389;;;:::i;:::-;;;724:3623;3427:389;;;;;;;;724:3623;3427:389;;;724:3623;;;;;;3831:72;724:3623;;;3898:4;724:3623;;3831:72;724:3623;;;;;;;;;;3427:389;;;724:3623;3427:389;;724:3623;3427:389;;;;;;724:3623;3427:389;;;:::i;:::-;;;724:3623;;;;;;3427:389;;724:3623;;;;3427:389;;;-1:-1:-1;3427:389:66;;;724:3623;;;;;;;;;;;;;;;-1:-1:-1;;724:3623:66;;;;;;820:25;-1:-1:-1;;;;;724:3623:66;;;;;;;;;-1:-1:-1;;724:3623:66;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;;;;;2446:376;724:3623;;;-1:-1:-1;;;;;724:3623:66;;2408:16;724:3623;;:::i;2446:376::-;;;724:3623;2446:376;;;;;;;;724:3623;2446:376;;;724:3623;;;;;;2837:73;724:3623;;;;;;2837:73;724:3623;;;;;;;;;;2446:376;;;724:3623;2446:376;;724:3623;2446:376;;;;;;724:3623;2446:376;;;:::i;:::-;;;724:3623;;;;;;2446:376;;;;;-1:-1:-1;2446:376:66;;724:3623;;;;-1:-1:-1;;;;;724:3623:66;;;;;;:::o;:::-;;-1:-1:-1;;;;;724:3623:66;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;:::o;:::-;;-1:-1:-1;;;;;724:3623:66;;;;;;;:::o;:::-;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;:::o;:::-;;;;-1:-1:-1;724:3623:66;;;;;-1:-1:-1;724:3623:66;;;;;;;;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;:::o;:::-;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;-1:-1:-1;;724:3623:66;;;;;:::i;:::-;;;;;;;;;;;;;;;;;-1:-1:-1;724:3623:66;;;;;;:::o;:::-;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;724:3623:66;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;:::o;4001:344::-;4108:12;;;;:18;:12;;;;:::i;:::-;:18;724:3623;4140:12;:22;:12;;;;:::i;:::-;:22;724:3623;;;;;;;;4136:68;;4218:9;;:18;4214:74;;4140:22;724:3623;-1:-1:-1;;;4305:33:66;;4108:12;4305:33;;;724:3623;;;;;;;;;;;;;-1:-1:-1;;724:3623:66;;;;;;4140:22;724:3623;;;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;4108:12;724:3623;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;4140:22;724:3623;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;4108:12;724:3623;;;;;-1:-1:-1;;;;;724:3623:66;;;;;;;;;;;;;;4108:18;724:3623;;;;4108:12;724:3623;;;;;;;;;;;;;;;-1:-1:-1;724:3623:66;;;;;;;;;;;;;;-1:-1:-1;;724:3623:66;;;4305:33;;;:3;-1:-1:-1;;;;;724:3623:66;4305:33;;;;;;;-1:-1:-1;4305:33:66;;;4298:40;4001:344;:::o;4305:33::-;;;4108:12;4305:33;;4108:12;4305:33;;;;;;724:3623;4305:33;;;:::i;:::-;;;724:3623;;;;;4001:344;:::o;4305:33::-;;;-1:-1:-1;4305:33:66;;4214:74;4245:43;;;;-1:-1:-1;4245:43:66;;724:3623;4218:9;724:3623;;;-1:-1:-1;4245:43:66;4136:68;4171:33;;;-1:-1:-1;4171:33:66;;-1:-1:-1;4171:33:66",
     "linkReferences": {},
     "immutableReferences": {
-      "65124": [
+      "52582": [
         {
-          "start": 455,
+          "start": 479,
           "length": 32
         },
         {
-          "start": 1194,
+          "start": 1498,
           "length": 32
         }
       ]
     }
   },
   "methodIdentifiers": {
-    "attestAndCreateReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64,bool),uint64)": "91045229",
-    "attestAndCreateUnconditionalReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64,bool),uint64)": "7d1e90df",
+    "attestAndCreateReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64),uint64)": "4747e821",
+    "attestAndCreateUnconditionalReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64),uint64)": "b3bde17a",
     "eas()": "8150864d"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.27+commit.40a35a09\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IEAS\",\"name\":\"_eas\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"expected\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"actual\",\"type\":\"uint256\"}],\"name\":\"IncorrectAttestationValue\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"contract AttestationReferenceEscrowObligation\",\"name\":\"escrow\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"struct AttestationRequestData\",\"name\":\"data\",\"type\":\"tuple\"}],\"internalType\":\"struct AttestationRequest\",\"name\":\"request\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"arbiter\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"validationExpirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"validationRevocable\",\"type\":\"bool\"}],\"internalType\":\"struct AtomicAttestationUtils.ReferenceEscrowData\",\"name\":\"escrowData\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"escrowExpirationTime\",\"type\":\"uint64\"}],\"name\":\"attestAndCreateReferenceEscrow\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"attestationUid\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"escrowUid\",\"type\":\"bytes32\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract UnconditionalAttestationReferenceEscrowObligation\",\"name\":\"escrow\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"struct AttestationRequestData\",\"name\":\"data\",\"type\":\"tuple\"}],\"internalType\":\"struct AttestationRequest\",\"name\":\"request\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"arbiter\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"validationExpirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"validationRevocable\",\"type\":\"bool\"}],\"internalType\":\"struct AtomicAttestationUtils.ReferenceEscrowData\",\"name\":\"escrowData\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"escrowExpirationTime\",\"type\":\"uint64\"}],\"name\":\"attestAndCreateUnconditionalReferenceEscrow\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"attestationUid\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"escrowUid\",\"type\":\"bytes32\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"eas\",\"outputs\":[{\"internalType\":\"contract IEAS\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_eas\":\"EAS contract used to create attestations.\"}}},\"title\":\"AtomicAttestationUtils\",\"version\":1},\"userdoc\":{\"errors\":{\"IncorrectAttestationValue(uint256,uint256)\":[{\"notice\":\"Raised when `msg.value` does not exactly match the EAS attestation value.\"}]},\"kind\":\"user\",\"methods\":{\"attestAndCreateReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64,bool),uint64)\":{\"notice\":\"Creates an EAS attestation and then creates a default attestation-reference escrow for it.\"},\"attestAndCreateUnconditionalReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64,bool),uint64)\":{\"notice\":\"Creates an EAS attestation and then creates an unconditional attestation-reference escrow for it.\"},\"eas()\":{\"notice\":\"EAS contract used to create attestations.\"}},\"notice\":\"Helpers that create an EAS attestation and an attestation-reference escrow in one transaction.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/atomic/AtomicAttestationUtils.sol\":\"AtomicAttestationUtils\"},\"evmVersion\":\"prague\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@eas/=lib/eas-contracts/contracts/\",\":@erc8004/=lib/erc-8004-contracts/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@src/=src/\",\":@test/=test/\",\":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/\",\":eas-contracts/=lib/eas-contracts/contracts/\",\":erc-8004-contracts/=lib/erc-8004-contracts/contracts/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/\",\":hardhat/=lib/eas-contracts/node_modules/hardhat/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\"],\"viaIR\":true},\"sources\":{\"lib/eas-contracts/contracts/Common.sol\":{\"keccak256\":\"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d\",\"dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc\"]},\"lib/eas-contracts/contracts/IEAS.sol\":{\"keccak256\":\"0xdad0674defce04905dc7935f2756d6c477a6e876c0b1b7094b112a862f164c12\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://49e448c26c08952df034692d2ab3519dd40a1ebbeae4ce68b294567441933880\",\"dweb:/ipfs/QmWHcudjskUSCjgqsNWE65LVfWvcYB2vBn8RB1SmzvRLNR\"]},\"lib/eas-contracts/contracts/ISchemaRegistry.sol\":{\"keccak256\":\"0xea97dcd36a0c422169cbaac06698249e199049b627c16bff93fb8ab829058754\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d453a929ef64a69cd31195ec2ee5ed1193bfa29f633e13c960e92154c37ad158\",\"dweb:/ipfs/QmXs1Z3njbHs2EMgHonrZDfcwdog4kozHY5tYNrhZK5yqz\"]},\"lib/eas-contracts/contracts/ISemver.sol\":{\"keccak256\":\"0x04a67939b4e1a8d0a51101b8f69f8882930bbdc66319f38023828625b5d1ff18\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3dd543fa0e33cef1ea757627f9c2a10a66ee1ce17aa9087f437c5b53a903c7f0\",\"dweb:/ipfs/QmXsy6UsGBzF9zPCCjmiwPpCcX3tHqU13TmR67B69tKnR6\"]},\"lib/eas-contracts/contracts/Semver.sol\":{\"keccak256\":\"0x4f23442d048661b6aaa188ddc16b69cb310c2e44066b3852026afcb4201d61a9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://30c36e580cd93d9acb13e1a11e833946a8bd0bd2a8d1b2be049f0d96e0989808\",\"dweb:/ipfs/QmXmQTxKjSrUWutafQsqkbGufXqtzxuDAiMMJjXCHXiEqh\"]},\"lib/eas-contracts/contracts/resolver/ISchemaResolver.sol\":{\"keccak256\":\"0xb7d1961ed928c620cddf35c2bf46845b10828bc5d73145214630202ed355b6bb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cf1cabacfb15c9bace8280b540b52e5aa440e1b4eba675f9782c34ce0f03902f\",\"dweb:/ipfs/QmakYcK4xbrijzvoaBCmBJK6HeaBqbXxWKtDQ1z62aXwCR\"]},\"lib/eas-contracts/contracts/resolver/SchemaResolver.sol\":{\"keccak256\":\"0x385d8c0edbdc96af15cf8f22333183162561cbf7d3fb0df95287741e59899983\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ff7e8a17f69dcb7ddc937446e868d34baea61bbe249a8f5d8be486ab93001828\",\"dweb:/ipfs/QmUz9i7ViNK9kUWHeJRtE44HmpbxBDGJBjyec2aPD6Nn3Q\"]},\"lib/openzeppelin-contracts/contracts/utils/Bytes.sol\":{\"keccak256\":\"0x8140d608316521b1fd71167c3b708ebb8659da070723fc8807609553b296ee33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a7bf7db66869ba1e945a0390b85da2f6afc7e42a4735ca918d0d56ac90c50147\",\"dweb:/ipfs/QmRmNyhpBpgzSdQqLtrQCYE7H7eLnVVxh2Yy4YMrySR8AR\"]},\"lib/openzeppelin-contracts/contracts/utils/Panic.sol\":{\"keccak256\":\"0xf7fe324703a64fc51702311dc51562d5cb1497734f074e4f483bfb6717572d7a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c6a5ff4f9fd8649b7ee20800b7fa387d3465bd77cf20c2d1068cd5c98e1ed57a\",\"dweb:/ipfs/QmVSaVJf9FXFhdYEYeCEfjMVHrxDh5qL4CGkxdMWpQCrqG\"]},\"lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol\":{\"keccak256\":\"0xa516cbf1c7d15d3517c2d668601ce016c54395bf5171918a14e2686977465f53\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1e1d079e8edfb58efd23a311e315a4807b01b5d1cf153f8fa2d0608b9dec3e99\",\"dweb:/ipfs/QmTBExeX2SDTkn5xbk5ssbYSx7VqRp9H4Ux1CY4uQM4b9N\"]},\"lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol\":{\"keccak256\":\"0xcf74f855663ce2ae00ed8352666b7935f6cddea2932fdf2c3ecd30a9b1cd0e97\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9f660b1f351b757dfe01438e59888f31f33ded3afcf5cb5b0d9bf9aa6f320a8b\",\"dweb:/ipfs/QmarDJ5hZEgBtCmmrVzEZWjub9769eD686jmzb2XpSU1cM\"]},\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0x36d1750bf1aa5fee9c52adb2f7857ab652daca722fc05dff533b364f67a1139a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2e5e7052539b7849d02f3ce25acc1dce29373c11cfae9f0bc918c54b780c549a\",\"dweb:/ipfs/QmRGE32xNkMTo6i4pHHMxjpiu77yPwnTA25SFngw2NXJys\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377\",\"dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617\",\"dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u\"]},\"lib/openzeppelin-contracts/contracts/utils/math/Math.sol\":{\"keccak256\":\"0x09e3f1c72d4c5cbe8e2644ab7313f8f7177533ae2f4c24cdcbbeaf520a73734c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://93208401215d539fa2d81626b207c1f611def7883d0e447b3b5969ebaa7b3c2c\",\"dweb:/ipfs/QmXPxDnQPx8LAweX5ZJqEcwkvs59kP4c64VVDG1Jjq1mef\"]},\"lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol\":{\"keccak256\":\"0x195533c86d0ef72bcc06456a4f66a9b941f38eb403739b00f21fd7c1abd1ae54\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b1d578337048cad08c1c03041cca5978eff5428aa130c781b271ad9e5566e1f8\",\"dweb:/ipfs/QmPFKL2r9CBsMwmUqqdcFPfHZB2qcs9g1HDrPxzWSxomvy\"]},\"lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol\":{\"keccak256\":\"0xb1970fac7b64e6c09611e6691791e848d5e3fe410fa5899e7df2e0afd77a99e3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://db5fbb3dddd8b7047465b62575d96231ba8a2774d37fb4737fbf23340fabbb03\",\"dweb:/ipfs/QmVUSvooZKEdEdap619tcJjTLcAuH6QBdZqAzWwnAXZAWJ\"]},\"src/ArbiterUtils.sol\":{\"keccak256\":\"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441\",\"dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j\"]},\"src/BaseArbiter.sol\":{\"keccak256\":\"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa\",\"dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE\"]},\"src/BaseAttester.sol\":{\"keccak256\":\"0x181f13a8dd5cca65f81169719935bba8ebc8e0c6af799a2ba71ed6d9ef9ea87e\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://7e0087175f3172c9d173846dc8c0fb1bb523bf60397e3ba745e0856b4d0ce213\",\"dweb:/ipfs/QmaNyF4VoCDQSo3fjyv8UbtCdJdS5DcqHwiWHwEjCbRRak\"]},\"src/BaseEscrowObligation.sol\":{\"keccak256\":\"0x4daf4cc54cb3589d8e945c2b83a5f3ae352b1fea1155dab82163180663805a33\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://9fdeb6c3d875f17c1a8c335f4b40bbbb00503b38746751b123a6564607e59a32\",\"dweb:/ipfs/QmQQWuqyw7FJsxXNJhfQLUpYFCxYLKKeLeZtCFJSTUFENx\"]},\"src/BaseEscrowObligationUnconditional.sol\":{\"keccak256\":\"0x8f636e177113554c24897829163b621aae5e6a9698bc95c21e1f23377e484733\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://5797325cc05959632d7078bf103edcc9848e7c28d2c52b5bc1d3dd1f37927b7d\",\"dweb:/ipfs/QmbENxUtNJja79nfEBqAkw5FMjNx93QquxTsKyD27p2qA4\"]},\"src/BaseObligation.sol\":{\"keccak256\":\"0xf00b1317dd9203ea59e8da6c0bb23267b50ecb2751cd11b26a6330d1e596eb7b\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://5b9762a2ba2251c6ae9d23aa3ba49a8124f3348ac13c9271b8b9ada438dff475\",\"dweb:/ipfs/QmeBZUvNjNyC7W1hb1PKQq8CawC5ULWX9KXgJjH37wvPGH\"]},\"src/IArbiter.sol\":{\"keccak256\":\"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9\",\"dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M\"]},\"src/IEscrow.sol\":{\"keccak256\":\"0x8803bb72e285722a5e90f08046cfee7d37acc6cf83c13a5074cfb0740e316a45\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://965024e29be08418fd9acef578b5253af5fb0d39227c291298d83dae5d7ffd01\",\"dweb:/ipfs/QmPh2h21EC6L4aWauvk5cFzc4x3Xf4f1brxyrgxeKUuWEs\"]},\"src/SchemaRegistryUtils.sol\":{\"keccak256\":\"0x81e4728ad79515866f28175a00a512afd2f7010bd109ae221defb29a87430cd0\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://4edac7284c764f1236b5875ed00f357f0e30aecc5006c88afe220bef60b541d3\",\"dweb:/ipfs/QmXj8oLa1RXMgHCXtgdbriVqQFgX6rjnPNbmQpwpK2YXsK\"]},\"src/obligations/escrow/default/AttestationReferenceEscrowObligation.sol\":{\"keccak256\":\"0x0545e19a1744c16b2ac43aa1abdd20ff2ca70558a4d2b37e152c3dbdbbf99e92\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://ff4296a457262f271cd8ca35e03040b88dc63b38efacee095f8c9fd81f09b4d6\",\"dweb:/ipfs/QmdYkniffcgmZEVjh6zzA3wapWVMWgivwi9vChaXZ8PatF\"]},\"src/obligations/escrow/unconditional/UnconditionalAttestationReferenceEscrowObligation.sol\":{\"keccak256\":\"0xd94517e6fdc925a6feb04f90a649ff54e535eafe1901fe1f96593a349a62bc70\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://dc8d290e86caf3bd21af7cef0e5be0180a56b67522bc3aa1a916184d8146e057\",\"dweb:/ipfs/QmR2w5hKre3p8csy7x3jSzkmWJiwBDgoDuWeAyuDCSdk3N\"]},\"src/utils/atomic/AtomicAttestationUtils.sol\":{\"keccak256\":\"0x4d6fb4f00a6517fc9fba22f9e38d61a00b75ac2355d9da63b6fdaa91d482e0af\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://8adc48c38c67ba23563d002e564cd7fee052c336ef69addfa3393f7512b772bc\",\"dweb:/ipfs/QmXLQN9YbgxYbfQG28KGJhvGqmCShD74mLZaD9voERAkXG\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.27+commit.40a35a09\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IEAS\",\"name\":\"_eas\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"expected\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"actual\",\"type\":\"uint256\"}],\"name\":\"IncorrectAttestationValue\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"UnsupportedRevocableAttestation\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"escrow\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"attestationUid\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"escrowUid\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"unconditional\",\"type\":\"bool\"}],\"name\":\"ReferenceEscrowCreated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contract AttestationReferenceEscrowObligation\",\"name\":\"escrow\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"struct AttestationRequestData\",\"name\":\"data\",\"type\":\"tuple\"}],\"internalType\":\"struct AttestationRequest\",\"name\":\"request\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"arbiter\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"}],\"internalType\":\"struct AtomicAttestationUtils.ReferenceEscrowData\",\"name\":\"escrowData\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"escrowExpirationTime\",\"type\":\"uint64\"}],\"name\":\"attestAndCreateReferenceEscrow\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"attestationUid\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"escrowUid\",\"type\":\"bytes32\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract UnconditionalAttestationReferenceEscrowObligation\",\"name\":\"escrow\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"struct AttestationRequestData\",\"name\":\"data\",\"type\":\"tuple\"}],\"internalType\":\"struct AttestationRequest\",\"name\":\"request\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"arbiter\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"}],\"internalType\":\"struct AtomicAttestationUtils.ReferenceEscrowData\",\"name\":\"escrowData\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"escrowExpirationTime\",\"type\":\"uint64\"}],\"name\":\"attestAndCreateUnconditionalReferenceEscrow\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"attestationUid\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"escrowUid\",\"type\":\"bytes32\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"eas\",\"outputs\":[{\"internalType\":\"contract IEAS\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Security note: This contract has not been included in professional manual audits and      has only been reviewed by automated audit tooling so far.\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_eas\":\"EAS contract used to create attestations.\"}}},\"title\":\"AtomicAttestationUtils\",\"version\":1},\"userdoc\":{\"errors\":{\"IncorrectAttestationValue(uint256,uint256)\":[{\"notice\":\"Raised when `msg.value` does not exactly match the EAS attestation value.\"}],\"UnsupportedRevocableAttestation()\":[{\"notice\":\"Raised when the requested attestation is revocable but this utility has no revoke path.\"}]},\"events\":{\"ReferenceEscrowCreated(address,bytes32,bytes32,bool)\":{\"notice\":\"Emitted with the exact UIDs created by an atomic reference-escrow helper call.\"}},\"kind\":\"user\",\"methods\":{\"attestAndCreateReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64),uint64)\":{\"notice\":\"Creates an EAS attestation and then creates a default attestation-reference escrow for it.\"},\"attestAndCreateUnconditionalReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64),uint64)\":{\"notice\":\"Creates an EAS attestation and then creates an unconditional attestation-reference escrow for it.\"},\"eas()\":{\"notice\":\"EAS contract used to create attestations.\"}},\"notice\":\"Helpers that create an EAS attestation and an attestation-reference escrow in one transaction.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/atomic/AtomicAttestationUtils.sol\":\"AtomicAttestationUtils\"},\"evmVersion\":\"prague\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@eas/=lib/eas-contracts/contracts/\",\":@erc8004/=lib/erc-8004-contracts/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@src/=src/\",\":@test/=test/\",\":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/\",\":eas-contracts/=lib/eas-contracts/contracts/\",\":erc-8004-contracts/=lib/erc-8004-contracts/contracts/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/\",\":hardhat/=lib/eas-contracts/node_modules/hardhat/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\"],\"viaIR\":true},\"sources\":{\"lib/eas-contracts/contracts/Common.sol\":{\"keccak256\":\"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d\",\"dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc\"]},\"lib/eas-contracts/contracts/IEAS.sol\":{\"keccak256\":\"0xdad0674defce04905dc7935f2756d6c477a6e876c0b1b7094b112a862f164c12\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://49e448c26c08952df034692d2ab3519dd40a1ebbeae4ce68b294567441933880\",\"dweb:/ipfs/QmWHcudjskUSCjgqsNWE65LVfWvcYB2vBn8RB1SmzvRLNR\"]},\"lib/eas-contracts/contracts/ISchemaRegistry.sol\":{\"keccak256\":\"0xea97dcd36a0c422169cbaac06698249e199049b627c16bff93fb8ab829058754\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d453a929ef64a69cd31195ec2ee5ed1193bfa29f633e13c960e92154c37ad158\",\"dweb:/ipfs/QmXs1Z3njbHs2EMgHonrZDfcwdog4kozHY5tYNrhZK5yqz\"]},\"lib/eas-contracts/contracts/ISemver.sol\":{\"keccak256\":\"0x04a67939b4e1a8d0a51101b8f69f8882930bbdc66319f38023828625b5d1ff18\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3dd543fa0e33cef1ea757627f9c2a10a66ee1ce17aa9087f437c5b53a903c7f0\",\"dweb:/ipfs/QmXsy6UsGBzF9zPCCjmiwPpCcX3tHqU13TmR67B69tKnR6\"]},\"lib/eas-contracts/contracts/Semver.sol\":{\"keccak256\":\"0x4f23442d048661b6aaa188ddc16b69cb310c2e44066b3852026afcb4201d61a9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://30c36e580cd93d9acb13e1a11e833946a8bd0bd2a8d1b2be049f0d96e0989808\",\"dweb:/ipfs/QmXmQTxKjSrUWutafQsqkbGufXqtzxuDAiMMJjXCHXiEqh\"]},\"lib/eas-contracts/contracts/resolver/ISchemaResolver.sol\":{\"keccak256\":\"0xb7d1961ed928c620cddf35c2bf46845b10828bc5d73145214630202ed355b6bb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cf1cabacfb15c9bace8280b540b52e5aa440e1b4eba675f9782c34ce0f03902f\",\"dweb:/ipfs/QmakYcK4xbrijzvoaBCmBJK6HeaBqbXxWKtDQ1z62aXwCR\"]},\"lib/eas-contracts/contracts/resolver/SchemaResolver.sol\":{\"keccak256\":\"0x385d8c0edbdc96af15cf8f22333183162561cbf7d3fb0df95287741e59899983\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ff7e8a17f69dcb7ddc937446e868d34baea61bbe249a8f5d8be486ab93001828\",\"dweb:/ipfs/QmUz9i7ViNK9kUWHeJRtE44HmpbxBDGJBjyec2aPD6Nn3Q\"]},\"lib/openzeppelin-contracts/contracts/utils/Bytes.sol\":{\"keccak256\":\"0x8140d608316521b1fd71167c3b708ebb8659da070723fc8807609553b296ee33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a7bf7db66869ba1e945a0390b85da2f6afc7e42a4735ca918d0d56ac90c50147\",\"dweb:/ipfs/QmRmNyhpBpgzSdQqLtrQCYE7H7eLnVVxh2Yy4YMrySR8AR\"]},\"lib/openzeppelin-contracts/contracts/utils/Panic.sol\":{\"keccak256\":\"0xf7fe324703a64fc51702311dc51562d5cb1497734f074e4f483bfb6717572d7a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c6a5ff4f9fd8649b7ee20800b7fa387d3465bd77cf20c2d1068cd5c98e1ed57a\",\"dweb:/ipfs/QmVSaVJf9FXFhdYEYeCEfjMVHrxDh5qL4CGkxdMWpQCrqG\"]},\"lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol\":{\"keccak256\":\"0xa516cbf1c7d15d3517c2d668601ce016c54395bf5171918a14e2686977465f53\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1e1d079e8edfb58efd23a311e315a4807b01b5d1cf153f8fa2d0608b9dec3e99\",\"dweb:/ipfs/QmTBExeX2SDTkn5xbk5ssbYSx7VqRp9H4Ux1CY4uQM4b9N\"]},\"lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol\":{\"keccak256\":\"0xcf74f855663ce2ae00ed8352666b7935f6cddea2932fdf2c3ecd30a9b1cd0e97\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9f660b1f351b757dfe01438e59888f31f33ded3afcf5cb5b0d9bf9aa6f320a8b\",\"dweb:/ipfs/QmarDJ5hZEgBtCmmrVzEZWjub9769eD686jmzb2XpSU1cM\"]},\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0x36d1750bf1aa5fee9c52adb2f7857ab652daca722fc05dff533b364f67a1139a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2e5e7052539b7849d02f3ce25acc1dce29373c11cfae9f0bc918c54b780c549a\",\"dweb:/ipfs/QmRGE32xNkMTo6i4pHHMxjpiu77yPwnTA25SFngw2NXJys\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377\",\"dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617\",\"dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u\"]},\"lib/openzeppelin-contracts/contracts/utils/math/Math.sol\":{\"keccak256\":\"0x09e3f1c72d4c5cbe8e2644ab7313f8f7177533ae2f4c24cdcbbeaf520a73734c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://93208401215d539fa2d81626b207c1f611def7883d0e447b3b5969ebaa7b3c2c\",\"dweb:/ipfs/QmXPxDnQPx8LAweX5ZJqEcwkvs59kP4c64VVDG1Jjq1mef\"]},\"lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol\":{\"keccak256\":\"0x195533c86d0ef72bcc06456a4f66a9b941f38eb403739b00f21fd7c1abd1ae54\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b1d578337048cad08c1c03041cca5978eff5428aa130c781b271ad9e5566e1f8\",\"dweb:/ipfs/QmPFKL2r9CBsMwmUqqdcFPfHZB2qcs9g1HDrPxzWSxomvy\"]},\"lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol\":{\"keccak256\":\"0xb1970fac7b64e6c09611e6691791e848d5e3fe410fa5899e7df2e0afd77a99e3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://db5fbb3dddd8b7047465b62575d96231ba8a2774d37fb4737fbf23340fabbb03\",\"dweb:/ipfs/QmVUSvooZKEdEdap619tcJjTLcAuH6QBdZqAzWwnAXZAWJ\"]},\"src/BaseArbiter.sol\":{\"keccak256\":\"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa\",\"dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE\"]},\"src/BaseAttester.sol\":{\"keccak256\":\"0x12339a862aa0571244f4a0c2dae1a7bcc1734717474dbf0d69b63886987d1f99\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://d40e983dece581ecb49a1a01bc87c66e86f8c954cc442a02151ec427d680682d\",\"dweb:/ipfs/QmVA7Tqk1KaYhrZpxWx3cdsjUoxsRaoBjJX8k6nCSEk8En\"]},\"src/BaseEscrowObligation.sol\":{\"keccak256\":\"0x49717032f4edbbfd52bf160a99b7b39f726e8a2f968ed4b261ee31b1622a22ac\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://1aba86a5094f4be28de1c5782087aff65c6d0bbc8ab124501e0677b5cab843f2\",\"dweb:/ipfs/QmXfo8c532ALhAUC9iae2mrSWLmDTSABunMJP2iU7PpKek\"]},\"src/BaseEscrowObligationUnconditional.sol\":{\"keccak256\":\"0x4b5953fe02bf51931db76577be2688e2193b0fbc387a077e52ab57c01d981d6b\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://f83218c7d1dba95fe81ef42108978a8e67c93cd84991213e36693817b7e2aa3a\",\"dweb:/ipfs/QmSjVxWETZJC58XxyhVbwZ6iU77a6oXATvwjH7aJG7DofW\"]},\"src/BaseObligation.sol\":{\"keccak256\":\"0xf00b1317dd9203ea59e8da6c0bb23267b50ecb2751cd11b26a6330d1e596eb7b\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://5b9762a2ba2251c6ae9d23aa3ba49a8124f3348ac13c9271b8b9ada438dff475\",\"dweb:/ipfs/QmeBZUvNjNyC7W1hb1PKQq8CawC5ULWX9KXgJjH37wvPGH\"]},\"src/IArbiter.sol\":{\"keccak256\":\"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9\",\"dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M\"]},\"src/IEscrow.sol\":{\"keccak256\":\"0x8803bb72e285722a5e90f08046cfee7d37acc6cf83c13a5074cfb0740e316a45\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://965024e29be08418fd9acef578b5253af5fb0d39227c291298d83dae5d7ffd01\",\"dweb:/ipfs/QmPh2h21EC6L4aWauvk5cFzc4x3Xf4f1brxyrgxeKUuWEs\"]},\"src/libraries/ArbiterUtils.sol\":{\"keccak256\":\"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441\",\"dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j\"]},\"src/libraries/SchemaRegistryUtils.sol\":{\"keccak256\":\"0x81e4728ad79515866f28175a00a512afd2f7010bd109ae221defb29a87430cd0\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://4edac7284c764f1236b5875ed00f357f0e30aecc5006c88afe220bef60b541d3\",\"dweb:/ipfs/QmXj8oLa1RXMgHCXtgdbriVqQFgX6rjnPNbmQpwpK2YXsK\"]},\"src/obligations/escrow/default/AttestationReferenceEscrowObligation.sol\":{\"keccak256\":\"0xa0bb18ca0bc7b3e02958efe4d77e25bb2e732bf13d2590402652b2a8ad5493b1\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://2c171358980a8b8305e0bba99a15247c80431bc27921aa4a8acf13b3e7886017\",\"dweb:/ipfs/Qmf2T72h4ajEAcpcW1WVmk3nHVZ85dnxA8WKw8XtsYVCjY\"]},\"src/obligations/escrow/unconditional/UnconditionalAttestationReferenceEscrowObligation.sol\":{\"keccak256\":\"0xddcf929e1051a4b0f8f7f7d6bab8b9ae224038ea59694d96347d101979c7a8a0\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://4dbb677c7c2bb9e60f5086b9d510678b31caf4515515fc4491440b9180eafa37\",\"dweb:/ipfs/QmQZo2H3Mizu4CL5uZCnho6KUKSNxWHGMDbABh2NTTfUbM\"]},\"src/utils/atomic/AtomicAttestationUtils.sol\":{\"keccak256\":\"0x462b2923ed746d4dd1bfbdb75f928189874cd51b231a9400ac3cf006da0f6fa5\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://535a950290bc399c5427ba10988ec511d3799a60b3b660d0341b71bc8cd65ca0\",\"dweb:/ipfs/QmeqhDvxDnBEfFLy2vsrGRUiiaJS4kcxLQGF5Y9ZL4BQAF\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.27+commit.40a35a09"
@@ -312,6 +338,42 @@
           ],
           "type": "error",
           "name": "IncorrectAttestationValue"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "UnsupportedRevocableAttestation"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "escrow",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "bytes32",
+              "name": "attestationUid",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "bytes32",
+              "name": "escrowUid",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "bool",
+              "name": "unconditional",
+              "type": "bool",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "ReferenceEscrowCreated",
+          "anonymous": false
         },
         {
           "inputs": [
@@ -386,13 +448,8 @@
                 },
                 {
                   "internalType": "uint64",
-                  "name": "validationExpirationTime",
+                  "name": "expirationTime",
                   "type": "uint64"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "validationRevocable",
-                  "type": "bool"
                 }
               ]
             },
@@ -491,13 +548,8 @@
                 },
                 {
                   "internalType": "uint64",
-                  "name": "validationExpirationTime",
+                  "name": "expirationTime",
                   "type": "uint64"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "validationRevocable",
-                  "type": "bool"
                 }
               ]
             },
@@ -551,10 +603,10 @@
       "userdoc": {
         "kind": "user",
         "methods": {
-          "attestAndCreateReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64,bool),uint64)": {
+          "attestAndCreateReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64),uint64)": {
             "notice": "Creates an EAS attestation and then creates a default attestation-reference escrow for it."
           },
-          "attestAndCreateUnconditionalReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64,bool),uint64)": {
+          "attestAndCreateUnconditionalReferenceEscrow(address,(bytes32,(address,uint64,bool,bytes32,bytes,uint256)),(address,bytes,uint64),uint64)": {
             "notice": "Creates an EAS attestation and then creates an unconditional attestation-reference escrow for it."
           },
           "eas()": {
@@ -733,14 +785,6 @@
         ],
         "license": "MIT"
       },
-      "src/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      },
       "src/BaseArbiter.sol": {
         "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
         "urls": [
@@ -750,26 +794,26 @@
         "license": "UNLICENSED"
       },
       "src/BaseAttester.sol": {
-        "keccak256": "0x181f13a8dd5cca65f81169719935bba8ebc8e0c6af799a2ba71ed6d9ef9ea87e",
+        "keccak256": "0x12339a862aa0571244f4a0c2dae1a7bcc1734717474dbf0d69b63886987d1f99",
         "urls": [
-          "bzz-raw://7e0087175f3172c9d173846dc8c0fb1bb523bf60397e3ba745e0856b4d0ce213",
-          "dweb:/ipfs/QmaNyF4VoCDQSo3fjyv8UbtCdJdS5DcqHwiWHwEjCbRRak"
+          "bzz-raw://d40e983dece581ecb49a1a01bc87c66e86f8c954cc442a02151ec427d680682d",
+          "dweb:/ipfs/QmVA7Tqk1KaYhrZpxWx3cdsjUoxsRaoBjJX8k6nCSEk8En"
         ],
         "license": "UNLICENSED"
       },
       "src/BaseEscrowObligation.sol": {
-        "keccak256": "0x4daf4cc54cb3589d8e945c2b83a5f3ae352b1fea1155dab82163180663805a33",
+        "keccak256": "0x49717032f4edbbfd52bf160a99b7b39f726e8a2f968ed4b261ee31b1622a22ac",
         "urls": [
-          "bzz-raw://9fdeb6c3d875f17c1a8c335f4b40bbbb00503b38746751b123a6564607e59a32",
-          "dweb:/ipfs/QmQQWuqyw7FJsxXNJhfQLUpYFCxYLKKeLeZtCFJSTUFENx"
+          "bzz-raw://1aba86a5094f4be28de1c5782087aff65c6d0bbc8ab124501e0677b5cab843f2",
+          "dweb:/ipfs/QmXfo8c532ALhAUC9iae2mrSWLmDTSABunMJP2iU7PpKek"
         ],
         "license": "UNLICENSED"
       },
       "src/BaseEscrowObligationUnconditional.sol": {
-        "keccak256": "0x8f636e177113554c24897829163b621aae5e6a9698bc95c21e1f23377e484733",
+        "keccak256": "0x4b5953fe02bf51931db76577be2688e2193b0fbc387a077e52ab57c01d981d6b",
         "urls": [
-          "bzz-raw://5797325cc05959632d7078bf103edcc9848e7c28d2c52b5bc1d3dd1f37927b7d",
-          "dweb:/ipfs/QmbENxUtNJja79nfEBqAkw5FMjNx93QquxTsKyD27p2qA4"
+          "bzz-raw://f83218c7d1dba95fe81ef42108978a8e67c93cd84991213e36693817b7e2aa3a",
+          "dweb:/ipfs/QmSjVxWETZJC58XxyhVbwZ6iU77a6oXATvwjH7aJG7DofW"
         ],
         "license": "UNLICENSED"
       },
@@ -797,7 +841,15 @@
         ],
         "license": "UNLICENSED"
       },
-      "src/SchemaRegistryUtils.sol": {
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/SchemaRegistryUtils.sol": {
         "keccak256": "0x81e4728ad79515866f28175a00a512afd2f7010bd109ae221defb29a87430cd0",
         "urls": [
           "bzz-raw://4edac7284c764f1236b5875ed00f357f0e30aecc5006c88afe220bef60b541d3",
@@ -806,31 +858,31 @@
         "license": "UNLICENSED"
       },
       "src/obligations/escrow/default/AttestationReferenceEscrowObligation.sol": {
-        "keccak256": "0x0545e19a1744c16b2ac43aa1abdd20ff2ca70558a4d2b37e152c3dbdbbf99e92",
+        "keccak256": "0xa0bb18ca0bc7b3e02958efe4d77e25bb2e732bf13d2590402652b2a8ad5493b1",
         "urls": [
-          "bzz-raw://ff4296a457262f271cd8ca35e03040b88dc63b38efacee095f8c9fd81f09b4d6",
-          "dweb:/ipfs/QmdYkniffcgmZEVjh6zzA3wapWVMWgivwi9vChaXZ8PatF"
+          "bzz-raw://2c171358980a8b8305e0bba99a15247c80431bc27921aa4a8acf13b3e7886017",
+          "dweb:/ipfs/Qmf2T72h4ajEAcpcW1WVmk3nHVZ85dnxA8WKw8XtsYVCjY"
         ],
         "license": "UNLICENSED"
       },
       "src/obligations/escrow/unconditional/UnconditionalAttestationReferenceEscrowObligation.sol": {
-        "keccak256": "0xd94517e6fdc925a6feb04f90a649ff54e535eafe1901fe1f96593a349a62bc70",
+        "keccak256": "0xddcf929e1051a4b0f8f7f7d6bab8b9ae224038ea59694d96347d101979c7a8a0",
         "urls": [
-          "bzz-raw://dc8d290e86caf3bd21af7cef0e5be0180a56b67522bc3aa1a916184d8146e057",
-          "dweb:/ipfs/QmR2w5hKre3p8csy7x3jSzkmWJiwBDgoDuWeAyuDCSdk3N"
+          "bzz-raw://4dbb677c7c2bb9e60f5086b9d510678b31caf4515515fc4491440b9180eafa37",
+          "dweb:/ipfs/QmQZo2H3Mizu4CL5uZCnho6KUKSNxWHGMDbABh2NTTfUbM"
         ],
         "license": "UNLICENSED"
       },
       "src/utils/atomic/AtomicAttestationUtils.sol": {
-        "keccak256": "0x4d6fb4f00a6517fc9fba22f9e38d61a00b75ac2355d9da63b6fdaa91d482e0af",
+        "keccak256": "0x462b2923ed746d4dd1bfbdb75f928189874cd51b231a9400ac3cf006da0f6fa5",
         "urls": [
-          "bzz-raw://8adc48c38c67ba23563d002e564cd7fee052c336ef69addfa3393f7512b772bc",
-          "dweb:/ipfs/QmXLQN9YbgxYbfQG28KGJhvGqmCShD74mLZaD9voERAkXG"
+          "bzz-raw://535a950290bc399c5427ba10988ec511d3799a60b3b660d0341b71bc8cd65ca0",
+          "dweb:/ipfs/QmeqhDvxDnBEfFLy2vsrGRUiiaJS4kcxLQGF5Y9ZL4BQAF"
         ],
         "license": "UNLICENSED"
       }
     },
     "version": 1
   },
-  "id": 95
+  "id": 66
 }

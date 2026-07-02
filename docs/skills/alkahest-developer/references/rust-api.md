@@ -110,12 +110,11 @@ client
 │
 ├── commit_reveal()
 │   ├── do_obligation(&data, ref_uid) -> Receipt
+│   ├── do_obligation_for(&data, recipient, ref_uid) -> Receipt
+│   ├── do_obligation_raw(data, expiration_time, ref_uid, value) -> Receipt
+│   ├── reveal_and_collect(&data, recipient, escrow_contract, escrow_uid) -> Receipt
 │   ├── commit(commitment, bond_amount, commit_deadline) -> Receipt
 │   ├── compute_commitment(ref_uid, claimer, &data) -> FixedBytes<32>
-│   ├── reveal(ref_uid, claimer, &data) -> Receipt
-│   ├── claim(ref_uid, claimer_data) -> Receipt
-│   ├── claim_and_revoke_as_attester(ref_uid) -> Receipt
-│   ├── reclaim_bond(obligation_uid) -> Receipt
 │   ├── slash_bond(commitment) -> Receipt
 │   ├── get_obligation(uid) -> DecodedAttestation<ObligationData>
 │   ├── decode(bytes) -> ObligationData

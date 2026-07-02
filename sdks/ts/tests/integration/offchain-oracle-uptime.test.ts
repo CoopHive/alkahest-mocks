@@ -108,7 +108,7 @@ function startSchedulerWorker(ctx: SchedulerContext, arbiters: ArbiterModule) {
 
       const uptime = successes / totalChecks;
       const decision = uptime >= job.minUptime;
-      await arbiters.general.trustedOracle.arbitrate(uid, job.demandData, decision);
+      await arbiters.general.trustedOracle.arbitrateRaw(uid, job.demandData, decision);
     }
   })();
 
@@ -233,6 +233,7 @@ test("asynchronous offchain oracle uptime flow", { timeout: 15000 }, async () =>
   const arbitration = await testContext.charlie.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.charlie.address,
+    demand,
   );
 
   expect(arbitration?.decision).toBe(true);

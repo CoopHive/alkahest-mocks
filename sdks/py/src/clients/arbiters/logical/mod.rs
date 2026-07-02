@@ -391,6 +391,10 @@ impl From<DecodedDemand> for PyDecodedDemand {
                 demand_type: "TrustedOracle".to_string(),
                 raw_data: Some(data.abi_encode()),
             },
+            DecodedDemand::CommitmentTrustedOracle(data) => Self {
+                demand_type: "CommitmentTrustedOracle".to_string(),
+                raw_data: Some(data.abi_encode()),
+            },
             DecodedDemand::ERC8004Arbiter(data) => Self {
                 demand_type: "ERC8004Arbiter".to_string(),
                 raw_data: Some(data.abi_encode()),

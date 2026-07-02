@@ -79,14 +79,10 @@ export type MinimalClient = ExtendableClient<{
     attestation: { data: `0x${string}` },
   ) => DecodeAbiParametersReturnType<ObligationData>;
   getEscrowAttestation: (fulfillment: { refUID: `0x${string}` }) => ReturnType<typeof getAttestation>;
-  extractDemandData: <DemandData extends readonly AbiParameter[]>(
-    demandAbi: DemandData,
+  decodeEscrowCondition: (
     escrowAttestation: { data: `0x${string}` },
-  ) => DecodeAbiParametersReturnType<DemandData>;
-  getEscrowAndDemand: <DemandData extends readonly AbiParameter[]>(
-    demandAbi: DemandData,
-    fulfillment: { refUID: `0x${string}` },
-  ) => Promise<[Awaited<ReturnType<typeof getAttestation>>, DecodeAbiParametersReturnType<DemandData>]>;
+    extraDecoders?: Partial<DecodersRecord>,
+  ) => Demand & { decoded: DecodedDemandResult };
   decodeDemand: (demand: Demand, extraDecoders?: Partial<DecodersRecord>) => DecodedDemandResult;
 }>;
 
@@ -269,6 +265,24 @@ export const makeMinimalClient = (
       contractAddresses?.tokenBundleSplitterUnvalidated ||
       baseAddresses?.tokenBundleSplitterUnvalidated ||
       zeroAddress,
+    commitmentERC20Splitter:
+      contractAddresses?.commitmentERC20Splitter || baseAddresses?.commitmentERC20Splitter || zeroAddress,
+    commitmentERC1155Splitter:
+      contractAddresses?.commitmentERC1155Splitter ||
+      baseAddresses?.commitmentERC1155Splitter ||
+      zeroAddress,
+    commitmentNativeTokenSplitter:
+      contractAddresses?.commitmentNativeTokenSplitter ||
+      baseAddresses?.commitmentNativeTokenSplitter ||
+      zeroAddress,
+    commitmentTokenBundleSplitter:
+      contractAddresses?.commitmentTokenBundleSplitter ||
+      baseAddresses?.commitmentTokenBundleSplitter ||
+      zeroAddress,
+    commitmentTokenBundleSplitterUnvalidated:
+      contractAddresses?.commitmentTokenBundleSplitterUnvalidated ||
+      baseAddresses?.commitmentTokenBundleSplitterUnvalidated ||
+      zeroAddress,
 
     stringObligation: contractAddresses?.stringObligation || baseAddresses?.stringObligation || zeroAddress,
     commitRevealObligation:
@@ -285,6 +299,10 @@ export const makeMinimalClient = (
 
     trivialArbiter: contractAddresses?.trivialArbiter || baseAddresses?.trivialArbiter || zeroAddress,
     trustedOracleArbiter: contractAddresses?.trustedOracleArbiter || baseAddresses?.trustedOracleArbiter || zeroAddress,
+    commitmentTrustedOracleArbiter:
+      contractAddresses?.commitmentTrustedOracleArbiter ||
+      baseAddresses?.commitmentTrustedOracleArbiter ||
+      zeroAddress,
     intrinsicsArbiter: contractAddresses?.intrinsicsArbiter || baseAddresses?.intrinsicsArbiter || zeroAddress,
     anyArbiter: contractAddresses?.anyArbiter || baseAddresses?.anyArbiter || zeroAddress,
     allArbiter: contractAddresses?.allArbiter || baseAddresses?.allArbiter || zeroAddress,
@@ -467,61 +485,26 @@ export const makeMinimalClient = (
     },
 
     /**
-     * Extract demand data from an escrow attestation
-     * @param demandAbi - ABI parameters for the demand data
-     * @param escrowAttestation - The escrow attestation
-     * @returns Decoded demand data
-     *
-     * @example
-     * ```ts
-     * import { parseAbiParameters } from "viem";
-     *
-     * const demandAbi = parseAbiParameters("(address oracle, bytes data)");
-     * const demand = client.extractDemandData(demandAbi, escrowAttestation);
-     * ```
+     * Decode an escrow attestation's condition using the generic arbiter-demand codec registry.
+     * @param escrowAttestation - escrow attestation whose data encodes IEscrow condition fields
+     * @param extraDecoders - optional extension arbiter decoders keyed by arbiter address
+     * @returns raw { arbiter, demand } plus decoded arbiter-specific demand data
      */
-    extractDemandData: <DemandData extends readonly AbiParameter[]>(
-      demandAbi: DemandData,
+    decodeEscrowCondition: (
       escrowAttestation: { data: `0x${string}` },
-    ): DecodeAbiParametersReturnType<DemandData> => {
-      const arbiterDemandAbi = parseAbiParameters("(address arbiter, bytes demand)");
-      const arbiterDemand = decodeAbiParameters(arbiterDemandAbi, escrowAttestation.data)[0];
+      extraDecoders: Partial<DecodersRecord> = {},
+    ): Demand & { decoded: DecodedDemandResult } => {
+      const conditionAbi = parseAbiParameters("(address arbiter, bytes demand)");
+      const condition = decodeAbiParameters(conditionAbi, escrowAttestation.data)[0];
+      const demand = {
+        arbiter: condition.arbiter,
+        demand: condition.demand,
+      };
 
-      const trustedOracleDemandAbi = parseAbiParameters("(address oracle, bytes data)");
-      const trustedOracleDemand = decodeAbiParameters(trustedOracleDemandAbi, arbiterDemand.demand)[0];
-
-      return decodeAbiParameters(demandAbi, trustedOracleDemand.data);
-    },
-
-    /**
-     * Get escrow attestation and extract demand data in one call
-     * @param demandAbi - ABI parameters for the demand data
-     * @param fulfillment - The fulfillment attestation
-     * @returns Tuple of [escrow attestation, decoded demand data]
-     *
-     * @example
-     * ```ts
-     * import { parseAbiParameters } from "viem";
-     *
-     * const demandAbi = parseAbiParameters("(address oracle, bytes data)");
-     * const [escrow, demand] = await client.getEscrowAndDemand(demandAbi, fulfillment);
-     * ```
-     */
-    getEscrowAndDemand: async <DemandData extends readonly AbiParameter[]>(
-      demandAbi: DemandData,
-      fulfillment: { refUID: `0x${string}` },
-    ): Promise<[Awaited<ReturnType<typeof getAttestation>>, DecodeAbiParametersReturnType<DemandData>]> => {
-      const escrow = await getAttestation(viemClient, fulfillment.refUID, addresses);
-
-      const arbiterDemandAbi = parseAbiParameters("(address arbiter, bytes demand)");
-      const arbiterDemand = decodeAbiParameters(arbiterDemandAbi, escrow.data)[0];
-
-      const trustedOracleDemandAbi = parseAbiParameters("(address oracle, bytes data)");
-      const trustedOracleDemand = decodeAbiParameters(trustedOracleDemandAbi, arbiterDemand.demand)[0];
-
-      const demand = decodeAbiParameters(demandAbi, trustedOracleDemand.data);
-
-      return [escrow, demand];
+      return {
+        ...demand,
+        decoded: decodeDemandWithAddresses(demand, addresses, extraDecoders),
+      };
     },
 
     /**

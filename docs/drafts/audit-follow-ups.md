@@ -121,7 +121,7 @@ terminology:
 
 ### [x] Splitter Arbitration Requests
 
-Triaged as no contract change in `docs/drafts/audit-triage.md`.
+Triaged as no contract change in `docs/audits/triage/audit-agent-octane-2026-04-13-2026-06-23-triage.md`.
 
 Splitter arbitration request events are hints. The on-chain authorization path
 uses the escrow's local demand to select the oracle and requires that oracle to

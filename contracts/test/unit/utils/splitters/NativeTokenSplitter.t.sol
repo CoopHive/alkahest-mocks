@@ -2,27 +2,42 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseSplitter} from "@src/utils/splitters/BaseSplitter.sol";
-import {NativeTokenSplitter} from "@src/utils/splitters/NativeTokenSplitter.sol";
+import {BaseSplitter} from "@src/utils/splitters/default/BaseSplitter.sol";
+import {NativeTokenSplitter} from "@src/utils/splitters/default/NativeTokenSplitter.sol";
+import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
 import {NativeTokenEscrowObligation} from "@src/obligations/escrow/default/NativeTokenEscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
+import {IEscrow} from "@src/IEscrow.sol";
 import {IEAS, Attestation} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 
 import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
-contract NativeSplitterRefundingStringObligation is StringObligation {
-    uint256 public immutable refundAmount;
+contract CollectVictimNativeEscrowObligation is StringObligation {
+    IEscrow internal immutable escrow;
+    bytes32 internal immutable victimEscrow;
+    bytes32 internal immutable victimFulfillment;
 
-    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, uint256 _refundAmount)
-        StringObligation(_eas, _schemaRegistry)
-    {
-        refundAmount = _refundAmount;
+    constructor(
+        IEAS _eas,
+        ISchemaRegistry _schemaRegistry,
+        IEscrow _escrow,
+        bytes32 _victimEscrow,
+        bytes32 _victimFulfillment
+    ) StringObligation(_eas, _schemaRegistry) {
+        escrow = _escrow;
+        victimEscrow = _victimEscrow;
+        victimFulfillment = _victimFulfillment;
     }
 
-    function _afterAttest(Attestation memory attestation) internal override {
-        (bool success,) = payable(attestation.recipient).call{value: refundAmount}("");
-        require(success, "refund failed");
+    function _afterAttest(Attestation memory) internal override {
+        escrow.collect(victimEscrow, victimFulfillment);
+    }
+}
+
+contract RejectingNativeRecipient {
+    receive() external payable {
+        revert("NO_ETH");
     }
 }
 
@@ -46,8 +61,8 @@ contract NativeTokenSplitterTest is Test {
     function setUp() public {
         EASDeployer easDeployer = new EASDeployer();
         (eas, schemaRegistry) = easDeployer.deployEAS();
-        splitter = new NativeTokenSplitter(eas);
         escrowObligation = new NativeTokenEscrowObligation(eas, schemaRegistry);
+        splitter = new NativeTokenSplitter(eas, escrowObligation);
         stringObligation = new StringObligation(eas, schemaRegistry);
         vm.deal(buyer, 10 ether);
         vm.deal(executor, 1 ether);
@@ -76,24 +91,35 @@ contract NativeTokenSplitterTest is Test {
         assertEq(f.recipient, address(splitter));
     }
 
-    function testCreateFulfillmentRefundsNativeBalanceIncreaseToFulfiller() public {
-        bytes32 escrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
-        uint256 refundAmount = 0.3 ether;
-        uint256 spentAmount = 0.2 ether;
-        NativeSplitterRefundingStringObligation refundingObligation =
-            new NativeSplitterRefundingStringObligation(eas, schemaRegistry, refundAmount);
-        bytes memory obligationData =
-            abi.encode(StringObligation.ObligationData({item: "fulfillment", schema: bytes32(0)}));
+    function testCreateFulfillmentRejectsVictimEscrowCollectedByMaliciousObligation() public {
+        bytes32 victimEscrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
+        bytes32 victimFulfillmentUid = _createFulfillmentViaSplitter(executor, victimEscrowUid);
 
-        uint256 executorBalanceBefore = executor.balance;
-        vm.prank(executor);
-        bytes32 fulfillmentUid = splitter.createFulfillment{value: refundAmount + spentAmount}(
-            address(refundingObligation), obligationData, 0, escrowUid
+        NativeTokenSplitter.Split[] memory splits = new NativeTokenSplitter.Split[](1);
+        splits[0] = NativeTokenSplitter.Split({recipient: alice, amount: AMOUNT});
+        vm.prank(oracle);
+        splitter.arbitrate(victimFulfillmentUid, victimEscrowUid, splits);
+
+        CollectVictimNativeEscrowObligation maliciousObligation = new CollectVictimNativeEscrowObligation(
+            eas, schemaRegistry, IEscrow(address(escrowObligation)), victimEscrowUid, victimFulfillmentUid
         );
+        bytes memory attackData =
+            abi.encode(StringObligation.ObligationData({item: "attacker-fulfillment", schema: bytes32(0)}));
 
-        assertEq(splitter.fulfillers(fulfillmentUid), executor);
-        assertEq(executor.balance, executorBalanceBefore - spentAmount, "executor only pays non-refunded value");
-        assertEq(address(splitter).balance, 0, "refund is not stranded in splitter");
+        address attacker = makeAddr("attacker");
+        uint256 attackerBalanceBefore = attacker.balance;
+
+        vm.prank(attacker);
+        vm.expectRevert(BaseEscrowObligation.InvalidFulfillment.selector);
+        splitter.createFulfillment(address(maliciousObligation), attackData, 0, bytes32(0));
+
+        assertEq(attacker.balance, attackerBalanceBefore, "attacker does not receive victim escrow as refund");
+        assertEq(address(splitter).balance, 0, "victim escrow is not collected into splitter");
+        assertEq(address(escrowObligation).balance, AMOUNT, "victim escrow remains locked");
+        assertEq(alice.balance, 0, "victim split has not been distributed through fake refund path");
+
+        Attestation memory victimEscrow = eas.getAttestation(victimEscrowUid);
+        assertEq(victimEscrow.revocationTime, 0, "malicious obligation does not consume victim escrow");
     }
 
     function testCollectAndDistribute() public {
@@ -108,7 +134,7 @@ contract NativeTokenSplitterTest is Test {
         splitter.arbitrate(fulfillmentUid, escrowUid, splits);
 
         vm.prank(carol);
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
 
         assertEq(alice.balance, 0.6 ether);
         assertEq(bob.balance, 0.4 ether);
@@ -130,10 +156,78 @@ contract NativeTokenSplitterTest is Test {
 
         // Different caller — sentinel resolves to executor
         vm.prank(carol);
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
 
         assertEq(executor.balance, executorBalBefore + 0.6 ether, "Executor gets sentinel share");
         assertEq(bob.balance, 0.4 ether);
+    }
+
+    function testUnsafePartialSettlementRequiresFulfillerOrAttester() public {
+        RejectingNativeRecipient rejectingRecipient = new RejectingNativeRecipient();
+        bytes32 escrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
+        bytes32 fulfillmentUid = _createFulfillmentViaSplitter(executor, escrowUid);
+
+        NativeTokenSplitter.Split[] memory splits = new NativeTokenSplitter.Split[](2);
+        splits[0] = NativeTokenSplitter.Split({recipient: splitter.EXECUTOR_SENTINEL(), amount: 0.6 ether});
+        splits[1] = NativeTokenSplitter.Split({recipient: address(rejectingRecipient), amount: 0.4 ether});
+
+        vm.prank(oracle);
+        splitter.arbitrate(fulfillmentUid, escrowUid, splits);
+
+        vm.prank(carol);
+        vm.expectRevert(
+            abi.encodeWithSelector(BaseSplitter.UnauthorizedPartialSettlement.selector, fulfillmentUid, carol)
+        );
+        splitter.unsafePartiallyCollectAndDistribute(escrowUid, fulfillmentUid);
+
+        Attestation memory escrowAfterUnauthorized = eas.getAttestation(escrowUid);
+        assertEq(escrowAfterUnauthorized.revocationTime, 0, "unauthorized partial call leaves escrow live");
+
+        vm.prank(carol);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                NativeTokenSplitter.NativeTokenTransferFailed.selector, address(rejectingRecipient), 0.4 ether
+            )
+        );
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
+
+        uint256 executorBalanceBefore = executor.balance;
+        vm.prank(executor);
+        splitter.unsafePartiallyCollectAndDistribute(escrowUid, fulfillmentUid);
+
+        assertEq(executor.balance, executorBalanceBefore + 0.6 ether);
+        assertEq(address(rejectingRecipient).balance, 0);
+        assertEq(address(splitter).balance, 0.4 ether);
+    }
+
+    function testUnsafePartialSettlementAllowsFulfillmentAttester() public {
+        RejectingNativeRecipient rejectingRecipient = new RejectingNativeRecipient();
+        bytes32 escrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
+
+        bytes memory obligationData =
+            abi.encode(StringObligation.ObligationData({item: "manual fulfillment", schema: bytes32(0)}));
+        vm.prank(address(splitter));
+        bytes32 fulfillmentUid = stringObligation.doObligationRaw(obligationData, 0, escrowUid);
+
+        NativeTokenSplitter.Split[] memory splits = new NativeTokenSplitter.Split[](2);
+        splits[0] = NativeTokenSplitter.Split({recipient: alice, amount: 0.6 ether});
+        splits[1] = NativeTokenSplitter.Split({recipient: address(rejectingRecipient), amount: 0.4 ether});
+
+        vm.prank(oracle);
+        splitter.arbitrate(fulfillmentUid, escrowUid, splits);
+
+        vm.prank(carol);
+        vm.expectRevert(
+            abi.encodeWithSelector(BaseSplitter.UnauthorizedPartialSettlement.selector, fulfillmentUid, carol)
+        );
+        splitter.unsafePartiallyCollectAndDistribute(escrowUid, fulfillmentUid);
+
+        vm.prank(address(stringObligation));
+        splitter.unsafePartiallyCollectAndDistribute(escrowUid, fulfillmentUid);
+
+        assertEq(alice.balance, 0.6 ether);
+        assertEq(address(rejectingRecipient).balance, 0);
+        assertEq(address(splitter).balance, 0.4 ether);
     }
 
     function testCheckObligationRejectsDifferentFulfillment() public {

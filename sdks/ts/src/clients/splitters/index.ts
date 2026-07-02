@@ -1,9 +1,9 @@
 import { decodeAbiParameters, encodeAbiParameters, encodePacked, getAbiItem, keccak256 } from "viem";
-import { abi as erc20SplitterAbi } from "../../contracts/utils/splitters/ERC20Splitter";
-import { abi as erc1155SplitterAbi } from "../../contracts/utils/splitters/ERC1155Splitter";
-import { abi as nativeTokenSplitterAbi } from "../../contracts/utils/splitters/NativeTokenSplitter";
-import { abi as tokenBundleSplitterAbi } from "../../contracts/utils/splitters/TokenBundleSplitter";
-import { abi as tokenBundleSplitterUnvalidatedAbi } from "../../contracts/utils/splitters/TokenBundleSplitterUnvalidated";
+import { abi as erc20SplitterAbi } from "../../contracts/utils/splitters/default/ERC20Splitter";
+import { abi as erc1155SplitterAbi } from "../../contracts/utils/splitters/default/ERC1155Splitter";
+import { abi as nativeTokenSplitterAbi } from "../../contracts/utils/splitters/default/NativeTokenSplitter";
+import { abi as tokenBundleSplitterAbi } from "../../contracts/utils/splitters/default/TokenBundleSplitter";
+import { abi as tokenBundleSplitterUnvalidatedAbi } from "../../contracts/utils/splitters/default/TokenBundleSplitterUnvalidated";
 import type { Attestation, ChainAddresses } from "../../types";
 import { readContract, type ViemClient, writeContract } from "../../utils";
 

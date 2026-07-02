@@ -1,5 +1,6 @@
 import type { ChainAddresses } from "../../../types";
 import type { ViemClient } from "../../../utils";
+import { pickPackagedEscrowObligations } from "../../../utils/contractSafety";
 import { type Erc721EscrowClient, makeErc721EscrowClient } from "./escrow";
 import { type Erc721PaymentClient, makeErc721PaymentClient } from "./payment";
 import { type Erc721UtilClient, makeErc721UtilClient } from "./util";
@@ -18,6 +19,7 @@ export type Erc721Addresses = {
   escrowObligation: `0x${string}`;
   escrowObligationUnconditional: `0x${string}`;
   paymentObligation: `0x${string}`;
+  packagedEscrowObligations: readonly `0x${string}`[];
 };
 
 /** Pick ERC721 obligation addresses from a full chain address map. */
@@ -28,6 +30,7 @@ export const pickErc721Addresses = (addresses: ChainAddresses): Erc721Addresses 
   escrowObligation: addresses.erc721EscrowObligation,
   escrowObligationUnconditional: addresses.erc721UnconditionalEscrowObligation,
   paymentObligation: addresses.erc721PaymentObligation,
+  packagedEscrowObligations: pickPackagedEscrowObligations(addresses),
 });
 
 /** ERC721 obligation namespace client. */

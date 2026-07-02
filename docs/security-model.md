@@ -2,7 +2,7 @@
 
 This document records protocol-level assumptions that are easy to misread when
 reviewing Alkahest contracts. It is not an audit log. Issue-by-issue audit
-classification lives in `docs/drafts/audit-triage.md`.
+classification lives in `docs/audits/triage/audit-agent-octane-2026-04-13-2026-06-23-triage.md`.
 
 ## Core Model
 
@@ -13,6 +13,14 @@ and arbiters decide whether a fulfillment satisfies the escrow's encoded demand.
 The protocol deliberately leaves many policy choices to the escrow creator,
 arbiter, oracle, splitter oracle, SDK, or application. A configuration can be
 bad, permissive, or economically irrational without being a protocol bug.
+
+Attacks that require a user or integration to intentionally choose a malicious
+external contract are not protocol-level issues when the effects are confined to
+flows coordinated through that malicious contract. For example, if a helper
+validates that a fulfillment was attested by the caller-selected obligation
+contract, then a malicious obligation can only equivocate about attestations it
+created itself. That is an integration trust failure, not a breach of unrelated
+escrows or attestations produced by independent contracts.
 
 ## Attester Authority
 
@@ -102,9 +110,10 @@ reverts are part of the configured composition behavior.
 
 ## Attestation References
 
-Attestation reference escrows certify an attestation UID by minting a validation
-attestation when the escrow is collected. The certification attestation can have
-its own expiration and revocability, configured by the escrow data.
+Attestation reference escrows create a new attestation that references an
+existing attestation UID when the escrow is collected. That produced reference
+attestation can have its own expiration, configured by the escrow data, and is
+non-revocable unless a future variant adds an explicit revocation path.
 
 The reference escrow does not itself prove that the referenced attestation is
 currently live, unreverted, has a particular schema, or has a particular
@@ -125,8 +134,35 @@ atomic by themselves, such as creating a fulfillment and collecting an escrow in
 one transaction. Helpers are optional protocol utilities, not a replacement for
 understanding the underlying escrow, payment, and arbiter policy.
 
+Collection races are protocol concerns when the expected flow necessarily
+separates fulfillment creation or validation from escrow collection, such as
+async oracle or splitter decisions that enable an already-created fulfillment.
+When a provided helper lets the fulfiller create the fulfillment and collect the
+escrow atomically, racing those two steps is generally an integration issue
+rather than a critical protocol failure.
+
 Constructor-initialized helper contracts are intended for direct deployment
 unless they explicitly include proxy or clone initialization support.
+
+## Commit-Reveal With Oracles
+
+`CommitRevealObligation` hides fulfillment data only until the fulfillment is
+revealed on-chain. After the reveal transaction, the payload, salt, recipient,
+reference UID, and expiration time are public EAS attestation fields and can be
+copied into another commitment/reveal lifecycle.
+
+For synchronous settlement, users should prefer atomic reveal-and-collect flows
+where the fulfillment is revealed and collected in the same transaction. For
+async oracle settlement, the intended model is that the fulfiller reveals the
+payload privately to the oracle first, or that the oracle otherwise binds its
+approval to the intended fulfillment UID, recipient, and demand context. An
+oracle that approves copied public reveal payloads for new recipients is making
+a policy decision outside the secrecy guarantee that commit-reveal provides.
+
+`CommitmentTrustedOracleArbiter` supports this pre-reveal pattern by letting a
+trusted oracle approve an attestation intent before the EAS fulfillment UID
+exists. The later fulfillment must match the approved attester, schema,
+recipient, expiration time, revocability, refUID, and data hash.
 
 ## Splitter Fulfillment Helpers
 
@@ -144,8 +180,27 @@ the payment action.
 
 When a splitter helper creates a payment fulfillment, the EAS recipient may be
 the splitter so the splitter can later collect and distribute escrow assets. The
-payment's `payee` remains separate from that proof-recipient role. Native-token
-balance increases on the splitter during helper execution are treated as excess
-returned value and refunded to the external fulfiller, so flows should not model
-"payment to the splitter" by expecting the splitter to retain native tokens
-received during fulfillment creation.
+payment's `payee` remains separate from that proof-recipient role.
+
+Splitter fulfillment helpers may forward native value to the obligation contract
+they call, but they do not proxy refunds by inspecting splitter balance changes.
+That behavior was intentionally removed because a balance increase during helper
+execution can come from unrelated escrow collection or other external transfers,
+not only from unused value returned by the called obligation. Paid fulfillment
+flows should pass the exact native value required by the called obligation or
+handle refunds inside that obligation's own API.
+
+Unsafe partial splitter settlement is a recovery path, not the default
+settlement path. It is authorized for the recorded fulfiller of splitter-created
+fulfillments and for the fulfillment attester so direct splitter-recipient
+fulfillments can still recover. Integrations should not use programmable or
+untrusted contract attesters as splitter fulfillments unless they trust that
+contract's call surface not to trigger partial settlement unexpectedly.
+
+Each packaged splitter is bound to its corresponding packaged escrow obligation.
+Splitter collection does not accept arbitrary escrow contract addresses from
+callers, because a third-party escrow-like contract could otherwise attest a
+syntactically compatible escrow while proxying collection of a different real
+escrow into the splitter. Applications that need custom splitter settlement
+logic should deploy a custom splitter with its own explicit escrow trust
+boundary.

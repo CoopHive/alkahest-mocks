@@ -1,5 +1,6 @@
 import type { ChainAddresses } from "../../../types";
 import type { ViemClient } from "../../../utils";
+import { pickPackagedEscrowObligations } from "../../../utils/contractSafety";
 import { makeNativeTokenEscrowClient, type NativeTokenEscrowClient } from "./escrow";
 import {
   makeNativeTokenPaymentClient,
@@ -37,6 +38,7 @@ export type NativeTokenAddresses = {
   escrowObligation: `0x${string}`;
   escrowObligationUnconditional: `0x${string}`;
   paymentObligation: `0x${string}`;
+  packagedEscrowObligations: readonly `0x${string}`[];
 };
 
 /** Pick native-token obligation addresses from a full chain address map. */
@@ -46,6 +48,7 @@ export const pickNativeTokenAddresses = (addresses: ChainAddresses): NativeToken
   escrowObligation: addresses.nativeTokenEscrowObligation,
   escrowObligationUnconditional: addresses.nativeTokenUnconditionalEscrowObligation,
   paymentObligation: addresses.nativeTokenPaymentObligation,
+  packagedEscrowObligations: pickPackagedEscrowObligations(addresses),
 });
 
 /** Native-token obligation namespace client. */

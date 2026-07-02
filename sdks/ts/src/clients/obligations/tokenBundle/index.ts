@@ -1,5 +1,6 @@
 import type { ChainAddresses } from "../../../types";
 import type { ViemClient } from "../../../utils";
+import { pickPackagedEscrowObligations } from "../../../utils/contractSafety";
 import { makeTokenBundleEscrowClient, type TokenBundleEscrowClient } from "./escrow";
 import { makeTokenBundlePaymentClient, type TokenBundlePaymentClient } from "./payment";
 import { makeTokenBundleUtilClient, type TokenBundleUtilClient } from "./util";
@@ -18,6 +19,7 @@ export type TokenBundleAddresses = {
   escrowObligation: `0x${string}`;
   escrowObligationUnconditional: `0x${string}`;
   paymentObligation: `0x${string}`;
+  packagedEscrowObligations: readonly `0x${string}`[];
 };
 
 /** Pick token-bundle obligation addresses from a full chain address map. */
@@ -28,6 +30,7 @@ export const pickTokenBundleAddresses = (addresses: ChainAddresses): TokenBundle
   escrowObligation: addresses.tokenBundleEscrowObligation,
   escrowObligationUnconditional: addresses.tokenBundleUnconditionalEscrowObligation,
   paymentObligation: addresses.tokenBundlePaymentObligation,
+  packagedEscrowObligations: pickPackagedEscrowObligations(addresses),
 });
 
 /** Token-bundle obligation namespace client. */

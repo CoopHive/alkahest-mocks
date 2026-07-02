@@ -228,18 +228,23 @@ const isConfirmed = await client.arbiters.confirmation.exclusiveRevocable.isConf
 
 `CommitRevealObligation` implements `IArbiter` — it verifies that the fulfiller committed to their data in an earlier block.
 
-**Demand data:** none (empty bytes `0x`)
+**Demand data:** `{ bondAmount: uint256, commitDeadline: uint256 }`
 
 Use with `AllArbiter` to combine commit-reveal protection with other conditions:
 
 ```typescript
+const commitRevealDemand = client.commitReveal.encodeDemand({
+  bondAmount,
+  commitDeadline,
+});
+
 const demand = client.arbiters.logical.all.encodeDemand({
   arbiters: [
     client.contractAddresses.commitRevealObligation, // verifies commitment
     client.contractAddresses.trustedOracleArbiter,    // verifies quality
   ],
   demands: [
-    "0x",
+    commitRevealDemand,
     client.arbiters.general.trustedOracle.encodeDemand({
       oracle: ORACLE,
       data: "0x",

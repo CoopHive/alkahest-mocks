@@ -2,13 +2,14 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
-import {BaseSplitter} from "@src/utils/splitters/BaseSplitter.sol";
-import {ERC20Splitter} from "@src/utils/splitters/ERC20Splitter.sol";
+import {BaseSplitter} from "@src/utils/splitters/default/BaseSplitter.sol";
+import {ERC20Splitter} from "@src/utils/splitters/default/ERC20Splitter.sol";
 import {SplitterVerification} from "@src/utils/splitters/SplitterVerification.sol";
 import {ERC20EscrowObligation} from "@src/obligations/escrow/default/ERC20EscrowObligation.sol";
 import {StringObligation} from "@src/obligations/StringObligation.sol";
 import {BaseObligation} from "@src/BaseObligation.sol";
 import {BaseEscrowObligation} from "@src/BaseEscrowObligation.sol";
+import {IEscrow} from "@src/IEscrow.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -37,21 +38,6 @@ contract ReturningObligation {
     }
 }
 
-contract ERC20SplitterRefundingStringObligation is StringObligation {
-    uint256 public immutable refundAmount;
-
-    constructor(IEAS _eas, ISchemaRegistry _schemaRegistry, uint256 _refundAmount)
-        StringObligation(_eas, _schemaRegistry)
-    {
-        refundAmount = _refundAmount;
-    }
-
-    function _afterAttest(Attestation memory attestation) internal override {
-        (bool success,) = payable(attestation.recipient).call{value: refundAmount}("");
-        require(success, "refund failed");
-    }
-}
-
 contract NoOpERC20EscrowObligation is BaseObligation {
     constructor(IEAS eas, ISchemaRegistry schemaRegistry)
         BaseObligation(eas, schemaRegistry, "address arbiter, bytes demand, address token, uint256 amount", true)
@@ -59,6 +45,26 @@ contract NoOpERC20EscrowObligation is BaseObligation {
 
     function collect(bytes32, bytes32) external pure returns (bytes memory) {
         return "";
+    }
+}
+
+contract ProxyERC20EscrowObligation is BaseObligation {
+    address public victimEscrowContract;
+    bytes32 public victimEscrowUid;
+    bytes32 public victimFulfillmentUid;
+
+    constructor(IEAS eas, ISchemaRegistry schemaRegistry)
+        BaseObligation(eas, schemaRegistry, "address arbiter, bytes demand, address token, uint256 amount", true)
+    {}
+
+    function arm(address escrowContract, bytes32 escrowUid, bytes32 fulfillmentUid) external {
+        victimEscrowContract = escrowContract;
+        victimEscrowUid = escrowUid;
+        victimFulfillmentUid = fulfillmentUid;
+    }
+
+    function collect(bytes32, bytes32) external returns (bytes memory) {
+        return IEscrow(victimEscrowContract).collect(victimEscrowUid, victimFulfillmentUid);
     }
 }
 
@@ -84,8 +90,8 @@ contract ERC20SplitterTest is Test {
         EASDeployer easDeployer = new EASDeployer();
         (eas, schemaRegistry) = easDeployer.deployEAS();
 
-        splitter = new ERC20Splitter(eas);
         escrowObligation = new ERC20EscrowObligation(eas, schemaRegistry);
+        splitter = new ERC20Splitter(eas, escrowObligation);
         stringObligation = new StringObligation(eas, schemaRegistry);
         token = new MockERC20();
 
@@ -228,7 +234,7 @@ contract ERC20SplitterTest is Test {
     // check
     // -----------------------------------------------------------------
 
-    function testCheckObligationReturnsTrueWhenDecisionExists() public {
+    function testCheckObligationReturnsFalseWhenDecisionExistsOutsideSettlement() public {
         bytes32 escrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
         bytes32 fulfillmentUid = _createFulfillmentViaSplitter(executor, escrowUid);
 
@@ -239,7 +245,7 @@ contract ERC20SplitterTest is Test {
 
         bytes memory demand = abi.encode(ERC20Splitter.DemandData({oracle: oracle, data: bytes("")}));
         Attestation memory fulfillmentAttestation = eas.getAttestation(fulfillmentUid);
-        assertTrue(splitter.check(fulfillmentAttestation, demand, escrowUid));
+        assertFalse(splitter.check(fulfillmentAttestation, demand, escrowUid));
     }
 
     function testCheckObligationReturnsFalseWhenNoDecision() public {
@@ -302,27 +308,6 @@ contract ERC20SplitterTest is Test {
         assertEq(fulfillment.refUID, escrowUid, "Should reference escrow");
     }
 
-    function testCreateFulfillmentRefundsNativeBalanceIncreaseToFulfiller() public {
-        bytes32 escrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
-        uint256 refundAmount = 0.3 ether;
-        uint256 spentAmount = 0.1 ether;
-        ERC20SplitterRefundingStringObligation refundingObligation =
-            new ERC20SplitterRefundingStringObligation(eas, schemaRegistry, refundAmount);
-        bytes memory obligationData =
-            abi.encode(StringObligation.ObligationData({item: "fulfillment", schema: bytes32(0)}));
-
-        uint256 executorBalanceBefore = executor.balance;
-
-        vm.prank(executor);
-        bytes32 fulfillmentUid = splitter.createFulfillment{value: refundAmount + spentAmount}(
-            address(refundingObligation), obligationData, 0, escrowUid
-        );
-
-        assertEq(splitter.fulfillers(fulfillmentUid), executor, "Fulfiller should be recorded");
-        assertEq(executor.balance, executorBalanceBefore - spentAmount, "executor only pays non-refunded value");
-        assertEq(address(splitter).balance, 0, "refund is not stranded in splitter");
-    }
-
     function testCreateFulfillmentRejectsSpoofedUid() public {
         bytes32 escrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
         bytes32 fulfillmentUid = _createFulfillmentViaSplitter(executor, escrowUid);
@@ -372,7 +357,35 @@ contract ERC20SplitterTest is Test {
 
         // Anyone can call collectAndDistribute
         vm.prank(carol);
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
+
+        assertEq(token.balanceOf(alice), 60 * 10 ** 18);
+        assertEq(token.balanceOf(bob), 40 * 10 ** 18);
+        assertEq(token.balanceOf(address(splitter)), 0);
+    }
+
+    function testDirectEscrowCollectCannotBypassSplitterSettlement() public {
+        bytes32 escrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
+        bytes32 fulfillmentUid = _createFulfillmentViaSplitter(executor, escrowUid);
+
+        ERC20Splitter.Split[] memory splits = new ERC20Splitter.Split[](2);
+        splits[0] = ERC20Splitter.Split({recipient: alice, amount: 60 * 10 ** 18});
+        splits[1] = ERC20Splitter.Split({recipient: bob, amount: 40 * 10 ** 18});
+
+        vm.prank(oracle);
+        splitter.arbitrate(fulfillmentUid, escrowUid, splits);
+
+        vm.prank(carol);
+        vm.expectRevert(BaseEscrowObligation.InvalidFulfillment.selector);
+        escrowObligation.collect(escrowUid, fulfillmentUid);
+
+        Attestation memory escrowAttestation = eas.getAttestation(escrowUid);
+        assertEq(escrowAttestation.revocationTime, 0, "direct collect should not consume escrow");
+        assertEq(token.balanceOf(address(splitter)), 0, "direct collect should not strand tokens");
+        assertEq(token.balanceOf(address(escrowObligation)), AMOUNT, "escrow should still hold tokens");
+
+        vm.prank(carol);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
 
         assertEq(token.balanceOf(alice), 60 * 10 ** 18);
         assertEq(token.balanceOf(bob), 40 * 10 ** 18);
@@ -393,7 +406,7 @@ contract ERC20SplitterTest is Test {
 
         // A DIFFERENT address calls collectAndDistribute — sentinel still resolves to executor
         vm.prank(carol);
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
 
         assertEq(token.balanceOf(executor), 50 * 10 ** 18, "Executor should receive sentinel share");
         assertEq(token.balanceOf(carol), 0, "Caller should NOT receive sentinel share");
@@ -419,7 +432,7 @@ contract ERC20SplitterTest is Test {
         splitter.arbitrate(fulfillmentUid, escrowUid, splits);
 
         vm.expectRevert(abi.encodeWithSelector(BaseSplitter.NoFulfillerRecorded.selector, fulfillmentUid));
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
     }
 
     function testCollectAndDistributeSingleRecipient() public {
@@ -432,7 +445,7 @@ contract ERC20SplitterTest is Test {
         vm.prank(oracle);
         splitter.arbitrate(fulfillmentUid, escrowUid, splits);
 
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
         assertEq(token.balanceOf(carol), AMOUNT);
     }
 
@@ -448,10 +461,10 @@ contract ERC20SplitterTest is Test {
 
         vm.expectEmit(true, true, true, true);
         emit ERC20Splitter.EscrowCollectedAndDistributed(escrowUid, fulfillmentUid, executor, address(token), splits);
-        splitter.collectAndDistribute(address(escrowObligation), escrowUid, fulfillmentUid);
+        splitter.collectAndDistribute(escrowUid, fulfillmentUid);
     }
 
-    function testCollectAndDistributeRejectsNoOpEscrowWithoutReceipt() public {
+    function testCollectAndDistributeRejectsNonCanonicalEscrowAttestation() public {
         NoOpERC20EscrowObligation fakeEscrow = new NoOpERC20EscrowObligation(eas, schemaRegistry);
 
         bytes memory demand = abi.encode(ERC20Splitter.DemandData({oracle: oracle, data: bytes("")}));
@@ -472,11 +485,53 @@ contract ERC20SplitterTest is Test {
 
         token.mint(address(splitter), AMOUNT);
 
-        vm.expectRevert(abi.encodeWithSelector(SplitterVerification.InvalidCollectedAmount.selector, AMOUNT, 0));
-        splitter.collectAndDistribute(address(fakeEscrow), fakeEscrowUid, fulfillmentUid);
+        vm.expectRevert(BaseEscrowObligation.InvalidEscrowAttestation.selector);
+        splitter.collectAndDistribute(fakeEscrowUid, fulfillmentUid);
 
         assertEq(token.balanceOf(address(splitter)), AMOUNT);
         assertEq(token.balanceOf(alice), 0);
+    }
+
+    function testCollectAndDistributeRejectsProxyEscrowSubstitution() public {
+        bytes32 victimEscrowUid = _createEscrow(buyer, AMOUNT, uint64(block.timestamp + EXPIRATION));
+        bytes32 victimFulfillmentUid = _createFulfillmentViaSplitter(executor, victimEscrowUid);
+
+        ERC20Splitter.Split[] memory victimSplits = new ERC20Splitter.Split[](2);
+        victimSplits[0] = ERC20Splitter.Split({recipient: alice, amount: 60 * 10 ** 18});
+        victimSplits[1] = ERC20Splitter.Split({recipient: bob, amount: 40 * 10 ** 18});
+        vm.prank(oracle);
+        splitter.arbitrate(victimFulfillmentUid, victimEscrowUid, victimSplits);
+
+        address attacker = makeAddr("attacker");
+        ProxyERC20EscrowObligation proxyEscrow = new ProxyERC20EscrowObligation(eas, schemaRegistry);
+        bytes memory fakeDemand = abi.encode(ERC20Splitter.DemandData({oracle: attacker, data: bytes("")}));
+        bytes memory fakeEscrowData = abi.encode(
+            ERC20Splitter.EscrowObligationData({
+                arbiter: address(splitter), demand: fakeDemand, token: address(token), amount: AMOUNT
+            })
+        );
+
+        vm.prank(attacker);
+        bytes32 fakeEscrowUid = proxyEscrow.doObligationRaw(fakeEscrowData, 0, bytes32(0));
+        bytes32 fakeFulfillmentUid = _createFulfillmentViaSplitter(attacker, fakeEscrowUid);
+
+        ERC20Splitter.Split[] memory attackerSplits = new ERC20Splitter.Split[](1);
+        attackerSplits[0] = ERC20Splitter.Split({recipient: attacker, amount: AMOUNT});
+        vm.prank(attacker);
+        splitter.arbitrate(fakeFulfillmentUid, fakeEscrowUid, attackerSplits);
+
+        proxyEscrow.arm(address(escrowObligation), victimEscrowUid, victimFulfillmentUid);
+
+        vm.prank(attacker);
+        vm.expectRevert(BaseEscrowObligation.InvalidEscrowAttestation.selector);
+        splitter.collectAndDistribute(fakeEscrowUid, fakeFulfillmentUid);
+
+        Attestation memory victimEscrow = eas.getAttestation(victimEscrowUid);
+        assertEq(victimEscrow.revocationTime, 0, "victim escrow was not consumed through proxy escrow");
+        assertEq(token.balanceOf(attacker), 0);
+        assertEq(token.balanceOf(alice), 0);
+        assertEq(token.balanceOf(bob), 0);
+        assertEq(token.balanceOf(address(escrowObligation)), AMOUNT);
     }
 
     function testDirectCollectRejectsFulfillmentRecipientNotSplitter() public {

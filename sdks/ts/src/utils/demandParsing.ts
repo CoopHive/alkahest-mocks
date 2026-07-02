@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import { isAddressEqual, type Address, zeroAddress } from "viem";
 // Import static decode functions from attestation properties arbiters
 import { decodeDemand as decodeAttesterDemand } from "../clients/arbiters/attestationProperties/attesterArbiter";
 import { decodeDemand as decodeExpirationTimeAfterDemand } from "../clients/arbiters/attestationProperties/expirationTimeAfterArbiter";
@@ -14,6 +14,7 @@ import { decodeDemand as decodeTimeEqualDemand } from "../clients/arbiters/attes
 import { decodeDemand as decodeUidDemand } from "../clients/arbiters/attestationProperties/uidArbiter";
 // Import static decode functions from general arbiters
 import { decodeDemand as decodeERC8004Demand } from "../clients/arbiters/general/erc8004Arbiter";
+import { decodeDemand as decodeCommitmentTrustedOracleDemand } from "../clients/arbiters/general/commitmentTrustedOracle";
 import { decodeDemand as decodeReferencesEscrowDemand } from "../clients/arbiters/general/referencesEscrowArbiter";
 import { decodeDemand as decodeTrustedOracleDemand } from "../clients/arbiters/general/trustedOracle";
 import type { DecodersRecord, DemandDecoder, RecursivelyDecodedDemand } from "../clients/arbiters/logical";
@@ -43,66 +44,70 @@ export const createDecodersFromAddresses = (
   extraDecoders: Partial<DecodersRecord> = {},
 ): DecodersRecord => {
   const decoders: DecodersRecord = {};
+  const registerDecoder = (arbiter: Address, decoder: DemandDecoder) => {
+    if (!isAddressEqual(arbiter, zeroAddress)) {
+      decoders[arbiter.toLowerCase() as Address] = decoder;
+    }
+  };
 
   // Logical arbiters (composing - return children)
   if (addresses.allArbiter) {
-    decoders[addresses.allArbiter.toLowerCase() as Address] = AllArbiter.decodeDemand as DemandDecoder;
+    registerDecoder(addresses.allArbiter, AllArbiter.decodeDemand as DemandDecoder);
   }
   if (addresses.anyArbiter) {
-    decoders[addresses.anyArbiter.toLowerCase() as Address] = AnyArbiter.decodeDemand as DemandDecoder;
+    registerDecoder(addresses.anyArbiter, AnyArbiter.decodeDemand as DemandDecoder);
   }
 
   // Attestation properties arbiters (non-composing)
   if (addresses.attesterArbiter) {
-    decoders[addresses.attesterArbiter.toLowerCase() as Address] = decodeAttesterDemand as DemandDecoder;
+    registerDecoder(addresses.attesterArbiter, decodeAttesterDemand as DemandDecoder);
   }
   if (addresses.recipientArbiter) {
-    decoders[addresses.recipientArbiter.toLowerCase() as Address] = decodeRecipientDemand as DemandDecoder;
+    registerDecoder(addresses.recipientArbiter, decodeRecipientDemand as DemandDecoder);
   }
   if (addresses.refUidArbiter) {
-    decoders[addresses.refUidArbiter.toLowerCase() as Address] = decodeRefUidDemand as DemandDecoder;
+    registerDecoder(addresses.refUidArbiter, decodeRefUidDemand as DemandDecoder);
   }
   if (addresses.revocableArbiter) {
-    decoders[addresses.revocableArbiter.toLowerCase() as Address] = decodeRevocableDemand as DemandDecoder;
+    registerDecoder(addresses.revocableArbiter, decodeRevocableDemand as DemandDecoder);
   }
   if (addresses.schemaArbiter) {
-    decoders[addresses.schemaArbiter.toLowerCase() as Address] = decodeSchemaDemand as DemandDecoder;
+    registerDecoder(addresses.schemaArbiter, decodeSchemaDemand as DemandDecoder);
   }
   if (addresses.uidArbiter) {
-    decoders[addresses.uidArbiter.toLowerCase() as Address] = decodeUidDemand as DemandDecoder;
+    registerDecoder(addresses.uidArbiter, decodeUidDemand as DemandDecoder);
   }
   if (addresses.timeAfterArbiter) {
-    decoders[addresses.timeAfterArbiter.toLowerCase() as Address] = decodeTimeAfterDemand as DemandDecoder;
+    registerDecoder(addresses.timeAfterArbiter, decodeTimeAfterDemand as DemandDecoder);
   }
   if (addresses.timeBeforeArbiter) {
-    decoders[addresses.timeBeforeArbiter.toLowerCase() as Address] = decodeTimeBeforeDemand as DemandDecoder;
+    registerDecoder(addresses.timeBeforeArbiter, decodeTimeBeforeDemand as DemandDecoder);
   }
   if (addresses.timeEqualArbiter) {
-    decoders[addresses.timeEqualArbiter.toLowerCase() as Address] = decodeTimeEqualDemand as DemandDecoder;
+    registerDecoder(addresses.timeEqualArbiter, decodeTimeEqualDemand as DemandDecoder);
   }
   if (addresses.expirationTimeAfterArbiter) {
-    decoders[addresses.expirationTimeAfterArbiter.toLowerCase() as Address] =
-      decodeExpirationTimeAfterDemand as DemandDecoder;
+    registerDecoder(addresses.expirationTimeAfterArbiter, decodeExpirationTimeAfterDemand as DemandDecoder);
   }
   if (addresses.expirationTimeBeforeArbiter) {
-    decoders[addresses.expirationTimeBeforeArbiter.toLowerCase() as Address] =
-      decodeExpirationTimeBeforeDemand as DemandDecoder;
+    registerDecoder(addresses.expirationTimeBeforeArbiter, decodeExpirationTimeBeforeDemand as DemandDecoder);
   }
   if (addresses.expirationTimeEqualArbiter) {
-    decoders[addresses.expirationTimeEqualArbiter.toLowerCase() as Address] =
-      decodeExpirationTimeEqualDemand as DemandDecoder;
+    registerDecoder(addresses.expirationTimeEqualArbiter, decodeExpirationTimeEqualDemand as DemandDecoder);
   }
 
   // General arbiters
   if (addresses.trustedOracleArbiter) {
-    decoders[addresses.trustedOracleArbiter.toLowerCase() as Address] = decodeTrustedOracleDemand as DemandDecoder;
+    registerDecoder(addresses.trustedOracleArbiter, decodeTrustedOracleDemand as DemandDecoder);
+  }
+  if (addresses.commitmentTrustedOracleArbiter) {
+    registerDecoder(addresses.commitmentTrustedOracleArbiter, decodeCommitmentTrustedOracleDemand as DemandDecoder);
   }
   if (addresses.erc8004Arbiter) {
-    decoders[addresses.erc8004Arbiter.toLowerCase() as Address] = decodeERC8004Demand as DemandDecoder;
+    registerDecoder(addresses.erc8004Arbiter, decodeERC8004Demand as DemandDecoder);
   }
   if (addresses.referencesEscrowArbiter) {
-    decoders[addresses.referencesEscrowArbiter.toLowerCase() as Address] =
-      decodeReferencesEscrowDemand as DemandDecoder;
+    registerDecoder(addresses.referencesEscrowArbiter, decodeReferencesEscrowDemand as DemandDecoder);
   }
 
   // Note: Confirmation arbiters don't have DemandData - they are action-based (confirm/revoke)
@@ -110,7 +115,7 @@ export const createDecodersFromAddresses = (
 
   for (const [arbiter, decoder] of Object.entries(extraDecoders)) {
     if (decoder) {
-      decoders[arbiter.toLowerCase() as Address] = decoder;
+      registerDecoder(arbiter as Address, decoder);
     }
   }
 

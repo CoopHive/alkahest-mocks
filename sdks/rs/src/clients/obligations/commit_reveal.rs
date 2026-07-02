@@ -4,6 +4,7 @@ use crate::{
     extensions::{AlkahestExtension, ContractModule},
     impl_abi_conversions,
     types::{DecodedAttestation, ProviderContext, SharedWalletProvider},
+    utils::contract_safety::ensure_deployed_contract,
 };
 
 impl_abi_conversions!(contracts::obligations::CommitRevealObligation::ObligationData);
@@ -147,7 +148,7 @@ impl CommitRevealObligationModule {
         );
 
         let receipt = contract
-            .doObligation(data, ref_uid.unwrap_or(FixedBytes::<32>::default()))
+            .doObligation_0(data, ref_uid.unwrap_or(FixedBytes::<32>::default()))
             .send()
             .await?
             .get_receipt()
@@ -169,7 +170,7 @@ impl CommitRevealObligationModule {
         );
 
         let receipt = contract
-            .doObligationFor(
+            .doObligationFor_0(
                 data,
                 recipient,
                 ref_uid.unwrap_or(FixedBytes::<32>::default()),
@@ -190,6 +191,7 @@ impl CommitRevealObligationModule {
         ref_uid: Option<FixedBytes<32>>,
         value: U256,
     ) -> eyre::Result<TransactionReceipt> {
+        ensure_deployed_contract(self.addresses.obligation, "CommitRevealObligation")?;
         let contract = contracts::obligations::CommitRevealObligation::new(
             self.addresses.obligation,
             &*self.wallet_provider,
@@ -224,7 +226,7 @@ impl CommitRevealObligationModule {
         );
 
         let receipt = contract
-            .revealAndCollect(data, recipient, escrow_contract, escrow_uid)
+            .revealAndCollect_0(data, recipient, escrow_contract, escrow_uid)
             .send()
             .await?
             .get_receipt()
@@ -240,6 +242,7 @@ impl CommitRevealObligationModule {
         bond_amount: U256,
         commit_deadline: U256,
     ) -> eyre::Result<TransactionReceipt> {
+        ensure_deployed_contract(self.addresses.obligation, "CommitRevealObligation")?;
         let contract = contracts::obligations::CommitRevealObligation::new(
             self.addresses.obligation,
             &*self.wallet_provider,
@@ -269,7 +272,7 @@ impl CommitRevealObligationModule {
         );
 
         let result = contract
-            .computeCommitment(ref_uid, claimer, data)
+            .computeCommitment_1(claimer, ref_uid, data)
             .call()
             .await?;
 

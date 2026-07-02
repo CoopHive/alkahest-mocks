@@ -156,38 +156,45 @@ impl AlkahestExtension for BaseExtensions {
         config: Option<DefaultExtensionConfig>,
     ) -> eyre::Result<Self> {
         // Extract individual configs from the combined config
-        let erc20_config = config.as_ref().map(|c| c.erc20_addresses.clone());
-        let erc721_config = config.as_ref().map(|c| c.erc721_addresses.clone());
-        let erc1155_config = config.as_ref().map(|c| c.erc1155_addresses.clone());
-        let native_token_config = config.as_ref().map(|c| c.native_token_addresses.clone());
-        let token_bundle_config = config.as_ref().map(|c| c.token_bundle_addresses.clone());
-        let hook_based_config = config.as_ref().map(|c| c.hook_based_addresses.clone());
-        let splitters_config = config.as_ref().map(|c| c.splitters_addresses.clone());
-        let attestation_config = config.as_ref().map(|c| c.attestation_addresses.clone());
-        let string_obligation_config = config
-            .as_ref()
-            .map(|c| c.string_obligation_addresses.clone());
-        let commit_reveal_config = config
-            .as_ref()
-            .map(|c| c.commit_reveal_obligation_addresses.clone());
-        let arbiters_config = config.as_ref().map(|c| c.arbiters_addresses.clone());
-        let oracle_config = config.as_ref().map(|c| OracleAddresses {
-            eas: c.arbiters_addresses.eas.clone(),
-            trusted_oracle_arbiter: c.arbiters_addresses.trusted_oracle_arbiter.clone(),
+        let full_config = config.unwrap_or_default();
+        let packaged_escrow_obligations = full_config.packaged_escrow_obligations();
+        let erc20_config = Some(full_config.erc20_addresses.clone());
+        let erc721_config = Some(full_config.erc721_addresses.clone());
+        let erc1155_config = Some(full_config.erc1155_addresses.clone());
+        let native_token_config = Some(full_config.native_token_addresses.clone());
+        let token_bundle_config = Some(full_config.token_bundle_addresses.clone());
+        let hook_based_config = Some(full_config.hook_based_addresses.clone());
+        let splitters_config = Some(full_config.splitters_addresses.clone());
+        let attestation_config = Some(full_config.attestation_addresses.clone());
+        let string_obligation_config = Some(full_config.string_obligation_addresses.clone());
+        let commit_reveal_config = Some(full_config.commit_reveal_obligation_addresses.clone());
+        let arbiters_config = Some(full_config.arbiters_addresses.clone());
+        let oracle_config = Some(OracleAddresses {
+            eas: full_config.arbiters_addresses.eas.clone(),
+            trusted_oracle_arbiter: full_config
+                .arbiters_addresses
+                .trusted_oracle_arbiter
+                .clone(),
         });
 
         // Initialize each module with its specific configuration
-        let erc20 = Erc20Module::init(private_key.clone(), providers.clone(), erc20_config).await?;
-        let erc721 =
+        let mut erc20 =
+            Erc20Module::init(private_key.clone(), providers.clone(), erc20_config).await?;
+        erc20.set_packaged_escrow_obligations(packaged_escrow_obligations.clone());
+        let mut erc721 =
             Erc721Module::init(private_key.clone(), providers.clone(), erc721_config).await?;
-        let erc1155 =
+        erc721.set_packaged_escrow_obligations(packaged_escrow_obligations.clone());
+        let mut erc1155 =
             Erc1155Module::init(private_key.clone(), providers.clone(), erc1155_config).await?;
-        let native_token =
+        erc1155.set_packaged_escrow_obligations(packaged_escrow_obligations.clone());
+        let mut native_token =
             NativeTokenModule::init(private_key.clone(), providers.clone(), native_token_config)
                 .await?;
-        let token_bundle =
+        native_token.set_packaged_escrow_obligations(packaged_escrow_obligations.clone());
+        let mut token_bundle =
             TokenBundleModule::init(private_key.clone(), providers.clone(), token_bundle_config)
                 .await?;
+        token_bundle.set_packaged_escrow_obligations(packaged_escrow_obligations);
         let hook_based =
             HookBasedModule::init(private_key.clone(), providers.clone(), hook_based_config)
                 .await?;

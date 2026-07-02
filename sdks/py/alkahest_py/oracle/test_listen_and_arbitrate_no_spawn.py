@@ -45,10 +45,8 @@ async def test_arbitrate_many_all(env, alice_client, bob_client, charlie_client)
     string_client = bob_client.string_obligation
     fulfillment_uid = await string_client.do_obligation("good", escrow_uid)
 
-    # Request arbitration with inner demand data (not the full encoded DemandData)
-    # because TrustedOracleArbiter.check() uses only demand_.data for the decisionKey
     # Bob (fulfiller) requests Charlie (oracle) to arbitrate
-    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, inner_demand_data)
+    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, demand_bytes)
 
     oracle_client = charlie_client.oracle
 

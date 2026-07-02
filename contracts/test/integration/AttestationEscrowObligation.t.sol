@@ -9,6 +9,7 @@ import {IArbiter} from "@src/IArbiter.sol";
 import {BaseArbiter} from "@src/BaseArbiter.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
+import {ISchemaResolver} from "@eas/resolver/ISchemaResolver.sol";
 import {Attestation} from "@eas/Common.sol";
 import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
@@ -30,6 +31,7 @@ contract AttestationEscrowObligationTest is Test {
     MockArbiter public failingArbiter;
     IEAS public eas;
     ISchemaRegistry public schemaRegistry;
+    bytes32 public producedAttestationSchema;
 
     uint256 internal constant ALICE_PRIVATE_KEY = 0xa11ce;
     uint256 internal constant BOB_PRIVATE_KEY = 0xb0b;
@@ -48,15 +50,16 @@ contract AttestationEscrowObligationTest is Test {
         failingArbiter = new MockArbiter(false);
 
         escrowObligation = new AttestationEscrowObligation(eas, schemaRegistry);
+        producedAttestationSchema = schemaRegistry.register("bytes data", ISchemaResolver(address(0)), false);
     }
 
     function testCreateEscrow() public {
         AttestationRequest memory attestationRequest = AttestationRequest({
-            schema: escrowObligation.ATTESTATION_SCHEMA(),
+            schema: producedAttestationSchema,
             data: AttestationRequestData({
                 recipient: bob,
                 expirationTime: uint64(block.timestamp + 1 days),
-                revocable: true,
+                revocable: false,
                 refUID: bytes32(0),
                 data: abi.encode("Test attestation data"),
                 value: 0
@@ -76,11 +79,11 @@ contract AttestationEscrowObligationTest is Test {
     function testCollectEscrowSuccess() public {
         // Create escrow
         AttestationRequest memory attestationRequest = AttestationRequest({
-            schema: escrowObligation.ATTESTATION_SCHEMA(),
+            schema: producedAttestationSchema,
             data: AttestationRequestData({
                 recipient: bob,
                 expirationTime: uint64(block.timestamp + 1 days),
-                revocable: true,
+                revocable: false,
                 refUID: bytes32(0),
                 data: abi.encode("Test attestation data"),
                 value: 0
@@ -112,11 +115,11 @@ contract AttestationEscrowObligationTest is Test {
     function testCollectEscrowFailure() public {
         // Create escrow with failing arbiter
         AttestationRequest memory attestationRequest = AttestationRequest({
-            schema: escrowObligation.ATTESTATION_SCHEMA(),
+            schema: producedAttestationSchema,
             data: AttestationRequestData({
                 recipient: bob,
                 expirationTime: uint64(block.timestamp + 1 days),
-                revocable: true,
+                revocable: false,
                 refUID: bytes32(0),
                 data: abi.encode("Test attestation data"),
                 value: 0
@@ -147,11 +150,11 @@ contract AttestationEscrowObligationTest is Test {
 
     function testCheckObligation() public {
         AttestationRequest memory attestationRequest = AttestationRequest({
-            schema: escrowObligation.ATTESTATION_SCHEMA(),
+            schema: producedAttestationSchema,
             data: AttestationRequestData({
                 recipient: bob,
                 expirationTime: uint64(block.timestamp + 1 days),
-                revocable: true,
+                revocable: false,
                 refUID: bytes32(0),
                 data: abi.encode("Test attestation data"),
                 value: 0

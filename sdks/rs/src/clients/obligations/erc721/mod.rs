@@ -49,6 +49,7 @@ pub enum Erc721Contract {
 pub struct Erc721Module {
     pub(crate) signer: PrivateKeySigner,
     pub(crate) wallet_provider: SharedWalletProvider,
+    pub(crate) packaged_escrow_obligations: Vec<Address>,
     pub addresses: Erc721Addresses,
 }
 
@@ -71,11 +72,21 @@ impl Erc721Module {
         wallet_provider: SharedWalletProvider,
         addresses: Option<Erc721Addresses>,
     ) -> eyre::Result<Self> {
+        let addresses = addresses.unwrap_or_default();
+        let packaged_escrow_obligations = vec![
+            addresses.escrow_obligation_default,
+            addresses.escrow_obligation_unconditional,
+        ];
         Ok(Erc721Module {
             signer,
             wallet_provider,
-            addresses: addresses.unwrap_or_default(),
+            packaged_escrow_obligations,
+            addresses,
         })
+    }
+
+    pub(crate) fn set_packaged_escrow_obligations(&mut self, addresses: Vec<Address>) {
+        self.packaged_escrow_obligations = addresses;
     }
 
     /// Access escrow API

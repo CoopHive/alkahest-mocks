@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
+import { createWalletClient, custom, encodeAbiParameters, parseAbiParameters, zeroAddress } from "viem";
 import {
   AllArbiter,
   AnyArbiter,
   createDecodersFromAddresses,
   decodeDemand,
   decodeDemandWithAddresses,
+  makeClient,
 } from "../../src";
 import { encodeDemand as encodeTrustedOracleDemand } from "../../src/clients/arbiters/general/trustedOracle";
 import type { ChainAddresses, Demand } from "../../src/types";
@@ -55,12 +57,18 @@ describe("Demand Parsing and Static Codecs", () => {
     nativeTokenSplitter: "0x12345678901234567890123456789012345678DA",
     tokenBundleSplitter: "0x12345678901234567890123456789012345678DB",
     tokenBundleSplitterUnvalidated: "0x12345678901234567890123456789012345678DC",
+    commitmentERC20Splitter: "0x12345678901234567890123456789012345678DD",
+    commitmentERC1155Splitter: "0x12345678901234567890123456789012345678DE",
+    commitmentNativeTokenSplitter: "0x12345678901234567890123456789012345678DF",
+    commitmentTokenBundleSplitter: "0x12345678901234567890123456789012345678E7",
+    commitmentTokenBundleSplitterUnvalidated: "0x12345678901234567890123456789012345678E8",
 
     stringObligation: "0x12345678901234567890123456789012345678AC",
     commitRevealObligation: "0x12345678901234567890123456789012345678AD",
 
     trivialArbiter: "0x1234567890123456789012345678901234567894",
     trustedOracleArbiter: "0x1234567890123456789012345678901234567892",
+    commitmentTrustedOracleArbiter: "0x12345678901234567890123456789012345678D0",
     anyArbiter: "0x1234567890123456789012345678901234567896",
     allArbiter: "0x1234567890123456789012345678901234567897",
     intrinsicsArbiter: "0x1234567890123456789012345678901234567898",
@@ -147,6 +155,88 @@ describe("Demand Parsing and Static Codecs", () => {
     });
   });
 
+  describe("Escrow condition decoding", () => {
+    test("decodes escrow condition through generic arbiter codecs without hiding TrustedOracle authority", () => {
+      const wallet = createWalletClient({
+        account: mockAddresses.recipientArbiter,
+        chain: {
+          id: 31337,
+          name: "anvil",
+          nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+          rpcUrls: { default: { http: ["http://127.0.0.1:8545"] } },
+        },
+        transport: custom({ request: async () => undefined }),
+      });
+      const client = makeClient(wallet, mockAddresses);
+      const paymentDemandAbi = parseAbiParameters("(address token, uint256 amount, address payee)");
+      const paymentDemand = encodeAbiParameters(paymentDemandAbi, [
+        {
+          token: mockAddresses.erc20PaymentObligation.toLowerCase() as `0x${string}`,
+          amount: 123n,
+          payee: mockAddresses.erc20EscrowObligation.toLowerCase() as `0x${string}`,
+        },
+      ]);
+      const demand = encodeTrustedOracleDemand({
+        oracle: mockAddresses.recipientArbiter.toLowerCase() as `0x${string}`,
+        data: paymentDemand,
+      });
+      const escrowData = encodeAbiParameters(parseAbiParameters("(address arbiter, bytes demand)"), [
+        {
+          arbiter: mockAddresses.trustedOracleArbiter,
+          demand,
+        },
+      ]);
+
+      const condition = client.decodeEscrowCondition({ data: escrowData });
+
+      expect(condition.arbiter).toBe(mockAddresses.trustedOracleArbiter);
+      expect(condition.demand).toBe(demand);
+      expect(condition.decoded.arbiter).toBe(mockAddresses.trustedOracleArbiter);
+      expect(condition.decoded.decoded.oracle).toBe(mockAddresses.recipientArbiter.toLowerCase());
+      expect(condition.decoded.decoded.data).toBe(paymentDemand);
+    });
+
+    test("does not decode TrustedOracle-shaped bytes when the arbiter address is unknown", () => {
+      const wallet = createWalletClient({
+        account: mockAddresses.recipientArbiter,
+        chain: {
+          id: 31337,
+          name: "anvil",
+          nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+          rpcUrls: { default: { http: ["http://127.0.0.1:8545"] } },
+        },
+        transport: custom({ request: async () => undefined }),
+      });
+      const client = makeClient(wallet, mockAddresses);
+      const lookalikeArbiter = "0x9999999999999999999999999999999999999999" as `0x${string}`;
+      const paymentDemand = encodeAbiParameters(parseAbiParameters("(address token, uint256 amount, address payee)"), [
+        {
+          token: mockAddresses.erc20PaymentObligation.toLowerCase() as `0x${string}`,
+          amount: 123n,
+          payee: mockAddresses.erc20EscrowObligation.toLowerCase() as `0x${string}`,
+        },
+      ]);
+      const trustedOracleShapedDemand = encodeTrustedOracleDemand({
+        oracle: mockAddresses.recipientArbiter.toLowerCase() as `0x${string}`,
+        data: paymentDemand,
+      });
+      const escrowData = encodeAbiParameters(parseAbiParameters("(address arbiter, bytes demand)"), [
+        {
+          arbiter: lookalikeArbiter,
+          demand: trustedOracleShapedDemand,
+        },
+      ]);
+
+      const condition = client.decodeEscrowCondition({ data: escrowData });
+
+      expect(condition.arbiter).toBe(lookalikeArbiter);
+      expect(condition.demand).toBe(trustedOracleShapedDemand);
+      expect(condition.decoded.arbiter).toBe(lookalikeArbiter);
+      expect(condition.decoded.isUnknown).toBe(true);
+      expect(condition.decoded.decoded).toEqual({ raw: trustedOracleShapedDemand });
+    });
+  });
+
   describe("Decoders Record Creation", () => {
     test("should create decoders record from addresses", () => {
       const decoders = createDecodersFromAddresses(mockAddresses);
@@ -171,6 +261,25 @@ describe("Demand Parsing and Static Codecs", () => {
 
       expect(result.isUnknown).toBe(true);
       expect(result.arbiter).toBe(unknownDemand.arbiter);
+      expect(result.decoded).toEqual({ raw: "0x" });
+    });
+
+    test("does not register zero addresses as known arbiters", () => {
+      const decoders = createDecodersFromAddresses({
+        ...mockAddresses,
+        referencesEscrowArbiter: zeroAddress,
+      });
+      const result = decodeDemand(
+        {
+          arbiter: zeroAddress,
+          demand: "0x",
+        },
+        decoders,
+      );
+
+      expect(decoders[zeroAddress]).toBeUndefined();
+      expect(result.isUnknown).toBe(true);
+      expect(result.arbiter).toBe(zeroAddress);
       expect(result.decoded).toEqual({ raw: "0x" });
     });
 

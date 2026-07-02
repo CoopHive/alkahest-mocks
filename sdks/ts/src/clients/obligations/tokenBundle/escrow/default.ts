@@ -120,17 +120,19 @@ export const makeTokenBundleDefaultEscrowClient = (viemClient: ViemClient, addre
     },
 
     create: async (price: TokenBundle, item: Demand, expiration: bigint) => {
+      const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
         abi: tokenBundleEscrowAbi.abi,
         functionName: "doObligation",
         args: [
           {
-            ...flattenTokenBundle(price),
+            ...flatBundle,
             ...item,
           },
           expiration,
         ],
+        value: flatBundle.nativeAmount,
       });
 
       const attested = await getAttestedEventFromTxHash(viemClient, hash);
@@ -139,17 +141,19 @@ export const makeTokenBundleDefaultEscrowClient = (viemClient: ViemClient, addre
 
     approveAndCreate: async (price: TokenBundle, item: Demand, expiration: bigint) => {
       await util.approve(price, "escrow");
+      const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
         abi: tokenBundleEscrowAbi.abi,
         functionName: "doObligation",
         args: [
           {
-            ...flattenTokenBundle(price),
+            ...flatBundle,
             ...item,
           },
           expiration,
         ],
+        value: flatBundle.nativeAmount,
       });
 
       const attested = await getAttestedEventFromTxHash(viemClient, hash);

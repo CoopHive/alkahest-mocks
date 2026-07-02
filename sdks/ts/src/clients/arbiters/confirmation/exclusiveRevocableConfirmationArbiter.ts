@@ -137,12 +137,13 @@ export const makeExclusiveRevocableConfirmationArbiterClient = (viemClient: Viem
     waitForConfirmationRequest: async (
       fulfillment: `0x${string}`,
       confirmer: `0x${string}`,
+      escrow: `0x${string}`,
       pollingInterval?: number,
     ) => {
       const logs = await viemClient.getLogs({
         address: addresses.exclusiveRevocableConfirmationArbiter,
         event: confirmationRequestedEvent,
-        args: { fulfillment, confirmer },
+        args: { fulfillment, confirmer, escrow },
         fromBlock: "earliest",
         toBlock: "latest",
       });
@@ -161,7 +162,7 @@ export const makeExclusiveRevocableConfirmationArbiterClient = (viemClient: Viem
         const unwatch = viemClient.watchEvent({
           address: addresses.exclusiveRevocableConfirmationArbiter,
           event: confirmationRequestedEvent,
-          args: { fulfillment, confirmer },
+          args: { fulfillment, confirmer, escrow },
           pollingInterval: optimalInterval,
           onLogs: (logs) => {
             if (logs[0]) {

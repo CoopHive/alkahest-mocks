@@ -127,14 +127,11 @@ const commitment = await client.commitReveal.computeCommitment(
 // 2. Commit with bond and the demand's commit deadline
 await client.commitReveal.commit(commitment, bondAmount, commitDeadline);
 
-// 3. Wait at least 1 block, then reveal
-const { attested } = await client.commitReveal.doObligation(
+// 3. Wait at least 1 block, then reveal. The matching bond is reclaimed on reveal.
+await client.commitReveal.doObligation(
   { payload: encodedPayload, salt: randomSalt, schema: schemaTag },
   escrowUid,
 );
-
-// 4. Reclaim bond
-await client.commitReveal.reclaimBond(attested.uid);
 ```
 
 ## Composing Demands
@@ -178,6 +175,6 @@ Variants: `exclusiveRevocable`, `exclusiveUnrevocable`, `nonexclusiveRevocable`,
 ```typescript
 const attestation = await client.getAttestation(uid);
 const data = client.extractObligationData(erc20EscrowObligationAbi, attestation);
-const demandData = client.extractDemandData(trustedOracleArbiterDemandAbi, escrowAttestation);
+const condition = client.decodeEscrowCondition(escrowAttestation);
 const decoded = client.decodeDemand({ arbiter: arbiterAddress, demand: demandBytes });
 ```

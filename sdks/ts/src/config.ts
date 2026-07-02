@@ -3,13 +3,57 @@ import type { ChainAddresses } from "./types";
 const zeroAddress = "0x0000000000000000000000000000000000000000" as const;
 
 const unreleasedAddresses = {
+  erc20EscrowObligation: zeroAddress,
   erc20UnconditionalEscrowObligation: zeroAddress,
+  erc20PaymentObligation: zeroAddress,
+  erc20AtomicPaymentUtils: zeroAddress,
+  erc721EscrowObligation: zeroAddress,
   erc721UnconditionalEscrowObligation: zeroAddress,
+  erc721PaymentObligation: zeroAddress,
+  erc721AtomicPaymentUtils: zeroAddress,
+  erc1155EscrowObligation: zeroAddress,
   erc1155UnconditionalEscrowObligation: zeroAddress,
+  erc1155PaymentObligation: zeroAddress,
+  erc1155AtomicPaymentUtils: zeroAddress,
+  nativeTokenEscrowObligation: zeroAddress,
   nativeTokenUnconditionalEscrowObligation: zeroAddress,
+  nativeTokenPaymentObligation: zeroAddress,
+  nativeTokenAtomicPaymentUtils: zeroAddress,
+  tokenBundleEscrowObligation: zeroAddress,
   tokenBundleUnconditionalEscrowObligation: zeroAddress,
+  tokenBundlePaymentObligation: zeroAddress,
+  tokenBundleAtomicPaymentUtils: zeroAddress,
+  atomicAttestationUtils: zeroAddress,
+  attestationEscrowObligation: zeroAddress,
   attestationUnconditionalEscrowObligation: zeroAddress,
+  attestationReferenceEscrowObligation: zeroAddress,
   attestationReferenceUnconditionalEscrowObligation: zeroAddress,
+  stringObligation: zeroAddress,
+  commitRevealObligation: zeroAddress,
+  trivialArbiter: zeroAddress,
+  trustedOracleArbiter: zeroAddress,
+  commitmentTrustedOracleArbiter: zeroAddress,
+  allArbiter: zeroAddress,
+  anyArbiter: zeroAddress,
+  intrinsicsArbiter: zeroAddress,
+  erc8004Arbiter: zeroAddress,
+  referencesEscrowArbiter: zeroAddress,
+  exclusiveRevocableConfirmationArbiter: zeroAddress,
+  exclusiveUnrevocableConfirmationArbiter: zeroAddress,
+  nonexclusiveRevocableConfirmationArbiter: zeroAddress,
+  nonexclusiveUnrevocableConfirmationArbiter: zeroAddress,
+  recipientArbiter: zeroAddress,
+  attesterArbiter: zeroAddress,
+  schemaArbiter: zeroAddress,
+  uidArbiter: zeroAddress,
+  refUidArbiter: zeroAddress,
+  revocableArbiter: zeroAddress,
+  timeAfterArbiter: zeroAddress,
+  timeBeforeArbiter: zeroAddress,
+  timeEqualArbiter: zeroAddress,
+  expirationTimeAfterArbiter: zeroAddress,
+  expirationTimeBeforeArbiter: zeroAddress,
+  expirationTimeEqualArbiter: zeroAddress,
   hookEscrowObligation: zeroAddress,
   hooksEscrowObligation: zeroAddress,
   erc20EscrowHook: zeroAddress,
@@ -23,15 +67,64 @@ const unreleasedAddresses = {
   nativeTokenSplitter: zeroAddress,
   tokenBundleSplitter: zeroAddress,
   tokenBundleSplitterUnvalidated: zeroAddress,
+  commitmentERC20Splitter: zeroAddress,
+  commitmentERC1155Splitter: zeroAddress,
+  commitmentNativeTokenSplitter: zeroAddress,
+  commitmentTokenBundleSplitter: zeroAddress,
+  commitmentTokenBundleSplitterUnvalidated: zeroAddress,
 } satisfies Pick<
   ChainAddresses,
+  | "erc20EscrowObligation"
   | "erc20UnconditionalEscrowObligation"
+  | "erc20PaymentObligation"
+  | "erc20AtomicPaymentUtils"
+  | "erc721EscrowObligation"
   | "erc721UnconditionalEscrowObligation"
+  | "erc721PaymentObligation"
+  | "erc721AtomicPaymentUtils"
+  | "erc1155EscrowObligation"
   | "erc1155UnconditionalEscrowObligation"
+  | "erc1155PaymentObligation"
+  | "erc1155AtomicPaymentUtils"
+  | "nativeTokenEscrowObligation"
   | "nativeTokenUnconditionalEscrowObligation"
+  | "nativeTokenPaymentObligation"
+  | "nativeTokenAtomicPaymentUtils"
+  | "tokenBundleEscrowObligation"
   | "tokenBundleUnconditionalEscrowObligation"
+  | "tokenBundlePaymentObligation"
+  | "tokenBundleAtomicPaymentUtils"
+  | "atomicAttestationUtils"
+  | "attestationEscrowObligation"
   | "attestationUnconditionalEscrowObligation"
+  | "attestationReferenceEscrowObligation"
   | "attestationReferenceUnconditionalEscrowObligation"
+  | "stringObligation"
+  | "commitRevealObligation"
+  | "trivialArbiter"
+  | "trustedOracleArbiter"
+  | "commitmentTrustedOracleArbiter"
+  | "allArbiter"
+  | "anyArbiter"
+  | "intrinsicsArbiter"
+  | "erc8004Arbiter"
+  | "referencesEscrowArbiter"
+  | "exclusiveRevocableConfirmationArbiter"
+  | "exclusiveUnrevocableConfirmationArbiter"
+  | "nonexclusiveRevocableConfirmationArbiter"
+  | "nonexclusiveUnrevocableConfirmationArbiter"
+  | "recipientArbiter"
+  | "attesterArbiter"
+  | "schemaArbiter"
+  | "uidArbiter"
+  | "refUidArbiter"
+  | "revocableArbiter"
+  | "timeAfterArbiter"
+  | "timeBeforeArbiter"
+  | "timeEqualArbiter"
+  | "expirationTimeAfterArbiter"
+  | "expirationTimeBeforeArbiter"
+  | "expirationTimeEqualArbiter"
   | "hookEscrowObligation"
   | "hooksEscrowObligation"
   | "erc20EscrowHook"
@@ -45,6 +138,11 @@ const unreleasedAddresses = {
   | "nativeTokenSplitter"
   | "tokenBundleSplitter"
   | "tokenBundleSplitterUnvalidated"
+  | "commitmentERC20Splitter"
+  | "commitmentERC1155Splitter"
+  | "commitmentNativeTokenSplitter"
+  | "commitmentTokenBundleSplitter"
+  | "commitmentTokenBundleSplitterUnvalidated"
 >;
 
 export const contractAddresses: Record<string, ChainAddresses> = {
@@ -83,6 +181,7 @@ export const contractAddresses: Record<string, ChainAddresses> = {
 
     trivialArbiter: "0xa42Df9aDF17f26Ff1eD5206cf83E5dab88bD3523",
     trustedOracleArbiter: "0x504f496F696c41558070a933c90a98604c3f4475",
+    commitmentTrustedOracleArbiter: zeroAddress,
     allArbiter: "0x9F78AAca04A2c005618c3B214e609B13Bbe66356",
     anyArbiter: "0xaF67e09D889e0df9d404059283A1FA7BA7Ac7d88",
     intrinsicsArbiter: "0xd78d4404E2E1a9033eEf1ac69BF488f6a4Ea9aC0",
@@ -126,6 +225,11 @@ export const contractAddresses: Record<string, ChainAddresses> = {
     nativeTokenSplitter: "0xa32161d10B31f3eB5BfC0EEfDE64784e01CBD9E1",
     tokenBundleSplitter: "0xceC0D468b29cA55FEA224e2b66AC5694036aA24d",
     tokenBundleSplitterUnvalidated: "0x6c1c55E13E5Ec8668dad15dbe1B461E7814643a1",
+    commitmentERC20Splitter: zeroAddress,
+    commitmentERC1155Splitter: zeroAddress,
+    commitmentNativeTokenSplitter: zeroAddress,
+    commitmentTokenBundleSplitter: zeroAddress,
+    commitmentTokenBundleSplitterUnvalidated: zeroAddress,
   },
   "Sepolia": {
     eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
@@ -162,6 +266,7 @@ export const contractAddresses: Record<string, ChainAddresses> = {
 
     trivialArbiter: "0xD56bD862e7BEbD0BD7356603e9E52B32c241E2AE",
     trustedOracleArbiter: "0x61dC9c2D757A1C9D0d38A281288d9ef918e77Baa",
+    commitmentTrustedOracleArbiter: zeroAddress,
     allArbiter: "0xb6890A8Cb8CDeFcE11Edc0314125b750F48BFF1B",
     anyArbiter: "0x81dC8f2C5677b02aFcAFef34Fa7E75D55dfAEF20",
     intrinsicsArbiter: "0x7B20A4b25af2a2637C240622d6C3875DeA609A64",
@@ -205,124 +310,21 @@ export const contractAddresses: Record<string, ChainAddresses> = {
     nativeTokenSplitter: "0xdA1fD1aC28C1d09E723e5a23Cd16554C87D0D09C",
     tokenBundleSplitter: "0x0F235Bf6e5725791e118A25b4903856030525EF0",
     tokenBundleSplitterUnvalidated: "0x4621C947D713cC7f63a377EE4D05eea789ab0956",
+    commitmentERC20Splitter: zeroAddress,
+    commitmentERC1155Splitter: zeroAddress,
+    commitmentNativeTokenSplitter: zeroAddress,
+    commitmentTokenBundleSplitter: zeroAddress,
+    commitmentTokenBundleSplitterUnvalidated: zeroAddress,
   },
   "GenLayer Bradbury": {
     ...unreleasedAddresses,
     eas: "0xaC18Fa0DE3123215404a0C5f6d02ed9B2D0D0d98",
     easSchemaRegistry: "0xA1F9076932f6eEA0D90BBfA1D6E81D001012645D",
-
-    erc20AtomicPaymentUtils: "0x52De4B30721b3E3660A79da7491a9B2F8a9cB1D5",
-    erc20EscrowObligation: "0x2A7df117e45D93d34a7893CC3aE8B105Ae0B561C",
-    erc20PaymentObligation: "0x59A9c929778Ad2cC4D5DB6151bDEf0F9Fa7A068C",
-
-    erc721AtomicPaymentUtils: "0xA42032D8BFeE2302cC6F80ff51D283Ffc5a4081f",
-    erc721EscrowObligation: "0xf04d9CA943f57353A3A735494E503280C1cD5e77",
-    erc721PaymentObligation: "0x52748DD0E39eD6eA9f626179b5eb512302adA7D9",
-
-    erc1155AtomicPaymentUtils: "0x6eb7792D821f32914Be75901F1b4269B13Efad2e",
-    erc1155EscrowObligation: "0x677Aa9e1CD9D05f57FbCa2327155EA7479ec7Ac3",
-    erc1155PaymentObligation: "0x36Fcf1Ddee838a94B1358285A11e8bbbb90eD9A1",
-
-    tokenBundleAtomicPaymentUtils: "0xf60db64506E366a0A6c1f4cF9D849Adc7bB886D6",
-    tokenBundleEscrowObligation: "0xA7EacA68Bffc9443eA08fd58633Eeed3f5EE8A92",
-    tokenBundlePaymentObligation: "0x9bA50DB048d1E5db034377abf97F92496D027C71",
-
-    atomicAttestationUtils: "0x0000000000000000000000000000000000000000",
-    attestationEscrowObligation: "0x5E6602F080E9B37267aa52306c699ae54Cd71056",
-    attestationReferenceEscrowObligation: "0x57D5165F9487F6E7bD6E6a24017FAdadc2b1D7D2",
-
-    stringObligation: "0xB2c808911E84E80156101983897Da7c80e13cB47",
-    commitRevealObligation: "0xb822aA07F55a8B75Ee133ede1f21C4E49DE7952f",
-
-    trivialArbiter: "0x847F69d27E4F1A8a115aCa3F4358B079706dc9CE",
-    trustedOracleArbiter: "0xe968dFA581B8aBb94eC5F24d0b56163DE69511fD",
-    allArbiter: "0xaabdDAa76651d20922d1F561f924a40F6fE7710c",
-    anyArbiter: "0xF486f9a62eeb085e99828e1D706bBA5dfC1bD1fD",
-    intrinsicsArbiter: "0xBE7fE4d7CEb2140eeBdf01e12D198AEBAdC1F54D",
-    erc8004Arbiter: "0xe483EDA58b5f9Eba06A1ad0151dA5e4a5fFC8300",
-    referencesEscrowArbiter: zeroAddress,
-    nativeTokenEscrowObligation: "0x5bf7c8b0d60d05af0a3De531EB876De271E80dbc",
-    nativeTokenPaymentObligation: "0xEB0C0c41F708B8b3556a6F44a1a015a6832C2d2C",
-    nativeTokenAtomicPaymentUtils: "0x1A7c6F951e0a33F4910dbe56a200Eb413AEca17b",
-
-    // Confirmation arbiters (new naming convention)
-    exclusiveRevocableConfirmationArbiter: "0x309509db364526C7aE202eA9ED94a398a0819d38",
-    exclusiveUnrevocableConfirmationArbiter: "0x6CC4068d471E96A1669097918e18017f5764f72a",
-    nonexclusiveRevocableConfirmationArbiter: "0x941044D43F9d75dfA8Ad24880B9B9cAD6e116a66",
-    nonexclusiveUnrevocableConfirmationArbiter: "0x16aeE626D398B547eDD5fa4BdAA638524C92921d",
-
-    // Attestation Properties Arbiters
-    recipientArbiter: "0xeda25079f76ef93c54cC042116Be8D88E49D3439",
-    attesterArbiter: "0xFAf8a07709dB9f90d0A0415876CfE00D904cd40B",
-    schemaArbiter: "0x68A6e6022ab9984Ee1A9A6cee384FF2aE8be5264",
-    uidArbiter: "0x05d9Aa2A6AE38619b864Ff7f87A8f94301ecAB42",
-    refUidArbiter: "0x913eAdD13dcCdeD9CD5518075083b6C7A9574A8c",
-    revocableArbiter: "0x0ea9e144FfDc6456E5cE8d1f75c686112e8f29c5",
-    timeAfterArbiter: "0x208385Fb349c01af2CfA8C6b86F633F6642718e2",
-    timeBeforeArbiter: "0xae4fa2D5d7EDD6Aaf697dC0c98EDb921F0fEc058",
-    timeEqualArbiter: "0xC51C938f5497be8157DAf8CCc3Eb11Afb8b752C0",
-    expirationTimeAfterArbiter: "0x7c782ac7741BB78DB7491Ee222af0a04f7f2bc0b",
-    expirationTimeBeforeArbiter: "0xF1C9E20078A13816ACdDF3153e2eAaDd93Fd6E57",
-    expirationTimeEqualArbiter: "0xE9ee2c57B18283b66d342D33d63C55f1427f9e9B",
   },
   "Ethereum": {
     ...unreleasedAddresses,
     eas: "0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587",
     easSchemaRegistry: "0xA7b39296258348C78294F95B872b282326A97BDF",
-
-    erc20AtomicPaymentUtils: "0x5bf7c8b0d60d05af0a3De531EB876De271E80dbc",
-    erc20EscrowObligation: "0xB2c808911E84E80156101983897Da7c80e13cB47",
-    erc20PaymentObligation: "0xb822aA07F55a8B75Ee133ede1f21C4E49DE7952f",
-
-    erc721AtomicPaymentUtils: "0xEB0C0c41F708B8b3556a6F44a1a015a6832C2d2C",
-    erc721EscrowObligation: "0x2A7df117e45D93d34a7893CC3aE8B105Ae0B561C",
-    erc721PaymentObligation: "0x59A9c929778Ad2cC4D5DB6151bDEf0F9Fa7A068C",
-
-    erc1155AtomicPaymentUtils: "0x52De4B30721b3E3660A79da7491a9B2F8a9cB1D5",
-    erc1155EscrowObligation: "0xf04d9CA943f57353A3A735494E503280C1cD5e77",
-    erc1155PaymentObligation: "0x52748DD0E39eD6eA9f626179b5eb512302adA7D9",
-
-    tokenBundleAtomicPaymentUtils: "0xA7EacA68Bffc9443eA08fd58633Eeed3f5EE8A92",
-    tokenBundleEscrowObligation: "0x677Aa9e1CD9D05f57FbCa2327155EA7479ec7Ac3",
-    tokenBundlePaymentObligation: "0x36Fcf1Ddee838a94B1358285A11e8bbbb90eD9A1",
-
-    atomicAttestationUtils: "0x0000000000000000000000000000000000000000",
-    attestationEscrowObligation: "0x6eb7792D821f32914Be75901F1b4269B13Efad2e",
-    attestationReferenceEscrowObligation: "0x1A7c6F951e0a33F4910dbe56a200Eb413AEca17b",
-
-    stringObligation: "0xC51C938f5497be8157DAf8CCc3Eb11Afb8b752C0",
-    commitRevealObligation: "0x05d9Aa2A6AE38619b864Ff7f87A8f94301ecAB42",
-
-    trivialArbiter: "0x594E79466b6ac01C6416C929e428264a4bdF0C92",
-    trustedOracleArbiter: "0x3B2a812E3eb3B729D40d866Da16c2BB2b6cDd2f2",
-    allArbiter: "0x847F69d27E4F1A8a115aCa3F4358B079706dc9CE",
-    anyArbiter: "0xe968dFA581B8aBb94eC5F24d0b56163DE69511fD",
-    intrinsicsArbiter: "0xaabdDAa76651d20922d1F561f924a40F6fE7710c",
-    erc8004Arbiter: "0xBE7fE4d7CEb2140eeBdf01e12D198AEBAdC1F54D",
-    referencesEscrowArbiter: zeroAddress,
-    nativeTokenEscrowObligation: "0x9bA50DB048d1E5db034377abf97F92496D027C71",
-    nativeTokenPaymentObligation: "0xf60db64506E366a0A6c1f4cF9D849Adc7bB886D6",
-    nativeTokenAtomicPaymentUtils: "0xA42032D8BFeE2302cC6F80ff51D283Ffc5a4081f",
-
-    // Confirmation arbiters (new naming convention)
-    exclusiveRevocableConfirmationArbiter: "0x941044D43F9d75dfA8Ad24880B9B9cAD6e116a66",
-    exclusiveUnrevocableConfirmationArbiter: "0x16aeE626D398B547eDD5fa4BdAA638524C92921d",
-    nonexclusiveRevocableConfirmationArbiter: "0xe483EDA58b5f9Eba06A1ad0151dA5e4a5fFC8300",
-    nonexclusiveUnrevocableConfirmationArbiter: "0x01666d869918aDDDED1B30eF2d36f3C990F09BDE",
-
-    // Attestation Properties Arbiters
-    recipientArbiter: "0xF1C9E20078A13816ACdDF3153e2eAaDd93Fd6E57",
-    attesterArbiter: "0x6CC4068d471E96A1669097918e18017f5764f72a",
-    schemaArbiter: "0x913eAdD13dcCdeD9CD5518075083b6C7A9574A8c",
-    uidArbiter: "0xae4fa2D5d7EDD6Aaf697dC0c98EDb921F0fEc058",
-    refUidArbiter: "0xE9ee2c57B18283b66d342D33d63C55f1427f9e9B",
-    revocableArbiter: "0xeda25079f76ef93c54cC042116Be8D88E49D3439",
-    timeAfterArbiter: "0x0ea9e144FfDc6456E5cE8d1f75c686112e8f29c5",
-    timeBeforeArbiter: "0x68A6e6022ab9984Ee1A9A6cee384FF2aE8be5264",
-    timeEqualArbiter: "0x208385Fb349c01af2CfA8C6b86F633F6642718e2",
-    expirationTimeAfterArbiter: "0x309509db364526C7aE202eA9ED94a398a0819d38",
-    expirationTimeBeforeArbiter: "0xFAf8a07709dB9f90d0A0415876CfE00D904cd40B",
-    expirationTimeEqualArbiter: "0x7c782ac7741BB78DB7491Ee222af0a04f7f2bc0b",
   },
 } as const;
 

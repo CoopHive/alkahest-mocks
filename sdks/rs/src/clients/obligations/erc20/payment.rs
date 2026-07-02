@@ -9,6 +9,7 @@ use alloy::sol_types::SolValue;
 
 use crate::contracts;
 use crate::types::{ApprovalPurpose, DecodedAttestation, Erc20Data};
+use crate::utils::contract_safety::ensure_packaged_escrow_attester;
 
 use super::Erc20Module;
 
@@ -162,6 +163,19 @@ impl<'a> Payment<'a> {
         &self,
         escrow_uid: FixedBytes<32>,
     ) -> eyre::Result<TransactionReceipt> {
+        self.ensure_supported_atomic_payment_escrow(escrow_uid)
+            .await?;
+        self.pay_erc20_and_collect_unchecked(escrow_uid).await
+    }
+
+    /// Pays an ERC20 payment obligation and collects without SDK escrow-attester validation.
+    ///
+    /// Use only after independently validating that `escrow_uid` was authored by
+    /// the escrow contract you intend to settle.
+    pub async fn pay_erc20_and_collect_unchecked(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
         let utility = contracts::utils::AtomicPaymentUtils::new(
             self.module.addresses.atomic_payment_utils,
             &self.module.wallet_provider,
@@ -185,6 +199,28 @@ impl<'a> Payment<'a> {
         escrow_uid: FixedBytes<32>,
     ) -> eyre::Result<TransactionReceipt> {
         let demand = self.erc20_payment_demand(escrow_uid).await?;
+        self.permit_and_pay_erc20_and_collect_unchecked_with_demand(escrow_uid, demand)
+            .await
+    }
+
+    /// Pays with an ERC20 permit and collects without SDK escrow-attester validation.
+    ///
+    /// Use only after independently validating that `escrow_uid` was authored by
+    /// the escrow contract you intend to settle.
+    pub async fn permit_and_pay_erc20_and_collect_unchecked(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        let demand = self.erc20_payment_demand_unchecked(escrow_uid).await?;
+        self.permit_and_pay_erc20_and_collect_unchecked_with_demand(escrow_uid, demand)
+            .await
+    }
+
+    async fn permit_and_pay_erc20_and_collect_unchecked_with_demand(
+        &self,
+        escrow_uid: FixedBytes<32>,
+        demand: Erc20Data,
+    ) -> eyre::Result<TransactionReceipt> {
         let permit = self.get_payment_permit(&demand).await?;
         let utility = contracts::utils::AtomicPaymentUtils::new(
             self.module.addresses.atomic_payment_utils,
@@ -199,7 +235,28 @@ impl<'a> Payment<'a> {
             .await?)
     }
 
+    async fn ensure_supported_atomic_payment_escrow(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<()> {
+        let eas = contracts::IEAS::new(self.module.addresses.eas, &self.module.wallet_provider);
+        let escrow = eas.getAttestation(escrow_uid).call().await?;
+        ensure_packaged_escrow_attester(escrow.attester, &self.module.packaged_escrow_obligations)
+    }
+
     async fn erc20_payment_demand(&self, escrow_uid: FixedBytes<32>) -> eyre::Result<Erc20Data> {
+        let eas = contracts::IEAS::new(self.module.addresses.eas, &self.module.wallet_provider);
+        let escrow = eas.getAttestation(escrow_uid).call().await?;
+        ensure_packaged_escrow_attester(escrow.attester, &self.module.packaged_escrow_obligations)?;
+        let decoder = EscrowConditionDecoder::new(escrow.attester, &self.module.wallet_provider);
+        let decoded = decoder.decodeCondition(escrow.data).call().await?;
+        self.erc20_payment_demand_from_demand_bytes(&decoded.demand)
+    }
+
+    async fn erc20_payment_demand_unchecked(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<Erc20Data> {
         let eas = contracts::IEAS::new(self.module.addresses.eas, &self.module.wallet_provider);
         let escrow = eas.getAttestation(escrow_uid).call().await?;
         let decoder = EscrowConditionDecoder::new(escrow.attester, &self.module.wallet_provider);

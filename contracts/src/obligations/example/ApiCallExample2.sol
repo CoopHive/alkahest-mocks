@@ -5,7 +5,7 @@ import {Attestation} from "@eas/Common.sol";
 import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {ApiResultObligation} from "./ApiResultObligation.sol";
-import {TrustedOracleArbiter} from "../../arbiters/TrustedOracleArbiter.sol";
+import {TrustedOracleArbiter} from "../../arbiters/trusted-oracle/TrustedOracleArbiter.sol";
 import {ERC20EscrowObligation} from "../escrow/default/ERC20EscrowObligation.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 

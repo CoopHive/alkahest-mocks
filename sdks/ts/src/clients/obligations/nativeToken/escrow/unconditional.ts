@@ -1,7 +1,13 @@
 import { type Address, decodeAbiParameters, encodeAbiParameters, getAbiItem } from "viem";
 import { abi as nativeTokenEscrowAbi } from "../../../../contracts/obligations/escrow/unconditional/UnconditionalNativeTokenEscrowObligation";
 import type { Demand } from "../../../../types";
-import { getAttestation, getAttestedEventFromTxHash, type ViemClient, writeContract } from "../../../../utils";
+import {
+  assertDeployedContract,
+  getAttestation,
+  getAttestedEventFromTxHash,
+  type ViemClient,
+  writeContract,
+} from "../../../../utils";
 import type { NativeTokenAddresses } from "../index";
 
 const nativeEscrowDoObligationFunction = getAbiItem({
@@ -98,6 +104,7 @@ export const makeNativeTokenUnconditionalEscrowClient = (viemClient: ViemClient,
     },
 
     create: async (amount: bigint, item: Demand, expiration: bigint = 0n) => {
+      assertDeployedContract(addresses.escrowObligationUnconditional, "UnconditionalNativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligationUnconditional,
         abi: nativeTokenEscrowAbi.abi,
@@ -112,6 +119,7 @@ export const makeNativeTokenUnconditionalEscrowClient = (viemClient: ViemClient,
     },
 
     createFor: async (amount: bigint, item: Demand, recipient: `0x${string}`, expiration: bigint = 0n) => {
+      assertDeployedContract(addresses.escrowObligationUnconditional, "UnconditionalNativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligationUnconditional,
         abi: nativeTokenEscrowAbi.abi,

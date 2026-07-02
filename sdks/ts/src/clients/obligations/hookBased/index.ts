@@ -123,10 +123,9 @@ export type AttestationEscrowHookData = {
 
 /** Hook data for escrowing a reference to an existing attestation. */
 export type AttestationReferenceEscrowHookData = {
-  attestationUid: `0x${string}`;
+  referencedAttestationUid: `0x${string}`;
   recipient: `0x${string}`;
-  validationExpirationTime: bigint;
-  validationRevocable: boolean;
+  expirationTime: bigint;
 };
 
 /** ABI-encode single-hook escrow obligation data. */

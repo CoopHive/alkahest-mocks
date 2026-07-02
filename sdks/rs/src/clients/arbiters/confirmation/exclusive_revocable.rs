@@ -135,6 +135,7 @@ impl<'a> ExclusiveRevocable<'a> {
         &self,
         fulfillment: FixedBytes<32>,
         confirmer: Address,
+        escrow: FixedBytes<32>,
         from_block: Option<u64>,
     ) -> eyre::Result<
         Log<contracts::arbiters::confirmation::ExclusiveRevocableConfirmationArbiter::ConfirmationRequested>,
@@ -146,7 +147,8 @@ impl<'a> ExclusiveRevocable<'a> {
                 contracts::arbiters::confirmation::ExclusiveRevocableConfirmationArbiter::ConfirmationRequested::SIGNATURE_HASH,
             )
             .topic1(fulfillment)
-            .topic2(confirmer.into_word());
+            .topic2(confirmer.into_word())
+            .topic3(escrow);
 
         let log = crate::utils::wait_for_first_log(
             &*self.module.public_provider,

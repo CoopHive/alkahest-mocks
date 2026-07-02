@@ -7,7 +7,7 @@ import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {ISchemaResolver} from "@eas/resolver/ISchemaResolver.sol";
 import {IArbiter} from "@src/IArbiter.sol";
-import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
+import {TrustedOracleArbiter} from "@src/arbiters/trusted-oracle/TrustedOracleArbiter.sol";
 import {EASDeployer} from "@test/utils/EASDeployer.sol";
 
 contract TrustedOracleArbiterTest is Test {

@@ -61,6 +61,7 @@ impl Default {
         attestation: String,
         demand: ArbiterData,
         expiration: u64,
+        reference_expiration: Option<u64>,
     ) -> PyResult<pyo3::Bound<'py, pyo3::PyAny>> {
         let inner = self.inner.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
@@ -72,6 +73,7 @@ impl Default {
                     attestation.parse().map_err(map_parse_to_pyerr)?,
                     &demand.try_into().map_err(map_eyre_to_pyerr)?,
                     expiration,
+                    reference_expiration.unwrap_or(0),
                 )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
@@ -86,7 +88,7 @@ impl Default {
     }
 
     /// Collects payment from an attestation escrow by providing a fulfillment attestation.
-    /// This creates a validation attestation that references the original attestation.
+    /// This creates an attestation that references the original attestation.
     pub fn collect<'py>(
         &self,
         py: pyo3::Python<'py>,

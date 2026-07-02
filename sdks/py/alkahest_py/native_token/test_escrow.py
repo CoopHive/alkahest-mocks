@@ -44,7 +44,7 @@ async def test_native_token_escrow_default(env, alice_client, bob_client):
     # Request and perform arbitration
     oracle_client = bob_client.oracle
     await oracle_client.request_arbitration(fulfillment_uid, env.bob, inner_demand_data)
-    await oracle_client.arbitrate(fulfillment_uid, inner_demand_data, True)
+    await oracle_client.arbitrate_raw(fulfillment_uid, inner_demand_data, True)
 
     # Bob collects
     collect_result = await bob_client.native_token.escrow.default.collect(
@@ -94,7 +94,7 @@ async def test_native_token_escrow_unconditional(env, alice_client, bob_client):
     # Request and perform arbitration
     oracle_client = bob_client.oracle
     await oracle_client.request_arbitration(fulfillment_uid, env.bob, inner_demand_data)
-    await oracle_client.arbitrate(fulfillment_uid, inner_demand_data, True)
+    await oracle_client.arbitrate_raw(fulfillment_uid, inner_demand_data, True)
 
     # Bob collects from unconditional escrow
     collect_result = await bob_client.native_token.escrow.unconditional.collect(

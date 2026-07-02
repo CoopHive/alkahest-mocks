@@ -8,12 +8,14 @@ use crate::{
 
 // Implement ABI conversions for core arbiter DemandData types
 impl_abi_conversions!(contracts::arbiters::TrustedOracleArbiter::DemandData);
+impl_abi_conversions!(contracts::arbiters::CommitmentTrustedOracleArbiter::DemandData);
 impl_abi_conversions!(contracts::arbiters::ERC8004Arbiter::DemandData);
 
 // Implement From<IEAS::Attestation> for core arbiter Attestation types
 impl_from_attestation!(contracts::arbiters::TrivialArbiter::Attestation);
 impl_from_attestation!(contracts::arbiters::ReferencesEscrowArbiter::Attestation);
 impl_from_attestation!(contracts::arbiters::TrustedOracleArbiter::Attestation);
+impl_from_attestation!(contracts::arbiters::CommitmentTrustedOracleArbiter::Attestation);
 impl_from_attestation!(contracts::arbiters::IntrinsicsArbiter::Attestation);
 use alloy::{
     primitives::{Address, Bytes, FixedBytes, keccak256},
@@ -49,6 +51,7 @@ pub struct ArbitersAddresses {
     pub eas: Address,
     pub trivial_arbiter: Address,
     pub trusted_oracle_arbiter: Address,
+    pub commitment_trusted_oracle_arbiter: Address,
     pub intrinsics_arbiter: Address,
     pub erc8004_arbiter: Address,
     pub references_escrow_arbiter: Address,
@@ -111,6 +114,14 @@ pub fn default_demand_codecs(addresses: &ArbitersAddresses) -> ArbiterDemandCode
         let demand: contracts::arbiters::TrustedOracleArbiter::DemandData = demand.try_into()?;
         Ok(DecodedDemand::TrustedOracle(demand))
     });
+    registry.register_fn(
+        addresses.commitment_trusted_oracle_arbiter,
+        |_, _, demand: Bytes| {
+            let demand: contracts::arbiters::CommitmentTrustedOracleArbiter::DemandData =
+                demand.try_into()?;
+            Ok(DecodedDemand::CommitmentTrustedOracle(demand))
+        },
+    );
     registry.register_fn(addresses.erc8004_arbiter, |_, _, demand: Bytes| {
         let demand: contracts::arbiters::ERC8004Arbiter::DemandData = demand.try_into()?;
         Ok(DecodedDemand::ERC8004Arbiter(demand))
@@ -212,6 +223,12 @@ pub enum ArbitersContract {
     TrivialArbiter,
     /// Trusted oracle arbiter
     TrustedOracleArbiter,
+    /// Trusted oracle arbiter for pre-attestation intent approvals.
+    ///
+    /// Security note: the underlying contract has not been included in
+    /// professional manual audits and has only been reviewed by automated audit
+    /// tooling so far.
+    CommitmentTrustedOracleArbiter,
     /// Intrinsics arbiter
     IntrinsicsArbiter,
     /// ERC8004 arbiter
@@ -268,6 +285,9 @@ impl ContractModule for ArbitersModule {
             ArbitersContract::Eas => self.addresses.eas,
             ArbitersContract::TrivialArbiter => self.addresses.trivial_arbiter,
             ArbitersContract::TrustedOracleArbiter => self.addresses.trusted_oracle_arbiter,
+            ArbitersContract::CommitmentTrustedOracleArbiter => {
+                self.addresses.commitment_trusted_oracle_arbiter
+            }
             ArbitersContract::IntrinsicsArbiter => self.addresses.intrinsics_arbiter,
             ArbitersContract::ERC8004Arbiter => self.addresses.erc8004_arbiter,
             ArbitersContract::ReferencesEscrowArbiter => self.addresses.references_escrow_arbiter,
@@ -366,7 +386,7 @@ impl ArbitersModule {
     ///
     /// # Example
     /// ```rust,ignore
-    /// let receipt = arbiters_module.trusted_oracle().arbitrate(obligation, demand, true).await?;
+    /// let receipt = arbiters_module.trusted_oracle().arbitrate_for_demand(obligation, demand, true).await?;
     /// let event = arbiters_module.trusted_oracle().wait_for_arbitration(oracle, obligation, None).await?;
     /// ```
     pub fn trusted_oracle(&self) -> trusted_oracle::TrustedOracle<'_> {
@@ -403,6 +423,7 @@ pub enum DecodedDemand {
 
     // Core arbiters (with demand data)
     TrustedOracle(contracts::arbiters::TrustedOracleArbiter::DemandData),
+    CommitmentTrustedOracle(contracts::arbiters::CommitmentTrustedOracleArbiter::DemandData),
     ERC8004Arbiter(contracts::arbiters::ERC8004Arbiter::DemandData),
 
     // Logical arbiters
@@ -577,5 +598,22 @@ mod tests {
                 payload: vec![0xab, 0xcd],
             })
         );
+    }
+
+    #[test]
+    fn demand_codec_registry_does_not_register_zero_address() {
+        let mut registry = ArbiterDemandCodecRegistry::new();
+        registry.register(Address::ZERO, TestExtensionCodec);
+
+        let decoded = registry
+            .decode(Address::ZERO, &Bytes::from_static(&[0xab, 0xcd]))
+            .unwrap();
+
+        let DecodedDemand::Unknown { arbiter, raw_data } = decoded else {
+            panic!("expected zero address arbiter to decode as unknown");
+        };
+
+        assert_eq!(arbiter, Address::ZERO);
+        assert_eq!(raw_data, Bytes::from_static(&[0xab, 0xcd]));
     }
 }

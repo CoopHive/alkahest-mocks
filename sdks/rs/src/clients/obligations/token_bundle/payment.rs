@@ -8,6 +8,7 @@ use alloy::sol_types::SolValue;
 
 use crate::contracts;
 use crate::types::{ApprovalPurpose, DecodedAttestation, TokenBundleData};
+use crate::utils::contract_safety::ensure_packaged_escrow_attester;
 
 use super::TokenBundleModule;
 
@@ -115,6 +116,19 @@ impl<'a> Payment<'a> {
         &self,
         escrow_uid: FixedBytes<32>,
     ) -> eyre::Result<TransactionReceipt> {
+        self.ensure_supported_atomic_payment_escrow(escrow_uid)
+            .await?;
+        self.pay_bundle_and_collect_unchecked(escrow_uid).await
+    }
+
+    /// Pays a token-bundle payment obligation and collects without SDK escrow-attester validation.
+    ///
+    /// Use only after independently validating that `escrow_uid` was authored by
+    /// the escrow contract you intend to settle.
+    pub async fn pay_bundle_and_collect_unchecked(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
         let utility = contracts::utils::AtomicPaymentUtils::new(
             self.module.addresses.atomic_payment_utils,
             &self.module.wallet_provider,
@@ -126,5 +140,14 @@ impl<'a> Payment<'a> {
             .await?
             .get_receipt()
             .await?)
+    }
+
+    async fn ensure_supported_atomic_payment_escrow(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<()> {
+        let eas = contracts::IEAS::new(self.module.addresses.eas, &self.module.wallet_provider);
+        let escrow = eas.getAttestation(escrow_uid).call().await?;
+        ensure_packaged_escrow_attester(escrow.attester, &self.module.packaged_escrow_obligations)
     }
 }

@@ -40,7 +40,7 @@ contract NativeTokenPaymentObligation is BaseObligation, BaseArbiter {
     /// @param _eas EAS contract used to create and read payment attestations.
     /// @param _schemaRegistry EAS schema registry used to register or reuse the payment schema.
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry)
-        BaseObligation(_eas, _schemaRegistry, "uint256 amount, address payee", true)
+        BaseObligation(_eas, _schemaRegistry, "uint256 amount, address payee", false)
     {}
 
     /// @notice Pays native token and attests to the payment for the caller.

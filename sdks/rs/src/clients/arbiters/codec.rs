@@ -64,7 +64,9 @@ impl ArbiterDemandCodecRegistry {
     where
         C: ArbiterDemandCodec + 'static,
     {
-        self.decoders.insert(arbiter, Arc::new(codec));
+        if arbiter != Address::ZERO {
+            self.decoders.insert(arbiter, Arc::new(codec));
+        }
         self
     }
 

@@ -123,7 +123,7 @@ describe("Attestation Tests", () => {
           data: {
             recipient: bob,
             expirationTime: BigInt(Math.floor(Date.now() / 1000) + 86400),
-            revocable: true,
+            revocable: false,
             refUID: "0x0000000000000000000000000000000000000000000000000000000000000000",
             data: ("0x" + Buffer.from("test attestation data").toString("hex")) as `0x${string}`,
             value: 0n,
@@ -157,7 +157,7 @@ describe("Attestation Tests", () => {
           data: {
             recipient: bob,
             expirationTime: BigInt(Math.floor(Date.now() / 1000) + 86400),
-            revocable: true,
+            revocable: false,
             refUID: "0x0000000000000000000000000000000000000000000000000000000000000000",
             data: ("0x" + Buffer.from("test attestation data").toString("hex")) as `0x${string}`,
             value: 0n,
@@ -344,40 +344,40 @@ describe("Attestation Tests", () => {
 
       const { hash: collectHash } = await bobClient.attestation.escrow.reference.collect(escrowUid, fulfillmentUid);
 
-      // Get the validation attestation UID using the SDK function
-      const validationEvent = await bobClient.getAttestedEventFromTxHash(collectHash);
-      const validationUid = validationEvent.uid as `0x${string}`;
+      // Get the reference attestation UID using the SDK function
+      const referenceEvent = await bobClient.getAttestedEventFromTxHash(collectHash);
+      const referenceUid = referenceEvent.uid as `0x${string}`;
 
-      // Verify validationUid is not empty - line 191
-      expect(validationUid).not.toBe("0x0000000000000000000000000000000000000000000000000000000000000000");
+      // Verify referenceUid is not empty - line 191
+      expect(referenceUid).not.toBe("0x0000000000000000000000000000000000000000000000000000000000000000");
 
-      // Get the validation attestation from EAS - lines 194-195
-      const validationAttestation = await bobClient.getAttestation(validationUid);
+      // Get the reference attestation from EAS - lines 194-195
+      const referenceAttestation = await bobClient.getAttestation(referenceUid);
 
-      // Get the validation schema ID from the obligation contract - line 196-199
-      const validationSchemaId = (await testClient.readContract({
+      // Get the reference schema ID from the obligation contract - line 196-199
+      const referenceSchemaId = (await testClient.readContract({
         address: testContext.addresses.attestationReferenceEscrowObligation,
-        abi: parseAbi(["function VALIDATION_SCHEMA() view returns (bytes32)"]),
-        functionName: "VALIDATION_SCHEMA",
+        abi: parseAbi(["function REFERENCE_ATTESTATION_SCHEMA() view returns (bytes32)"]),
+        functionName: "REFERENCE_ATTESTATION_SCHEMA",
         args: [],
       })) as `0x${string}`;
 
       // Verify schema matches - lines 195-199
-      expect(validationAttestation.schema).toBe(validationSchemaId);
+      expect(referenceAttestation.schema).toBe(referenceSchemaId);
 
       // Verify recipient is the attester (Bob) - lines 200-204
-      expect(validationAttestation.recipient.toLowerCase()).toBe(bobClient.address.toLowerCase());
+      expect(referenceAttestation.recipient.toLowerCase()).toBe(bobClient.address.toLowerCase());
 
       // Verify that refUID matches the original attestation ID - lines 205-209
-      expect(validationAttestation.refUID).toBe(preExistingAttestationId);
+      expect(referenceAttestation.refUID).toBe(preExistingAttestationId);
 
-      // Decode validation data - this part isn't in the Solidity test but adds additional verification
-      const validationData = decodeAbiParameters(
-        parseAbiParameters("(bytes32 validatedAttestationUid)"),
-        validationAttestation.data,
+      // Decode reference data - this part isn't in the Solidity test but adds additional verification
+      const referenceData = decodeAbiParameters(
+        parseAbiParameters("(bytes32 referencedAttestationUid)"),
+        referenceAttestation.data,
       )[0];
 
-      expect(validationData.validatedAttestationUid).toBe(preExistingAttestationId);
+      expect(referenceData.referencedAttestationUid).toBe(preExistingAttestationId);
 
       // Check if escrow attestation was revoked - lines 212-213
       const escrowAttestation = await bobClient.getAttestation(escrowUid);
@@ -398,7 +398,7 @@ describe("Attestation Tests", () => {
           data: {
             recipient: bob,
             expirationTime: BigInt(Math.floor(Date.now() / 1000) + 86400),
-            revocable: true,
+            revocable: false,
             refUID: "0x0000000000000000000000000000000000000000000000000000000000000000",
             data: ("0x" + Buffer.from("true").toString("hex")) as `0x${string}`,
             value: 0n,
@@ -407,8 +407,7 @@ describe("Attestation Tests", () => {
         {
           arbiter: testContext.addresses.trivialArbiter,
           demand: demandData,
-          validationExpirationTime: 0n,
-          validationRevocable: false,
+          expirationTime: 0n,
         },
         BigInt(Math.floor(Date.now() / 1000) + 2 * 86400),
       );

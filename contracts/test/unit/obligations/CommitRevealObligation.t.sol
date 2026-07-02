@@ -53,7 +53,7 @@ contract CommitRevealObligationTest is Test {
     function testCommitRevealReclaimsCommittedBondAndSatisfiesDemand() public {
         (bytes32 escrowUid, bytes memory demand) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
 
         vm.deal(claimer, BOND);
         vm.prank(claimer);
@@ -68,13 +68,14 @@ contract CommitRevealObligationTest is Test {
         assertEq(claimer.balance, claimerBalanceBefore + BOND, "claimer received committed bond");
 
         Attestation memory fulfillment = eas.getAttestation(fulfillmentUid);
+        assertFalse(fulfillment.revocable);
         assertTrue(obligation.check(fulfillment, demand, escrowUid));
     }
 
     function testCheckObligationReturnsFalseForMismatchedBondDemand() public {
         (bytes32 escrowUid, bytes memory demand) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
 
         vm.deal(claimer, BOND / 2);
         vm.prank(claimer);
@@ -97,7 +98,7 @@ contract CommitRevealObligationTest is Test {
         (bytes32 escrowUid,) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
         address otherRecipient = makeAddr("otherRecipient");
-        bytes32 commitment = obligation.computeCommitment(escrowUid, otherRecipient, data);
+        bytes32 commitment = obligation.computeCommitment(otherRecipient, escrowUid, data);
 
         vm.deal(claimer, BOND);
         vm.prank(claimer);
@@ -115,7 +116,7 @@ contract CommitRevealObligationTest is Test {
     function testThirdPartyCannotRevealForCommitterRecipient() public {
         (bytes32 escrowUid,) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
         address attacker = makeAddr("attacker");
 
         vm.deal(claimer, BOND);
@@ -137,7 +138,7 @@ contract CommitRevealObligationTest is Test {
     function testCommitRejectsZeroBond() public {
         (bytes32 escrowUid,) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
 
         vm.prank(claimer);
         vm.expectRevert(CommitRevealObligation.ZeroBondAmount.selector);
@@ -147,7 +148,7 @@ contract CommitRevealObligationTest is Test {
     function testSlashBondUsesCommittedAmount() public {
         (bytes32 escrowUid,) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
         uint256 committedBond = BOND / 2;
 
         vm.deal(claimer, committedBond);
@@ -166,7 +167,7 @@ contract CommitRevealObligationTest is Test {
     function testOwnerCannotMakeExistingCommitmentTooLateByChangingGlobalDeadline() public {
         (bytes32 escrowUid, bytes memory demand) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
 
         vm.deal(claimer, BOND);
         vm.prank(claimer);
@@ -184,7 +185,7 @@ contract CommitRevealObligationTest is Test {
     function testOwnerCannotMakeExistingCommitmentSlashableByChangingGlobalDeadline() public {
         (bytes32 escrowUid,) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
 
         vm.deal(claimer, BOND);
         vm.prank(claimer);
@@ -198,7 +199,7 @@ contract CommitRevealObligationTest is Test {
     function testCheckObligationReturnsFalseForMismatchedDeadlineDemand() public {
         (bytes32 escrowUid, bytes memory demand) = _makeEscrow(BOND);
         CommitRevealObligation.ObligationData memory data = _obligationData();
-        bytes32 commitment = obligation.computeCommitment(escrowUid, claimer, data);
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
 
         vm.deal(claimer, BOND);
         vm.prank(claimer);
@@ -212,6 +213,76 @@ contract CommitRevealObligationTest is Test {
         Attestation memory fulfillment = eas.getAttestation(fulfillmentUid);
         assertFalse(obligation.check(fulfillment, demand, escrowUid));
         assertTrue(obligation.check(fulfillment, _demand(BOND, COMMIT_DEADLINE * 2), escrowUid));
+    }
+
+    function testCheckObligationAcceptsDifferentEscrowUidForGlobalReveal() public {
+        (bytes32 escrowUid, bytes memory demand) = _makeEscrow(BOND);
+        (bytes32 otherEscrowUid,) = _makeEscrow(BOND);
+        CommitRevealObligation.ObligationData memory data = _obligationData();
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
+
+        vm.deal(claimer, BOND);
+        vm.prank(claimer);
+        obligation.commit{value: BOND}(commitment, COMMIT_DEADLINE);
+
+        vm.roll(block.number + 1);
+
+        vm.prank(claimer);
+        bytes32 fulfillmentUid = obligation.doObligation(data, escrowUid);
+
+        Attestation memory fulfillment = eas.getAttestation(fulfillmentUid);
+        assertTrue(obligation.check(fulfillment, demand, otherEscrowUid));
+    }
+
+    function testCommitmentBindsRefUid() public {
+        (bytes32 escrowUid,) = _makeEscrow(BOND);
+        (bytes32 otherEscrowUid,) = _makeEscrow(BOND);
+        CommitRevealObligation.ObligationData memory data = _obligationData();
+        bytes32 commitment = obligation.computeCommitment(claimer, escrowUid, data);
+
+        vm.deal(claimer, BOND);
+        vm.prank(claimer);
+        obligation.commit{value: BOND}(commitment, COMMIT_DEADLINE);
+
+        vm.roll(block.number + 1);
+
+        vm.prank(claimer);
+        vm.expectRevert();
+        obligation.doObligation(data, otherEscrowUid);
+    }
+
+    function testCommitmentBindsExpirationTime() public {
+        (bytes32 escrowUid,) = _makeEscrow(BOND);
+        CommitRevealObligation.ObligationData memory data = _obligationData();
+        uint64 expirationTime = uint64(block.timestamp + 1 days);
+        bytes32 commitment = obligation.computeCommitment(claimer, expirationTime, escrowUid, data);
+
+        vm.deal(claimer, BOND);
+        vm.prank(claimer);
+        obligation.commit{value: BOND}(commitment, COMMIT_DEADLINE);
+
+        vm.roll(block.number + 1);
+
+        vm.prank(claimer);
+        vm.expectRevert();
+        obligation.doObligation(data, escrowUid);
+
+        vm.prank(claimer);
+        bytes32 fulfillmentUid = obligation.doObligation(data, expirationTime, escrowUid);
+
+        Attestation memory fulfillment = eas.getAttestation(fulfillmentUid);
+        assertEq(fulfillment.expirationTime, expirationTime);
+    }
+
+    function testComputeRawCommitmentMatchesTypedCommitment() public view {
+        bytes32 escrowUid = keccak256(bytes("escrow"));
+        CommitRevealObligation.ObligationData memory data = _obligationData();
+        bytes memory encodedData = abi.encode(data);
+
+        assertEq(
+            obligation.computeRawCommitment(claimer, 0, escrowUid, encodedData),
+            obligation.computeCommitment(claimer, escrowUid, data)
+        );
     }
 
     function testDecodeDemandData() public view {

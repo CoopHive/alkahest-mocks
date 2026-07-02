@@ -58,9 +58,10 @@ impl<'a> Default<'a> {
     /// instead of storing the full attestation data, making it more gas efficient.
     pub async fn create(
         &self,
-        attestation_uid: FixedBytes<32>,
+        referenced_attestation_uid: FixedBytes<32>,
         demand: &ArbiterData,
         expiration: u64,
+        reference_expiration: u64,
     ) -> eyre::Result<TransactionReceipt> {
         let escrow_contract =
             contracts::obligations::escrow::default_escrow::AttestationReferenceEscrowObligation::new(
@@ -71,11 +72,10 @@ impl<'a> Default<'a> {
         let receipt = escrow_contract
             .doObligation(
                 contracts::obligations::escrow::default_escrow::AttestationReferenceEscrowObligation::ObligationData {
-                    attestationUid: attestation_uid,
+                    referencedAttestationUid: referenced_attestation_uid,
                     arbiter: demand.arbiter,
                     demand: demand.demand.clone(),
-                    validationExpirationTime: 0,
-                    validationRevocable: true,
+                    expirationTime: reference_expiration,
                 },
                 expiration,
             )
@@ -88,7 +88,7 @@ impl<'a> Default<'a> {
     }
 
     /// Collects payment from an attestation escrow by providing a fulfillment attestation.
-    /// This creates a validation attestation that references the original attestation.
+    /// This creates an attestation that references the original attestation.
     pub async fn collect(
         &self,
         buy_attestation: FixedBytes<32>,

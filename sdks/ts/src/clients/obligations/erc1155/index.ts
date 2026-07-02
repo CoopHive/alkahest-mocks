@@ -1,5 +1,6 @@
 import type { ChainAddresses } from "../../../types";
 import type { ViemClient } from "../../../utils";
+import { pickPackagedEscrowObligations } from "../../../utils/contractSafety";
 import { type Erc1155EscrowClient, makeErc1155EscrowClient } from "./escrow";
 import { type Erc1155PaymentClient, makeErc1155PaymentClient } from "./payment";
 import { type Erc1155UtilClient, makeErc1155UtilClient } from "./util";
@@ -18,6 +19,7 @@ export type Erc1155Addresses = {
   escrowObligation: `0x${string}`;
   escrowObligationUnconditional: `0x${string}`;
   paymentObligation: `0x${string}`;
+  packagedEscrowObligations: readonly `0x${string}`[];
 };
 
 /** Pick ERC1155 obligation addresses from a full chain address map. */
@@ -28,6 +30,7 @@ export const pickErc1155Addresses = (addresses: ChainAddresses): Erc1155Addresse
   escrowObligation: addresses.erc1155EscrowObligation,
   escrowObligationUnconditional: addresses.erc1155UnconditionalEscrowObligation,
   paymentObligation: addresses.erc1155PaymentObligation,
+  packagedEscrowObligations: pickPackagedEscrowObligations(addresses),
 });
 
 /** ERC1155 obligation namespace client. */

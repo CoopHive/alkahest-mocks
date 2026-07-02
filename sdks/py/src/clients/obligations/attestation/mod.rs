@@ -191,7 +191,7 @@ impl From<alkahest_rs::contracts::obligations::escrow::unconditional::Unconditio
 
 /// AttestationReferenceEscrowObligation: references an attestation by UID instead of inlining.
 ///
-/// `attestation_uid` is a 0x-prefixed hex string for a bytes32 (matches the
+/// `referenced_attestation_uid` is a 0x-prefixed hex string for a bytes32 (matches the
 /// `schema`/`uid` convention used elsewhere in the SDK).
 #[pyclass]
 #[derive(Clone)]
@@ -201,41 +201,36 @@ pub struct PyAttestationReferenceEscrowObligationData {
     #[pyo3(get)]
     pub demand: Vec<u8>,
     #[pyo3(get)]
-    pub attestation_uid: String,
+    pub referenced_attestation_uid: String,
     #[pyo3(get)]
-    pub validation_expiration_time: u64,
-    #[pyo3(get)]
-    pub validation_revocable: bool,
+    pub expiration_time: u64,
 }
 
 #[pymethods]
 impl PyAttestationReferenceEscrowObligationData {
     #[new]
-    #[pyo3(signature = (arbiter, demand, attestation_uid, validation_expiration_time = 0, validation_revocable = true))]
+    #[pyo3(signature = (arbiter, demand, referenced_attestation_uid, expiration_time = 0))]
     pub fn new(
         arbiter: String,
         demand: Vec<u8>,
-        attestation_uid: String,
-        validation_expiration_time: u64,
-        validation_revocable: bool,
+        referenced_attestation_uid: String,
+        expiration_time: u64,
     ) -> Self {
         Self {
             arbiter,
             demand,
-            attestation_uid,
-            validation_expiration_time,
-            validation_revocable,
+            referenced_attestation_uid,
+            expiration_time,
         }
     }
 
     fn __repr__(&self) -> String {
         format!(
-            "PyAttestationReferenceEscrowObligationData(arbiter='{}', attestation_uid='{}', demand_len={}, validation_expiration_time={}, validation_revocable={})",
+            "PyAttestationReferenceEscrowObligationData(arbiter='{}', referenced_attestation_uid='{}', demand_len={}, expiration_time={})",
             self.arbiter,
-            self.attestation_uid,
+            self.referenced_attestation_uid,
             self.demand.len(),
-            self.validation_expiration_time,
-            self.validation_revocable
+            self.expiration_time
         )
     }
 
@@ -261,17 +256,16 @@ impl PyAttestationReferenceEscrowObligationData {
 
         let arbiter: Address = obligation.arbiter.parse().map_err(map_parse_to_pyerr)?;
         let demand = Bytes::from(obligation.demand.clone());
-        let attestation_uid: FixedBytes<32> = obligation
-            .attestation_uid
+        let referenced_attestation_uid: FixedBytes<32> = obligation
+            .referenced_attestation_uid
             .parse()
             .map_err(map_parse_to_pyerr)?;
 
         let obligation_data = AttestationReferenceEscrowObligation::ObligationData {
             arbiter,
             demand,
-            attestationUid: attestation_uid,
-            validationExpirationTime: obligation.validation_expiration_time,
-            validationRevocable: obligation.validation_revocable,
+            referencedAttestationUid: referenced_attestation_uid,
+            expirationTime: obligation.expiration_time,
         };
 
         Ok(obligation_data.abi_encode())
@@ -291,9 +285,8 @@ impl From<alkahest_rs::contracts::obligations::escrow::default_escrow::Attestati
         Self {
             arbiter: format!("{:?}", data.arbiter),
             demand: data.demand.to_vec(),
-            attestation_uid: data.attestationUid.to_string(),
-            validation_expiration_time: data.validationExpirationTime,
-            validation_revocable: data.validationRevocable,
+            referenced_attestation_uid: data.referencedAttestationUid.to_string(),
+            expiration_time: data.expirationTime,
         }
     }
 }
@@ -307,9 +300,8 @@ impl From<alkahest_rs::contracts::obligations::escrow::unconditional::Unconditio
         Self {
             arbiter: format!("{:?}", data.arbiter),
             demand: data.demand.to_vec(),
-            attestation_uid: data.attestationUid.to_string(),
-            validation_expiration_time: data.validationExpirationTime,
-            validation_revocable: data.validationRevocable,
+            referenced_attestation_uid: data.referencedAttestationUid.to_string(),
+            expiration_time: data.expirationTime,
         }
     }
 }
