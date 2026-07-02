@@ -1,5 +1,6 @@
 import type { ChainAddresses } from "../../types";
 import type { ViemClient } from "../../utils";
+import { checkArbiter } from "./check";
 import { makeAttestationPropertiesArbitersClient } from "./attestationProperties";
 import { makeConfirmationArbitersClient } from "./confirmation";
 import { makeGeneralArbitersClient } from "./general";
@@ -26,6 +27,7 @@ export const makeArbitersClient = (viemClient: ViemClient, addresses: ChainAddre
   const confirmationArbiters = makeConfirmationArbitersClient(viemClient, addresses);
 
   return {
+    check: checkArbiter.bind(null, viemClient, addresses),
     general: generalArbiters,
     logical: logicalArbiters,
     attestationProperties: attestationPropertiesArbiters,
@@ -35,6 +37,7 @@ export const makeArbitersClient = (viemClient: ViemClient, addresses: ChainAddre
 
 // Export static arbiter objects for use without client instantiation
 export { AllArbiter, AnyArbiter };
+export { arbiterAddress, checkArbiter, type ArbiterContractKey, type ArbiterTarget } from "./check";
 
 // Re-export types from attestation properties arbiters
 export type { AttesterArbiterDemandData } from "./attestationProperties/attesterArbiter";

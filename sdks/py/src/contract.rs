@@ -117,6 +117,25 @@ impl From<alkahest_rs::contracts::IEAS::Attestation> for PyAttestation {
     }
 }
 
+impl TryFrom<PyAttestation> for alkahest_rs::contracts::IEAS::Attestation {
+    type Error = eyre::Error;
+
+    fn try_from(value: PyAttestation) -> eyre::Result<Self> {
+        Ok(Self {
+            uid: value.uid.parse()?,
+            schema: value.schema.parse()?,
+            time: value.time,
+            expirationTime: value.expiration_time,
+            revocationTime: value.revocation_time,
+            refUID: value.ref_uid.parse()?,
+            recipient: value.recipient.parse()?,
+            attester: value.attester.parse()?,
+            revocable: value.revocable,
+            data: value.data.into(),
+        })
+    }
+}
+
 /// Python representation of IEAS::AttestationRequestData
 #[pyclass]
 #[derive(Clone, Debug)]

@@ -17,6 +17,7 @@ impl_from_attestation!(contracts::arbiters::ReferencesEscrowArbiter::Attestation
 impl_from_attestation!(contracts::arbiters::TrustedOracleArbiter::Attestation);
 impl_from_attestation!(contracts::arbiters::CommitmentTrustedOracleArbiter::Attestation);
 impl_from_attestation!(contracts::arbiters::IntrinsicsArbiter::Attestation);
+impl_from_attestation!(contracts::BaseArbiter::Attestation);
 use alloy::{
     primitives::{Address, Bytes, FixedBytes, keccak256},
     signers::local::PrivateKeySigner,
@@ -416,6 +417,23 @@ impl ArbitersModule {
     /// Get the trusted-oracle arbiter address for a decision target.
     pub fn trusted_oracle_address_for(&self, target: TrustedOracleDecisionTarget) -> Address {
         self.address(self.trusted_oracle_contract_for(target))
+    }
+
+    /// Check whether a fulfillment satisfies an arbiter demand.
+    ///
+    /// This generic helper can call any contract implementing `IArbiter`.
+    pub async fn check(
+        &self,
+        arbiter: Address,
+        fulfillment: contracts::IEAS::Attestation,
+        demand: Bytes,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<bool> {
+        let arbiter = contracts::BaseArbiter::new(arbiter, &*self.public_provider);
+        Ok(arbiter
+            .check(fulfillment.into(), demand, escrow_uid)
+            .call()
+            .await?)
     }
 
     pub fn encode_erc8004_demand(

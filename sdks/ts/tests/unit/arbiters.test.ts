@@ -127,6 +127,30 @@ describe("Arbiters Tests", () => {
 
       expect(result).toBe(true);
     });
+
+    test("client check helper calls packaged arbiters", async () => {
+      const mockAttestation = {
+        uid: "0x1234567890123456789012345678901234567890123456789012345678901234" as `0x${string}`,
+        schema: "0x1234567890123456789012345678901234567890123456789012345678901234" as `0x${string}`,
+        time: 0n,
+        expirationTime: 0n,
+        revocationTime: 0n,
+        refUID: "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
+        recipient: testContext.alice.address,
+        attester: testContext.bob.address,
+        revocable: true,
+        data: "0x1234" as `0x${string}`,
+      };
+
+      const result = await aliceClient.arbiters.check(
+        "trivialArbiter",
+        mockAttestation,
+        "0x1234",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+      );
+
+      expect(result).toBe(true);
+    });
   });
 
   describe("TrustedOracleArbiter", () => {

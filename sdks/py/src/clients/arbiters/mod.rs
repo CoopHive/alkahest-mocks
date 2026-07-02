@@ -14,10 +14,15 @@ pub mod trusted_oracle;
 use alkahest_rs::{
     contracts::arbiters::ERC8004Arbiter as ERC8004ArbiterContract, extensions::ArbitersModule,
 };
+use alloy::primitives::FixedBytes;
 use alloy::sol_types::SolValue;
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pyclass, pymethods, PyAny, PyResult, Python};
+use pyo3_async_runtimes::tokio::future_into_py;
 
-use crate::error_handling::map_eyre_to_pyerr;
+use crate::{
+    contract::PyAttestation,
+    error_handling::{map_eyre_to_pyerr, map_parse_to_pyerr},
+};
 
 // Re-export main types for backwards compatibility
 pub use trusted_oracle::{
@@ -182,6 +187,32 @@ impl ArbitersClient {
     /// Get the address of a confirmation arbiter by type
     pub fn confirmation_arbiter_address(&self, arbiter_type: PyConfirmationArbiterType) -> String {
         self.confirmation().address(arbiter_type)
+    }
+
+    /// Check whether a fulfillment satisfies an arbiter demand.
+    pub fn check<'py>(
+        &self,
+        py: Python<'py>,
+        arbiter: String,
+        fulfillment: PyAttestation,
+        demand: Vec<u8>,
+        escrow_uid: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let result = inner
+                .check(
+                    arbiter.parse().map_err(map_parse_to_pyerr)?,
+                    fulfillment.try_into().map_err(map_eyre_to_pyerr)?,
+                    demand.into(),
+                    escrow_uid
+                        .parse::<FixedBytes<32>>()
+                        .map_err(map_parse_to_pyerr)?,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(result)
+        })
     }
 }
 

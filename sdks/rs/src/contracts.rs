@@ -29,6 +29,14 @@ sol!(
     #[allow(missing_docs)]
     #[sol(rpc)]
     #[derive(Debug)]
+    BaseArbiter,
+    "src/contracts/BaseArbiter.json"
+);
+
+sol!(
+    #[allow(missing_docs)]
+    #[sol(rpc)]
+    #[derive(Debug)]
     IERC20,
     "src/contracts/IERC20.json"
 );

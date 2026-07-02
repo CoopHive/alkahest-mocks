@@ -26,6 +26,7 @@ async def test_alkahest_client_init_default(env):
     assert hasattr(client, 'string_obligation'), "Client should have string obligation extension"
     assert hasattr(client, 'commit_reveal'), "Client should have commit reveal extension"
     assert hasattr(client, 'oracle'), "Client should have oracle extension"
+    assert hasattr(client, 'arbiters'), "Client should have arbiters extension"
 
     # Verify extensions are accessible (should not raise errors)
     erc20_client = client.erc20
@@ -36,6 +37,7 @@ async def test_alkahest_client_init_default(env):
     string_obligation_client = client.string_obligation
     commit_reveal_client = client.commit_reveal
     oracle_client = client.oracle
+    arbiters_client = client.arbiters
 
     # Verify extensions have expected methods through util submodule
     assert hasattr(erc20_client, 'util'), "ERC20 client should have util submodule"
@@ -44,6 +46,7 @@ async def test_alkahest_client_init_default(env):
     assert hasattr(erc721_client.util, 'approve'), "ERC721 util should have approve method"
     assert hasattr(erc1155_client, 'util'), "ERC1155 client should have util submodule"
     assert hasattr(erc1155_client.util, 'approve_all'), "ERC1155 util should have approve_all method"
+    assert hasattr(arbiters_client, 'check'), "Arbiters client should have check method"
     # Token bundle and other clients exist but may have different method names
     assert token_bundle_client is not None, "Token bundle client should exist"
 

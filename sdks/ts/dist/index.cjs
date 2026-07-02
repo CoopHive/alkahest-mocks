@@ -22,7 +22,9 @@ var index_exports = {};
 __export(index_exports, {
   AllArbiter: () => AllArbiter,
   AnyArbiter: () => AnyArbiter,
+  arbiterAddress: () => arbiterAddress,
   assertDeployedContract: () => assertDeployedContract,
+  checkArbiter: () => checkArbiter,
   contractAddresses: () => contractAddresses,
   contracts: () => contracts_exports,
   createAddressIndex: () => createAddressIndex,
@@ -152,14 +154,7 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 var import_viem51 = require("viem");
 
-// src/clients/arbiters/attestationProperties/attesterArbiter.ts
-var import_viem = require("viem");
-
-// src/contracts/arbiters/attestation-properties/AttesterArbiter.ts
-var AttesterArbiter_exports = {};
-__export(AttesterArbiter_exports, {
-  abi: () => abi
-});
+// src/contracts/BaseArbiter.ts
 var abi = {
   "abi": [
     {
@@ -229,5336 +224,6 @@ var abi = {
           "internalType": "bytes"
         },
         {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct AttesterArbiter.DemandData",
-          "components": [
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "AttesterMismatched",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x60808060405234601557610399908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b60c08201526100f860e483016102e7565b9160e0820192835261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b63c77ead7160e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212203ef9ac731f73a95a16f01c176c50a176295ce31273f71afd379cf2104057b41964736f6c634300081b0033",
-    "sourceMap": "360:857:99:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b60c08201526100f860e483016102e7565b9160e0820192835261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b63c77ead7160e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212203ef9ac731f73a95a16f01c176c50a176295ce31273f71afd379cf2104057b41964736f6c634300081b0033",
-    "sourceMap": "360:857:99:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;866:32;;360:857;;;;;;;:::i;:::-;866:32;;360:857;-1:-1:-1;;;;;360:857:99;;;;;;;;;;-1:-1:-1;;;;;360:857:99;912:40;908:73;;360:857;;;;;;;908:73;961:20;;;360:857;961:20;360:857;;961:20;360:857;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;;;;-1:-1:-1;;;;;360:857:99;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;360:857:99;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;360:857:99;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;360:857:99;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;360:857:99;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"AttesterMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"address","name":"attester","type":"address"}],"internalType":"struct AttesterArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"AttesterArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded attester demand data."}},"notice":"Accepts fulfillments with a specific EAS attester.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/AttesterArbiter.sol":"AttesterArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/AttesterArbiter.sol":{"keccak256":"0x9d65c873569f64fbf66c464a112e1dcfd901f711b3667d7a80e9a6cb66571d04","license":"UNLICENSED","urls":["bzz-raw://11ed5869a45087101dd3fd07a06f15cefd72cdace61bf9a8292ad5bbc1dc3efc","dweb:/ipfs/QmYoAR5vK9hRVigbjqfb6YXh6mBQyBhkrbisnkfRcUbVUN"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "AttesterMismatched"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct AttesterArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded attester demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/AttesterArbiter.sol": "AttesterArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/AttesterArbiter.sol": {
-        "keccak256": "0x9d65c873569f64fbf66c464a112e1dcfd901f711b3667d7a80e9a6cb66571d04",
-        "urls": [
-          "bzz-raw://11ed5869a45087101dd3fd07a06f15cefd72cdace61bf9a8292ad5bbc1dc3efc",
-          "dweb:/ipfs/QmYoAR5vK9hRVigbjqfb6YXh6mBQyBhkrbisnkfRcUbVUN"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 99
-};
-
-// src/clients/arbiters/attestationProperties/attesterArbiter.ts
-var attesterArbiterDecodeDemandFunction = (0, import_viem.getAbiItem)({
-  abi: abi.abi,
-  name: "decodeDemandData"
-});
-var attesterArbiterDemandDataType = attesterArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand = (demand) => {
-  return (0, import_viem.encodeAbiParameters)([attesterArbiterDemandDataType], [demand]);
-};
-var decodeDemand = (demandData) => {
-  return (0, import_viem.decodeAbiParameters)([attesterArbiterDemandDataType], demandData)[0];
-};
-var makeAttesterArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand,
-    decodeDemand
-  };
-};
-
-// src/clients/arbiters/attestationProperties/expirationTimeAfterArbiter.ts
-var import_viem2 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/ExpirationTimeAfterArbiter.ts
-var ExpirationTimeAfterArbiter_exports = {};
-__export(ExpirationTimeAfterArbiter_exports, {
-  abi: () => abi2
-});
-var abi2 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct ExpirationTimeAfterArbiter.DemandData",
-          "components": [
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "ExpirationTimeNotAfter",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x608080604052346015576103a4908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081151591826101c0575b50506101b157602060405160018152f35b630e31b6a160e01b5f5260045ffd5b1090505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea26469706673582212207c2319e29794b94a5a17a90c51f649ed78a976ae4eb32cf76a216dcc504b5acd64736f6c634300081b0033",
-    "sourceMap": "400:965:100:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081151591826101c0575b50506101b157602060405160018152f35b630e31b6a160e01b5f5260045ffd5b1090505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea26469706673582212207c2319e29794b94a5a17a90c51f649ed78a976ae4eb32cf76a216dcc504b5acd64736f6c634300081b0033",
-    "sourceMap": "400:965:100:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;:::i;:::-;;;;;933:32;;400:965;;;;;;;:::i;:::-;933:32;;400:965;;-1:-1:-1;;;;;400:965:100;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;979:31;;;;:86;;;;400:965;975:148;;;;400:965;;;;;;;975:148;1088:24;;;400:965;1088:24;400:965;;1088:24;979:86;1014:51;;-1:-1:-1;979:86:100;;;;400:965;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;400:965:100;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;400:965:100;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;400:965:100;;;;;;:::o;:::-;;;-1:-1:-1;;;;;400:965:100;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;400:965:100;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"ExpirationTimeNotAfter","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"expirationTime","type":"uint64"}],"internalType":"struct ExpirationTimeAfterArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExpirationTimeAfterArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded expiration-time demand data."}},"notice":"Accepts fulfillments whose expiration time is at or after a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol":"ExpirationTimeAfterArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol":{"keccak256":"0x1a2b9cac6c801c16457539cf6425fe9a4b30ab59d0a9dc32339df3dffa022a73","license":"UNLICENSED","urls":["bzz-raw://eaa6ea5cef424580c904bc1aebbfefb7acc9e2d304133fad0d40028b7e7b3af1","dweb:/ipfs/QmUd788XebZ8uBXk7UZaFFAqmQTi8bra5vR4RWnZ2MtyAW"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "ExpirationTimeNotAfter"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct ExpirationTimeAfterArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded expiration-time demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol": "ExpirationTimeAfterArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol": {
-        "keccak256": "0x1a2b9cac6c801c16457539cf6425fe9a4b30ab59d0a9dc32339df3dffa022a73",
-        "urls": [
-          "bzz-raw://eaa6ea5cef424580c904bc1aebbfefb7acc9e2d304133fad0d40028b7e7b3af1",
-          "dweb:/ipfs/QmUd788XebZ8uBXk7UZaFFAqmQTi8bra5vR4RWnZ2MtyAW"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 100
-};
-
-// src/clients/arbiters/attestationProperties/expirationTimeAfterArbiter.ts
-var expirationTimeAfterArbiterDecodeDemandFunction = (0, import_viem2.getAbiItem)({
-  abi: abi2.abi,
-  name: "decodeDemandData"
-});
-var expirationTimeAfterArbiterDemandDataType = expirationTimeAfterArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand2 = (demand) => {
-  return (0, import_viem2.encodeAbiParameters)([expirationTimeAfterArbiterDemandDataType], [demand]);
-};
-var decodeDemand2 = (demandData) => {
-  return (0, import_viem2.decodeAbiParameters)(
-    [expirationTimeAfterArbiterDemandDataType],
-    demandData
-  )[0];
-};
-var makeExpirationTimeAfterArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand2,
-    decodeDemand: decodeDemand2
-  };
-};
-
-// src/clients/arbiters/attestationProperties/expirationTimeBeforeArbiter.ts
-var import_viem3 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.ts
-var ExpirationTimeBeforeArbiter_exports = {};
-__export(ExpirationTimeBeforeArbiter_exports, {
-  abi: () => abi3
-});
-var abi3 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct ExpirationTimeBeforeArbiter.DemandData",
-          "components": [
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "ExpirationTimeNotBefore",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x608080604052346015576103a4908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081159182156101c0575b50506101b157602060405160018152f35b636f0197bb60e01b5f5260045ffd5b1190505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea2646970667358221220eea16abd697e32817dc032ce3e54845bd9bdc32902276330baa27d83cfdd662a64736f6c634300081b0033",
-    "sourceMap": "402:968:101:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081159182156101c0575b50506101b157602060405160018152f35b636f0197bb60e01b5f5260045ffd5b1190505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea2646970667358221220eea16abd697e32817dc032ce3e54845bd9bdc32902276330baa27d83cfdd662a64736f6c634300081b0033",
-    "sourceMap": "402:968:101:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;:::i;:::-;;;;;937:32;;402:968;;;;;;;:::i;:::-;937:32;;402:968;;-1:-1:-1;;;;;402:968:101;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;983:31;;;:86;;;;;402:968;979:149;;;;402:968;;;;;;;979:149;1092:25;;;402:968;1092:25;402:968;;1092:25;983:86;1018:51;;-1:-1:-1;983:86:101;;;;402:968;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;402:968:101;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;402:968:101;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;402:968:101;;;;;;:::o;:::-;;;-1:-1:-1;;;;;402:968:101;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;402:968:101;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"ExpirationTimeNotBefore","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"expirationTime","type":"uint64"}],"internalType":"struct ExpirationTimeBeforeArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExpirationTimeBeforeArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded expiration-time demand data."}},"notice":"Accepts fulfillments whose expiration time is at or before a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol":"ExpirationTimeBeforeArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol":{"keccak256":"0x079410c984ecd79e3e60d959ddb02ab65c1560788b0761a78cc900f1134b8737","license":"UNLICENSED","urls":["bzz-raw://e21cdb553ea82395b18700f6d0556446ade87285d4dc0f1be71e3e0cab573033","dweb:/ipfs/QmVWpsXG992z4gJMubU1bedrPCFMFmQXhk6gyi5xYEQ2Ts"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "ExpirationTimeNotBefore"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct ExpirationTimeBeforeArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded expiration-time demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol": "ExpirationTimeBeforeArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol": {
-        "keccak256": "0x079410c984ecd79e3e60d959ddb02ab65c1560788b0761a78cc900f1134b8737",
-        "urls": [
-          "bzz-raw://e21cdb553ea82395b18700f6d0556446ade87285d4dc0f1be71e3e0cab573033",
-          "dweb:/ipfs/QmVWpsXG992z4gJMubU1bedrPCFMFmQXhk6gyi5xYEQ2Ts"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 101
-};
-
-// src/clients/arbiters/attestationProperties/expirationTimeBeforeArbiter.ts
-var expirationTimeBeforeArbiterDecodeDemandFunction = (0, import_viem3.getAbiItem)({
-  abi: abi3.abi,
-  name: "decodeDemandData"
-});
-var expirationTimeBeforeArbiterDemandDataType = expirationTimeBeforeArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand3 = (demand) => {
-  return (0, import_viem3.encodeAbiParameters)([expirationTimeBeforeArbiterDemandDataType], [demand]);
-};
-var decodeDemand3 = (demandData) => {
-  return (0, import_viem3.decodeAbiParameters)(
-    [expirationTimeBeforeArbiterDemandDataType],
-    demandData
-  )[0];
-};
-var makeExpirationTimeBeforeArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand3,
-    decodeDemand: decodeDemand3
-  };
-};
-
-// src/clients/arbiters/attestationProperties/expirationTimeEqualArbiter.ts
-var import_viem4 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/ExpirationTimeEqualArbiter.ts
-var ExpirationTimeEqualArbiter_exports = {};
-__export(ExpirationTimeEqualArbiter_exports, {
-  abi: () => abi4
-});
-var abi4 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct ExpirationTimeEqualArbiter.DemandData",
-          "components": [
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "ExpirationTimeNotEqual",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x6080806040523460155761038e908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b60408201526100b9606483016102ca565b91606082019283526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b635931e77d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220f7ea90241aed785149d1262ac151cdfe4c049b6a0d526732671472ee3153dcee64736f6c634300081b0033",
-    "sourceMap": "377:924:102:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b60408201526100b9606483016102ca565b91606082019283526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b635931e77d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220f7ea90241aed785149d1262ac151cdfe4c049b6a0d526732671472ee3153dcee64736f6c634300081b0033",
-    "sourceMap": "377:924:102:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;:::i;:::-;;;;;903:32;;377:924;;;;;;;:::i;:::-;903:32;;377:924;;-1:-1:-1;;;;;377:924:102;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;949:52;945:114;;377:924;;;;;;;945:114;1024:24;;;377:924;1024:24;377:924;;1024:24;377:924;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;377:924:102;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;377:924:102;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;377:924:102;;;;;;:::o;:::-;;;-1:-1:-1;;;;;377:924:102;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;377:924:102;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"ExpirationTimeNotEqual","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"expirationTime","type":"uint64"}],"internalType":"struct ExpirationTimeEqualArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExpirationTimeEqualArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded expiration-time demand data."}},"notice":"Accepts fulfillments with an exact expiration timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol":"ExpirationTimeEqualArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol":{"keccak256":"0x624bb6fb40d82e9756f818e692ca7ba94d9e4d495618f4d2f087fea5216c1b12","license":"UNLICENSED","urls":["bzz-raw://4a7c0fa9e4e0d6b53c2b083cd46c690ae286278a531cd4d416afe8544a96442d","dweb:/ipfs/Qmb3B4DUcxvWtNQBzeY3RcggkBdfPSkF4JrKWdt1i4kVmM"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "ExpirationTimeNotEqual"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct ExpirationTimeEqualArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded expiration-time demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol": "ExpirationTimeEqualArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol": {
-        "keccak256": "0x624bb6fb40d82e9756f818e692ca7ba94d9e4d495618f4d2f087fea5216c1b12",
-        "urls": [
-          "bzz-raw://4a7c0fa9e4e0d6b53c2b083cd46c690ae286278a531cd4d416afe8544a96442d",
-          "dweb:/ipfs/Qmb3B4DUcxvWtNQBzeY3RcggkBdfPSkF4JrKWdt1i4kVmM"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 102
-};
-
-// src/clients/arbiters/attestationProperties/expirationTimeEqualArbiter.ts
-var expirationTimeEqualArbiterDecodeDemandFunction = (0, import_viem4.getAbiItem)({
-  abi: abi4.abi,
-  name: "decodeDemandData"
-});
-var expirationTimeEqualArbiterDemandDataType = expirationTimeEqualArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand4 = (demand) => {
-  return (0, import_viem4.encodeAbiParameters)([expirationTimeEqualArbiterDemandDataType], [demand]);
-};
-var decodeDemand4 = (demandData) => {
-  return (0, import_viem4.decodeAbiParameters)(
-    [expirationTimeEqualArbiterDemandDataType],
-    demandData
-  )[0];
-};
-var makeExpirationTimeEqualArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand4,
-    decodeDemand: decodeDemand4
-  };
-};
-
-// src/clients/arbiters/attestationProperties/recipientArbiter.ts
-var import_viem5 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/RecipientArbiter.ts
-var RecipientArbiter_exports = {};
-__export(RecipientArbiter_exports, {
-  abi: () => abi5
-});
-var abi5 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct RecipientArbiter.DemandData",
-          "components": [
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "RecipientMismatched",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x60808060405234601557610399908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b9160c082019283526100fb60e482016102e7565b60e083015261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b6358cf6deb60e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212200898c438827a2a502797333ff2c22ddf134d0e1b31d3aeccbf2682e74d7bd17064736f6c634300081b0033",
-    "sourceMap": "362:889:103:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b9160c082019283526100fb60e482016102e7565b60e083015261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b6358cf6deb60e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212200898c438827a2a502797333ff2c22ddf134d0e1b31d3aeccbf2682e74d7bd17064736f6c634300081b0033",
-    "sourceMap": "362:889:103:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;872:32;;362:889;;;;;;;:::i;:::-;872:32;;362:889;-1:-1:-1;;;;;362:889:103;;;;;;;;;;-1:-1:-1;;;;;362:889:103;918:42;914:101;;362:889;;;;;;;914:101;983:21;;;362:889;983:21;362:889;;983:21;362:889;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;;;;-1:-1:-1;;;;;362:889:103;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;362:889:103;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;362:889:103;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;362:889:103;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;362:889:103;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"RecipientMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"address","name":"recipient","type":"address"}],"internalType":"struct RecipientArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"RecipientArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded recipient demand data."}},"notice":"Accepts fulfillments with a specific EAS recipient.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/RecipientArbiter.sol":"RecipientArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/RecipientArbiter.sol":{"keccak256":"0xaf8b51871faa94f291a0ebee1e239ad0e6487b20302ded3ab05f204839b10916","license":"UNLICENSED","urls":["bzz-raw://6002efff44fc20af30586dcf474f2fe95362f17a0b16715cde160e30725b4caf","dweb:/ipfs/QmYewBg1aBCUc53sfaZGMFgTyBTme2oWKybGRR7dgkd478"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "RecipientMismatched"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct RecipientArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded recipient demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/RecipientArbiter.sol": "RecipientArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/RecipientArbiter.sol": {
-        "keccak256": "0xaf8b51871faa94f291a0ebee1e239ad0e6487b20302ded3ab05f204839b10916",
-        "urls": [
-          "bzz-raw://6002efff44fc20af30586dcf474f2fe95362f17a0b16715cde160e30725b4caf",
-          "dweb:/ipfs/QmYewBg1aBCUc53sfaZGMFgTyBTme2oWKybGRR7dgkd478"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 103
-};
-
-// src/clients/arbiters/attestationProperties/recipientArbiter.ts
-var recipientArbiterDecodeDemandFunction = (0, import_viem5.getAbiItem)({
-  abi: abi5.abi,
-  name: "decodeDemandData"
-});
-var recipientArbiterDemandDataType = recipientArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand5 = (demand) => {
-  return (0, import_viem5.encodeAbiParameters)([recipientArbiterDemandDataType], [demand]);
-};
-var decodeDemand5 = (demandData) => {
-  return (0, import_viem5.decodeAbiParameters)([recipientArbiterDemandDataType], demandData)[0];
-};
-var makeRecipientArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand5,
-    decodeDemand: decodeDemand5
-  };
-};
-
-// src/clients/arbiters/attestationProperties/refUidArbiter.ts
-var import_viem6 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/RefUidArbiter.ts
-var RefUidArbiter_exports = {};
-__export(RefUidArbiter_exports, {
-  abi: () => abi6
-});
-var abi6 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct RefUidArbiter.DemandData",
-          "components": [
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "RefUidMismatched",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x6080806040523460155761036d908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a15760405281600401358152602482013560208201526100aa604483016102a6565b60408201526100bb606483016102a6565b60608201526100cc608483016102a6565b608082015260a081019160a481013583526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b635f11c88560e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea26469706673582212202218da869e7b72a8a1de0bdc2e88e808217f20bc4e60608a11270b6c0c5395a864736f6c634300081b0033",
-    "sourceMap": "358:849:104:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a15760405281600401358152602482013560208201526100aa604483016102a6565b60408201526100bb606483016102a6565b60608201526100cc608483016102a6565b608082015260a081019160a481013583526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b635f11c88560e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea26469706673582212202218da869e7b72a8a1de0bdc2e88e808217f20bc4e60608a11270b6c0c5395a864736f6c634300081b0033",
-    "sourceMap": "358:849:104:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;864:32;;358:849;;;;;;;:::i;:::-;864:32;;358:849;;;;;910:36;906:67;;358:849;;;;;;;906:67;955:18;;;358:849;955:18;358:849;;955:18;358:849;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;358:849:104;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;358:849:104;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;358:849:104;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;358:849:104;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"RefUidMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bytes32","name":"refUID","type":"bytes32"}],"internalType":"struct RefUidArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"RefUidArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded refUID demand data."}},"notice":"Accepts fulfillments with a specific EAS `refUID`.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/RefUidArbiter.sol":"RefUidArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/RefUidArbiter.sol":{"keccak256":"0xf9c1d227d57a7146343274a7d83891994941ce758fd1d54d9110c50ac8514933","license":"UNLICENSED","urls":["bzz-raw://4c76641b9e6d2db6897f192ee15a5b11915c8de91d4296c4baaba3bea973c310","dweb:/ipfs/QmQ731d2NHvBdmHL7rNkVm61rFCVeipr4LTzXc2722XAhM"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "RefUidMismatched"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct RefUidArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded refUID demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/RefUidArbiter.sol": "RefUidArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/RefUidArbiter.sol": {
-        "keccak256": "0xf9c1d227d57a7146343274a7d83891994941ce758fd1d54d9110c50ac8514933",
-        "urls": [
-          "bzz-raw://4c76641b9e6d2db6897f192ee15a5b11915c8de91d4296c4baaba3bea973c310",
-          "dweb:/ipfs/QmQ731d2NHvBdmHL7rNkVm61rFCVeipr4LTzXc2722XAhM"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 104
-};
-
-// src/clients/arbiters/attestationProperties/refUidArbiter.ts
-var refUidArbiterDecodeDemandFunction = (0, import_viem6.getAbiItem)({
-  abi: abi6.abi,
-  name: "decodeDemandData"
-});
-var refUidArbiterDemandDataType = refUidArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand6 = (demand) => {
-  return (0, import_viem6.encodeAbiParameters)([refUidArbiterDemandDataType], [demand]);
-};
-var decodeDemand6 = (demandData) => {
-  return (0, import_viem6.decodeAbiParameters)([refUidArbiterDemandDataType], demandData)[0];
-};
-var makeRefUidArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand6,
-    decodeDemand: decodeDemand6
-  };
-};
-
-// src/clients/arbiters/attestationProperties/revocableArbiter.ts
-var import_viem7 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/RevocableArbiter.ts
-var RevocableArbiter_exports = {};
-__export(RevocableArbiter_exports, {
-  abi: () => abi7
-});
-var abi7 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct RevocableArbiter.DemandData",
-          "components": [
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "RevocabilityMismatched",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x6080806040523460155761038d908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461024657508063838a68d9146101bf57638da3721a1461003d575f80fd5b346101a75760603660031901126101a75760043567ffffffffffffffff81116101a75761014060031982360301126101a757604051610140810181811067ffffffffffffffff8211176101ab5760405281600401358152602482013560208201526100aa604483016102b9565b60408201526100bb606483016102b9565b60608201526100cc608483016102b9565b608082015260a482013560a08201526100e760c483016102ce565b60c08201526100f860e483016102ce565b60e082015261010a61010483016102e2565b91610100820192835261012481013567ffffffffffffffff81116101a75761012091600461013b92369201016102ef565b91015260243567ffffffffffffffff81116101a75761015e9036906004016102ef565b906020828051810103126101a7576020610176610299565b920151801515928382036101a757525115150361019857602060405160018152f35b6320ee3a7d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101a75760203660031901126101a75760043567ffffffffffffffff81116101a757366023820112156101a757806004013567ffffffffffffffff81116101a75781013660248201116101a7576020905f610219610299565b52829003126101a7576020906102396024610232610299565b92016102e2565b8091526040519015158152f35b346101a75760203660031901126101a7576004359063ffffffff60e01b82168092036101a7576020916346d1b90d60e11b8114908115610288575b5015158152f35b6301ffc9a760e01b14905083610281565b604051906020820182811067ffffffffffffffff8211176101ab57604052565b359067ffffffffffffffff821682036101a757565b35906001600160a01b03821682036101a757565b359081151582036101a757565b81601f820112156101a75780359067ffffffffffffffff82116101ab5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101ab57604052828452602083830101116101a757815f92602080930183860137830101529056fea2646970667358221220e8174852d86d9bbae90053a539321fc96598eda009833ee2e4da96c91a31baea64736f6c634300081b0033",
-    "sourceMap": "371:895:105:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461024657508063838a68d9146101bf57638da3721a1461003d575f80fd5b346101a75760603660031901126101a75760043567ffffffffffffffff81116101a75761014060031982360301126101a757604051610140810181811067ffffffffffffffff8211176101ab5760405281600401358152602482013560208201526100aa604483016102b9565b60408201526100bb606483016102b9565b60608201526100cc608483016102b9565b608082015260a482013560a08201526100e760c483016102ce565b60c08201526100f860e483016102ce565b60e082015261010a61010483016102e2565b91610100820192835261012481013567ffffffffffffffff81116101a75761012091600461013b92369201016102ef565b91015260243567ffffffffffffffff81116101a75761015e9036906004016102ef565b906020828051810103126101a7576020610176610299565b920151801515928382036101a757525115150361019857602060405160018152f35b6320ee3a7d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101a75760203660031901126101a75760043567ffffffffffffffff81116101a757366023820112156101a757806004013567ffffffffffffffff81116101a75781013660248201116101a7576020905f610219610299565b52829003126101a7576020906102396024610232610299565b92016102e2565b8091526040519015158152f35b346101a75760203660031901126101a7576004359063ffffffff60e01b82168092036101a7576020916346d1b90d60e11b8114908115610288575b5015158152f35b6301ffc9a760e01b14905083610281565b604051906020820182811067ffffffffffffffff8211176101ab57604052565b359067ffffffffffffffff821682036101a757565b35906001600160a01b03821682036101a757565b359081151582036101a757565b81601f820112156101a75780359067ffffffffffffffff82116101ab5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101ab57604052828452602083830101116101a757815f92602080930183860137830101529056fea2646970667358221220e8174852d86d9bbae90053a539321fc96598eda009833ee2e4da96c91a31baea64736f6c634300081b0033",
-    "sourceMap": "371:895:105:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;881:32;;371:895;;;;;;;:::i;:::-;881:32;;371:895;;;;;;;;;;;;;;927:42;923:104;;371:895;;;;;;;923:104;992:24;;;371:895;992:24;371:895;;992:24;371:895;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;371:895:105;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;371:895:105;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;371:895:105;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;371:895:105;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"RevocabilityMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bool","name":"revocable","type":"bool"}],"internalType":"struct RevocableArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"RevocableArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded revocability demand data."}},"notice":"Accepts fulfillments whose revocability matches demand data.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/RevocableArbiter.sol":"RevocableArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/RevocableArbiter.sol":{"keccak256":"0xe0a6357d83414445ee53fd3721be0c2131676ff14452115041c9bc5c94dba228","license":"UNLICENSED","urls":["bzz-raw://6524d2500d557b0f6fa83fba1c99f161406f60d1ed2354f2147b4101a1d9cee2","dweb:/ipfs/QmTeVRoozpBpKQqKxmfisKEwEv7J45oRbEWaeqebeDW79c"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "RevocabilityMismatched"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct RevocableArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded revocability demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/RevocableArbiter.sol": "RevocableArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/RevocableArbiter.sol": {
-        "keccak256": "0xe0a6357d83414445ee53fd3721be0c2131676ff14452115041c9bc5c94dba228",
-        "urls": [
-          "bzz-raw://6524d2500d557b0f6fa83fba1c99f161406f60d1ed2354f2147b4101a1d9cee2",
-          "dweb:/ipfs/QmTeVRoozpBpKQqKxmfisKEwEv7J45oRbEWaeqebeDW79c"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 105
-};
-
-// src/clients/arbiters/attestationProperties/revocableArbiter.ts
-var revocableArbiterDecodeDemandFunction = (0, import_viem7.getAbiItem)({
-  abi: abi7.abi,
-  name: "decodeDemandData"
-});
-var revocableArbiterDemandDataType = revocableArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand7 = (demand) => {
-  return (0, import_viem7.encodeAbiParameters)([revocableArbiterDemandDataType], [demand]);
-};
-var decodeDemand7 = (demandData) => {
-  return (0, import_viem7.decodeAbiParameters)([revocableArbiterDemandDataType], demandData)[0];
-};
-var makeRevocableArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand7,
-    decodeDemand: decodeDemand7
-  };
-};
-
-// src/clients/arbiters/attestationProperties/schemaArbiter.ts
-var import_viem8 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/SchemaArbiter.ts
-var SchemaArbiter_exports = {};
-__export(SchemaArbiter_exports, {
-  abi: () => abi8
-});
-var abi8 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct SchemaArbiter.DemandData",
-          "components": [
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "SchemaMismatched",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x6080806040523460155761036d908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a157604052816004013581526020810191602481013583526100ac604482016102a6565b60408301526100bd606482016102a6565b60608301526100ce608482016102a6565b608083015260a481013560a08301526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b630a65e99d60e41b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea2646970667358221220c838cdfc2854747acdca06b1fabcc7dd7b88908ec1ed7b47d0c33b2749bd8d1064736f6c634300081b0033",
-    "sourceMap": "360:833:106:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a157604052816004013581526020810191602481013583526100ac604482016102a6565b60408301526100bd606482016102a6565b60608301526100ce608482016102a6565b608083015260a481013560a08301526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b630a65e99d60e41b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea2646970667358221220c838cdfc2854747acdca06b1fabcc7dd7b88908ec1ed7b47d0c33b2749bd8d1064736f6c634300081b0033",
-    "sourceMap": "360:833:106:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;850:32;;360:833;;;;;;;:::i;:::-;850:32;;360:833;;;;;896:36;892:67;;360:833;;;;;;;892:67;941:18;;;360:833;941:18;360:833;;941:18;360:833;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;360:833:106;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;360:833:106;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;360:833:106;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;360:833:106;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"SchemaMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bytes32","name":"schema","type":"bytes32"}],"internalType":"struct SchemaArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"SchemaArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded schema demand data."}},"notice":"Accepts fulfillments with a specific EAS schema UID.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/SchemaArbiter.sol":"SchemaArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/SchemaArbiter.sol":{"keccak256":"0xe0ab63d02cf7a885eedeff279c8f3b284b4f76b1e17969a44a79e8618d8f2b7f","license":"UNLICENSED","urls":["bzz-raw://110e645467169a835d8f0807d42aa1c7092caa1bd1f8efdfc91a24d1fd8798b9","dweb:/ipfs/QmTXeR8umaz6PYqsYsv6Zp5Mg3Q1gfi8DmwzNitHiPnYDE"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "SchemaMismatched"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct SchemaArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded schema demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/SchemaArbiter.sol": "SchemaArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/SchemaArbiter.sol": {
-        "keccak256": "0xe0ab63d02cf7a885eedeff279c8f3b284b4f76b1e17969a44a79e8618d8f2b7f",
-        "urls": [
-          "bzz-raw://110e645467169a835d8f0807d42aa1c7092caa1bd1f8efdfc91a24d1fd8798b9",
-          "dweb:/ipfs/QmTXeR8umaz6PYqsYsv6Zp5Mg3Q1gfi8DmwzNitHiPnYDE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 106
-};
-
-// src/clients/arbiters/attestationProperties/schemaArbiter.ts
-var schemaArbiterDecodeDemandFunction = (0, import_viem8.getAbiItem)({
-  abi: abi8.abi,
-  name: "decodeDemandData"
-});
-var schemaArbiterDemandDataType = schemaArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand8 = (demand) => {
-  return (0, import_viem8.encodeAbiParameters)([schemaArbiterDemandDataType], [demand]);
-};
-var decodeDemand8 = (demandData) => {
-  return (0, import_viem8.decodeAbiParameters)([schemaArbiterDemandDataType], demandData)[0];
-};
-var makeSchemaArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand8,
-    decodeDemand: decodeDemand8
-  };
-};
-
-// src/clients/arbiters/attestationProperties/timeAfterArbiter.ts
-var import_viem9 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/TimeAfterArbiter.ts
-var TimeAfterArbiter_exports = {};
-__export(TimeAfterArbiter_exports, {
-  abi: () => abi9
-});
-var abi9 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct TimeAfterArbiter.DemandData",
-          "components": [
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "TimeNotAfter",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x608080604052346015576103a1908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b633fed642d60e21b5f5260045ffd5b516001600160401b03161090505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea26469706673582212207e22f910f70ad5552bbd87586b94d88baf0f674363438a1245aa7baffed4cbd464736f6c634300081b0033",
-    "sourceMap": "388:961:107:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b633fed642d60e21b5f5260045ffd5b516001600160401b03161090505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea26469706673582212207e22f910f70ad5552bbd87586b94d88baf0f674363438a1245aa7baffed4cbd464736f6c634300081b0033",
-    "sourceMap": "388:961:107:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;:::i;:::-;;;;;889:32;;388:961;;;;;;;:::i;:::-;889:32;;388:961;-1:-1:-1;;;;;388:961:107;;;;;;;;;1009:17;;;:52;;;;388:961;1005:104;;;;388:961;;;;;;;1005:104;1084:14;;;388:961;1084:14;388:961;;1084:14;1009:52;388:961;-1:-1:-1;;;;;388:961:107;1030:31;;-1:-1:-1;1009:52:107;;;;388:961;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;388:961:107;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;388:961:107;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;388:961:107;;;;;;:::o;:::-;;;-1:-1:-1;;;;;388:961:107;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;388:961:107;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"TimeNotAfter","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"time","type":"uint64"}],"internalType":"struct TimeAfterArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"TimeAfterArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded creation-time demand data."}},"notice":"Accepts fulfillments whose creation time is at or after a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/TimeAfterArbiter.sol":"TimeAfterArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/TimeAfterArbiter.sol":{"keccak256":"0x4753058fff28a5ce729b13dd2d379881328eba3266aedcc6c1e73319668459be","license":"UNLICENSED","urls":["bzz-raw://8b3ecbf286820039e1d37f9db601abf43ba4c6ebfb4da3ae9bda1644c2bb95aa","dweb:/ipfs/Qmbw3DB3qV7gCuS4s1M9CW6T52up17b5tipYSymJu8KWRB"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "TimeNotAfter"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct TimeAfterArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded creation-time demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/TimeAfterArbiter.sol": "TimeAfterArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/TimeAfterArbiter.sol": {
-        "keccak256": "0x4753058fff28a5ce729b13dd2d379881328eba3266aedcc6c1e73319668459be",
-        "urls": [
-          "bzz-raw://8b3ecbf286820039e1d37f9db601abf43ba4c6ebfb4da3ae9bda1644c2bb95aa",
-          "dweb:/ipfs/Qmbw3DB3qV7gCuS4s1M9CW6T52up17b5tipYSymJu8KWRB"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 107
-};
-
-// src/clients/arbiters/attestationProperties/timeAfterArbiter.ts
-var timeAfterArbiterDecodeDemandFunction = (0, import_viem9.getAbiItem)({
-  abi: abi9.abi,
-  name: "decodeDemandData"
-});
-var timeAfterArbiterDemandDataType = timeAfterArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand9 = (demand) => {
-  return (0, import_viem9.encodeAbiParameters)([timeAfterArbiterDemandDataType], [demand]);
-};
-var decodeDemand9 = (demandData) => {
-  return (0, import_viem9.decodeAbiParameters)([timeAfterArbiterDemandDataType], demandData)[0];
-};
-var makeTimeAfterArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand9,
-    decodeDemand: decodeDemand9
-  };
-};
-
-// src/clients/arbiters/attestationProperties/timeBeforeArbiter.ts
-var import_viem10 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/TimeBeforeArbiter.ts
-var TimeBeforeArbiter_exports = {};
-__export(TimeBeforeArbiter_exports, {
-  abi: () => abi10
-});
-var abi10 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct TimeBeforeArbiter.DemandData",
-          "components": [
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "TimeNotBefore",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x608080604052346015576103a1908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b63abcd2e9760e01b5f5260045ffd5b516001600160401b03161190505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea2646970667358221220a12aececd38c270db903a80ff5f3fa28d7acdd6a66a12f70f1d3c2ff0d0ba4f264736f6c634300081b0033",
-    "sourceMap": "390:964:108:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b63abcd2e9760e01b5f5260045ffd5b516001600160401b03161190505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea2646970667358221220a12aececd38c270db903a80ff5f3fa28d7acdd6a66a12f70f1d3c2ff0d0ba4f264736f6c634300081b0033",
-    "sourceMap": "390:964:108:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;:::i;:::-;;;;;893:32;;390:964;;;;;;;:::i;:::-;893:32;;390:964;-1:-1:-1;;;;;390:964:108;;;;;;;;;1013:17;;;:52;;;;390:964;1009:105;;;;390:964;;;;;;;1009:105;1088:15;;;390:964;1088:15;390:964;;1088:15;1013:52;390:964;-1:-1:-1;;;;;390:964:108;1034:31;;-1:-1:-1;1013:52:108;;;;390:964;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;390:964:108;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;390:964:108;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;390:964:108;;;;;;:::o;:::-;;;-1:-1:-1;;;;;390:964:108;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;390:964:108;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"TimeNotBefore","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"time","type":"uint64"}],"internalType":"struct TimeBeforeArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"TimeBeforeArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded creation-time demand data."}},"notice":"Accepts fulfillments whose creation time is at or before a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/TimeBeforeArbiter.sol":"TimeBeforeArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/TimeBeforeArbiter.sol":{"keccak256":"0xde96bdffcb5d58655f59566d1bf64c8a6ea124f16da1805d5c3cfb1ee86b0162","license":"UNLICENSED","urls":["bzz-raw://2c49240d3e111844eda5156b391ede4b0f37f5bdcac82a7ab8e53fc7129821f9","dweb:/ipfs/QmQSkDKFmHBbYL7gu6m1WN5BEo4NS8Qhjif3ARwVzG1wtP"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "TimeNotBefore"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct TimeBeforeArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded creation-time demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/TimeBeforeArbiter.sol": "TimeBeforeArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/TimeBeforeArbiter.sol": {
-        "keccak256": "0xde96bdffcb5d58655f59566d1bf64c8a6ea124f16da1805d5c3cfb1ee86b0162",
-        "urls": [
-          "bzz-raw://2c49240d3e111844eda5156b391ede4b0f37f5bdcac82a7ab8e53fc7129821f9",
-          "dweb:/ipfs/QmQSkDKFmHBbYL7gu6m1WN5BEo4NS8Qhjif3ARwVzG1wtP"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 108
-};
-
-// src/clients/arbiters/attestationProperties/timeBeforeArbiter.ts
-var timeBeforeArbiterDecodeDemandFunction = (0, import_viem10.getAbiItem)({
-  abi: abi10.abi,
-  name: "decodeDemandData"
-});
-var timeBeforeArbiterDemandDataType = timeBeforeArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand10 = (demand) => {
-  return (0, import_viem10.encodeAbiParameters)([timeBeforeArbiterDemandDataType], [demand]);
-};
-var decodeDemand10 = (demandData) => {
-  return (0, import_viem10.decodeAbiParameters)([timeBeforeArbiterDemandDataType], demandData)[0];
-};
-var makeTimeBeforeArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand10,
-    decodeDemand: decodeDemand10
-  };
-};
-
-// src/clients/arbiters/attestationProperties/timeEqualArbiter.ts
-var import_viem11 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/TimeEqualArbiter.ts
-var TimeEqualArbiter_exports = {};
-__export(TimeEqualArbiter_exports, {
-  abi: () => abi11
-});
-var abi11 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct TimeEqualArbiter.DemandData",
-          "components": [
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "TimeNotEqual",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x6080806040523460155761038e908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b91604082019283526100bc606482016102ca565b60608301526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b6308b5d45360e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220b746ef2e5b2bb1455c9bbbfbbdfaf99b728891bf7f974bdb2ee4f4785b17f65364736f6c634300081b0033",
-    "sourceMap": "369:836:109:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b91604082019283526100bc606482016102ca565b60608301526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b6308b5d45360e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220b746ef2e5b2bb1455c9bbbfbbdfaf99b728891bf7f974bdb2ee4f4785b17f65364736f6c634300081b0033",
-    "sourceMap": "369:836:109:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;:::i;:::-;;;;;863:32;;369:836;;;;;;;:::i;:::-;863:32;;369:836;;-1:-1:-1;;;;;369:836:109;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;909:32;905:59;;369:836;;;;;;;905:59;950:14;;;369:836;950:14;369:836;;950:14;369:836;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;369:836:109;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;369:836:109;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;369:836:109;;;;;;:::o;:::-;;;-1:-1:-1;;;;;369:836:109;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;369:836:109;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"TimeNotEqual","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"time","type":"uint64"}],"internalType":"struct TimeEqualArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"TimeEqualArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded creation-time demand data."}},"notice":"Accepts fulfillments with an exact EAS creation timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/TimeEqualArbiter.sol":"TimeEqualArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/TimeEqualArbiter.sol":{"keccak256":"0x9e52bfdc91bf78efe53008f00a4e88347edddf002b361e16424c81dbbd7e046e","license":"UNLICENSED","urls":["bzz-raw://92385d7a461cc070c6c4e8e886de276a84bb30867aeaf7d19347af5469e2ca49","dweb:/ipfs/QmPBAPwzdT9yiFfDhTtYaoiZFrU84qfqBnQnyHoaHvS7CQ"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "TimeNotEqual"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct TimeEqualArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded creation-time demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/TimeEqualArbiter.sol": "TimeEqualArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/TimeEqualArbiter.sol": {
-        "keccak256": "0x9e52bfdc91bf78efe53008f00a4e88347edddf002b361e16424c81dbbd7e046e",
-        "urls": [
-          "bzz-raw://92385d7a461cc070c6c4e8e886de276a84bb30867aeaf7d19347af5469e2ca49",
-          "dweb:/ipfs/QmPBAPwzdT9yiFfDhTtYaoiZFrU84qfqBnQnyHoaHvS7CQ"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 109
-};
-
-// src/clients/arbiters/attestationProperties/timeEqualArbiter.ts
-var timeEqualArbiterDecodeDemandFunction = (0, import_viem11.getAbiItem)({
-  abi: abi11.abi,
-  name: "decodeDemandData"
-});
-var timeEqualArbiterDemandDataType = timeEqualArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand11 = (demand) => {
-  return (0, import_viem11.encodeAbiParameters)([timeEqualArbiterDemandDataType], [demand]);
-};
-var decodeDemand11 = (demandData) => {
-  return (0, import_viem11.decodeAbiParameters)([timeEqualArbiterDemandDataType], demandData)[0];
-};
-var makeTimeEqualArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand11,
-    decodeDemand: decodeDemand11
-  };
-};
-
-// src/clients/arbiters/attestationProperties/uidArbiter.ts
-var import_viem12 = require("viem");
-
-// src/contracts/arbiters/attestation-properties/UidArbiter.ts
-var UidArbiter_exports = {};
-__export(UidArbiter_exports, {
-  abi: () => abi12
-});
-var abi12 = {
-  "abi": [
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "demand",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "decodeDemandData",
-      "inputs": [
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct UidArbiter.DemandData",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "pure"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "error",
-      "name": "UidMismatched",
-      "inputs": []
-    }
-  ],
-  "bytecode": {
-    "object": "0x6080806040523460155761036c908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023257508063838a68d9146101b457638da3721a1461003d575f80fd5b3461019c57606036600319011261019c5760043567ffffffffffffffff811161019c57610140600319823603011261019c5760405190610140820182811067ffffffffffffffff8211176101a05760405280600401358252602481013560208301526100ab604482016102a5565b60408301526100bc606482016102a5565b60608301526100cd608482016102a5565b608083015260a481013560a08301526100e860c482016102ba565b60c08301526100f960e482016102ba565b60e0830152610104810135801515810361019c576101008301526101248101359067ffffffffffffffff821161019c57600461013892369201016102ce565b61012082015260243567ffffffffffffffff811161019c5761015e9036906004016102ce565b9060208280518101031261019c576020610176610285565b920151809252510361018d57602060405160018152f35b633f51589560e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019c57602036600319011261019c5760043567ffffffffffffffff811161019c573660238201121561019c57806004013567ffffffffffffffff811161019c57810136602482011161019c576020905f61020e610285565b528290031261019c576020906024610224610285565b910135809152604051908152f35b3461019c57602036600319011261019c576004359063ffffffff60e01b821680920361019c576020916346d1b90d60e11b8114908115610274575b5015158152f35b6301ffc9a760e01b1490508361026d565b604051906020820182811067ffffffffffffffff8211176101a057604052565b359067ffffffffffffffff8216820361019c57565b35906001600160a01b038216820361019c57565b81601f8201121561019c5780359067ffffffffffffffff82116101a05760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a0576040528284526020838301011161019c57815f92602080930183860137830101529056fea2646970667358221220144baf47adc886019f8fd0433ae2129f01d8d799ce31851621cd2e67512789b564736f6c634300081b0033",
-    "sourceMap": "357:817:110:-:0;;;;;;;;;;;;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023257508063838a68d9146101b457638da3721a1461003d575f80fd5b3461019c57606036600319011261019c5760043567ffffffffffffffff811161019c57610140600319823603011261019c5760405190610140820182811067ffffffffffffffff8211176101a05760405280600401358252602481013560208301526100ab604482016102a5565b60408301526100bc606482016102a5565b60608301526100cd608482016102a5565b608083015260a481013560a08301526100e860c482016102ba565b60c08301526100f960e482016102ba565b60e0830152610104810135801515810361019c576101008301526101248101359067ffffffffffffffff821161019c57600461013892369201016102ce565b61012082015260243567ffffffffffffffff811161019c5761015e9036906004016102ce565b9060208280518101031261019c576020610176610285565b920151809252510361018d57602060405160018152f35b633f51589560e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019c57602036600319011261019c5760043567ffffffffffffffff811161019c573660238201121561019c57806004013567ffffffffffffffff811161019c57810136602482011161019c576020905f61020e610285565b528290031261019c576020906024610224610285565b910135809152604051908152f35b3461019c57602036600319011261019c576004359063ffffffff60e01b821680920361019c576020916346d1b90d60e11b8114908115610274575b5015158152f35b6301ffc9a760e01b1490508361026d565b604051906020820182811067ffffffffffffffff8211176101a057604052565b359067ffffffffffffffff8216820361019c57565b35906001600160a01b038216820361019c57565b81601f8201121561019c5780359067ffffffffffffffff82116101a05760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a0576040528284526020838301011161019c57815f92602080930183860137830101529056fea2646970667358221220144baf47adc886019f8fd0433ae2129f01d8d799ce31851621cd2e67512789b564736f6c634300081b0033",
-    "sourceMap": "357:817:110:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;843:32;;357:817;;;;;;;:::i;:::-;843:32;;357:817;;;;;889:30;885:58;;357:817;;;;;;;885:58;928:15;;;357:817;928:15;357:817;;928:15;357:817;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;357:817:110;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;357:817:110;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;357:817:110;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;357:817:110;;;;;;;;;;;;;;:::o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "decodeDemandData(bytes)": "838a68d9",
-    "supportsInterface(bytes4)": "01ffc9a7"
-  },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"UidMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"}],"internalType":"struct UidArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"UidArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded UID demand data."}},"notice":"Accepts only a specific fulfillment attestation UID.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/UidArbiter.sol":"UidArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/UidArbiter.sol":{"keccak256":"0x29405eb3e6b228ed5377fad46f46c39a61dfd2ed668872e27e1f3fcf2d3798d6","license":"UNLICENSED","urls":["bzz-raw://5c5ade6a6f7200909b6b0a313de9b4484987795cdca1b8ac0d0a0147d6c960cf","dweb:/ipfs/QmPnrckSyoeeK3jeKnGcFRwtSwSgXQmmPxyhSsaMHosVhM"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
-  "metadata": {
-    "compiler": {
-      "version": "0.8.27+commit.40a35a09"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "UidMismatched"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "struct Attestation",
-              "name": "fulfillment",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "schema",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "expirationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "revocationTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "refUID",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "attester",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "revocable",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ]
-            },
-            {
-              "internalType": "bytes",
-              "name": "demand",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "check",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function",
-          "name": "decodeDemandData",
-          "outputs": [
-            {
-              "internalType": "struct UidArbiter.DemandData",
-              "name": "",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "bytes32",
-                  "name": "uid",
-                  "type": "bytes32"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "params": {
-              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
-              "escrowUid": "The UID of the escrow attestation being fulfilled.",
-              "fulfillment": "The EAS attestation being used as fulfillment."
-            }
-          },
-          "supportsInterface(bytes4)": {
-            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
-            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "decodeDemandData(bytes)": {
-            "notice": "Decodes ABI-encoded UID demand data."
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        "@eas/=lib/eas-contracts/contracts/",
-        "@erc8004/=lib/erc-8004-contracts/contracts/",
-        "@openzeppelin/=lib/openzeppelin-contracts/",
-        "@src/=src/",
-        "@test/=test/",
-        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
-        "eas-contracts/=lib/eas-contracts/contracts/",
-        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
-        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
-        "forge-std/=lib/forge-std/src/",
-        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
-        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
-        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
-        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "src/arbiters/attestation-properties/UidArbiter.sol": "UidArbiter"
-      },
-      "evmVersion": "prague",
-      "libraries": {},
-      "viaIR": true
-    },
-    "sources": {
-      "lib/eas-contracts/contracts/Common.sol": {
-        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
-        "urls": [
-          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
-          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
-        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
-        "urls": [
-          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
-          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
-        ],
-        "license": "MIT"
-      },
-      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
-        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
-        "urls": [
-          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
-          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
-        ],
-        "license": "MIT"
-      },
-      "src/BaseArbiter.sol": {
-        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
-        "urls": [
-          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
-          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/IArbiter.sol": {
-        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
-        "urls": [
-          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
-          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/arbiters/attestation-properties/UidArbiter.sol": {
-        "keccak256": "0x29405eb3e6b228ed5377fad46f46c39a61dfd2ed668872e27e1f3fcf2d3798d6",
-        "urls": [
-          "bzz-raw://5c5ade6a6f7200909b6b0a313de9b4484987795cdca1b8ac0d0a0147d6c960cf",
-          "dweb:/ipfs/QmPnrckSyoeeK3jeKnGcFRwtSwSgXQmmPxyhSsaMHosVhM"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
-      }
-    },
-    "version": 1
-  },
-  "id": 110
-};
-
-// src/clients/arbiters/attestationProperties/uidArbiter.ts
-var uidArbiterDecodeDemandFunction = (0, import_viem12.getAbiItem)({
-  abi: abi12.abi,
-  name: "decodeDemandData"
-});
-var uidArbiterDemandDataType = uidArbiterDecodeDemandFunction.outputs[0];
-var encodeDemand12 = (demand) => {
-  return (0, import_viem12.encodeAbiParameters)([uidArbiterDemandDataType], [demand]);
-};
-var decodeDemand12 = (demandData) => {
-  return (0, import_viem12.decodeAbiParameters)([uidArbiterDemandDataType], demandData)[0];
-};
-var makeUidArbiterClient = (viemClient, addresses) => {
-  return {
-    encodeDemand: encodeDemand12,
-    decodeDemand: decodeDemand12
-  };
-};
-
-// src/clients/arbiters/attestationProperties/index.ts
-var makeAttestationPropertiesArbitersClient = (viemClient, addresses) => {
-  const attester = makeAttesterArbiterClient(viemClient, addresses);
-  const recipient = makeRecipientArbiterClient(viemClient, addresses);
-  const schema = makeSchemaArbiterClient(viemClient, addresses);
-  const uid = makeUidArbiterClient(viemClient, addresses);
-  const refUid = makeRefUidArbiterClient(viemClient, addresses);
-  const revocable = makeRevocableArbiterClient(viemClient, addresses);
-  const timeAfter = makeTimeAfterArbiterClient(viemClient, addresses);
-  const timeBefore = makeTimeBeforeArbiterClient(viemClient, addresses);
-  const timeEqual = makeTimeEqualArbiterClient(viemClient, addresses);
-  const expirationTimeAfter = makeExpirationTimeAfterArbiterClient(viemClient, addresses);
-  const expirationTimeBefore = makeExpirationTimeBeforeArbiterClient(viemClient, addresses);
-  const expirationTimeEqual = makeExpirationTimeEqualArbiterClient(viemClient, addresses);
-  return {
-    attester,
-    recipient,
-    schema,
-    uid,
-    refUid,
-    revocable,
-    timeAfter,
-    timeBefore,
-    timeEqual,
-    expirationTimeAfter,
-    expirationTimeBefore,
-    expirationTimeEqual
-  };
-};
-
-// src/clients/arbiters/confirmation/exclusiveRevocableConfirmationArbiter.ts
-var import_viem22 = require("viem");
-
-// src/contracts/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.ts
-var ExclusiveRevocableConfirmationArbiter_exports = {};
-__export(ExclusiveRevocableConfirmationArbiter_exports, {
-  abi: () => abi13
-});
-var abi13 = {
-  "abi": [
-    {
-      "type": "constructor",
-      "inputs": [
-        {
-          "name": "_eas",
-          "type": "address",
-          "internalType": "contract IEAS"
-        }
-      ],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "check",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "tuple",
-          "internalType": "struct Attestation",
-          "components": [
-            {
-              "name": "uid",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "schema",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "time",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "expirationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "revocationTime",
-              "type": "uint64",
-              "internalType": "uint64"
-            },
-            {
-              "name": "refUID",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "recipient",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "attester",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "revocable",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "data",
-              "type": "bytes",
-              "internalType": "bytes"
-            }
-          ]
-        },
-        {
-          "name": "",
-          "type": "bytes",
-          "internalType": "bytes"
-        },
-        {
           "name": "escrowUid",
           "type": "bytes32",
           "internalType": "bytes32"
@@ -5575,116 +240,6 @@ var abi13 = {
     },
     {
       "type": "function",
-      "name": "confirm",
-      "inputs": [
-        {
-          "name": "_fulfillment",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "_escrow",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "confirmations",
-      "inputs": [
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "eas",
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "",
-          "type": "address",
-          "internalType": "contract IEAS"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "escrowToFulfillment",
-      "inputs": [
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "requestConfirmation",
-      "inputs": [
-        {
-          "name": "_fulfillment",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "_escrow",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "revoke",
-      "inputs": [
-        {
-          "name": "_fulfillment",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "_escrow",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
       "name": "supportsInterface",
       "inputs": [
         {
@@ -5701,142 +256,23 @@ var abi13 = {
         }
       ],
       "stateMutability": "view"
-    },
-    {
-      "type": "event",
-      "name": "ConfirmationMade",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "escrow",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "ConfirmationRequested",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "confirmer",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "escrow",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "ConfirmationRevoked",
-      "inputs": [
-        {
-          "name": "fulfillment",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "escrow",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "error",
-      "name": "AnotherFulfillmentAlreadyConfirmed",
-      "inputs": []
-    },
-    {
-      "type": "error",
-      "name": "InvalidFulfillment",
-      "inputs": []
-    },
-    {
-      "type": "error",
-      "name": "NoConfirmationToRevoke",
-      "inputs": []
-    },
-    {
-      "type": "error",
-      "name": "UnauthorizedConfirmation",
-      "inputs": []
-    },
-    {
-      "type": "error",
-      "name": "UnauthorizedConfirmationRequest",
-      "inputs": []
-    },
-    {
-      "type": "error",
-      "name": "UnauthorizedRevocation",
-      "inputs": []
     }
   ],
   "bytecode": {
-    "object": "0x60a03461007e57601f6109e338819003918201601f19168301916001600160401b038311848410176100825780849260209460405283398101031261007e57516001600160a01b038116810361007e5760805260405161094c9081610097823960805181818160a0015281816103460152818161039c01526105490152f35b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461068b575080633786930d1461066157806352155df71461052257806357f784ba146103755780638150864d14610331578063887d686d146102fe5780638da3721a146101c75763c266461014610074575f80fd5b346101c357610082366106de565b6040516328c44a9960e21b8152600481018290529091905f816024817f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165afa9081156101b8575f91610196575b5060c001516001600160a01b0316330361018757805f525f60205260405f20825f5260205260ff60405f205416158015610171575b61016257805f525f60205260405f20825f5260205260405f2060ff198154169055815f5260016020525f60408120557f137a0dfcce695307235e039aa2ae70da634ed7f10a6a5a536b3a8c15d758aa1e5f80a3005b6339abb17d60e01b5f5260045ffd5b50815f5260016020528060405f2054141561010d565b630feaf7d560e31b5f5260045ffd5b6101b291503d805f833e6101aa8183610725565b8101906107fb565b5f6100d8565b6040513d5f823e3d90fd5b5f80fd5b346101c35760603660031901126101c35760043567ffffffffffffffff81116101c35761014060031982360301126101c35760405190610206826106f4565b806004013582526024810135602083015261022360448201610747565b604083015261023460648201610747565b606083015261024560848201610747565b608083015260a481013560a083015261026060c4820161075c565b60c083015261027160e4820161075c565b60e083015261010481013580151581036101c3576101008301526101248101359067ffffffffffffffff82116101c35760046102b0923692010161078c565b61012082015260243567ffffffffffffffff81116101c3576102d690369060040161078c565b50515f525f60205260405f206044355f52602052602060ff60405f2054166040519015158152f35b346101c35761030c366106de565b905f525f60205260405f20905f52602052602060ff60405f2054166040519015158152f35b346101c3575f3660031901126101c3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101c357610383366106de565b6040516328c44a9960e21b8152600481018290529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165f82602481845afa9081156101b8576024925f92610504575b505f90604051938480926328c44a9960e21b82528760048301525afa9182156101b8575f926104e8575b5060c001516001600160a01b031633036104d957518181159182156104ce575b50506104bf57815f52600160205260405f20541515806104a9575b61049a57805f525f60205260405f20825f5260205260405f20600160ff19825416179055815f5260016020528060405f20557fd22fd165f2b163f7b94d6e2b15443105c17bfae3fa2242150644ab76a95d532e5f80a3005b633ea893c560e21b5f5260045ffd5b50815f5260016020528060405f20541415610442565b630ebe58ef60e11b5f5260045ffd5b141590508184610427565b6331eb5cd360e11b5f5260045ffd5b6104fd9192503d805f833e6101aa8183610725565b9084610407565b5f91925061051b903d8084833e6101aa8183610725565b91906103dd565b346101c357610530366106de565b6040516328c44a9960e21b8152600481018390529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316905f81602481855afa9081156101b8575f91610647575b5060e08101516001600160a01b0316331415908161062f575b50610620575f602491604051928380926328c44a9960e21b82528760048301525afa9081156101b8575f91610606575b5060c001516001600160a01b0316907f93ece828de650a0159786850192cbcd721ab720e1ee81b00365a5c8d63886b315f80a4005b61061a91503d805f833e6101aa8183610725565b836105d1565b63020a627d60e11b5f5260045ffd5b60c001516001600160a01b03163314159050846105a1565b61065b91503d805f833e6101aa8183610725565b84610588565b346101c35760203660031901126101c3576004355f526001602052602060405f2054604051908152f35b346101c35760203660031901126101c3576004359063ffffffff60e01b82168092036101c3576020916346d1b90d60e11b81149081156106cd575b5015158152f35b6301ffc9a760e01b149050836106c6565b60409060031901126101c3576004359060243590565b610140810190811067ffffffffffffffff82111761071157604052565b634e487b7160e01b5f52604160045260245ffd5b90601f8019910116810190811067ffffffffffffffff82111761071157604052565b359067ffffffffffffffff821682036101c357565b35906001600160a01b03821682036101c357565b67ffffffffffffffff811161071157601f01601f191660200190565b81601f820112156101c3578035906107a382610770565b926107b16040519485610725565b828452602083830101116101c357815f926020809301838601378301015290565b519067ffffffffffffffff821682036101c357565b51906001600160a01b03821682036101c357565b6020818303126101c35780519067ffffffffffffffff82116101c3570190610140828203126101c35760405191610831836106f4565b805183526020810151602084015261084b604082016107d2565b604084015261085c606082016107d2565b606084015261086d608082016107d2565b608084015260a081015160a084015261088860c082016107e7565b60c084015261089960e082016107e7565b60e084015261010081015180151581036101c3576101008401526101208101519067ffffffffffffffff82116101c3570181601f820112156101c3578051906108e182610770565b926108ef6040519485610725565b828452602083830101116101c357815f9260208093018386015e830101526101208201529056fea26469706673582212209b6a79ea737f93da3f5148cab7368c244b7c735f67d3f60aea133fe7c3fd014964736f6c634300081b0033",
-    "sourceMap": "582:3779:111:-:0;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;-1:-1:-1;;;;;582:3779:111;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;582:3779:111;;;;;;1923:10;;582:3779;;;;;;;;1923:10;582:3779;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;582:3779:111;;;;;;-1:-1:-1;582:3779:111;;;;;-1:-1:-1;582:3779:111",
+    "object": "0x",
+    "sourceMap": "",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461068b575080633786930d1461066157806352155df71461052257806357f784ba146103755780638150864d14610331578063887d686d146102fe5780638da3721a146101c75763c266461014610074575f80fd5b346101c357610082366106de565b6040516328c44a9960e21b8152600481018290529091905f816024817f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165afa9081156101b8575f91610196575b5060c001516001600160a01b0316330361018757805f525f60205260405f20825f5260205260ff60405f205416158015610171575b61016257805f525f60205260405f20825f5260205260405f2060ff198154169055815f5260016020525f60408120557f137a0dfcce695307235e039aa2ae70da634ed7f10a6a5a536b3a8c15d758aa1e5f80a3005b6339abb17d60e01b5f5260045ffd5b50815f5260016020528060405f2054141561010d565b630feaf7d560e31b5f5260045ffd5b6101b291503d805f833e6101aa8183610725565b8101906107fb565b5f6100d8565b6040513d5f823e3d90fd5b5f80fd5b346101c35760603660031901126101c35760043567ffffffffffffffff81116101c35761014060031982360301126101c35760405190610206826106f4565b806004013582526024810135602083015261022360448201610747565b604083015261023460648201610747565b606083015261024560848201610747565b608083015260a481013560a083015261026060c4820161075c565b60c083015261027160e4820161075c565b60e083015261010481013580151581036101c3576101008301526101248101359067ffffffffffffffff82116101c35760046102b0923692010161078c565b61012082015260243567ffffffffffffffff81116101c3576102d690369060040161078c565b50515f525f60205260405f206044355f52602052602060ff60405f2054166040519015158152f35b346101c35761030c366106de565b905f525f60205260405f20905f52602052602060ff60405f2054166040519015158152f35b346101c3575f3660031901126101c3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101c357610383366106de565b6040516328c44a9960e21b8152600481018290529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165f82602481845afa9081156101b8576024925f92610504575b505f90604051938480926328c44a9960e21b82528760048301525afa9182156101b8575f926104e8575b5060c001516001600160a01b031633036104d957518181159182156104ce575b50506104bf57815f52600160205260405f20541515806104a9575b61049a57805f525f60205260405f20825f5260205260405f20600160ff19825416179055815f5260016020528060405f20557fd22fd165f2b163f7b94d6e2b15443105c17bfae3fa2242150644ab76a95d532e5f80a3005b633ea893c560e21b5f5260045ffd5b50815f5260016020528060405f20541415610442565b630ebe58ef60e11b5f5260045ffd5b141590508184610427565b6331eb5cd360e11b5f5260045ffd5b6104fd9192503d805f833e6101aa8183610725565b9084610407565b5f91925061051b903d8084833e6101aa8183610725565b91906103dd565b346101c357610530366106de565b6040516328c44a9960e21b8152600481018390529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316905f81602481855afa9081156101b8575f91610647575b5060e08101516001600160a01b0316331415908161062f575b50610620575f602491604051928380926328c44a9960e21b82528760048301525afa9081156101b8575f91610606575b5060c001516001600160a01b0316907f93ece828de650a0159786850192cbcd721ab720e1ee81b00365a5c8d63886b315f80a4005b61061a91503d805f833e6101aa8183610725565b836105d1565b63020a627d60e11b5f5260045ffd5b60c001516001600160a01b03163314159050846105a1565b61065b91503d805f833e6101aa8183610725565b84610588565b346101c35760203660031901126101c3576004355f526001602052602060405f2054604051908152f35b346101c35760203660031901126101c3576004359063ffffffff60e01b82168092036101c3576020916346d1b90d60e11b81149081156106cd575b5015158152f35b6301ffc9a760e01b149050836106c6565b60409060031901126101c3576004359060243590565b610140810190811067ffffffffffffffff82111761071157604052565b634e487b7160e01b5f52604160045260245ffd5b90601f8019910116810190811067ffffffffffffffff82111761071157604052565b359067ffffffffffffffff821682036101c357565b35906001600160a01b03821682036101c357565b67ffffffffffffffff811161071157601f01601f191660200190565b81601f820112156101c3578035906107a382610770565b926107b16040519485610725565b828452602083830101116101c357815f926020809301838601378301015290565b519067ffffffffffffffff821682036101c357565b51906001600160a01b03821682036101c357565b6020818303126101c35780519067ffffffffffffffff82116101c3570190610140828203126101c35760405191610831836106f4565b805183526020810151602084015261084b604082016107d2565b604084015261085c606082016107d2565b606084015261086d608082016107d2565b608084015260a081015160a084015261088860c082016107e7565b60c084015261089960e082016107e7565b60e084015261010081015180151581036101c3576101008401526101208101519067ffffffffffffffff82116101c3570181601f820112156101c3578051906108e182610770565b926108ef6040519485610725565b828452602083830101116101c357815f9260208093018386015e830101526101208201529056fea26469706673582212209b6a79ea737f93da3f5148cab7368c244b7c735f67d3f60aea133fe7c3fd014964736f6c634300081b0033",
-    "sourceMap": "582:3779:111:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;-1:-1:-1;;;3076:27:111;;582:3779;3076:27;;582:3779;;;;;;-1:-1:-1;582:3779:111;3076:27;582:3779;3076:3;-1:-1:-1;;;;;582:3779:111;3076:27;;;;;;;582:3779;3076:27;;;582:3779;-1:-1:-1;3118:16:111;;582:3779;-1:-1:-1;;;;;582:3779:111;3138:10;3118:30;3114:92;;582:3779;;;;;;;;;;;;;;;;;;;;3220:37;582:3779;;3220:85;;582:3779;3216:147;;582:3779;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3484:42;582:3779;3484:42;;582:3779;3216:147;3328:24;;;582:3779;3328:24;582:3779;;3328:24;3220:85;582:3779;;;;3261:19;582:3779;;;;;;;3261:44;;3220:85;;3114:92;3171:24;;;582:3779;3171:24;582:3779;;3171:24;3076:27;;;;;;582:3779;3076:27;;;;;;:::i;:::-;;;;;:::i;:::-;;;;;582:3779;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;;;1519:25;-1:-1:-1;;;;;582:3779:111;;;;;;;;;;;;;:::i;:::-;;;-1:-1:-1;;;2125:27:111;;582:3779;2125:27;;582:3779;;;;;;2125:3;-1:-1:-1;;;;;582:3779:111;-1:-1:-1;582:3779:111;2125:27;582:3779;;2125:27;;;;;;;;;582:3779;2125:27;;;582:3779;;;;;;;;;;;;;2195:32;;;582:3779;2195:32;;582:3779;2195:32;;;;;;;582:3779;2195:32;;;582:3779;-1:-1:-1;2242:16:111;;582:3779;-1:-1:-1;;;;;582:3779:111;2262:10;2242:30;2238:94;;582:3779;2346:29;;;:64;;;;;582:3779;2342:122;;;;582:3779;;;2557:19;582:3779;;;;;;2557:42;;:90;;;582:3779;2553:164;;582:3779;;;;;;;;;;;;;;;;;2557:19;582:3779;;;;;;;;;;;2557:19;582:3779;;;;;;;2839:39;582:3779;2839:39;;582:3779;2553:164;2670:36;;;582:3779;2670:36;582:3779;;2670:36;2557:90;582:3779;;;;2557:19;582:3779;;;;;;;2603:44;;2557:90;;2342:122;2433:20;;;582:3779;2433:20;582:3779;;2433:20;2346:64;2379:31;;;-1:-1:-1;2346:64:111;;;;2238:94;2295:26;;;582:3779;2295:26;582:3779;;2295:26;2195:32;;;;;;;582:3779;2195:32;;;;;;:::i;:::-;;;;;2125:27;582:3779;2125:27;;;;;;;;;;;;;;:::i;:::-;;;;;582:3779;;;;;;;:::i;:::-;;;-1:-1:-1;;;3722:32:111;;582:3779;3722:32;;582:3779;;;;;;3722:3;-1:-1:-1;;;;;582:3779:111;;-1:-1:-1;582:3779:111;3722:32;582:3779;;3722:32;;;;;;;582:3779;3722:32;;;582:3779;-1:-1:-1;582:3779:111;3768:20;;582:3779;-1:-1:-1;;;;;582:3779:111;3792:10;3768:34;;;;:73;;582:3779;3764:144;;;582:3779;3722:32;582:3779;;;;;;;;;;3946:27;;;582:3779;3946:27;;582:3779;3946:27;;;;;;;582:3779;3946:27;;;582:3779;-1:-1:-1;4025:16:111;;582:3779;-1:-1:-1;;;;;582:3779:111;;3989:62;582:3779;;3989:62;582:3779;3946:27;;;;;;582:3779;3946:27;;;;;;:::i;:::-;;;;3764:144;3864:33;;;582:3779;3864:33;582:3779;;3864:33;3768:73;3806:21;;582:3779;-1:-1:-1;;;;;582:3779:111;3792:10;3806:35;;;-1:-1:-1;3768:73:111;;;3722:32;;;;;;582:3779;3722:32;;;;;;:::i;:::-;;;;582:3779;;;;;;-1:-1:-1;;582:3779:111;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;582:3779:111;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;582:3779:111;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;:::o;:::-;;;;-1:-1:-1;582:3779:111;;;;;-1:-1:-1;582:3779:111;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;582:3779:111;;;;;;:::o;:::-;;;;;;;;-1:-1:-1;;582:3779:111;;;;:::o;:::-;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;:::i;:::-;;;;;;;;;;;;;-1:-1:-1;582:3779:111;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;582:3779:111;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;:::i;:::-;;;;;;;;;;;;;-1:-1:-1;582:3779:111;;;;;;;;;;;;;;;;;;:::o",
-    "linkReferences": {},
-    "immutableReferences": {
-      "61577": [
-        {
-          "start": 160,
-          "length": 32
-        },
-        {
-          "start": 838,
-          "length": 32
-        },
-        {
-          "start": 924,
-          "length": 32
-        },
-        {
-          "start": 1353,
-          "length": 32
-        }
-      ]
-    }
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
   },
   "methodIdentifiers": {
     "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
-    "confirm(bytes32,bytes32)": "57f784ba",
-    "confirmations(bytes32,bytes32)": "887d686d",
-    "eas()": "8150864d",
-    "escrowToFulfillment(bytes32)": "3786930d",
-    "requestConfirmation(bytes32,bytes32)": "52155df7",
-    "revoke(bytes32,bytes32)": "c2664610",
     "supportsInterface(bytes4)": "01ffc9a7"
   },
-  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"contract IEAS","name":"_eas","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"AnotherFulfillmentAlreadyConfirmed","type":"error"},{"inputs":[],"name":"InvalidFulfillment","type":"error"},{"inputs":[],"name":"NoConfirmationToRevoke","type":"error"},{"inputs":[],"name":"UnauthorizedConfirmation","type":"error"},{"inputs":[],"name":"UnauthorizedConfirmationRequest","type":"error"},{"inputs":[],"name":"UnauthorizedRevocation","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"fulfillment","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"escrow","type":"bytes32"}],"name":"ConfirmationMade","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"fulfillment","type":"bytes32"},{"indexed":true,"internalType":"address","name":"confirmer","type":"address"},{"indexed":true,"internalType":"bytes32","name":"escrow","type":"bytes32"}],"name":"ConfirmationRequested","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"fulfillment","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"escrow","type":"bytes32"}],"name":"ConfirmationRevoked","type":"event"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"","type":"bytes"},{"internalType":"bytes32","name":"escrowUid","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_fulfillment","type":"bytes32"},{"internalType":"bytes32","name":"_escrow","type":"bytes32"}],"name":"confirm","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"confirmations","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"eas","outputs":[{"internalType":"contract IEAS","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"escrowToFulfillment","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_fulfillment","type":"bytes32"},{"internalType":"bytes32","name":"_escrow","type":"bytes32"}],"name":"requestConfirmation","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_fulfillment","type":"bytes32"},{"internalType":"bytes32","name":"_escrow","type":"bytes32"}],"name":"revoke","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"details":"The escrow attestation recipient is the confirmer; at most one fulfillment may be confirmed per escrow.","kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"constructor":{"params":{"_eas":"EAS contract used to load attestations."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExclusiveRevocableConfirmationArbiter","version":1},"userdoc":{"events":{"ConfirmationMade(bytes32,bytes32)":{"notice":"Emitted when an escrow recipient confirms a fulfillment."},"ConfirmationRequested(bytes32,address,bytes32)":{"notice":"Emitted by a fulfillment participant to request recipient confirmation."},"ConfirmationRevoked(bytes32,bytes32)":{"notice":"Emitted when an escrow recipient revokes a confirmation."}},"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"confirm(bytes32,bytes32)":{"notice":"Confirms a fulfillment for an escrow as the escrow recipient."},"confirmations(bytes32,bytes32)":{"notice":"Whether a fulfillment is confirmed for an escrow."},"eas()":{"notice":"EAS contract used to load escrow and fulfillment attestations."},"escrowToFulfillment(bytes32)":{"notice":"Currently confirmed fulfillment for each escrow, or zero if none."},"requestConfirmation(bytes32,bytes32)":{"notice":"Requests confirmation from the escrow recipient."},"revoke(bytes32,bytes32)":{"notice":"Revokes the currently confirmed fulfillment as the escrow recipient."}},"notice":"Accepts only the currently confirmed fulfillment for an escrow, with recipient-controlled revocation.","version":1}},"settings":{"compilationTarget":{"src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol":"ExclusiveRevocableConfirmationArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/eas-contracts/contracts/IEAS.sol":{"keccak256":"0xdad0674defce04905dc7935f2756d6c477a6e876c0b1b7094b112a862f164c12","license":"MIT","urls":["bzz-raw://49e448c26c08952df034692d2ab3519dd40a1ebbeae4ce68b294567441933880","dweb:/ipfs/QmWHcudjskUSCjgqsNWE65LVfWvcYB2vBn8RB1SmzvRLNR"]},"lib/eas-contracts/contracts/ISchemaRegistry.sol":{"keccak256":"0xea97dcd36a0c422169cbaac06698249e199049b627c16bff93fb8ab829058754","license":"MIT","urls":["bzz-raw://d453a929ef64a69cd31195ec2ee5ed1193bfa29f633e13c960e92154c37ad158","dweb:/ipfs/QmXs1Z3njbHs2EMgHonrZDfcwdog4kozHY5tYNrhZK5yqz"]},"lib/eas-contracts/contracts/ISemver.sol":{"keccak256":"0x04a67939b4e1a8d0a51101b8f69f8882930bbdc66319f38023828625b5d1ff18","license":"MIT","urls":["bzz-raw://3dd543fa0e33cef1ea757627f9c2a10a66ee1ce17aa9087f437c5b53a903c7f0","dweb:/ipfs/QmXsy6UsGBzF9zPCCjmiwPpCcX3tHqU13TmR67B69tKnR6"]},"lib/eas-contracts/contracts/resolver/ISchemaResolver.sol":{"keccak256":"0xb7d1961ed928c620cddf35c2bf46845b10828bc5d73145214630202ed355b6bb","license":"MIT","urls":["bzz-raw://cf1cabacfb15c9bace8280b540b52e5aa440e1b4eba675f9782c34ce0f03902f","dweb:/ipfs/QmakYcK4xbrijzvoaBCmBJK6HeaBqbXxWKtDQ1z62aXwCR"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol":{"keccak256":"0x5b8e33b1d5d8c97a35fa915b20a10eee46c61fb08e64151ba95d875fc2d3540e","license":"UNLICENSED","urls":["bzz-raw://9ccb936e7bafe7c87c36454db275653da3b7a529a8c6203b1e4723e7fc79fb64","dweb:/ipfs/QmWL7JUv9R5qfUNVDW7BCwpmCTfgiLM4kEg1BAdwfEpUCj"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"escrowUid","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"BaseArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."}},"notice":"Shared ERC165 support for contracts that implement `IArbiter`.","version":1}},"settings":{"compilationTarget":{"src/BaseArbiter.sol":"BaseArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]}},"version":1}',
   "metadata": {
     "compiler": {
       "version": "0.8.27+commit.40a35a09"
@@ -5844,110 +280,6 @@ var abi13 = {
     "language": "Solidity",
     "output": {
       "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "contract IEAS",
-              "name": "_eas",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "AnotherFulfillmentAlreadyConfirmed"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "InvalidFulfillment"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "NoConfirmationToRevoke"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "UnauthorizedConfirmation"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "UnauthorizedConfirmationRequest"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "UnauthorizedRevocation"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "fulfillment",
-              "type": "bytes32",
-              "indexed": true
-            },
-            {
-              "internalType": "bytes32",
-              "name": "escrow",
-              "type": "bytes32",
-              "indexed": true
-            }
-          ],
-          "type": "event",
-          "name": "ConfirmationMade",
-          "anonymous": false
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "fulfillment",
-              "type": "bytes32",
-              "indexed": true
-            },
-            {
-              "internalType": "address",
-              "name": "confirmer",
-              "type": "address",
-              "indexed": true
-            },
-            {
-              "internalType": "bytes32",
-              "name": "escrow",
-              "type": "bytes32",
-              "indexed": true
-            }
-          ],
-          "type": "event",
-          "name": "ConfirmationRequested",
-          "anonymous": false
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "fulfillment",
-              "type": "bytes32",
-              "indexed": true
-            },
-            {
-              "internalType": "bytes32",
-              "name": "escrow",
-              "type": "bytes32",
-              "indexed": true
-            }
-          ],
-          "type": "event",
-          "name": "ConfirmationRevoked",
-          "anonymous": false
-        },
         {
           "inputs": [
             {
@@ -6009,7 +341,7 @@ var abi13 = {
             },
             {
               "internalType": "bytes",
-              "name": "",
+              "name": "demand",
               "type": "bytes"
             },
             {
@@ -6032,113 +364,6 @@ var abi13 = {
         {
           "inputs": [
             {
-              "internalType": "bytes32",
-              "name": "_fulfillment",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "_escrow",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "confirm"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "confirmations",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "eas",
-          "outputs": [
-            {
-              "internalType": "contract IEAS",
-              "name": "",
-              "type": "address"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "escrowToFulfillment",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "_fulfillment",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "_escrow",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "requestConfirmation"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "_fulfillment",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "_escrow",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "revoke"
-        },
-        {
-          "inputs": [
-            {
               "internalType": "bytes4",
               "name": "interfaceId",
               "type": "bytes4"
@@ -6166,11 +391,6 @@ var abi13 = {
               "fulfillment": "The EAS attestation being used as fulfillment."
             }
           },
-          "constructor": {
-            "params": {
-              "_eas": "EAS contract used to load attestations."
-            }
-          },
           "supportsInterface(bytes4)": {
             "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
           }
@@ -6182,24 +402,6 @@ var abi13 = {
         "methods": {
           "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
             "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
-          },
-          "confirm(bytes32,bytes32)": {
-            "notice": "Confirms a fulfillment for an escrow as the escrow recipient."
-          },
-          "confirmations(bytes32,bytes32)": {
-            "notice": "Whether a fulfillment is confirmed for an escrow."
-          },
-          "eas()": {
-            "notice": "EAS contract used to load escrow and fulfillment attestations."
-          },
-          "escrowToFulfillment(bytes32)": {
-            "notice": "Currently confirmed fulfillment for each escrow, or zero if none."
-          },
-          "requestConfirmation(bytes32,bytes32)": {
-            "notice": "Requests confirmation from the escrow recipient."
-          },
-          "revoke(bytes32,bytes32)": {
-            "notice": "Revokes the currently confirmed fulfillment as the escrow recipient."
           }
         },
         "version": 1
@@ -6231,7 +433,7 @@ var abi13 = {
         "bytecodeHash": "ipfs"
       },
       "compilationTarget": {
-        "src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol": "ExclusiveRevocableConfirmationArbiter"
+        "src/BaseArbiter.sol": "BaseArbiter"
       },
       "evmVersion": "prague",
       "libraries": {},
@@ -6243,38 +445,6 @@ var abi13 = {
         "urls": [
           "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
           "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
-        ],
-        "license": "MIT"
-      },
-      "lib/eas-contracts/contracts/IEAS.sol": {
-        "keccak256": "0xdad0674defce04905dc7935f2756d6c477a6e876c0b1b7094b112a862f164c12",
-        "urls": [
-          "bzz-raw://49e448c26c08952df034692d2ab3519dd40a1ebbeae4ce68b294567441933880",
-          "dweb:/ipfs/QmWHcudjskUSCjgqsNWE65LVfWvcYB2vBn8RB1SmzvRLNR"
-        ],
-        "license": "MIT"
-      },
-      "lib/eas-contracts/contracts/ISchemaRegistry.sol": {
-        "keccak256": "0xea97dcd36a0c422169cbaac06698249e199049b627c16bff93fb8ab829058754",
-        "urls": [
-          "bzz-raw://d453a929ef64a69cd31195ec2ee5ed1193bfa29f633e13c960e92154c37ad158",
-          "dweb:/ipfs/QmXs1Z3njbHs2EMgHonrZDfcwdog4kozHY5tYNrhZK5yqz"
-        ],
-        "license": "MIT"
-      },
-      "lib/eas-contracts/contracts/ISemver.sol": {
-        "keccak256": "0x04a67939b4e1a8d0a51101b8f69f8882930bbdc66319f38023828625b5d1ff18",
-        "urls": [
-          "bzz-raw://3dd543fa0e33cef1ea757627f9c2a10a66ee1ce17aa9087f437c5b53a903c7f0",
-          "dweb:/ipfs/QmXsy6UsGBzF9zPCCjmiwPpCcX3tHqU13TmR67B69tKnR6"
-        ],
-        "license": "MIT"
-      },
-      "lib/eas-contracts/contracts/resolver/ISchemaResolver.sol": {
-        "keccak256": "0xb7d1961ed928c620cddf35c2bf46845b10828bc5d73145214630202ed355b6bb",
-        "urls": [
-          "bzz-raw://cf1cabacfb15c9bace8280b540b52e5aa440e1b4eba675f9782c34ce0f03902f",
-          "dweb:/ipfs/QmakYcK4xbrijzvoaBCmBJK6HeaBqbXxWKtDQ1z62aXwCR"
         ],
         "license": "MIT"
       },
@@ -6309,31 +479,15 @@ var abi13 = {
           "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
         ],
         "license": "UNLICENSED"
-      },
-      "src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol": {
-        "keccak256": "0x5b8e33b1d5d8c97a35fa915b20a10eee46c61fb08e64151ba95d875fc2d3540e",
-        "urls": [
-          "bzz-raw://9ccb936e7bafe7c87c36454db275653da3b7a529a8c6203b1e4723e7fc79fb64",
-          "dweb:/ipfs/QmWL7JUv9R5qfUNVDW7BCwpmCTfgiLM4kEg1BAdwfEpUCj"
-        ],
-        "license": "UNLICENSED"
-      },
-      "src/libraries/ArbiterUtils.sol": {
-        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
-        "urls": [
-          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
-          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
-        ],
-        "license": "UNLICENSED"
       }
     },
     "version": 1
   },
-  "id": 111
+  "id": 88
 };
 
 // src/utils/attestations.ts
-var import_viem13 = require("viem");
+var import_viem = require("viem");
 
 // src/config.ts
 var zeroAddress = "0x0000000000000000000000000000000000000000";
@@ -6571,9 +725,9 @@ var supportedChains = ["Base Sepolia", "Sepolia", "GenLayer Bradbury", "Ethereum
 // src/contracts/IEAS.ts
 var IEAS_exports = {};
 __export(IEAS_exports, {
-  abi: () => abi14
+  abi: () => abi2
 });
-var abi14 = {
+var abi2 = {
   "abi": [
     {
       "type": "function",
@@ -8629,7 +2783,7 @@ var getAttestation = async (viemClient, uid, addresses) => {
   }
   const attestation = await viemClient.readContract({
     address: easAddress,
-    abi: abi14.abi,
+    abi: abi2.abi,
     functionName: "getAttestation",
     args: [uid],
     authorizationList: void 0
@@ -8650,8 +2804,8 @@ var getAttestedEventsFromTxHash = async (client, hash) => {
   } catch (error) {
     throw new Error(`Failed to get transaction receipt for ${hash}: ${error}`);
   }
-  const events = (0, import_viem13.parseEventLogs)({
-    abi: abi14.abi,
+  const events = (0, import_viem.parseEventLogs)({
+    abi: abi2.abi,
     eventName: "Attested",
     logs: tx.logs
   });
@@ -8659,12 +2813,12 @@ var getAttestedEventsFromTxHash = async (client, hash) => {
 };
 
 // src/utils/contract.ts
-var import_viem15 = require("viem");
+var import_viem3 = require("viem");
 
 // src/utils/contractSafety.ts
-var import_viem14 = require("viem");
+var import_viem2 = require("viem");
 var assertDeployedContract = (address, label = "contract") => {
-  if ((0, import_viem14.isAddressEqual)(address, import_viem14.zeroAddress)) {
+  if ((0, import_viem2.isAddressEqual)(address, import_viem2.zeroAddress)) {
     throw new Error(`${label} is not deployed for this chain`);
   }
 };
@@ -8690,9 +2844,9 @@ var getAtomicPaymentEscrowAttestation = async (viemClient, addresses, escrowUid,
   const escrow = await getAttestation(viemClient, escrowUid, addresses);
   if (options?.allowUntrustedEscrow) return escrow;
   const supportedEscrows = addresses.packagedEscrowObligations.filter(
-    (address) => !(0, import_viem14.isAddressEqual)(address, import_viem14.zeroAddress)
+    (address) => !(0, import_viem2.isAddressEqual)(address, import_viem2.zeroAddress)
   );
-  if (!supportedEscrows.some((address) => (0, import_viem14.isAddressEqual)(address, escrow.attester))) {
+  if (!supportedEscrows.some((address) => (0, import_viem2.isAddressEqual)(address, escrow.attester))) {
     throw new Error(
       [
         `Unsupported escrow attester for AtomicPaymentUtils: ${escrow.attester}.`,
@@ -8721,6 +2875,5295 @@ var readContract = async (viemClient, params) => {
 
 // src/utils/demandParsing.ts
 var import_viem21 = require("viem");
+
+// src/clients/arbiters/attestationProperties/attesterArbiter.ts
+var import_viem4 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/AttesterArbiter.ts
+var AttesterArbiter_exports = {};
+__export(AttesterArbiter_exports, {
+  abi: () => abi3
+});
+var abi3 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct AttesterArbiter.DemandData",
+          "components": [
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "AttesterMismatched",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x60808060405234601557610399908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b60c08201526100f860e483016102e7565b9160e0820192835261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b63c77ead7160e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212203ef9ac731f73a95a16f01c176c50a176295ce31273f71afd379cf2104057b41964736f6c634300081b0033",
+    "sourceMap": "360:857:99:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b60c08201526100f860e483016102e7565b9160e0820192835261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b63c77ead7160e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212203ef9ac731f73a95a16f01c176c50a176295ce31273f71afd379cf2104057b41964736f6c634300081b0033",
+    "sourceMap": "360:857:99:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;866:32;;360:857;;;;;;;:::i;:::-;866:32;;360:857;-1:-1:-1;;;;;360:857:99;;;;;;;;;;-1:-1:-1;;;;;360:857:99;912:40;908:73;;360:857;;;;;;;908:73;961:20;;;360:857;961:20;360:857;;961:20;360:857;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;;;;-1:-1:-1;;;;;360:857:99;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;360:857:99;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;360:857:99;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;360:857:99;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:857:99;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;360:857:99;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"AttesterMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"address","name":"attester","type":"address"}],"internalType":"struct AttesterArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"AttesterArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded attester demand data."}},"notice":"Accepts fulfillments with a specific EAS attester.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/AttesterArbiter.sol":"AttesterArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/AttesterArbiter.sol":{"keccak256":"0x9d65c873569f64fbf66c464a112e1dcfd901f711b3667d7a80e9a6cb66571d04","license":"UNLICENSED","urls":["bzz-raw://11ed5869a45087101dd3fd07a06f15cefd72cdace61bf9a8292ad5bbc1dc3efc","dweb:/ipfs/QmYoAR5vK9hRVigbjqfb6YXh6mBQyBhkrbisnkfRcUbVUN"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AttesterMismatched"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct AttesterArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded attester demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/AttesterArbiter.sol": "AttesterArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/AttesterArbiter.sol": {
+        "keccak256": "0x9d65c873569f64fbf66c464a112e1dcfd901f711b3667d7a80e9a6cb66571d04",
+        "urls": [
+          "bzz-raw://11ed5869a45087101dd3fd07a06f15cefd72cdace61bf9a8292ad5bbc1dc3efc",
+          "dweb:/ipfs/QmYoAR5vK9hRVigbjqfb6YXh6mBQyBhkrbisnkfRcUbVUN"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 99
+};
+
+// src/clients/arbiters/attestationProperties/attesterArbiter.ts
+var attesterArbiterDecodeDemandFunction = (0, import_viem4.getAbiItem)({
+  abi: abi3.abi,
+  name: "decodeDemandData"
+});
+var attesterArbiterDemandDataType = attesterArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand = (demand) => {
+  return (0, import_viem4.encodeAbiParameters)([attesterArbiterDemandDataType], [demand]);
+};
+var decodeDemand = (demandData) => {
+  return (0, import_viem4.decodeAbiParameters)([attesterArbiterDemandDataType], demandData)[0];
+};
+var makeAttesterArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand,
+    decodeDemand
+  };
+};
+
+// src/clients/arbiters/attestationProperties/expirationTimeAfterArbiter.ts
+var import_viem5 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/ExpirationTimeAfterArbiter.ts
+var ExpirationTimeAfterArbiter_exports = {};
+__export(ExpirationTimeAfterArbiter_exports, {
+  abi: () => abi4
+});
+var abi4 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct ExpirationTimeAfterArbiter.DemandData",
+          "components": [
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "ExpirationTimeNotAfter",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x608080604052346015576103a4908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081151591826101c0575b50506101b157602060405160018152f35b630e31b6a160e01b5f5260045ffd5b1090505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea26469706673582212207c2319e29794b94a5a17a90c51f649ed78a976ae4eb32cf76a216dcc504b5acd64736f6c634300081b0033",
+    "sourceMap": "400:965:100:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081151591826101c0575b50506101b157602060405160018152f35b630e31b6a160e01b5f5260045ffd5b1090505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea26469706673582212207c2319e29794b94a5a17a90c51f649ed78a976ae4eb32cf76a216dcc504b5acd64736f6c634300081b0033",
+    "sourceMap": "400:965:100:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;:::i;:::-;;;;;933:32;;400:965;;;;;;;:::i;:::-;933:32;;400:965;;-1:-1:-1;;;;;400:965:100;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;979:31;;;;:86;;;;400:965;975:148;;;;400:965;;;;;;;975:148;1088:24;;;400:965;1088:24;400:965;;1088:24;979:86;1014:51;;-1:-1:-1;979:86:100;;;;400:965;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;400:965:100;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;400:965:100;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;400:965:100;;;;;;:::o;:::-;;;-1:-1:-1;;;;;400:965:100;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;-1:-1:-1;;400:965:100;;;;;;;;-1:-1:-1;;;;;400:965:100;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;400:965:100;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"ExpirationTimeNotAfter","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"expirationTime","type":"uint64"}],"internalType":"struct ExpirationTimeAfterArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExpirationTimeAfterArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded expiration-time demand data."}},"notice":"Accepts fulfillments whose expiration time is at or after a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol":"ExpirationTimeAfterArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol":{"keccak256":"0x1a2b9cac6c801c16457539cf6425fe9a4b30ab59d0a9dc32339df3dffa022a73","license":"UNLICENSED","urls":["bzz-raw://eaa6ea5cef424580c904bc1aebbfefb7acc9e2d304133fad0d40028b7e7b3af1","dweb:/ipfs/QmUd788XebZ8uBXk7UZaFFAqmQTi8bra5vR4RWnZ2MtyAW"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ExpirationTimeNotAfter"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct ExpirationTimeAfterArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded expiration-time demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol": "ExpirationTimeAfterArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/ExpirationTimeAfterArbiter.sol": {
+        "keccak256": "0x1a2b9cac6c801c16457539cf6425fe9a4b30ab59d0a9dc32339df3dffa022a73",
+        "urls": [
+          "bzz-raw://eaa6ea5cef424580c904bc1aebbfefb7acc9e2d304133fad0d40028b7e7b3af1",
+          "dweb:/ipfs/QmUd788XebZ8uBXk7UZaFFAqmQTi8bra5vR4RWnZ2MtyAW"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 100
+};
+
+// src/clients/arbiters/attestationProperties/expirationTimeAfterArbiter.ts
+var expirationTimeAfterArbiterDecodeDemandFunction = (0, import_viem5.getAbiItem)({
+  abi: abi4.abi,
+  name: "decodeDemandData"
+});
+var expirationTimeAfterArbiterDemandDataType = expirationTimeAfterArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand2 = (demand) => {
+  return (0, import_viem5.encodeAbiParameters)([expirationTimeAfterArbiterDemandDataType], [demand]);
+};
+var decodeDemand2 = (demandData) => {
+  return (0, import_viem5.decodeAbiParameters)(
+    [expirationTimeAfterArbiterDemandDataType],
+    demandData
+  )[0];
+};
+var makeExpirationTimeAfterArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand2,
+    decodeDemand: decodeDemand2
+  };
+};
+
+// src/clients/arbiters/attestationProperties/expirationTimeBeforeArbiter.ts
+var import_viem6 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.ts
+var ExpirationTimeBeforeArbiter_exports = {};
+__export(ExpirationTimeBeforeArbiter_exports, {
+  abi: () => abi5
+});
+var abi5 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct ExpirationTimeBeforeArbiter.DemandData",
+          "components": [
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "ExpirationTimeNotBefore",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x608080604052346015576103a4908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081159182156101c0575b50506101b157602060405160018152f35b636f0197bb60e01b5f5260045ffd5b1190505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea2646970667358221220eea16abd697e32817dc032ce3e54845bd9bdc32902276330baa27d83cfdd662a64736f6c634300081b0033",
+    "sourceMap": "402:968:101:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026e57508063838a68d9146101e257638da3721a1461003d575f80fd5b346101ca5760603660031901126101ca576004356001600160401b0381116101ca5761014060031982360301126101ca5760405161014081018181106001600160401b038211176101ce5760405281600401358152602482013560208201526100a8604483016102e0565b60408201526100b9606483016102e0565b91606082019283526100cd608482016102e0565b608083015260a481013560a08301526100e860c482016102f4565b60c08301526100f960e482016102f4565b60e083015261010481013580151581036101ca576101008301526101248101356001600160401b0381116101ca5761012091600461013a9236920101610308565b9101526024356001600160401b0381116101ca5761015c903690600401610308565b6020818051810103126101ca5760206101736102c1565b910151916001600160401b038316928381036101ca576001600160401b03925251169081159182156101c0575b50506101b157602060405160018152f35b636f0197bb60e01b5f5260045ffd5b1190505f806101a0565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101ca5760203660031901126101ca576004356001600160401b0381116101ca57366023820112156101ca5780600401356001600160401b0381116101ca5781013660248201116101ca576020905f61023a6102c1565b52829003126101ca5760209061025a60246102536102c1565b92016102e0565b8091526001600160401b0360405191168152f35b346101ca5760203660031901126101ca576004359063ffffffff60e01b82168092036101ca576020916346d1b90d60e11b81149081156102b0575b5015158152f35b6301ffc9a760e01b149050836102a9565b60405190602082018281106001600160401b038211176101ce57604052565b35906001600160401b03821682036101ca57565b35906001600160a01b03821682036101ca57565b81601f820112156101ca578035906001600160401b0382116101ce5760405192601f8301601f19908116603f011684016001600160401b038111858210176101ce57604052828452602083830101116101ca57815f92602080930183860137830101529056fea2646970667358221220eea16abd697e32817dc032ce3e54845bd9bdc32902276330baa27d83cfdd662a64736f6c634300081b0033",
+    "sourceMap": "402:968:101:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;:::i;:::-;;;;;937:32;;402:968;;;;;;;:::i;:::-;937:32;;402:968;;-1:-1:-1;;;;;402:968:101;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;983:31;;;:86;;;;;402:968;979:149;;;;402:968;;;;;;;979:149;1092:25;;;402:968;1092:25;402:968;;1092:25;983:86;1018:51;;-1:-1:-1;983:86:101;;;;402:968;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;402:968:101;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;402:968:101;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;402:968:101;;;;;;:::o;:::-;;;-1:-1:-1;;;;;402:968:101;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;-1:-1:-1;;402:968:101;;;;;;;;-1:-1:-1;;;;;402:968:101;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;402:968:101;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"ExpirationTimeNotBefore","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"expirationTime","type":"uint64"}],"internalType":"struct ExpirationTimeBeforeArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExpirationTimeBeforeArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded expiration-time demand data."}},"notice":"Accepts fulfillments whose expiration time is at or before a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol":"ExpirationTimeBeforeArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol":{"keccak256":"0x079410c984ecd79e3e60d959ddb02ab65c1560788b0761a78cc900f1134b8737","license":"UNLICENSED","urls":["bzz-raw://e21cdb553ea82395b18700f6d0556446ade87285d4dc0f1be71e3e0cab573033","dweb:/ipfs/QmVWpsXG992z4gJMubU1bedrPCFMFmQXhk6gyi5xYEQ2Ts"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ExpirationTimeNotBefore"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct ExpirationTimeBeforeArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded expiration-time demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol": "ExpirationTimeBeforeArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/ExpirationTimeBeforeArbiter.sol": {
+        "keccak256": "0x079410c984ecd79e3e60d959ddb02ab65c1560788b0761a78cc900f1134b8737",
+        "urls": [
+          "bzz-raw://e21cdb553ea82395b18700f6d0556446ade87285d4dc0f1be71e3e0cab573033",
+          "dweb:/ipfs/QmVWpsXG992z4gJMubU1bedrPCFMFmQXhk6gyi5xYEQ2Ts"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 101
+};
+
+// src/clients/arbiters/attestationProperties/expirationTimeBeforeArbiter.ts
+var expirationTimeBeforeArbiterDecodeDemandFunction = (0, import_viem6.getAbiItem)({
+  abi: abi5.abi,
+  name: "decodeDemandData"
+});
+var expirationTimeBeforeArbiterDemandDataType = expirationTimeBeforeArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand3 = (demand) => {
+  return (0, import_viem6.encodeAbiParameters)([expirationTimeBeforeArbiterDemandDataType], [demand]);
+};
+var decodeDemand3 = (demandData) => {
+  return (0, import_viem6.decodeAbiParameters)(
+    [expirationTimeBeforeArbiterDemandDataType],
+    demandData
+  )[0];
+};
+var makeExpirationTimeBeforeArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand3,
+    decodeDemand: decodeDemand3
+  };
+};
+
+// src/clients/arbiters/attestationProperties/expirationTimeEqualArbiter.ts
+var import_viem7 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/ExpirationTimeEqualArbiter.ts
+var ExpirationTimeEqualArbiter_exports = {};
+__export(ExpirationTimeEqualArbiter_exports, {
+  abi: () => abi6
+});
+var abi6 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct ExpirationTimeEqualArbiter.DemandData",
+          "components": [
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "ExpirationTimeNotEqual",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080806040523460155761038e908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b60408201526100b9606483016102ca565b91606082019283526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b635931e77d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220f7ea90241aed785149d1262ac151cdfe4c049b6a0d526732671472ee3153dcee64736f6c634300081b0033",
+    "sourceMap": "377:924:102:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b60408201526100b9606483016102ca565b91606082019283526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b635931e77d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220f7ea90241aed785149d1262ac151cdfe4c049b6a0d526732671472ee3153dcee64736f6c634300081b0033",
+    "sourceMap": "377:924:102:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;:::i;:::-;;;;;903:32;;377:924;;;;;;;:::i;:::-;903:32;;377:924;;-1:-1:-1;;;;;377:924:102;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;949:52;945:114;;377:924;;;;;;;945:114;1024:24;;;377:924;1024:24;377:924;;1024:24;377:924;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;377:924:102;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;377:924:102;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;377:924:102;;;;;;:::o;:::-;;;-1:-1:-1;;;;;377:924:102;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;-1:-1:-1;;377:924:102;;;;;;;;-1:-1:-1;;;;;377:924:102;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;377:924:102;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"ExpirationTimeNotEqual","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"expirationTime","type":"uint64"}],"internalType":"struct ExpirationTimeEqualArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExpirationTimeEqualArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded expiration-time demand data."}},"notice":"Accepts fulfillments with an exact expiration timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol":"ExpirationTimeEqualArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol":{"keccak256":"0x624bb6fb40d82e9756f818e692ca7ba94d9e4d495618f4d2f087fea5216c1b12","license":"UNLICENSED","urls":["bzz-raw://4a7c0fa9e4e0d6b53c2b083cd46c690ae286278a531cd4d416afe8544a96442d","dweb:/ipfs/Qmb3B4DUcxvWtNQBzeY3RcggkBdfPSkF4JrKWdt1i4kVmM"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ExpirationTimeNotEqual"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct ExpirationTimeEqualArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded expiration-time demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol": "ExpirationTimeEqualArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/ExpirationTimeEqualArbiter.sol": {
+        "keccak256": "0x624bb6fb40d82e9756f818e692ca7ba94d9e4d495618f4d2f087fea5216c1b12",
+        "urls": [
+          "bzz-raw://4a7c0fa9e4e0d6b53c2b083cd46c690ae286278a531cd4d416afe8544a96442d",
+          "dweb:/ipfs/Qmb3B4DUcxvWtNQBzeY3RcggkBdfPSkF4JrKWdt1i4kVmM"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 102
+};
+
+// src/clients/arbiters/attestationProperties/expirationTimeEqualArbiter.ts
+var expirationTimeEqualArbiterDecodeDemandFunction = (0, import_viem7.getAbiItem)({
+  abi: abi6.abi,
+  name: "decodeDemandData"
+});
+var expirationTimeEqualArbiterDemandDataType = expirationTimeEqualArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand4 = (demand) => {
+  return (0, import_viem7.encodeAbiParameters)([expirationTimeEqualArbiterDemandDataType], [demand]);
+};
+var decodeDemand4 = (demandData) => {
+  return (0, import_viem7.decodeAbiParameters)(
+    [expirationTimeEqualArbiterDemandDataType],
+    demandData
+  )[0];
+};
+var makeExpirationTimeEqualArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand4,
+    decodeDemand: decodeDemand4
+  };
+};
+
+// src/clients/arbiters/attestationProperties/recipientArbiter.ts
+var import_viem8 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/RecipientArbiter.ts
+var RecipientArbiter_exports = {};
+__export(RecipientArbiter_exports, {
+  abi: () => abi7
+});
+var abi7 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct RecipientArbiter.DemandData",
+          "components": [
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "RecipientMismatched",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x60808060405234601557610399908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b9160c082019283526100fb60e482016102e7565b60e083015261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b6358cf6deb60e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212200898c438827a2a502797333ff2c22ddf134d0e1b31d3aeccbf2682e74d7bd17064736f6c634300081b0033",
+    "sourceMap": "362:889:103:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025f57508063838a68d9146101cf57638da3721a1461003d575f80fd5b346101b75760603660031901126101b75760043567ffffffffffffffff81116101b75761014060031982360301126101b757604051610140810181811067ffffffffffffffff8211176101bb5760405281600401358152602482013560208201526100aa604483016102d2565b60408201526100bb606483016102d2565b60608201526100cc608483016102d2565b608082015260a482013560a08201526100e760c483016102e7565b9160c082019283526100fb60e482016102e7565b60e083015261010481013580151581036101b75761010083015261012481013567ffffffffffffffff81116101b75761012091600461013d92369201016102fb565b91015260243567ffffffffffffffff81116101b7576101609036906004016102fb565b906020828051810103126101b75760206101786102b2565b9201516001600160a01b038116928382036101b75752516001600160a01b0316036101a857602060405160018152f35b6358cf6deb60e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b75760203660031901126101b75760043567ffffffffffffffff81116101b757366023820112156101b757806004013567ffffffffffffffff81116101b75781013660248201116101b7576020905f6102296102b2565b52829003126101b75760209061024960246102426102b2565b92016102e7565b908190526040516001600160a01b039091168152f35b346101b75760203660031901126101b7576004359063ffffffff60e01b82168092036101b7576020916346d1b90d60e11b81149081156102a1575b5015158152f35b6301ffc9a760e01b1490508361029a565b604051906020820182811067ffffffffffffffff8211176101bb57604052565b359067ffffffffffffffff821682036101b757565b35906001600160a01b03821682036101b757565b81601f820112156101b75780359067ffffffffffffffff82116101bb5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101bb57604052828452602083830101116101b757815f92602080930183860137830101529056fea26469706673582212200898c438827a2a502797333ff2c22ddf134d0e1b31d3aeccbf2682e74d7bd17064736f6c634300081b0033",
+    "sourceMap": "362:889:103:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;872:32;;362:889;;;;;;;:::i;:::-;872:32;;362:889;-1:-1:-1;;;;;362:889:103;;;;;;;;;;-1:-1:-1;;;;;362:889:103;918:42;914:101;;362:889;;;;;;;914:101;983:21;;;362:889;983:21;362:889;;983:21;362:889;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;;;;-1:-1:-1;;;;;362:889:103;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;362:889:103;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;362:889:103;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;362:889:103;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;362:889:103;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;362:889:103;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"RecipientMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"address","name":"recipient","type":"address"}],"internalType":"struct RecipientArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"RecipientArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded recipient demand data."}},"notice":"Accepts fulfillments with a specific EAS recipient.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/RecipientArbiter.sol":"RecipientArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/RecipientArbiter.sol":{"keccak256":"0xaf8b51871faa94f291a0ebee1e239ad0e6487b20302ded3ab05f204839b10916","license":"UNLICENSED","urls":["bzz-raw://6002efff44fc20af30586dcf474f2fe95362f17a0b16715cde160e30725b4caf","dweb:/ipfs/QmYewBg1aBCUc53sfaZGMFgTyBTme2oWKybGRR7dgkd478"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "RecipientMismatched"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct RecipientArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded recipient demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/RecipientArbiter.sol": "RecipientArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/RecipientArbiter.sol": {
+        "keccak256": "0xaf8b51871faa94f291a0ebee1e239ad0e6487b20302ded3ab05f204839b10916",
+        "urls": [
+          "bzz-raw://6002efff44fc20af30586dcf474f2fe95362f17a0b16715cde160e30725b4caf",
+          "dweb:/ipfs/QmYewBg1aBCUc53sfaZGMFgTyBTme2oWKybGRR7dgkd478"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 103
+};
+
+// src/clients/arbiters/attestationProperties/recipientArbiter.ts
+var recipientArbiterDecodeDemandFunction = (0, import_viem8.getAbiItem)({
+  abi: abi7.abi,
+  name: "decodeDemandData"
+});
+var recipientArbiterDemandDataType = recipientArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand5 = (demand) => {
+  return (0, import_viem8.encodeAbiParameters)([recipientArbiterDemandDataType], [demand]);
+};
+var decodeDemand5 = (demandData) => {
+  return (0, import_viem8.decodeAbiParameters)([recipientArbiterDemandDataType], demandData)[0];
+};
+var makeRecipientArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand5,
+    decodeDemand: decodeDemand5
+  };
+};
+
+// src/clients/arbiters/attestationProperties/refUidArbiter.ts
+var import_viem9 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/RefUidArbiter.ts
+var RefUidArbiter_exports = {};
+__export(RefUidArbiter_exports, {
+  abi: () => abi8
+});
+var abi8 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct RefUidArbiter.DemandData",
+          "components": [
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "RefUidMismatched",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080806040523460155761036d908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a15760405281600401358152602482013560208201526100aa604483016102a6565b60408201526100bb606483016102a6565b60608201526100cc608483016102a6565b608082015260a081019160a481013583526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b635f11c88560e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea26469706673582212202218da869e7b72a8a1de0bdc2e88e808217f20bc4e60608a11270b6c0c5395a864736f6c634300081b0033",
+    "sourceMap": "358:849:104:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a15760405281600401358152602482013560208201526100aa604483016102a6565b60408201526100bb606483016102a6565b60608201526100cc608483016102a6565b608082015260a081019160a481013583526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b635f11c88560e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea26469706673582212202218da869e7b72a8a1de0bdc2e88e808217f20bc4e60608a11270b6c0c5395a864736f6c634300081b0033",
+    "sourceMap": "358:849:104:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;864:32;;358:849;;;;;;;:::i;:::-;864:32;;358:849;;;;;910:36;906:67;;358:849;;;;;;;906:67;955:18;;;358:849;955:18;358:849;;955:18;358:849;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;358:849:104;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;358:849:104;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;358:849:104;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;358:849:104;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;358:849:104;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"RefUidMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bytes32","name":"refUID","type":"bytes32"}],"internalType":"struct RefUidArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"RefUidArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded refUID demand data."}},"notice":"Accepts fulfillments with a specific EAS `refUID`.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/RefUidArbiter.sol":"RefUidArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/RefUidArbiter.sol":{"keccak256":"0xf9c1d227d57a7146343274a7d83891994941ce758fd1d54d9110c50ac8514933","license":"UNLICENSED","urls":["bzz-raw://4c76641b9e6d2db6897f192ee15a5b11915c8de91d4296c4baaba3bea973c310","dweb:/ipfs/QmQ731d2NHvBdmHL7rNkVm61rFCVeipr4LTzXc2722XAhM"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "RefUidMismatched"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct RefUidArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded refUID demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/RefUidArbiter.sol": "RefUidArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/RefUidArbiter.sol": {
+        "keccak256": "0xf9c1d227d57a7146343274a7d83891994941ce758fd1d54d9110c50ac8514933",
+        "urls": [
+          "bzz-raw://4c76641b9e6d2db6897f192ee15a5b11915c8de91d4296c4baaba3bea973c310",
+          "dweb:/ipfs/QmQ731d2NHvBdmHL7rNkVm61rFCVeipr4LTzXc2722XAhM"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 104
+};
+
+// src/clients/arbiters/attestationProperties/refUidArbiter.ts
+var refUidArbiterDecodeDemandFunction = (0, import_viem9.getAbiItem)({
+  abi: abi8.abi,
+  name: "decodeDemandData"
+});
+var refUidArbiterDemandDataType = refUidArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand6 = (demand) => {
+  return (0, import_viem9.encodeAbiParameters)([refUidArbiterDemandDataType], [demand]);
+};
+var decodeDemand6 = (demandData) => {
+  return (0, import_viem9.decodeAbiParameters)([refUidArbiterDemandDataType], demandData)[0];
+};
+var makeRefUidArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand6,
+    decodeDemand: decodeDemand6
+  };
+};
+
+// src/clients/arbiters/attestationProperties/revocableArbiter.ts
+var import_viem10 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/RevocableArbiter.ts
+var RevocableArbiter_exports = {};
+__export(RevocableArbiter_exports, {
+  abi: () => abi9
+});
+var abi9 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct RevocableArbiter.DemandData",
+          "components": [
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "RevocabilityMismatched",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080806040523460155761038d908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461024657508063838a68d9146101bf57638da3721a1461003d575f80fd5b346101a75760603660031901126101a75760043567ffffffffffffffff81116101a75761014060031982360301126101a757604051610140810181811067ffffffffffffffff8211176101ab5760405281600401358152602482013560208201526100aa604483016102b9565b60408201526100bb606483016102b9565b60608201526100cc608483016102b9565b608082015260a482013560a08201526100e760c483016102ce565b60c08201526100f860e483016102ce565b60e082015261010a61010483016102e2565b91610100820192835261012481013567ffffffffffffffff81116101a75761012091600461013b92369201016102ef565b91015260243567ffffffffffffffff81116101a75761015e9036906004016102ef565b906020828051810103126101a7576020610176610299565b920151801515928382036101a757525115150361019857602060405160018152f35b6320ee3a7d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101a75760203660031901126101a75760043567ffffffffffffffff81116101a757366023820112156101a757806004013567ffffffffffffffff81116101a75781013660248201116101a7576020905f610219610299565b52829003126101a7576020906102396024610232610299565b92016102e2565b8091526040519015158152f35b346101a75760203660031901126101a7576004359063ffffffff60e01b82168092036101a7576020916346d1b90d60e11b8114908115610288575b5015158152f35b6301ffc9a760e01b14905083610281565b604051906020820182811067ffffffffffffffff8211176101ab57604052565b359067ffffffffffffffff821682036101a757565b35906001600160a01b03821682036101a757565b359081151582036101a757565b81601f820112156101a75780359067ffffffffffffffff82116101ab5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101ab57604052828452602083830101116101a757815f92602080930183860137830101529056fea2646970667358221220e8174852d86d9bbae90053a539321fc96598eda009833ee2e4da96c91a31baea64736f6c634300081b0033",
+    "sourceMap": "371:895:105:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461024657508063838a68d9146101bf57638da3721a1461003d575f80fd5b346101a75760603660031901126101a75760043567ffffffffffffffff81116101a75761014060031982360301126101a757604051610140810181811067ffffffffffffffff8211176101ab5760405281600401358152602482013560208201526100aa604483016102b9565b60408201526100bb606483016102b9565b60608201526100cc608483016102b9565b608082015260a482013560a08201526100e760c483016102ce565b60c08201526100f860e483016102ce565b60e082015261010a61010483016102e2565b91610100820192835261012481013567ffffffffffffffff81116101a75761012091600461013b92369201016102ef565b91015260243567ffffffffffffffff81116101a75761015e9036906004016102ef565b906020828051810103126101a7576020610176610299565b920151801515928382036101a757525115150361019857602060405160018152f35b6320ee3a7d60e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101a75760203660031901126101a75760043567ffffffffffffffff81116101a757366023820112156101a757806004013567ffffffffffffffff81116101a75781013660248201116101a7576020905f610219610299565b52829003126101a7576020906102396024610232610299565b92016102e2565b8091526040519015158152f35b346101a75760203660031901126101a7576004359063ffffffff60e01b82168092036101a7576020916346d1b90d60e11b8114908115610288575b5015158152f35b6301ffc9a760e01b14905083610281565b604051906020820182811067ffffffffffffffff8211176101ab57604052565b359067ffffffffffffffff821682036101a757565b35906001600160a01b03821682036101a757565b359081151582036101a757565b81601f820112156101a75780359067ffffffffffffffff82116101ab5760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101ab57604052828452602083830101116101a757815f92602080930183860137830101529056fea2646970667358221220e8174852d86d9bbae90053a539321fc96598eda009833ee2e4da96c91a31baea64736f6c634300081b0033",
+    "sourceMap": "371:895:105:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;881:32;;371:895;;;;;;;:::i;:::-;881:32;;371:895;;;;;;;;;;;;;;927:42;923:104;;371:895;;;;;;;923:104;992:24;;;371:895;992:24;371:895;;992:24;371:895;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;371:895:105;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;371:895:105;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;371:895:105;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;371:895:105;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;371:895:105;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"RevocabilityMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bool","name":"revocable","type":"bool"}],"internalType":"struct RevocableArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"RevocableArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded revocability demand data."}},"notice":"Accepts fulfillments whose revocability matches demand data.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/RevocableArbiter.sol":"RevocableArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/RevocableArbiter.sol":{"keccak256":"0xe0a6357d83414445ee53fd3721be0c2131676ff14452115041c9bc5c94dba228","license":"UNLICENSED","urls":["bzz-raw://6524d2500d557b0f6fa83fba1c99f161406f60d1ed2354f2147b4101a1d9cee2","dweb:/ipfs/QmTeVRoozpBpKQqKxmfisKEwEv7J45oRbEWaeqebeDW79c"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "RevocabilityMismatched"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct RevocableArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded revocability demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/RevocableArbiter.sol": "RevocableArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/RevocableArbiter.sol": {
+        "keccak256": "0xe0a6357d83414445ee53fd3721be0c2131676ff14452115041c9bc5c94dba228",
+        "urls": [
+          "bzz-raw://6524d2500d557b0f6fa83fba1c99f161406f60d1ed2354f2147b4101a1d9cee2",
+          "dweb:/ipfs/QmTeVRoozpBpKQqKxmfisKEwEv7J45oRbEWaeqebeDW79c"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 105
+};
+
+// src/clients/arbiters/attestationProperties/revocableArbiter.ts
+var revocableArbiterDecodeDemandFunction = (0, import_viem10.getAbiItem)({
+  abi: abi9.abi,
+  name: "decodeDemandData"
+});
+var revocableArbiterDemandDataType = revocableArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand7 = (demand) => {
+  return (0, import_viem10.encodeAbiParameters)([revocableArbiterDemandDataType], [demand]);
+};
+var decodeDemand7 = (demandData) => {
+  return (0, import_viem10.decodeAbiParameters)([revocableArbiterDemandDataType], demandData)[0];
+};
+var makeRevocableArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand7,
+    decodeDemand: decodeDemand7
+  };
+};
+
+// src/clients/arbiters/attestationProperties/schemaArbiter.ts
+var import_viem11 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/SchemaArbiter.ts
+var SchemaArbiter_exports = {};
+__export(SchemaArbiter_exports, {
+  abi: () => abi10
+});
+var abi10 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct SchemaArbiter.DemandData",
+          "components": [
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "SchemaMismatched",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080806040523460155761036d908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a157604052816004013581526020810191602481013583526100ac604482016102a6565b60408301526100bd606482016102a6565b60608301526100ce608482016102a6565b608083015260a481013560a08301526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b630a65e99d60e41b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea2646970667358221220c838cdfc2854747acdca06b1fabcc7dd7b88908ec1ed7b47d0c33b2749bd8d1064736f6c634300081b0033",
+    "sourceMap": "360:833:106:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023357508063838a68d9146101b557638da3721a1461003d575f80fd5b3461019d57606036600319011261019d5760043567ffffffffffffffff811161019d57610140600319823603011261019d57604051610140810181811067ffffffffffffffff8211176101a157604052816004013581526020810191602481013583526100ac604482016102a6565b60408301526100bd606482016102a6565b60608301526100ce608482016102a6565b608083015260a481013560a08301526100e960c482016102bb565b60c08301526100fa60e482016102bb565b60e0830152610104810135801515810361019d5761010083015261012481013567ffffffffffffffff811161019d5761012091600461013c92369201016102cf565b91015260243567ffffffffffffffff811161019d5761015f9036906004016102cf565b9060208280518101031261019d576020610177610286565b920151809252510361018e57602060405160018152f35b630a65e99d60e41b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019d57602036600319011261019d5760043567ffffffffffffffff811161019d573660238201121561019d57806004013567ffffffffffffffff811161019d57810136602482011161019d576020905f61020f610286565b528290031261019d576020906024610225610286565b910135809152604051908152f35b3461019d57602036600319011261019d576004359063ffffffff60e01b821680920361019d576020916346d1b90d60e11b8114908115610275575b5015158152f35b6301ffc9a760e01b1490508361026e565b604051906020820182811067ffffffffffffffff8211176101a157604052565b359067ffffffffffffffff8216820361019d57565b35906001600160a01b038216820361019d57565b81601f8201121561019d5780359067ffffffffffffffff82116101a15760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a1576040528284526020838301011161019d57815f92602080930183860137830101529056fea2646970667358221220c838cdfc2854747acdca06b1fabcc7dd7b88908ec1ed7b47d0c33b2749bd8d1064736f6c634300081b0033",
+    "sourceMap": "360:833:106:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;850:32;;360:833;;;;;;;:::i;:::-;850:32;;360:833;;;;;896:36;892:67;;360:833;;;;;;;892:67;941:18;;;360:833;941:18;360:833;;941:18;360:833;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;360:833:106;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;360:833:106;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;360:833:106;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;360:833:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;360:833:106;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"SchemaMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bytes32","name":"schema","type":"bytes32"}],"internalType":"struct SchemaArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"SchemaArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded schema demand data."}},"notice":"Accepts fulfillments with a specific EAS schema UID.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/SchemaArbiter.sol":"SchemaArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/SchemaArbiter.sol":{"keccak256":"0xe0ab63d02cf7a885eedeff279c8f3b284b4f76b1e17969a44a79e8618d8f2b7f","license":"UNLICENSED","urls":["bzz-raw://110e645467169a835d8f0807d42aa1c7092caa1bd1f8efdfc91a24d1fd8798b9","dweb:/ipfs/QmTXeR8umaz6PYqsYsv6Zp5Mg3Q1gfi8DmwzNitHiPnYDE"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "SchemaMismatched"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct SchemaArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded schema demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/SchemaArbiter.sol": "SchemaArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/SchemaArbiter.sol": {
+        "keccak256": "0xe0ab63d02cf7a885eedeff279c8f3b284b4f76b1e17969a44a79e8618d8f2b7f",
+        "urls": [
+          "bzz-raw://110e645467169a835d8f0807d42aa1c7092caa1bd1f8efdfc91a24d1fd8798b9",
+          "dweb:/ipfs/QmTXeR8umaz6PYqsYsv6Zp5Mg3Q1gfi8DmwzNitHiPnYDE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 106
+};
+
+// src/clients/arbiters/attestationProperties/schemaArbiter.ts
+var schemaArbiterDecodeDemandFunction = (0, import_viem11.getAbiItem)({
+  abi: abi10.abi,
+  name: "decodeDemandData"
+});
+var schemaArbiterDemandDataType = schemaArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand8 = (demand) => {
+  return (0, import_viem11.encodeAbiParameters)([schemaArbiterDemandDataType], [demand]);
+};
+var decodeDemand8 = (demandData) => {
+  return (0, import_viem11.decodeAbiParameters)([schemaArbiterDemandDataType], demandData)[0];
+};
+var makeSchemaArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand8,
+    decodeDemand: decodeDemand8
+  };
+};
+
+// src/clients/arbiters/attestationProperties/timeAfterArbiter.ts
+var import_viem12 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/TimeAfterArbiter.ts
+var TimeAfterArbiter_exports = {};
+__export(TimeAfterArbiter_exports, {
+  abi: () => abi11
+});
+var abi11 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct TimeAfterArbiter.DemandData",
+          "components": [
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "TimeNotAfter",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x608080604052346015576103a1908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b633fed642d60e21b5f5260045ffd5b516001600160401b03161090505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea26469706673582212207e22f910f70ad5552bbd87586b94d88baf0f674363438a1245aa7baffed4cbd464736f6c634300081b0033",
+    "sourceMap": "388:961:107:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b633fed642d60e21b5f5260045ffd5b516001600160401b03161090505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea26469706673582212207e22f910f70ad5552bbd87586b94d88baf0f674363438a1245aa7baffed4cbd464736f6c634300081b0033",
+    "sourceMap": "388:961:107:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;:::i;:::-;;;;;889:32;;388:961;;;;;;;:::i;:::-;889:32;;388:961;-1:-1:-1;;;;;388:961:107;;;;;;;;;1009:17;;;:52;;;;388:961;1005:104;;;;388:961;;;;;;;1005:104;1084:14;;;388:961;1084:14;388:961;;1084:14;1009:52;388:961;-1:-1:-1;;;;;388:961:107;1030:31;;-1:-1:-1;1009:52:107;;;;388:961;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;388:961:107;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;388:961:107;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;388:961:107;;;;;;:::o;:::-;;;-1:-1:-1;;;;;388:961:107;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;-1:-1:-1;;388:961:107;;;;;;;;-1:-1:-1;;;;;388:961:107;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;388:961:107;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"TimeNotAfter","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"time","type":"uint64"}],"internalType":"struct TimeAfterArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"TimeAfterArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded creation-time demand data."}},"notice":"Accepts fulfillments whose creation time is at or after a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/TimeAfterArbiter.sol":"TimeAfterArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/TimeAfterArbiter.sol":{"keccak256":"0x4753058fff28a5ce729b13dd2d379881328eba3266aedcc6c1e73319668459be","license":"UNLICENSED","urls":["bzz-raw://8b3ecbf286820039e1d37f9db601abf43ba4c6ebfb4da3ae9bda1644c2bb95aa","dweb:/ipfs/Qmbw3DB3qV7gCuS4s1M9CW6T52up17b5tipYSymJu8KWRB"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TimeNotAfter"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct TimeAfterArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded creation-time demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/TimeAfterArbiter.sol": "TimeAfterArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/TimeAfterArbiter.sol": {
+        "keccak256": "0x4753058fff28a5ce729b13dd2d379881328eba3266aedcc6c1e73319668459be",
+        "urls": [
+          "bzz-raw://8b3ecbf286820039e1d37f9db601abf43ba4c6ebfb4da3ae9bda1644c2bb95aa",
+          "dweb:/ipfs/Qmbw3DB3qV7gCuS4s1M9CW6T52up17b5tipYSymJu8KWRB"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 107
+};
+
+// src/clients/arbiters/attestationProperties/timeAfterArbiter.ts
+var timeAfterArbiterDecodeDemandFunction = (0, import_viem12.getAbiItem)({
+  abi: abi11.abi,
+  name: "decodeDemandData"
+});
+var timeAfterArbiterDemandDataType = timeAfterArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand9 = (demand) => {
+  return (0, import_viem12.encodeAbiParameters)([timeAfterArbiterDemandDataType], [demand]);
+};
+var decodeDemand9 = (demandData) => {
+  return (0, import_viem12.decodeAbiParameters)([timeAfterArbiterDemandDataType], demandData)[0];
+};
+var makeTimeAfterArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand9,
+    decodeDemand: decodeDemand9
+  };
+};
+
+// src/clients/arbiters/attestationProperties/timeBeforeArbiter.ts
+var import_viem13 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/TimeBeforeArbiter.ts
+var TimeBeforeArbiter_exports = {};
+__export(TimeBeforeArbiter_exports, {
+  abi: () => abi12
+});
+var abi12 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct TimeBeforeArbiter.DemandData",
+          "components": [
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "TimeNotBefore",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x608080604052346015576103a1908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b63abcd2e9760e01b5f5260045ffd5b516001600160401b03161190505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea2646970667358221220a12aececd38c270db903a80ff5f3fa28d7acdd6a66a12f70f1d3c2ff0d0ba4f264736f6c634300081b0033",
+    "sourceMap": "390:964:108:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461026b57508063838a68d9146101df57638da3721a1461003d575f80fd5b346101c75760603660031901126101c7576004356001600160401b0381116101c75761014060031982360301126101c75760405161014081018181106001600160401b038211176101cb5760405281600401358152602482013560208201526100a8604483016102dd565b91604082019283526100bc606482016102dd565b60608301526100cd608482016102dd565b608083015260a481013560a08301526100e860c482016102f1565b60c08301526100f960e482016102f1565b60e083015261010481013580151581036101c7576101008301526101248101356001600160401b0381116101c75761012091600461013a9236920101610305565b9101526024356001600160401b0381116101c75761015c903690600401610305565b6020818051810103126101c75760206101736102be565b9101516001600160401b038116918282036101c7575280151591826101b3575b50506101a457602060405160018152f35b63abcd2e9760e01b5f5260045ffd5b516001600160401b03161190505f80610193565b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101c75760203660031901126101c7576004356001600160401b0381116101c757366023820112156101c75780600401356001600160401b0381116101c75781013660248201116101c7576020905f6102376102be565b52829003126101c75760209061025760246102506102be565b92016102dd565b8091526001600160401b0360405191168152f35b346101c75760203660031901126101c7576004359063ffffffff60e01b82168092036101c7576020916346d1b90d60e11b81149081156102ad575b5015158152f35b6301ffc9a760e01b149050836102a6565b60405190602082018281106001600160401b038211176101cb57604052565b35906001600160401b03821682036101c757565b35906001600160a01b03821682036101c757565b81601f820112156101c7578035906001600160401b0382116101cb5760405192601f8301601f19908116603f011684016001600160401b038111858210176101cb57604052828452602083830101116101c757815f92602080930183860137830101529056fea2646970667358221220a12aececd38c270db903a80ff5f3fa28d7acdd6a66a12f70f1d3c2ff0d0ba4f264736f6c634300081b0033",
+    "sourceMap": "390:964:108:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;:::i;:::-;;;;;893:32;;390:964;;;;;;;:::i;:::-;893:32;;390:964;-1:-1:-1;;;;;390:964:108;;;;;;;;;1013:17;;;:52;;;;390:964;1009:105;;;;390:964;;;;;;;1009:105;1088:15;;;390:964;1088:15;390:964;;1088:15;1013:52;390:964;-1:-1:-1;;;;;390:964:108;1034:31;;-1:-1:-1;1013:52:108;;;;390:964;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;390:964:108;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;390:964:108;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;390:964:108;;;;;;:::o;:::-;;;-1:-1:-1;;;;;390:964:108;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;-1:-1:-1;;390:964:108;;;;;;;;-1:-1:-1;;;;;390:964:108;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;390:964:108;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"TimeNotBefore","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"time","type":"uint64"}],"internalType":"struct TimeBeforeArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"TimeBeforeArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded creation-time demand data."}},"notice":"Accepts fulfillments whose creation time is at or before a demanded timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/TimeBeforeArbiter.sol":"TimeBeforeArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/TimeBeforeArbiter.sol":{"keccak256":"0xde96bdffcb5d58655f59566d1bf64c8a6ea124f16da1805d5c3cfb1ee86b0162","license":"UNLICENSED","urls":["bzz-raw://2c49240d3e111844eda5156b391ede4b0f37f5bdcac82a7ab8e53fc7129821f9","dweb:/ipfs/QmQSkDKFmHBbYL7gu6m1WN5BEo4NS8Qhjif3ARwVzG1wtP"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TimeNotBefore"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct TimeBeforeArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded creation-time demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/TimeBeforeArbiter.sol": "TimeBeforeArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/TimeBeforeArbiter.sol": {
+        "keccak256": "0xde96bdffcb5d58655f59566d1bf64c8a6ea124f16da1805d5c3cfb1ee86b0162",
+        "urls": [
+          "bzz-raw://2c49240d3e111844eda5156b391ede4b0f37f5bdcac82a7ab8e53fc7129821f9",
+          "dweb:/ipfs/QmQSkDKFmHBbYL7gu6m1WN5BEo4NS8Qhjif3ARwVzG1wtP"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 108
+};
+
+// src/clients/arbiters/attestationProperties/timeBeforeArbiter.ts
+var timeBeforeArbiterDecodeDemandFunction = (0, import_viem13.getAbiItem)({
+  abi: abi12.abi,
+  name: "decodeDemandData"
+});
+var timeBeforeArbiterDemandDataType = timeBeforeArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand10 = (demand) => {
+  return (0, import_viem13.encodeAbiParameters)([timeBeforeArbiterDemandDataType], [demand]);
+};
+var decodeDemand10 = (demandData) => {
+  return (0, import_viem13.decodeAbiParameters)([timeBeforeArbiterDemandDataType], demandData)[0];
+};
+var makeTimeBeforeArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand10,
+    decodeDemand: decodeDemand10
+  };
+};
+
+// src/clients/arbiters/attestationProperties/timeEqualArbiter.ts
+var import_viem14 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/TimeEqualArbiter.ts
+var TimeEqualArbiter_exports = {};
+__export(TimeEqualArbiter_exports, {
+  abi: () => abi13
+});
+var abi13 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct TimeEqualArbiter.DemandData",
+          "components": [
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "TimeNotEqual",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080806040523460155761038e908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b91604082019283526100bc606482016102ca565b60608301526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b6308b5d45360e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220b746ef2e5b2bb1455c9bbbfbbdfaf99b728891bf7f974bdb2ee4f4785b17f65364736f6c634300081b0033",
+    "sourceMap": "369:836:109:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461025857508063838a68d9146101cc57638da3721a1461003d575f80fd5b346101b45760603660031901126101b4576004356001600160401b0381116101b45761014060031982360301126101b45760405161014081018181106001600160401b038211176101b85760405281600401358152602482013560208201526100a8604483016102ca565b91604082019283526100bc606482016102ca565b60608301526100cd608482016102ca565b608083015260a481013560a08301526100e860c482016102de565b60c08301526100f960e482016102de565b60e083015261010481013580151581036101b4576101008301526101248101356001600160401b0381116101b45761012091600461013a92369201016102f2565b9101526024356001600160401b0381116101b45761015c9036906004016102f2565b6020818051810103126101b45760206101736102ab565b910151916001600160401b038316928381036101b4576001600160401b0392525116036101a557602060405160018152f35b6308b5d45360e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b346101b45760203660031901126101b4576004356001600160401b0381116101b457366023820112156101b45780600401356001600160401b0381116101b45781013660248201116101b4576020905f6102246102ab565b52829003126101b457602090610244602461023d6102ab565b92016102ca565b8091526001600160401b0360405191168152f35b346101b45760203660031901126101b4576004359063ffffffff60e01b82168092036101b4576020916346d1b90d60e11b811490811561029a575b5015158152f35b6301ffc9a760e01b14905083610293565b60405190602082018281106001600160401b038211176101b857604052565b35906001600160401b03821682036101b457565b35906001600160a01b03821682036101b457565b81601f820112156101b4578035906001600160401b0382116101b85760405192601f8301601f19908116603f011684016001600160401b038111858210176101b857604052828452602083830101116101b457815f92602080930183860137830101529056fea2646970667358221220b746ef2e5b2bb1455c9bbbfbbdfaf99b728891bf7f974bdb2ee4f4785b17f65364736f6c634300081b0033",
+    "sourceMap": "369:836:109:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;:::i;:::-;;;;;863:32;;369:836;;;;;;;:::i;:::-;863:32;;369:836;;-1:-1:-1;;;;;369:836:109;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;909:32;905:59;;369:836;;;;;;;905:59;950:14;;;369:836;950:14;369:836;;950:14;369:836;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;369:836:109;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;369:836:109;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;369:836:109;;;;;;:::o;:::-;;;-1:-1:-1;;;;;369:836:109;;;;;;:::o;:::-;;;;;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;-1:-1:-1;;369:836:109;;;;;;;;-1:-1:-1;;;;;369:836:109;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;369:836:109;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"TimeNotEqual","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"uint64","name":"time","type":"uint64"}],"internalType":"struct TimeEqualArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"TimeEqualArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded creation-time demand data."}},"notice":"Accepts fulfillments with an exact EAS creation timestamp.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/TimeEqualArbiter.sol":"TimeEqualArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/TimeEqualArbiter.sol":{"keccak256":"0x9e52bfdc91bf78efe53008f00a4e88347edddf002b361e16424c81dbbd7e046e","license":"UNLICENSED","urls":["bzz-raw://92385d7a461cc070c6c4e8e886de276a84bb30867aeaf7d19347af5469e2ca49","dweb:/ipfs/QmPBAPwzdT9yiFfDhTtYaoiZFrU84qfqBnQnyHoaHvS7CQ"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TimeNotEqual"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct TimeEqualArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded creation-time demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/TimeEqualArbiter.sol": "TimeEqualArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/TimeEqualArbiter.sol": {
+        "keccak256": "0x9e52bfdc91bf78efe53008f00a4e88347edddf002b361e16424c81dbbd7e046e",
+        "urls": [
+          "bzz-raw://92385d7a461cc070c6c4e8e886de276a84bb30867aeaf7d19347af5469e2ca49",
+          "dweb:/ipfs/QmPBAPwzdT9yiFfDhTtYaoiZFrU84qfqBnQnyHoaHvS7CQ"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 109
+};
+
+// src/clients/arbiters/attestationProperties/timeEqualArbiter.ts
+var timeEqualArbiterDecodeDemandFunction = (0, import_viem14.getAbiItem)({
+  abi: abi13.abi,
+  name: "decodeDemandData"
+});
+var timeEqualArbiterDemandDataType = timeEqualArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand11 = (demand) => {
+  return (0, import_viem14.encodeAbiParameters)([timeEqualArbiterDemandDataType], [demand]);
+};
+var decodeDemand11 = (demandData) => {
+  return (0, import_viem14.decodeAbiParameters)([timeEqualArbiterDemandDataType], demandData)[0];
+};
+var makeTimeEqualArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand11,
+    decodeDemand: decodeDemand11
+  };
+};
+
+// src/clients/arbiters/attestationProperties/uidArbiter.ts
+var import_viem15 = require("viem");
+
+// src/contracts/arbiters/attestation-properties/UidArbiter.ts
+var UidArbiter_exports = {};
+__export(UidArbiter_exports, {
+  abi: () => abi14
+});
+var abi14 = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct UidArbiter.DemandData",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "error",
+      "name": "UidMismatched",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080806040523460155761036c908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023257508063838a68d9146101b457638da3721a1461003d575f80fd5b3461019c57606036600319011261019c5760043567ffffffffffffffff811161019c57610140600319823603011261019c5760405190610140820182811067ffffffffffffffff8211176101a05760405280600401358252602481013560208301526100ab604482016102a5565b60408301526100bc606482016102a5565b60608301526100cd608482016102a5565b608083015260a481013560a08301526100e860c482016102ba565b60c08301526100f960e482016102ba565b60e0830152610104810135801515810361019c576101008301526101248101359067ffffffffffffffff821161019c57600461013892369201016102ce565b61012082015260243567ffffffffffffffff811161019c5761015e9036906004016102ce565b9060208280518101031261019c576020610176610285565b920151809252510361018d57602060405160018152f35b633f51589560e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019c57602036600319011261019c5760043567ffffffffffffffff811161019c573660238201121561019c57806004013567ffffffffffffffff811161019c57810136602482011161019c576020905f61020e610285565b528290031261019c576020906024610224610285565b910135809152604051908152f35b3461019c57602036600319011261019c576004359063ffffffff60e01b821680920361019c576020916346d1b90d60e11b8114908115610274575b5015158152f35b6301ffc9a760e01b1490508361026d565b604051906020820182811067ffffffffffffffff8211176101a057604052565b359067ffffffffffffffff8216820361019c57565b35906001600160a01b038216820361019c57565b81601f8201121561019c5780359067ffffffffffffffff82116101a05760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a0576040528284526020838301011161019c57815f92602080930183860137830101529056fea2646970667358221220144baf47adc886019f8fd0433ae2129f01d8d799ce31851621cd2e67512789b564736f6c634300081b0033",
+    "sourceMap": "357:817:110:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461023257508063838a68d9146101b457638da3721a1461003d575f80fd5b3461019c57606036600319011261019c5760043567ffffffffffffffff811161019c57610140600319823603011261019c5760405190610140820182811067ffffffffffffffff8211176101a05760405280600401358252602481013560208301526100ab604482016102a5565b60408301526100bc606482016102a5565b60608301526100cd608482016102a5565b608083015260a481013560a08301526100e860c482016102ba565b60c08301526100f960e482016102ba565b60e0830152610104810135801515810361019c576101008301526101248101359067ffffffffffffffff821161019c57600461013892369201016102ce565b61012082015260243567ffffffffffffffff811161019c5761015e9036906004016102ce565b9060208280518101031261019c576020610176610285565b920151809252510361018d57602060405160018152f35b633f51589560e01b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b3461019c57602036600319011261019c5760043567ffffffffffffffff811161019c573660238201121561019c57806004013567ffffffffffffffff811161019c57810136602482011161019c576020905f61020e610285565b528290031261019c576020906024610224610285565b910135809152604051908152f35b3461019c57602036600319011261019c576004359063ffffffff60e01b821680920361019c576020916346d1b90d60e11b8114908115610274575b5015158152f35b6301ffc9a760e01b1490508361026d565b604051906020820182811067ffffffffffffffff8211176101a057604052565b359067ffffffffffffffff8216820361019c57565b35906001600160a01b038216820361019c57565b81601f8201121561019c5780359067ffffffffffffffff82116101a05760405192601f8301601f19908116603f0116840167ffffffffffffffff8111858210176101a0576040528284526020838301011161019c57815f92602080930183860137830101529056fea2646970667358221220144baf47adc886019f8fd0433ae2129f01d8d799ce31851621cd2e67512789b564736f6c634300081b0033",
+    "sourceMap": "357:817:110:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;843:32;;357:817;;;;;;;:::i;:::-;843:32;;357:817;;;;;889:30;885:58;;357:817;;;;;;;885:58;928:15;;;357:817;928:15;357:817;;928:15;357:817;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;357:817:110;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;357:817:110;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;357:817:110;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;357:817:110;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;357:817:110;;;;;;;;;;;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decodeDemandData(bytes)": "838a68d9",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"UidMismatched","type":"error"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"demand","type":"bytes"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes","name":"data","type":"bytes"}],"name":"decodeDemandData","outputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"}],"internalType":"struct UidArbiter.DemandData","name":"","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"UidArbiter","version":1},"userdoc":{"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"decodeDemandData(bytes)":{"notice":"Decodes ABI-encoded UID demand data."}},"notice":"Accepts only a specific fulfillment attestation UID.","version":1}},"settings":{"compilationTarget":{"src/arbiters/attestation-properties/UidArbiter.sol":"UidArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/attestation-properties/UidArbiter.sol":{"keccak256":"0x29405eb3e6b228ed5377fad46f46c39a61dfd2ed668872e27e1f3fcf2d3798d6","license":"UNLICENSED","urls":["bzz-raw://5c5ade6a6f7200909b6b0a313de9b4484987795cdca1b8ac0d0a0147d6c960cf","dweb:/ipfs/QmPnrckSyoeeK3jeKnGcFRwtSwSgXQmmPxyhSsaMHosVhM"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "UidMismatched"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct UidArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded UID demand data."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/attestation-properties/UidArbiter.sol": "UidArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/attestation-properties/UidArbiter.sol": {
+        "keccak256": "0x29405eb3e6b228ed5377fad46f46c39a61dfd2ed668872e27e1f3fcf2d3798d6",
+        "urls": [
+          "bzz-raw://5c5ade6a6f7200909b6b0a313de9b4484987795cdca1b8ac0d0a0147d6c960cf",
+          "dweb:/ipfs/QmPnrckSyoeeK3jeKnGcFRwtSwSgXQmmPxyhSsaMHosVhM"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 110
+};
+
+// src/clients/arbiters/attestationProperties/uidArbiter.ts
+var uidArbiterDecodeDemandFunction = (0, import_viem15.getAbiItem)({
+  abi: abi14.abi,
+  name: "decodeDemandData"
+});
+var uidArbiterDemandDataType = uidArbiterDecodeDemandFunction.outputs[0];
+var encodeDemand12 = (demand) => {
+  return (0, import_viem15.encodeAbiParameters)([uidArbiterDemandDataType], [demand]);
+};
+var decodeDemand12 = (demandData) => {
+  return (0, import_viem15.decodeAbiParameters)([uidArbiterDemandDataType], demandData)[0];
+};
+var makeUidArbiterClient = (viemClient, addresses) => {
+  return {
+    encodeDemand: encodeDemand12,
+    decodeDemand: decodeDemand12
+  };
+};
 
 // src/clients/arbiters/general/erc8004Arbiter.ts
 var import_viem16 = require("viem");
@@ -12831,6 +12274,906 @@ var getOptimalPollingInterval = (viemClient, defaultInterval = 1e3) => {
   return isWebSocketTransport(viemClient) ? void 0 : defaultInterval;
 };
 
+// src/clients/arbiters/check.ts
+var arbiterAddress = (addresses, arbiter) => arbiter.startsWith("0x") ? arbiter : addresses[arbiter];
+var checkArbiter = async (viemClient, addresses, arbiter, fulfillment, demand, escrowUid) => await readContract(viemClient, {
+  address: arbiterAddress(addresses, arbiter),
+  abi: abi.abi,
+  functionName: "check",
+  args: [fulfillment, demand, escrowUid]
+});
+
+// src/clients/arbiters/attestationProperties/index.ts
+var makeAttestationPropertiesArbitersClient = (viemClient, addresses) => {
+  const attester = makeAttesterArbiterClient(viemClient, addresses);
+  const recipient = makeRecipientArbiterClient(viemClient, addresses);
+  const schema = makeSchemaArbiterClient(viemClient, addresses);
+  const uid = makeUidArbiterClient(viemClient, addresses);
+  const refUid = makeRefUidArbiterClient(viemClient, addresses);
+  const revocable = makeRevocableArbiterClient(viemClient, addresses);
+  const timeAfter = makeTimeAfterArbiterClient(viemClient, addresses);
+  const timeBefore = makeTimeBeforeArbiterClient(viemClient, addresses);
+  const timeEqual = makeTimeEqualArbiterClient(viemClient, addresses);
+  const expirationTimeAfter = makeExpirationTimeAfterArbiterClient(viemClient, addresses);
+  const expirationTimeBefore = makeExpirationTimeBeforeArbiterClient(viemClient, addresses);
+  const expirationTimeEqual = makeExpirationTimeEqualArbiterClient(viemClient, addresses);
+  return {
+    attester,
+    recipient,
+    schema,
+    uid,
+    refUid,
+    revocable,
+    timeAfter,
+    timeBefore,
+    timeEqual,
+    expirationTimeAfter,
+    expirationTimeBefore,
+    expirationTimeEqual
+  };
+};
+
+// src/clients/arbiters/confirmation/exclusiveRevocableConfirmationArbiter.ts
+var import_viem22 = require("viem");
+
+// src/contracts/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.ts
+var ExclusiveRevocableConfirmationArbiter_exports = {};
+__export(ExclusiveRevocableConfirmationArbiter_exports, {
+  abi: () => abi20
+});
+var abi20 = {
+  "abi": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "_eas",
+          "type": "address",
+          "internalType": "contract IEAS"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "escrowUid",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "confirm",
+      "inputs": [
+        {
+          "name": "_fulfillment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "_escrow",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "confirmations",
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "eas",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract IEAS"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "escrowToFulfillment",
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "requestConfirmation",
+      "inputs": [
+        {
+          "name": "_fulfillment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "_escrow",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "revoke",
+      "inputs": [
+        {
+          "name": "_fulfillment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "_escrow",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "ConfirmationMade",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "escrow",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ConfirmationRequested",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "confirmer",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "escrow",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ConfirmationRevoked",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "escrow",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "AnotherFulfillmentAlreadyConfirmed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidFulfillment",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NoConfirmationToRevoke",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "UnauthorizedConfirmation",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "UnauthorizedConfirmationRequest",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "UnauthorizedRevocation",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x60a03461007e57601f6109e338819003918201601f19168301916001600160401b038311848410176100825780849260209460405283398101031261007e57516001600160a01b038116810361007e5760805260405161094c9081610097823960805181818160a0015281816103460152818161039c01526105490152f35b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461068b575080633786930d1461066157806352155df71461052257806357f784ba146103755780638150864d14610331578063887d686d146102fe5780638da3721a146101c75763c266461014610074575f80fd5b346101c357610082366106de565b6040516328c44a9960e21b8152600481018290529091905f816024817f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165afa9081156101b8575f91610196575b5060c001516001600160a01b0316330361018757805f525f60205260405f20825f5260205260ff60405f205416158015610171575b61016257805f525f60205260405f20825f5260205260405f2060ff198154169055815f5260016020525f60408120557f137a0dfcce695307235e039aa2ae70da634ed7f10a6a5a536b3a8c15d758aa1e5f80a3005b6339abb17d60e01b5f5260045ffd5b50815f5260016020528060405f2054141561010d565b630feaf7d560e31b5f5260045ffd5b6101b291503d805f833e6101aa8183610725565b8101906107fb565b5f6100d8565b6040513d5f823e3d90fd5b5f80fd5b346101c35760603660031901126101c35760043567ffffffffffffffff81116101c35761014060031982360301126101c35760405190610206826106f4565b806004013582526024810135602083015261022360448201610747565b604083015261023460648201610747565b606083015261024560848201610747565b608083015260a481013560a083015261026060c4820161075c565b60c083015261027160e4820161075c565b60e083015261010481013580151581036101c3576101008301526101248101359067ffffffffffffffff82116101c35760046102b0923692010161078c565b61012082015260243567ffffffffffffffff81116101c3576102d690369060040161078c565b50515f525f60205260405f206044355f52602052602060ff60405f2054166040519015158152f35b346101c35761030c366106de565b905f525f60205260405f20905f52602052602060ff60405f2054166040519015158152f35b346101c3575f3660031901126101c3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101c357610383366106de565b6040516328c44a9960e21b8152600481018290529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165f82602481845afa9081156101b8576024925f92610504575b505f90604051938480926328c44a9960e21b82528760048301525afa9182156101b8575f926104e8575b5060c001516001600160a01b031633036104d957518181159182156104ce575b50506104bf57815f52600160205260405f20541515806104a9575b61049a57805f525f60205260405f20825f5260205260405f20600160ff19825416179055815f5260016020528060405f20557fd22fd165f2b163f7b94d6e2b15443105c17bfae3fa2242150644ab76a95d532e5f80a3005b633ea893c560e21b5f5260045ffd5b50815f5260016020528060405f20541415610442565b630ebe58ef60e11b5f5260045ffd5b141590508184610427565b6331eb5cd360e11b5f5260045ffd5b6104fd9192503d805f833e6101aa8183610725565b9084610407565b5f91925061051b903d8084833e6101aa8183610725565b91906103dd565b346101c357610530366106de565b6040516328c44a9960e21b8152600481018390529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316905f81602481855afa9081156101b8575f91610647575b5060e08101516001600160a01b0316331415908161062f575b50610620575f602491604051928380926328c44a9960e21b82528760048301525afa9081156101b8575f91610606575b5060c001516001600160a01b0316907f93ece828de650a0159786850192cbcd721ab720e1ee81b00365a5c8d63886b315f80a4005b61061a91503d805f833e6101aa8183610725565b836105d1565b63020a627d60e11b5f5260045ffd5b60c001516001600160a01b03163314159050846105a1565b61065b91503d805f833e6101aa8183610725565b84610588565b346101c35760203660031901126101c3576004355f526001602052602060405f2054604051908152f35b346101c35760203660031901126101c3576004359063ffffffff60e01b82168092036101c3576020916346d1b90d60e11b81149081156106cd575b5015158152f35b6301ffc9a760e01b149050836106c6565b60409060031901126101c3576004359060243590565b610140810190811067ffffffffffffffff82111761071157604052565b634e487b7160e01b5f52604160045260245ffd5b90601f8019910116810190811067ffffffffffffffff82111761071157604052565b359067ffffffffffffffff821682036101c357565b35906001600160a01b03821682036101c357565b67ffffffffffffffff811161071157601f01601f191660200190565b81601f820112156101c3578035906107a382610770565b926107b16040519485610725565b828452602083830101116101c357815f926020809301838601378301015290565b519067ffffffffffffffff821682036101c357565b51906001600160a01b03821682036101c357565b6020818303126101c35780519067ffffffffffffffff82116101c3570190610140828203126101c35760405191610831836106f4565b805183526020810151602084015261084b604082016107d2565b604084015261085c606082016107d2565b606084015261086d608082016107d2565b608084015260a081015160a084015261088860c082016107e7565b60c084015261089960e082016107e7565b60e084015261010081015180151581036101c3576101008401526101208101519067ffffffffffffffff82116101c3570181601f820112156101c3578051906108e182610770565b926108ef6040519485610725565b828452602083830101116101c357815f9260208093018386015e830101526101208201529056fea26469706673582212209b6a79ea737f93da3f5148cab7368c244b7c735f67d3f60aea133fe7c3fd014964736f6c634300081b0033",
+    "sourceMap": "582:3779:111:-:0;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;-1:-1:-1;;;;;582:3779:111;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;582:3779:111;;;;;;1923:10;;582:3779;;;;;;;;1923:10;582:3779;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;582:3779:111;;;;;;-1:-1:-1;582:3779:111;;;;;-1:-1:-1;582:3779:111",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461068b575080633786930d1461066157806352155df71461052257806357f784ba146103755780638150864d14610331578063887d686d146102fe5780638da3721a146101c75763c266461014610074575f80fd5b346101c357610082366106de565b6040516328c44a9960e21b8152600481018290529091905f816024817f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165afa9081156101b8575f91610196575b5060c001516001600160a01b0316330361018757805f525f60205260405f20825f5260205260ff60405f205416158015610171575b61016257805f525f60205260405f20825f5260205260405f2060ff198154169055815f5260016020525f60408120557f137a0dfcce695307235e039aa2ae70da634ed7f10a6a5a536b3a8c15d758aa1e5f80a3005b6339abb17d60e01b5f5260045ffd5b50815f5260016020528060405f2054141561010d565b630feaf7d560e31b5f5260045ffd5b6101b291503d805f833e6101aa8183610725565b8101906107fb565b5f6100d8565b6040513d5f823e3d90fd5b5f80fd5b346101c35760603660031901126101c35760043567ffffffffffffffff81116101c35761014060031982360301126101c35760405190610206826106f4565b806004013582526024810135602083015261022360448201610747565b604083015261023460648201610747565b606083015261024560848201610747565b608083015260a481013560a083015261026060c4820161075c565b60c083015261027160e4820161075c565b60e083015261010481013580151581036101c3576101008301526101248101359067ffffffffffffffff82116101c35760046102b0923692010161078c565b61012082015260243567ffffffffffffffff81116101c3576102d690369060040161078c565b50515f525f60205260405f206044355f52602052602060ff60405f2054166040519015158152f35b346101c35761030c366106de565b905f525f60205260405f20905f52602052602060ff60405f2054166040519015158152f35b346101c3575f3660031901126101c3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101c357610383366106de565b6040516328c44a9960e21b8152600481018290529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165f82602481845afa9081156101b8576024925f92610504575b505f90604051938480926328c44a9960e21b82528760048301525afa9182156101b8575f926104e8575b5060c001516001600160a01b031633036104d957518181159182156104ce575b50506104bf57815f52600160205260405f20541515806104a9575b61049a57805f525f60205260405f20825f5260205260405f20600160ff19825416179055815f5260016020528060405f20557fd22fd165f2b163f7b94d6e2b15443105c17bfae3fa2242150644ab76a95d532e5f80a3005b633ea893c560e21b5f5260045ffd5b50815f5260016020528060405f20541415610442565b630ebe58ef60e11b5f5260045ffd5b141590508184610427565b6331eb5cd360e11b5f5260045ffd5b6104fd9192503d805f833e6101aa8183610725565b9084610407565b5f91925061051b903d8084833e6101aa8183610725565b91906103dd565b346101c357610530366106de565b6040516328c44a9960e21b8152600481018390529091907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316905f81602481855afa9081156101b8575f91610647575b5060e08101516001600160a01b0316331415908161062f575b50610620575f602491604051928380926328c44a9960e21b82528760048301525afa9081156101b8575f91610606575b5060c001516001600160a01b0316907f93ece828de650a0159786850192cbcd721ab720e1ee81b00365a5c8d63886b315f80a4005b61061a91503d805f833e6101aa8183610725565b836105d1565b63020a627d60e11b5f5260045ffd5b60c001516001600160a01b03163314159050846105a1565b61065b91503d805f833e6101aa8183610725565b84610588565b346101c35760203660031901126101c3576004355f526001602052602060405f2054604051908152f35b346101c35760203660031901126101c3576004359063ffffffff60e01b82168092036101c3576020916346d1b90d60e11b81149081156106cd575b5015158152f35b6301ffc9a760e01b149050836106c6565b60409060031901126101c3576004359060243590565b610140810190811067ffffffffffffffff82111761071157604052565b634e487b7160e01b5f52604160045260245ffd5b90601f8019910116810190811067ffffffffffffffff82111761071157604052565b359067ffffffffffffffff821682036101c357565b35906001600160a01b03821682036101c357565b67ffffffffffffffff811161071157601f01601f191660200190565b81601f820112156101c3578035906107a382610770565b926107b16040519485610725565b828452602083830101116101c357815f926020809301838601378301015290565b519067ffffffffffffffff821682036101c357565b51906001600160a01b03821682036101c357565b6020818303126101c35780519067ffffffffffffffff82116101c3570190610140828203126101c35760405191610831836106f4565b805183526020810151602084015261084b604082016107d2565b604084015261085c606082016107d2565b606084015261086d608082016107d2565b608084015260a081015160a084015261088860c082016107e7565b60c084015261089960e082016107e7565b60e084015261010081015180151581036101c3576101008401526101208101519067ffffffffffffffff82116101c3570181601f820112156101c3578051906108e182610770565b926108ef6040519485610725565b828452602083830101116101c357815f9260208093018386015e830101526101208201529056fea26469706673582212209b6a79ea737f93da3f5148cab7368c244b7c735f67d3f60aea133fe7c3fd014964736f6c634300081b0033",
+    "sourceMap": "582:3779:111:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;-1:-1:-1;;;3076:27:111;;582:3779;3076:27;;582:3779;;;;;;-1:-1:-1;582:3779:111;3076:27;582:3779;3076:3;-1:-1:-1;;;;;582:3779:111;3076:27;;;;;;;582:3779;3076:27;;;582:3779;-1:-1:-1;3118:16:111;;582:3779;-1:-1:-1;;;;;582:3779:111;3138:10;3118:30;3114:92;;582:3779;;;;;;;;;;;;;;;;;;;;3220:37;582:3779;;3220:85;;582:3779;3216:147;;582:3779;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3484:42;582:3779;3484:42;;582:3779;3216:147;3328:24;;;582:3779;3328:24;582:3779;;3328:24;3220:85;582:3779;;;;3261:19;582:3779;;;;;;;3261:44;;3220:85;;3114:92;3171:24;;;582:3779;3171:24;582:3779;;3171:24;3076:27;;;;;;582:3779;3076:27;;;;;;:::i;:::-;;;;;:::i;:::-;;;;;582:3779;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;;;1519:25;-1:-1:-1;;;;;582:3779:111;;;;;;;;;;;;;:::i;:::-;;;-1:-1:-1;;;2125:27:111;;582:3779;2125:27;;582:3779;;;;;;2125:3;-1:-1:-1;;;;;582:3779:111;-1:-1:-1;582:3779:111;2125:27;582:3779;;2125:27;;;;;;;;;582:3779;2125:27;;;582:3779;;;;;;;;;;;;;2195:32;;;582:3779;2195:32;;582:3779;2195:32;;;;;;;582:3779;2195:32;;;582:3779;-1:-1:-1;2242:16:111;;582:3779;-1:-1:-1;;;;;582:3779:111;2262:10;2242:30;2238:94;;582:3779;2346:29;;;:64;;;;;582:3779;2342:122;;;;582:3779;;;2557:19;582:3779;;;;;;2557:42;;:90;;;582:3779;2553:164;;582:3779;;;;;;;;;;;;;;;;;2557:19;582:3779;;;;;;;;;;;2557:19;582:3779;;;;;;;2839:39;582:3779;2839:39;;582:3779;2553:164;2670:36;;;582:3779;2670:36;582:3779;;2670:36;2557:90;582:3779;;;;2557:19;582:3779;;;;;;;2603:44;;2557:90;;2342:122;2433:20;;;582:3779;2433:20;582:3779;;2433:20;2346:64;2379:31;;;-1:-1:-1;2346:64:111;;;;2238:94;2295:26;;;582:3779;2295:26;582:3779;;2295:26;2195:32;;;;;;;582:3779;2195:32;;;;;;:::i;:::-;;;;;2125:27;582:3779;2125:27;;;;;;;;;;;;;;:::i;:::-;;;;;582:3779;;;;;;;:::i;:::-;;;-1:-1:-1;;;3722:32:111;;582:3779;3722:32;;582:3779;;;;;;3722:3;-1:-1:-1;;;;;582:3779:111;;-1:-1:-1;582:3779:111;3722:32;582:3779;;3722:32;;;;;;;582:3779;3722:32;;;582:3779;-1:-1:-1;582:3779:111;3768:20;;582:3779;-1:-1:-1;;;;;582:3779:111;3792:10;3768:34;;;;:73;;582:3779;3764:144;;;582:3779;3722:32;582:3779;;;;;;;;;;3946:27;;;582:3779;3946:27;;582:3779;3946:27;;;;;;;582:3779;3946:27;;;582:3779;-1:-1:-1;4025:16:111;;582:3779;-1:-1:-1;;;;;582:3779:111;;3989:62;582:3779;;3989:62;582:3779;3946:27;;;;;;582:3779;3946:27;;;;;;:::i;:::-;;;;3764:144;3864:33;;;582:3779;3864:33;582:3779;;3864:33;3768:73;3806:21;;582:3779;-1:-1:-1;;;;;582:3779:111;3792:10;3806:35;;;-1:-1:-1;3768:73:111;;;3722:32;;;;;;582:3779;3722:32;;;;;;:::i;:::-;;;;582:3779;;;;;;-1:-1:-1;;582:3779:111;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:3779:111;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;582:3779:111;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;582:3779:111;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;:::o;:::-;;;;-1:-1:-1;582:3779:111;;;;;-1:-1:-1;582:3779:111;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;582:3779:111;;;;;;:::o;:::-;;;;;;;;-1:-1:-1;;582:3779:111;;;;:::o;:::-;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;:::i;:::-;;;;;;;;;;;;;-1:-1:-1;582:3779:111;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;582:3779:111;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;:::i;:::-;;;;;;;;;;;;;-1:-1:-1;582:3779:111;;;;;;;;;;;;;;;;;;:::o",
+    "linkReferences": {},
+    "immutableReferences": {
+      "61577": [
+        {
+          "start": 160,
+          "length": 32
+        },
+        {
+          "start": 838,
+          "length": 32
+        },
+        {
+          "start": 924,
+          "length": 32
+        },
+        {
+          "start": 1353,
+          "length": 32
+        }
+      ]
+    }
+  },
+  "methodIdentifiers": {
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "confirm(bytes32,bytes32)": "57f784ba",
+    "confirmations(bytes32,bytes32)": "887d686d",
+    "eas()": "8150864d",
+    "escrowToFulfillment(bytes32)": "3786930d",
+    "requestConfirmation(bytes32,bytes32)": "52155df7",
+    "revoke(bytes32,bytes32)": "c2664610",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": '{"compiler":{"version":"0.8.27+commit.40a35a09"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"contract IEAS","name":"_eas","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"AnotherFulfillmentAlreadyConfirmed","type":"error"},{"inputs":[],"name":"InvalidFulfillment","type":"error"},{"inputs":[],"name":"NoConfirmationToRevoke","type":"error"},{"inputs":[],"name":"UnauthorizedConfirmation","type":"error"},{"inputs":[],"name":"UnauthorizedConfirmationRequest","type":"error"},{"inputs":[],"name":"UnauthorizedRevocation","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"fulfillment","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"escrow","type":"bytes32"}],"name":"ConfirmationMade","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"fulfillment","type":"bytes32"},{"indexed":true,"internalType":"address","name":"confirmer","type":"address"},{"indexed":true,"internalType":"bytes32","name":"escrow","type":"bytes32"}],"name":"ConfirmationRequested","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"fulfillment","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"escrow","type":"bytes32"}],"name":"ConfirmationRevoked","type":"event"},{"inputs":[{"components":[{"internalType":"bytes32","name":"uid","type":"bytes32"},{"internalType":"bytes32","name":"schema","type":"bytes32"},{"internalType":"uint64","name":"time","type":"uint64"},{"internalType":"uint64","name":"expirationTime","type":"uint64"},{"internalType":"uint64","name":"revocationTime","type":"uint64"},{"internalType":"bytes32","name":"refUID","type":"bytes32"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"address","name":"attester","type":"address"},{"internalType":"bool","name":"revocable","type":"bool"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct Attestation","name":"fulfillment","type":"tuple"},{"internalType":"bytes","name":"","type":"bytes"},{"internalType":"bytes32","name":"escrowUid","type":"bytes32"}],"name":"check","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_fulfillment","type":"bytes32"},{"internalType":"bytes32","name":"_escrow","type":"bytes32"}],"name":"confirm","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"},{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"confirmations","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"eas","outputs":[{"internalType":"contract IEAS","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"escrowToFulfillment","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_fulfillment","type":"bytes32"},{"internalType":"bytes32","name":"_escrow","type":"bytes32"}],"name":"requestConfirmation","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_fulfillment","type":"bytes32"},{"internalType":"bytes32","name":"_escrow","type":"bytes32"}],"name":"revoke","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}],"devdoc":{"details":"The escrow attestation recipient is the confirmer; at most one fulfillment may be confirmed per escrow.","kind":"dev","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"params":{"demand":"Arbiter-specific demand data encoded by the escrow creator.","escrowUid":"The UID of the escrow attestation being fulfilled.","fulfillment":"The EAS attestation being used as fulfillment."}},"constructor":{"params":{"_eas":"EAS contract used to load attestations."}},"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"title":"ExclusiveRevocableConfirmationArbiter","version":1},"userdoc":{"events":{"ConfirmationMade(bytes32,bytes32)":{"notice":"Emitted when an escrow recipient confirms a fulfillment."},"ConfirmationRequested(bytes32,address,bytes32)":{"notice":"Emitted by a fulfillment participant to request recipient confirmation."},"ConfirmationRevoked(bytes32,bytes32)":{"notice":"Emitted when an escrow recipient revokes a confirmation."}},"kind":"user","methods":{"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)":{"notice":"Returns true when `fulfillment` satisfies `demand` for `escrowUid`."},"confirm(bytes32,bytes32)":{"notice":"Confirms a fulfillment for an escrow as the escrow recipient."},"confirmations(bytes32,bytes32)":{"notice":"Whether a fulfillment is confirmed for an escrow."},"eas()":{"notice":"EAS contract used to load escrow and fulfillment attestations."},"escrowToFulfillment(bytes32)":{"notice":"Currently confirmed fulfillment for each escrow, or zero if none."},"requestConfirmation(bytes32,bytes32)":{"notice":"Requests confirmation from the escrow recipient."},"revoke(bytes32,bytes32)":{"notice":"Revokes the currently confirmed fulfillment as the escrow recipient."}},"notice":"Accepts only the currently confirmed fulfillment for an escrow, with recipient-controlled revocation.","version":1}},"settings":{"compilationTarget":{"src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol":"ExclusiveRevocableConfirmationArbiter"},"evmVersion":"prague","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[":@eas/=lib/eas-contracts/contracts/",":@erc8004/=lib/erc-8004-contracts/contracts/",":@openzeppelin/=lib/openzeppelin-contracts/",":@src/=src/",":@test/=test/",":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",":eas-contracts/=lib/eas-contracts/contracts/",":erc-8004-contracts/=lib/erc-8004-contracts/contracts/",":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",":forge-std/=lib/forge-std/src/",":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",":hardhat/=lib/eas-contracts/node_modules/hardhat/",":openzeppelin-contracts/=lib/openzeppelin-contracts/"],"viaIR":true},"sources":{"lib/eas-contracts/contracts/Common.sol":{"keccak256":"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685","license":"MIT","urls":["bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d","dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"]},"lib/eas-contracts/contracts/IEAS.sol":{"keccak256":"0xdad0674defce04905dc7935f2756d6c477a6e876c0b1b7094b112a862f164c12","license":"MIT","urls":["bzz-raw://49e448c26c08952df034692d2ab3519dd40a1ebbeae4ce68b294567441933880","dweb:/ipfs/QmWHcudjskUSCjgqsNWE65LVfWvcYB2vBn8RB1SmzvRLNR"]},"lib/eas-contracts/contracts/ISchemaRegistry.sol":{"keccak256":"0xea97dcd36a0c422169cbaac06698249e199049b627c16bff93fb8ab829058754","license":"MIT","urls":["bzz-raw://d453a929ef64a69cd31195ec2ee5ed1193bfa29f633e13c960e92154c37ad158","dweb:/ipfs/QmXs1Z3njbHs2EMgHonrZDfcwdog4kozHY5tYNrhZK5yqz"]},"lib/eas-contracts/contracts/ISemver.sol":{"keccak256":"0x04a67939b4e1a8d0a51101b8f69f8882930bbdc66319f38023828625b5d1ff18","license":"MIT","urls":["bzz-raw://3dd543fa0e33cef1ea757627f9c2a10a66ee1ce17aa9087f437c5b53a903c7f0","dweb:/ipfs/QmXsy6UsGBzF9zPCCjmiwPpCcX3tHqU13TmR67B69tKnR6"]},"lib/eas-contracts/contracts/resolver/ISchemaResolver.sol":{"keccak256":"0xb7d1961ed928c620cddf35c2bf46845b10828bc5d73145214630202ed355b6bb","license":"MIT","urls":["bzz-raw://cf1cabacfb15c9bace8280b540b52e5aa440e1b4eba675f9782c34ce0f03902f","dweb:/ipfs/QmakYcK4xbrijzvoaBCmBJK6HeaBqbXxWKtDQ1z62aXwCR"]},"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol":{"keccak256":"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e","license":"MIT","urls":["bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377","dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"]},"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c","license":"MIT","urls":["bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617","dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"]},"src/BaseArbiter.sol":{"keccak256":"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1","license":"UNLICENSED","urls":["bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa","dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"]},"src/IArbiter.sol":{"keccak256":"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330","license":"UNLICENSED","urls":["bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9","dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"]},"src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol":{"keccak256":"0x5b8e33b1d5d8c97a35fa915b20a10eee46c61fb08e64151ba95d875fc2d3540e","license":"UNLICENSED","urls":["bzz-raw://9ccb936e7bafe7c87c36454db275653da3b7a529a8c6203b1e4723e7fc79fb64","dweb:/ipfs/QmWL7JUv9R5qfUNVDW7BCwpmCTfgiLM4kEg1BAdwfEpUCj"]},"src/libraries/ArbiterUtils.sol":{"keccak256":"0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f","license":"UNLICENSED","urls":["bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441","dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"]}},"version":1}',
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "contract IEAS",
+              "name": "_eas",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AnotherFulfillmentAlreadyConfirmed"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "InvalidFulfillment"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "NoConfirmationToRevoke"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "UnauthorizedConfirmation"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "UnauthorizedConfirmationRequest"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "UnauthorizedRevocation"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "fulfillment",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "bytes32",
+              "name": "escrow",
+              "type": "bytes32",
+              "indexed": true
+            }
+          ],
+          "type": "event",
+          "name": "ConfirmationMade",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "fulfillment",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "confirmer",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "bytes32",
+              "name": "escrow",
+              "type": "bytes32",
+              "indexed": true
+            }
+          ],
+          "type": "event",
+          "name": "ConfirmationRequested",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "fulfillment",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "bytes32",
+              "name": "escrow",
+              "type": "bytes32",
+              "indexed": true
+            }
+          ],
+          "type": "event",
+          "name": "ConfirmationRevoked",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "escrowUid",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_fulfillment",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "_escrow",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "confirm"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "confirmations",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "eas",
+          "outputs": [
+            {
+              "internalType": "contract IEAS",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "escrowToFulfillment",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_fulfillment",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "_escrow",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "requestConfirmation"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_fulfillment",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "_escrow",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "revoke"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "constructor": {
+            "params": {
+              "_eas": "EAS contract used to load attestations."
+            }
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "confirm(bytes32,bytes32)": {
+            "notice": "Confirms a fulfillment for an escrow as the escrow recipient."
+          },
+          "confirmations(bytes32,bytes32)": {
+            "notice": "Whether a fulfillment is confirmed for an escrow."
+          },
+          "eas()": {
+            "notice": "EAS contract used to load escrow and fulfillment attestations."
+          },
+          "escrowToFulfillment(bytes32)": {
+            "notice": "Currently confirmed fulfillment for each escrow, or zero if none."
+          },
+          "requestConfirmation(bytes32,bytes32)": {
+            "notice": "Requests confirmation from the escrow recipient."
+          },
+          "revoke(bytes32,bytes32)": {
+            "notice": "Revokes the currently confirmed fulfillment as the escrow recipient."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol": "ExclusiveRevocableConfirmationArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/eas-contracts/contracts/IEAS.sol": {
+        "keccak256": "0xdad0674defce04905dc7935f2756d6c477a6e876c0b1b7094b112a862f164c12",
+        "urls": [
+          "bzz-raw://49e448c26c08952df034692d2ab3519dd40a1ebbeae4ce68b294567441933880",
+          "dweb:/ipfs/QmWHcudjskUSCjgqsNWE65LVfWvcYB2vBn8RB1SmzvRLNR"
+        ],
+        "license": "MIT"
+      },
+      "lib/eas-contracts/contracts/ISchemaRegistry.sol": {
+        "keccak256": "0xea97dcd36a0c422169cbaac06698249e199049b627c16bff93fb8ab829058754",
+        "urls": [
+          "bzz-raw://d453a929ef64a69cd31195ec2ee5ed1193bfa29f633e13c960e92154c37ad158",
+          "dweb:/ipfs/QmXs1Z3njbHs2EMgHonrZDfcwdog4kozHY5tYNrhZK5yqz"
+        ],
+        "license": "MIT"
+      },
+      "lib/eas-contracts/contracts/ISemver.sol": {
+        "keccak256": "0x04a67939b4e1a8d0a51101b8f69f8882930bbdc66319f38023828625b5d1ff18",
+        "urls": [
+          "bzz-raw://3dd543fa0e33cef1ea757627f9c2a10a66ee1ce17aa9087f437c5b53a903c7f0",
+          "dweb:/ipfs/QmXsy6UsGBzF9zPCCjmiwPpCcX3tHqU13TmR67B69tKnR6"
+        ],
+        "license": "MIT"
+      },
+      "lib/eas-contracts/contracts/resolver/ISchemaResolver.sol": {
+        "keccak256": "0xb7d1961ed928c620cddf35c2bf46845b10828bc5d73145214630202ed355b6bb",
+        "urls": [
+          "bzz-raw://cf1cabacfb15c9bace8280b540b52e5aa440e1b4eba675f9782c34ce0f03902f",
+          "dweb:/ipfs/QmakYcK4xbrijzvoaBCmBJK6HeaBqbXxWKtDQ1z62aXwCR"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/confirmation/ExclusiveRevocableConfirmationArbiter.sol": {
+        "keccak256": "0x5b8e33b1d5d8c97a35fa915b20a10eee46c61fb08e64151ba95d875fc2d3540e",
+        "urls": [
+          "bzz-raw://9ccb936e7bafe7c87c36454db275653da3b7a529a8c6203b1e4723e7fc79fb64",
+          "dweb:/ipfs/QmWL7JUv9R5qfUNVDW7BCwpmCTfgiLM4kEg1BAdwfEpUCj"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/libraries/ArbiterUtils.sol": {
+        "keccak256": "0xb87e2bfb9c7292daf6426fbedc09c8683b92841d1b92e7359c0ff94d42be632f",
+        "urls": [
+          "bzz-raw://3acf498c3c59891d76db768ea57d8f7f6b4010dcbaf44a5f93d95d72f0b12441",
+          "dweb:/ipfs/QmVbkioM8dWwYxqatm1dyo9PRFNZ6c7Kbang7pozbnyS7j"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 111
+};
+
 // src/clients/arbiters/confirmation/exclusiveRevocableConfirmationArbiter.ts
 var makeExclusiveRevocableConfirmationArbiterClient = (viemClient, addresses) => {
   const confirmationMadeEvent = (0, import_viem22.parseAbiItem)(
@@ -12854,7 +13197,7 @@ var makeExclusiveRevocableConfirmationArbiterClient = (viemClient, addresses) =>
     confirm: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.exclusiveRevocableConfirmationArbiter,
-        abi: abi13.abi,
+        abi: abi20.abi,
         functionName: "confirm",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -12868,7 +13211,7 @@ var makeExclusiveRevocableConfirmationArbiterClient = (viemClient, addresses) =>
     revoke: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.exclusiveRevocableConfirmationArbiter,
-        abi: abi13.abi,
+        abi: abi20.abi,
         functionName: "revoke",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -12882,7 +13225,7 @@ var makeExclusiveRevocableConfirmationArbiterClient = (viemClient, addresses) =>
     requestConfirmation: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.exclusiveRevocableConfirmationArbiter,
-        abi: abi13.abi,
+        abi: abi20.abi,
         functionName: "requestConfirmation",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -12895,7 +13238,7 @@ var makeExclusiveRevocableConfirmationArbiterClient = (viemClient, addresses) =>
     isConfirmed: async (fulfillment, escrow) => {
       return await viemClient.readContract({
         address: addresses.exclusiveRevocableConfirmationArbiter,
-        abi: abi13.abi,
+        abi: abi20.abi,
         functionName: "confirmations",
         args: [fulfillment, escrow]
       });
@@ -12906,7 +13249,7 @@ var makeExclusiveRevocableConfirmationArbiterClient = (viemClient, addresses) =>
     getConfirmedFulfillment: async (escrow) => {
       return await viemClient.readContract({
         address: addresses.exclusiveRevocableConfirmationArbiter,
-        abi: abi13.abi,
+        abi: abi20.abi,
         functionName: "escrowToFulfillment",
         args: [escrow]
       });
@@ -12980,9 +13323,9 @@ var import_viem23 = require("viem");
 // src/contracts/arbiters/confirmation/ExclusiveUnrevocableConfirmationArbiter.ts
 var ExclusiveUnrevocableConfirmationArbiter_exports = {};
 __export(ExclusiveUnrevocableConfirmationArbiter_exports, {
-  abi: () => abi20
+  abi: () => abi21
 });
-var abi20 = {
+var abi21 = {
   "abi": [
     {
       "type": "constructor",
@@ -13754,7 +14097,7 @@ var makeExclusiveUnrevocableConfirmationArbiterClient = (viemClient, addresses) 
     confirm: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.exclusiveUnrevocableConfirmationArbiter,
-        abi: abi20.abi,
+        abi: abi21.abi,
         functionName: "confirm",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -13768,7 +14111,7 @@ var makeExclusiveUnrevocableConfirmationArbiterClient = (viemClient, addresses) 
     requestConfirmation: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.exclusiveUnrevocableConfirmationArbiter,
-        abi: abi20.abi,
+        abi: abi21.abi,
         functionName: "requestConfirmation",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -13781,7 +14124,7 @@ var makeExclusiveUnrevocableConfirmationArbiterClient = (viemClient, addresses) 
     isConfirmed: async (fulfillment, escrow) => {
       return await viemClient.readContract({
         address: addresses.exclusiveUnrevocableConfirmationArbiter,
-        abi: abi20.abi,
+        abi: abi21.abi,
         functionName: "confirmations",
         args: [fulfillment, escrow]
       });
@@ -13792,7 +14135,7 @@ var makeExclusiveUnrevocableConfirmationArbiterClient = (viemClient, addresses) 
     isEscrowConfirmed: async (escrow) => {
       return await viemClient.readContract({
         address: addresses.exclusiveUnrevocableConfirmationArbiter,
-        abi: abi20.abi,
+        abi: abi21.abi,
         functionName: "escrowConfirmed",
         args: [escrow]
       });
@@ -13866,9 +14209,9 @@ var import_viem24 = require("viem");
 // src/contracts/arbiters/confirmation/NonexclusiveRevocableConfirmationArbiter.ts
 var NonexclusiveRevocableConfirmationArbiter_exports = {};
 __export(NonexclusiveRevocableConfirmationArbiter_exports, {
-  abi: () => abi21
+  abi: () => abi22
 });
-var abi21 = {
+var abi22 = {
   "abi": [
     {
       "type": "constructor",
@@ -14692,7 +15035,7 @@ var makeNonexclusiveRevocableConfirmationArbiterClient = (viemClient, addresses)
     confirm: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.nonexclusiveRevocableConfirmationArbiter,
-        abi: abi21.abi,
+        abi: abi22.abi,
         functionName: "confirm",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -14706,7 +15049,7 @@ var makeNonexclusiveRevocableConfirmationArbiterClient = (viemClient, addresses)
     revoke: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.nonexclusiveRevocableConfirmationArbiter,
-        abi: abi21.abi,
+        abi: abi22.abi,
         functionName: "revoke",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -14720,7 +15063,7 @@ var makeNonexclusiveRevocableConfirmationArbiterClient = (viemClient, addresses)
     requestConfirmation: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.nonexclusiveRevocableConfirmationArbiter,
-        abi: abi21.abi,
+        abi: abi22.abi,
         functionName: "requestConfirmation",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -14733,7 +15076,7 @@ var makeNonexclusiveRevocableConfirmationArbiterClient = (viemClient, addresses)
     isConfirmed: async (fulfillment, escrow) => {
       return await viemClient.readContract({
         address: addresses.nonexclusiveRevocableConfirmationArbiter,
-        abi: abi21.abi,
+        abi: abi22.abi,
         functionName: "confirmations",
         args: [fulfillment, escrow]
       });
@@ -14807,9 +15150,9 @@ var import_viem25 = require("viem");
 // src/contracts/arbiters/confirmation/NonexclusiveUnrevocableConfirmationArbiter.ts
 var NonexclusiveUnrevocableConfirmationArbiter_exports = {};
 __export(NonexclusiveUnrevocableConfirmationArbiter_exports, {
-  abi: () => abi22
+  abi: () => abi23
 });
-var abi22 = {
+var abi23 = {
   "abi": [
     {
       "type": "constructor",
@@ -15529,7 +15872,7 @@ var makeNonexclusiveUnrevocableConfirmationArbiterClient = (viemClient, addresse
     confirm: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.nonexclusiveUnrevocableConfirmationArbiter,
-        abi: abi22.abi,
+        abi: abi23.abi,
         functionName: "confirm",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -15543,7 +15886,7 @@ var makeNonexclusiveUnrevocableConfirmationArbiterClient = (viemClient, addresse
     requestConfirmation: async (fulfillment, escrow) => {
       return await viemClient.writeContract({
         address: addresses.nonexclusiveUnrevocableConfirmationArbiter,
-        abi: abi22.abi,
+        abi: abi23.abi,
         functionName: "requestConfirmation",
         args: [fulfillment, escrow],
         account: viemClient.account,
@@ -15556,7 +15899,7 @@ var makeNonexclusiveUnrevocableConfirmationArbiterClient = (viemClient, addresse
     isConfirmed: async (fulfillment, escrow) => {
       return await viemClient.readContract({
         address: addresses.nonexclusiveUnrevocableConfirmationArbiter,
-        abi: abi22.abi,
+        abi: abi23.abi,
         functionName: "confirmations",
         args: [fulfillment, escrow]
       });
@@ -15687,6 +16030,7 @@ var makeArbitersClient = (viemClient, addresses) => {
   const attestationPropertiesArbiters = makeAttestationPropertiesArbitersClient(viemClient, addresses);
   const confirmationArbiters = makeConfirmationArbitersClient(viemClient, addresses);
   return {
+    check: checkArbiter.bind(null, viemClient, addresses),
     general: generalArbiters,
     logical: logicalArbiters,
     attestationProperties: attestationPropertiesArbiters,
@@ -15700,9 +16044,9 @@ var import_viem26 = require("viem");
 // src/contracts/obligations/escrow/default/AttestationEscrowObligation.ts
 var AttestationEscrowObligation_exports = {};
 __export(AttestationEscrowObligation_exports, {
-  abi: () => abi23
+  abi: () => abi24
 });
-var abi23 = {
+var abi24 = {
   "abi": [
     {
       "type": "constructor",
@@ -18525,14 +18869,14 @@ var abi23 = {
 
 // src/clients/obligations/attestation/escrow/default.ts
 var escrowObligationDecodeFunction = (0, import_viem26.getAbiItem)({
-  abi: abi23.abi,
+  abi: abi24.abi,
   name: "decodeObligationData"
 });
 var escrowObligationDataType = escrowObligationDecodeFunction.outputs[0];
 var makeAttestationEscrowDefaultClient = (viemClient, addresses) => {
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligation,
-    abi: abi23.abi,
+    abi: abi24.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -18585,7 +18929,7 @@ var makeAttestationEscrowDefaultClient = (viemClient, addresses) => {
     create: async (attestation, item, expiration = 0n) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi23.abi,
+        abi: abi24.abi,
         functionName: "doObligation",
         args: [
           {
@@ -18610,7 +18954,7 @@ var makeAttestationEscrowDefaultClient = (viemClient, addresses) => {
     collect: async (escrowAttestation, fulfillmentAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi23.abi,
+        abi: abi24.abi,
         functionName: "collect",
         args: [escrowAttestation, fulfillmentAttestation]
       });
@@ -18626,7 +18970,7 @@ var makeAttestationEscrowDefaultClient = (viemClient, addresses) => {
     reclaim: async (escrowAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi23.abi,
+        abi: abi24.abi,
         functionName: "reclaim",
         args: [escrowAttestation]
       });
@@ -18641,9 +18985,9 @@ var import_viem27 = require("viem");
 // src/contracts/obligations/escrow/default/AttestationReferenceEscrowObligation.ts
 var AttestationReferenceEscrowObligation_exports = {};
 __export(AttestationReferenceEscrowObligation_exports, {
-  abi: () => abi24
+  abi: () => abi25
 });
-var abi24 = {
+var abi25 = {
   "abi": [
     {
       "type": "constructor",
@@ -21107,14 +21451,14 @@ var abi24 = {
 
 // src/clients/obligations/attestation/escrow/reference.ts
 var escrow2ObligationDecodeFunction = (0, import_viem27.getAbiItem)({
-  abi: abi24.abi,
+  abi: abi25.abi,
   name: "decodeObligationData"
 });
 var escrow2ObligationDataType = escrow2ObligationDecodeFunction.outputs[0];
 var makeAttestationReferenceEscrowClient = (viemClient, addresses) => {
   const getSchema = async () => await viemClient.readContract({
     address: addresses.attestationReferenceEscrowObligation,
-    abi: abi24.abi,
+    abi: abi25.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -21168,7 +21512,7 @@ var makeAttestationReferenceEscrowClient = (viemClient, addresses) => {
     create: async (referencedAttestationUid, item, expiration = 0n, referenceExpirationTime = 0n) => {
       const hash = await writeContract(viemClient, {
         address: addresses.attestationReferenceEscrowObligation,
-        abi: abi24.abi,
+        abi: abi25.abi,
         functionName: "doObligation",
         args: [
           {
@@ -21195,7 +21539,7 @@ var makeAttestationReferenceEscrowClient = (viemClient, addresses) => {
     collect: async (escrowAttestation, fulfillmentAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.attestationReferenceEscrowObligation,
-        abi: abi24.abi,
+        abi: abi25.abi,
         functionName: "collect",
         args: [escrowAttestation, fulfillmentAttestation]
       });
@@ -21211,7 +21555,7 @@ var makeAttestationReferenceEscrowClient = (viemClient, addresses) => {
     reclaim: async (escrowAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.attestationReferenceEscrowObligation,
-        abi: abi24.abi,
+        abi: abi25.abi,
         functionName: "reclaim",
         args: [escrowAttestation]
       });
@@ -21233,9 +21577,9 @@ var makeAttestationEscrowClient = (viemClient, addresses) => {
 // src/contracts/utils/AtomicAttestationUtils.ts
 var AtomicAttestationUtils_exports = {};
 __export(AtomicAttestationUtils_exports, {
-  abi: () => abi25
+  abi: () => abi26
 });
-var abi25 = {
+var abi26 = {
   "abi": [
     {
       "type": "constructor",
@@ -22134,7 +22478,7 @@ var makeAttestationUtilClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.attestationReferenceEscrowObligation, "AttestationReferenceEscrowObligation");
       const hash = await viemClient.writeContract({
         address: addresses.atomicUtils,
-        abi: abi25.abi,
+        abi: abi26.abi,
         functionName: "attestAndCreateReferenceEscrow",
         args: [addresses.attestationReferenceEscrowObligation, request, escrowData, escrowExpirationTime],
         value: request.data.value,
@@ -22143,7 +22487,7 @@ var makeAttestationUtilClient = (viemClient, addresses) => {
       const events = await getAttestedEventsFromTxHash(viemClient, hash);
       const receipt = await viemClient.waitForTransactionReceipt({ hash });
       const referenceEscrowEvents = (0, import_viem28.parseEventLogs)({
-        abi: abi25.abi,
+        abi: abi26.abi,
         eventName: "ReferenceEscrowCreated",
         logs: receipt.logs
       }).filter((event) => (0, import_viem28.isAddressEqual)(event.address, addresses.atomicUtils));
@@ -22184,9 +22528,9 @@ var import_viem29 = require("viem");
 // src/contracts/obligations/CommitRevealObligation.ts
 var CommitRevealObligation_exports = {};
 __export(CommitRevealObligation_exports, {
-  abi: () => abi26
+  abi: () => abi27
 });
-var abi26 = {
+var abi27 = {
   "abi": [
     {
       "type": "constructor",
@@ -25961,12 +26305,12 @@ var abi26 = {
 
 // src/clients/obligations/commitReveal/index.ts
 var commitRevealDecodeFunction = (0, import_viem29.getAbiItem)({
-  abi: abi26.abi,
+  abi: abi27.abi,
   name: "decodeObligationData"
 });
 var commitRevealDataType = commitRevealDecodeFunction.outputs[0];
 var commitRevealDemandDecodeFunction = (0, import_viem29.getAbiItem)({
-  abi: abi26.abi,
+  abi: abi27.abi,
   name: "decodeDemandData"
 });
 var commitRevealDemandType = commitRevealDemandDecodeFunction.outputs[0];
@@ -25976,7 +26320,7 @@ var pickCommitRevealAddresses = (addresses) => ({
 });
 var makeCommitRevealObligationClient = (viemClient, addresses) => {
   const contractAddress = addresses.commitRevealObligation;
-  const abi80 = abi26.abi;
+  const abi81 = abi27.abi;
   const decode = (obligationData) => {
     return (0, import_viem29.decodeAbiParameters)([commitRevealDataType], obligationData)[0];
   };
@@ -25985,7 +26329,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
   };
   const getSchema = async () => await viemClient.readContract({
     address: contractAddress,
-    abi: abi80,
+    abi: abi81,
     functionName: "ATTESTATION_SCHEMA"
   });
   return {
@@ -26007,7 +26351,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
     doObligation: async (data, refUID = "0x0000000000000000000000000000000000000000000000000000000000000000") => {
       const { request } = await viemClient.simulateContract({
         address: contractAddress,
-        abi: abi80,
+        abi: abi81,
         functionName: "doObligation",
         args: [data, refUID]
       });
@@ -26019,7 +26363,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
     doObligationFor: async (data, recipient, refUID = "0x0000000000000000000000000000000000000000000000000000000000000000") => {
       const { request } = await viemClient.simulateContract({
         address: contractAddress,
-        abi: abi80,
+        abi: abi81,
         functionName: "doObligationFor",
         args: [data, recipient, refUID]
       });
@@ -26032,7 +26376,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
       assertDeployedContract(contractAddress, "CommitRevealObligation");
       const { request } = await viemClient.simulateContract({
         address: contractAddress,
-        abi: abi80,
+        abi: abi81,
         functionName: "doObligationRaw",
         args: [data, expirationTime, refUID],
         value
@@ -26045,7 +26389,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
     revealAndCollect: async (data, recipient, escrowContract, escrowUid) => {
       const { request, result } = await viemClient.simulateContract({
         address: contractAddress,
-        abi: abi80,
+        abi: abi81,
         functionName: "revealAndCollect",
         args: [data, recipient, escrowContract, escrowUid]
       });
@@ -26057,7 +26401,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
       assertDeployedContract(contractAddress, "CommitRevealObligation");
       const { request } = await viemClient.simulateContract({
         address: contractAddress,
-        abi: abi80,
+        abi: abi81,
         functionName: "commit",
         args: [commitment, commitDeadline],
         value: bondAmount
@@ -26069,7 +26413,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
     computeCommitment: async (refUID, claimer, data) => {
       return await viemClient.readContract({
         address: contractAddress,
-        abi: abi80,
+        abi: abi81,
         functionName: "computeCommitment",
         args: [claimer, refUID, data]
       });
@@ -26078,7 +26422,7 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
     slashBond: async (commitment) => {
       const { request } = await viemClient.simulateContract({
         address: contractAddress,
-        abi: abi80,
+        abi: abi81,
         functionName: "slashBond",
         args: [commitment]
       });
@@ -26088,20 +26432,20 @@ var makeCommitRevealObligationClient = (viemClient, addresses) => {
     /** Reads the configured recipient of slashed commitment bonds. */
     getSlashedBondRecipient: async () => await viemClient.readContract({
       address: contractAddress,
-      abi: abi80,
+      abi: abi81,
       functionName: "slashedBondRecipient"
     }),
     /** Reads raw commitment metadata for a commitment hash. */
     getCommitment: async (commitment) => await viemClient.readContract({
       address: contractAddress,
-      abi: abi80,
+      abi: abi81,
       functionName: "commitments",
       args: [commitment]
     }),
     /** Returns whether a commitment bond has already been returned or slashed. */
     isCommitmentClaimed: async (commitment) => await viemClient.readContract({
       address: contractAddress,
-      abi: abi80,
+      abi: abi81,
       functionName: "commitmentClaimed",
       args: [commitment]
     }),
@@ -26128,9 +26472,9 @@ var import_viem31 = require("viem");
 // src/contracts/obligations/escrow/default/ERC20EscrowObligation.ts
 var ERC20EscrowObligation_exports = {};
 __export(ERC20EscrowObligation_exports, {
-  abi: () => abi27
+  abi: () => abi28
 });
-var abi27 = {
+var abi28 = {
   "abi": [
     {
       "type": "constructor",
@@ -28653,9 +28997,9 @@ var import_viem30 = require("viem");
 // src/contracts/ERC20Permit.ts
 var ERC20Permit_exports = {};
 __export(ERC20Permit_exports, {
-  abi: () => abi28
+  abi: () => abi29
 });
-var abi28 = {
+var abi29 = {
   "abi": [
     {
       "type": "function",
@@ -30011,13 +30355,13 @@ var makeErc20UtilClient = (viemClient, addresses) => {
   const getPermitSignature = async (spender, token, deadline) => {
     const nonce = await readContract(viemClient, {
       address: token.address,
-      abi: abi28.abi,
+      abi: abi29.abi,
       functionName: "nonces",
       args: [viemClient.account.address]
     });
     const erc20Name = await readContract(viemClient, {
       address: token.address,
-      abi: abi28.abi,
+      abi: abi29.abi,
       functionName: "name"
     });
     return signPermit({
@@ -30042,7 +30386,7 @@ var makeErc20UtilClient = (viemClient, addresses) => {
       const to = purpose === "escrow" ? addresses.escrowObligation : purpose === "payment" ? addresses.paymentObligation : addresses.atomicPaymentUtils;
       const hash = await writeContract(viemClient, {
         address: token.address,
-        abi: abi28.abi,
+        abi: abi29.abi,
         functionName: "approve",
         args: [to, token.value]
       });
@@ -30052,14 +30396,14 @@ var makeErc20UtilClient = (viemClient, addresses) => {
       const to = purpose === "escrow" ? addresses.escrowObligation : purpose === "payment" ? addresses.paymentObligation : addresses.atomicPaymentUtils;
       const currentAllowance = await readContract(viemClient, {
         address: token.address,
-        abi: abi28.abi,
+        abi: abi29.abi,
         functionName: "allowance",
         args: [viemClient.account.address, to]
       });
       if (currentAllowance < token.value) {
         return writeContract(viemClient, {
           address: token.address,
-          abi: abi28.abi,
+          abi: abi29.abi,
           functionName: "approve",
           args: [to, token.value]
         });
@@ -30071,7 +30415,7 @@ var makeErc20UtilClient = (viemClient, addresses) => {
 
 // src/clients/obligations/erc20/escrow/default.ts
 var erc20EscrowDoObligationFunction = (0, import_viem31.getAbiItem)({
-  abi: abi27.abi,
+  abi: abi28.abi,
   name: "doObligation"
 });
 var erc20EscrowObligationDataType = erc20EscrowDoObligationFunction.inputs[0];
@@ -30079,7 +30423,7 @@ var makeErc20DefaultEscrowClient = (viemClient, addresses) => {
   const util = makeErc20UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligation,
-    abi: abi27.abi,
+    abi: abi28.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -30119,7 +30463,7 @@ var makeErc20DefaultEscrowClient = (viemClient, addresses) => {
     create: async (price, item, expiration) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi27.abi,
+        abi: abi28.abi,
         functionName: "doObligation",
         args: [
           {
@@ -30138,7 +30482,7 @@ var makeErc20DefaultEscrowClient = (viemClient, addresses) => {
       await util.approve(price, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi27.abi,
+        abi: abi28.abi,
         functionName: "doObligation",
         args: [
           {
@@ -30157,7 +30501,7 @@ var makeErc20DefaultEscrowClient = (viemClient, addresses) => {
       await util.approve(price, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi27.abi,
+        abi: abi28.abi,
         functionName: "doObligation",
         args: [
           {
@@ -30177,7 +30521,7 @@ var makeErc20DefaultEscrowClient = (viemClient, addresses) => {
       try {
         const { request } = await viemClient.simulateContract({
           address: addresses.escrowObligation,
-          abi: abi27.abi,
+          abi: abi28.abi,
           functionName: "collect",
           args: [buyAttestation, fulfillment]
         });
@@ -30190,7 +30534,7 @@ var makeErc20DefaultEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi27.abi,
+        abi: abi28.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -30205,9 +30549,9 @@ var import_viem32 = require("viem");
 // src/contracts/obligations/escrow/unconditional/UnconditionalERC20EscrowObligation.ts
 var UnconditionalERC20EscrowObligation_exports = {};
 __export(UnconditionalERC20EscrowObligation_exports, {
-  abi: () => abi29
+  abi: () => abi30
 });
-var abi29 = {
+var abi30 = {
   "abi": [
     {
       "type": "constructor",
@@ -32726,7 +33070,7 @@ var abi29 = {
 
 // src/clients/obligations/erc20/escrow/unconditional.ts
 var erc20EscrowDoObligationFunction2 = (0, import_viem32.getAbiItem)({
-  abi: abi29.abi,
+  abi: abi30.abi,
   name: "doObligation"
 });
 var erc20EscrowObligationDataType2 = erc20EscrowDoObligationFunction2.inputs[0];
@@ -32734,7 +33078,7 @@ var makeErc20UnconditionalEscrowClient = (viemClient, addresses) => {
   const util = makeErc20UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligationUnconditional,
-    abi: abi29.abi,
+    abi: abi30.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -32774,7 +33118,7 @@ var makeErc20UnconditionalEscrowClient = (viemClient, addresses) => {
     create: async (price, item, expiration) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi29.abi,
+        abi: abi30.abi,
         functionName: "doObligation",
         args: [
           {
@@ -32793,7 +33137,7 @@ var makeErc20UnconditionalEscrowClient = (viemClient, addresses) => {
       await util.approve(price, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi29.abi,
+        abi: abi30.abi,
         functionName: "doObligation",
         args: [
           {
@@ -32812,7 +33156,7 @@ var makeErc20UnconditionalEscrowClient = (viemClient, addresses) => {
       await util.approve(price, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi29.abi,
+        abi: abi30.abi,
         functionName: "doObligation",
         args: [
           {
@@ -32832,7 +33176,7 @@ var makeErc20UnconditionalEscrowClient = (viemClient, addresses) => {
       try {
         const { request } = await viemClient.simulateContract({
           address: addresses.escrowObligationUnconditional,
-          abi: abi29.abi,
+          abi: abi30.abi,
           functionName: "collect",
           args: [buyAttestation, fulfillment]
         });
@@ -32845,7 +33189,7 @@ var makeErc20UnconditionalEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi29.abi,
+        abi: abi30.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -32872,9 +33216,9 @@ var import_viem33 = require("viem");
 // src/contracts/obligations/payment/ERC20PaymentObligation.ts
 var ERC20PaymentObligation_exports = {};
 __export(ERC20PaymentObligation_exports, {
-  abi: () => abi30
+  abi: () => abi31
 });
-var abi30 = {
+var abi31 = {
   "abi": [
     {
       "type": "constructor",
@@ -34969,9 +35313,9 @@ var abi30 = {
 // src/contracts/utils/AtomicPaymentUtils.ts
 var AtomicPaymentUtils_exports = {};
 __export(AtomicPaymentUtils_exports, {
-  abi: () => abi31
+  abi: () => abi32
 });
-var abi31 = {
+var abi32 = {
   "abi": [
     {
       "type": "constructor",
@@ -36366,7 +36710,7 @@ var abi31 = {
 
 // src/clients/obligations/erc20/payment.ts
 var erc20PaymentDoObligationFunction = (0, import_viem33.getAbiItem)({
-  abi: abi30.abi,
+  abi: abi31.abi,
   name: "doObligation"
 });
 var erc20PaymentObligationDataType = erc20PaymentDoObligationFunction.inputs[0];
@@ -36374,7 +36718,7 @@ var makeErc20PaymentClient = (viemClient, addresses) => {
   const util = makeErc20UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.paymentObligation,
-    abi: abi30.abi,
+    abi: abi31.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -36436,7 +36780,7 @@ var makeErc20PaymentClient = (viemClient, addresses) => {
     pay: async (price, payee, refUID = "0x0000000000000000000000000000000000000000000000000000000000000000") => {
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi30.abi,
+        abi: abi31.abi,
         functionName: "doObligation",
         args: [
           {
@@ -36454,7 +36798,7 @@ var makeErc20PaymentClient = (viemClient, addresses) => {
       await util.approve(price, "payment");
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi30.abi,
+        abi: abi31.abi,
         functionName: "doObligation",
         args: [
           {
@@ -36473,7 +36817,7 @@ var makeErc20PaymentClient = (viemClient, addresses) => {
       const permit = await util.getPermitSignature(addresses.atomicPaymentUtils, price, deadline);
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
-        abi: abi31.abi,
+        abi: abi32.abi,
         functionName: "permitAndPayWithErc20",
         args: [price.address, price.value, payee, refUID, deadline, permit.v, permit.r, permit.s]
       });
@@ -36489,7 +36833,7 @@ var makeErc20PaymentClient = (viemClient, addresses) => {
       await getAtomicPaymentEscrowAttestation(viemClient, addresses, escrowUid, options);
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
-        abi: abi31.abi,
+        abi: abi32.abi,
         functionName: "payErc20AndCollect",
         args: [escrowUid]
       });
@@ -36511,7 +36855,7 @@ var makeErc20PaymentClient = (viemClient, addresses) => {
       );
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
-        abi: abi31.abi,
+        abi: abi32.abi,
         functionName: "permitAndPayErc20AndCollect",
         args: [escrowUid, deadline, permit.v, permit.r, permit.s]
       });
@@ -36544,9 +36888,9 @@ var import_viem34 = require("viem");
 // src/contracts/obligations/escrow/default/ERC721EscrowObligation.ts
 var ERC721EscrowObligation_exports = {};
 __export(ERC721EscrowObligation_exports, {
-  abi: () => abi32
+  abi: () => abi33
 });
-var abi32 = {
+var abi33 = {
   "abi": [
     {
       "type": "constructor",
@@ -39034,9 +39378,9 @@ var abi32 = {
 // src/contracts/IERC721.ts
 var IERC721_exports = {};
 __export(IERC721_exports, {
-  abi: () => abi33
+  abi: () => abi34
 });
-var abi33 = {
+var abi34 = {
   "abi": [
     {
       "type": "function",
@@ -39824,7 +40168,7 @@ var makeErc721UtilClient = (viemClient, addresses) => {
       const to = purpose === "escrow" ? addresses.escrowObligation : purpose === "payment" ? addresses.paymentObligation : addresses.atomicPaymentUtils;
       const hash = await writeContract(viemClient, {
         address: token.address,
-        abi: abi33.abi,
+        abi: abi34.abi,
         functionName: "approve",
         args: [to, token.id]
       });
@@ -39834,7 +40178,7 @@ var makeErc721UtilClient = (viemClient, addresses) => {
       const to = purpose === "escrow" ? addresses.escrowObligation : purpose === "payment" ? addresses.paymentObligation : addresses.atomicPaymentUtils;
       const hash = await writeContract(viemClient, {
         address: tokenContract,
-        abi: abi33.abi,
+        abi: abi34.abi,
         functionName: "setApprovalForAll",
         args: [to, true]
       });
@@ -39844,7 +40188,7 @@ var makeErc721UtilClient = (viemClient, addresses) => {
       const to = purpose === "escrow" ? addresses.escrowObligation : purpose === "payment" ? addresses.paymentObligation : addresses.atomicPaymentUtils;
       const hash = await writeContract(viemClient, {
         address: tokenContract,
-        abi: abi33.abi,
+        abi: abi34.abi,
         functionName: "setApprovalForAll",
         args: [to, false]
       });
@@ -39855,7 +40199,7 @@ var makeErc721UtilClient = (viemClient, addresses) => {
 
 // src/clients/obligations/erc721/escrow/default.ts
 var erc721EscrowDecodeFunction = (0, import_viem34.getAbiItem)({
-  abi: abi32.abi,
+  abi: abi33.abi,
   name: "decodeObligationData"
 });
 var erc721EscrowObligationDataType = erc721EscrowDecodeFunction.outputs[0];
@@ -39863,7 +40207,7 @@ var makeErc721DefaultEscrowClient = (viemClient, addresses) => {
   const util = makeErc721UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligation,
-    abi: abi32.abi,
+    abi: abi33.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -39903,7 +40247,7 @@ var makeErc721DefaultEscrowClient = (viemClient, addresses) => {
     create: async (price, item, expiration) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi32.abi,
+        abi: abi33.abi,
         functionName: "doObligation",
         args: [
           {
@@ -39922,7 +40266,7 @@ var makeErc721DefaultEscrowClient = (viemClient, addresses) => {
       await util.approve(price, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi32.abi,
+        abi: abi33.abi,
         functionName: "doObligation",
         args: [
           {
@@ -39940,7 +40284,7 @@ var makeErc721DefaultEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi32.abi,
+        abi: abi33.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -39949,7 +40293,7 @@ var makeErc721DefaultEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi32.abi,
+        abi: abi33.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -39964,9 +40308,9 @@ var import_viem35 = require("viem");
 // src/contracts/obligations/escrow/unconditional/UnconditionalERC721EscrowObligation.ts
 var UnconditionalERC721EscrowObligation_exports = {};
 __export(UnconditionalERC721EscrowObligation_exports, {
-  abi: () => abi34
+  abi: () => abi35
 });
-var abi34 = {
+var abi35 = {
   "abi": [
     {
       "type": "constructor",
@@ -42453,7 +42797,7 @@ var abi34 = {
 
 // src/clients/obligations/erc721/escrow/unconditional.ts
 var erc721EscrowDecodeFunction2 = (0, import_viem35.getAbiItem)({
-  abi: abi34.abi,
+  abi: abi35.abi,
   name: "decodeObligationData"
 });
 var erc721EscrowObligationDataType2 = erc721EscrowDecodeFunction2.outputs[0];
@@ -42461,7 +42805,7 @@ var makeErc721UnconditionalEscrowClient = (viemClient, addresses) => {
   const util = makeErc721UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligationUnconditional,
-    abi: abi34.abi,
+    abi: abi35.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -42501,7 +42845,7 @@ var makeErc721UnconditionalEscrowClient = (viemClient, addresses) => {
     create: async (price, item, expiration) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi34.abi,
+        abi: abi35.abi,
         functionName: "doObligation",
         args: [
           {
@@ -42520,7 +42864,7 @@ var makeErc721UnconditionalEscrowClient = (viemClient, addresses) => {
       await util.approve(price, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi34.abi,
+        abi: abi35.abi,
         functionName: "doObligation",
         args: [
           {
@@ -42538,7 +42882,7 @@ var makeErc721UnconditionalEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi34.abi,
+        abi: abi35.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -42547,7 +42891,7 @@ var makeErc721UnconditionalEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi34.abi,
+        abi: abi35.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -42574,9 +42918,9 @@ var import_viem36 = require("viem");
 // src/contracts/obligations/payment/ERC721PaymentObligation.ts
 var ERC721PaymentObligation_exports = {};
 __export(ERC721PaymentObligation_exports, {
-  abi: () => abi35
+  abi: () => abi36
 });
-var abi35 = {
+var abi36 = {
   "abi": [
     {
       "type": "constructor",
@@ -44629,7 +44973,7 @@ var abi35 = {
 
 // src/clients/obligations/erc721/payment.ts
 var erc721PaymentDecodeFunction = (0, import_viem36.getAbiItem)({
-  abi: abi35.abi,
+  abi: abi36.abi,
   name: "decodeObligationData"
 });
 var erc721PaymentObligationDataType = erc721PaymentDecodeFunction.outputs[0];
@@ -44637,7 +44981,7 @@ var makeErc721PaymentClient = (viemClient, addresses) => {
   const util = makeErc721UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.paymentObligation,
-    abi: abi35.abi,
+    abi: abi36.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -44677,7 +45021,7 @@ var makeErc721PaymentClient = (viemClient, addresses) => {
     pay: async (price, payee, refUID = "0x0000000000000000000000000000000000000000000000000000000000000000") => {
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi35.abi,
+        abi: abi36.abi,
         functionName: "doObligation",
         args: [
           {
@@ -44695,7 +45039,7 @@ var makeErc721PaymentClient = (viemClient, addresses) => {
       await util.approve(price, "payment");
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi35.abi,
+        abi: abi36.abi,
         functionName: "doObligation",
         args: [
           {
@@ -44718,7 +45062,7 @@ var makeErc721PaymentClient = (viemClient, addresses) => {
       await getAtomicPaymentEscrowAttestation(viemClient, addresses, escrowUid, options);
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
-        abi: abi31.abi,
+        abi: abi32.abi,
         functionName: "payErc721AndCollect",
         args: [escrowUid]
       });
@@ -44752,9 +45096,9 @@ var import_viem37 = require("viem");
 // src/contracts/obligations/escrow/default/ERC1155EscrowObligation.ts
 var ERC1155EscrowObligation_exports = {};
 __export(ERC1155EscrowObligation_exports, {
-  abi: () => abi36
+  abi: () => abi37
 });
-var abi36 = {
+var abi37 = {
   "abi": [
     {
       "type": "constructor",
@@ -47466,9 +47810,9 @@ var abi36 = {
 // src/contracts/IERC1155.ts
 var IERC1155_exports = {};
 __export(IERC1155_exports, {
-  abi: () => abi37
+  abi: () => abi38
 });
-var abi37 = {
+var abi38 = {
   "abi": [
     {
       "type": "function",
@@ -48177,7 +48521,7 @@ var makeErc1155UtilClient = (viemClient, addresses) => {
       const to = purpose === "escrow" ? addresses.escrowObligation : purpose === "payment" ? addresses.paymentObligation : addresses.atomicPaymentUtils;
       const hash = await writeContract(viemClient, {
         address: tokenContract,
-        abi: abi37.abi,
+        abi: abi38.abi,
         functionName: "setApprovalForAll",
         args: [to, true]
       });
@@ -48187,7 +48531,7 @@ var makeErc1155UtilClient = (viemClient, addresses) => {
       const to = purpose === "escrow" ? addresses.escrowObligation : purpose === "payment" ? addresses.paymentObligation : addresses.atomicPaymentUtils;
       const hash = await writeContract(viemClient, {
         address: tokenContract,
-        abi: abi37.abi,
+        abi: abi38.abi,
         functionName: "setApprovalForAll",
         args: [to, false]
       });
@@ -48198,7 +48542,7 @@ var makeErc1155UtilClient = (viemClient, addresses) => {
 
 // src/clients/obligations/erc1155/escrow/default.ts
 var erc1155EscrowDecodeFunction = (0, import_viem37.getAbiItem)({
-  abi: abi36.abi,
+  abi: abi37.abi,
   name: "decodeObligationData"
 });
 var erc1155EscrowObligationDataType = erc1155EscrowDecodeFunction.outputs[0];
@@ -48206,7 +48550,7 @@ var makeErc1155DefaultEscrowClient = (viemClient, addresses) => {
   const util = makeErc1155UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligation,
-    abi: abi36.abi,
+    abi: abi37.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -48247,7 +48591,7 @@ var makeErc1155DefaultEscrowClient = (viemClient, addresses) => {
     create: async (price, item, expiration) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi36.abi,
+        abi: abi37.abi,
         functionName: "doObligation",
         args: [
           {
@@ -48267,7 +48611,7 @@ var makeErc1155DefaultEscrowClient = (viemClient, addresses) => {
       await util.approveAll(price.address, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi36.abi,
+        abi: abi37.abi,
         functionName: "doObligation",
         args: [
           {
@@ -48286,7 +48630,7 @@ var makeErc1155DefaultEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi36.abi,
+        abi: abi37.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -48295,7 +48639,7 @@ var makeErc1155DefaultEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi36.abi,
+        abi: abi37.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -48310,9 +48654,9 @@ var import_viem38 = require("viem");
 // src/contracts/obligations/escrow/unconditional/UnconditionalERC1155EscrowObligation.ts
 var UnconditionalERC1155EscrowObligation_exports = {};
 __export(UnconditionalERC1155EscrowObligation_exports, {
-  abi: () => abi38
+  abi: () => abi39
 });
-var abi38 = {
+var abi39 = {
   "abi": [
     {
       "type": "constructor",
@@ -51023,7 +51367,7 @@ var abi38 = {
 
 // src/clients/obligations/erc1155/escrow/unconditional.ts
 var erc1155EscrowDecodeFunction2 = (0, import_viem38.getAbiItem)({
-  abi: abi38.abi,
+  abi: abi39.abi,
   name: "decodeObligationData"
 });
 var erc1155EscrowObligationDataType2 = erc1155EscrowDecodeFunction2.outputs[0];
@@ -51031,7 +51375,7 @@ var makeErc1155UnconditionalEscrowClient = (viemClient, addresses) => {
   const util = makeErc1155UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligationUnconditional,
-    abi: abi38.abi,
+    abi: abi39.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -51072,7 +51416,7 @@ var makeErc1155UnconditionalEscrowClient = (viemClient, addresses) => {
     create: async (price, item, expiration) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi38.abi,
+        abi: abi39.abi,
         functionName: "doObligation",
         args: [
           {
@@ -51092,7 +51436,7 @@ var makeErc1155UnconditionalEscrowClient = (viemClient, addresses) => {
       await util.approveAll(price.address, "escrow");
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi38.abi,
+        abi: abi39.abi,
         functionName: "doObligation",
         args: [
           {
@@ -51111,7 +51455,7 @@ var makeErc1155UnconditionalEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi38.abi,
+        abi: abi39.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -51120,7 +51464,7 @@ var makeErc1155UnconditionalEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi38.abi,
+        abi: abi39.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -51147,9 +51491,9 @@ var import_viem39 = require("viem");
 // src/contracts/obligations/payment/ERC1155PaymentObligation.ts
 var ERC1155PaymentObligation_exports = {};
 __export(ERC1155PaymentObligation_exports, {
-  abi: () => abi39
+  abi: () => abi40
 });
-var abi39 = {
+var abi40 = {
   "abi": [
     {
       "type": "constructor",
@@ -53252,7 +53596,7 @@ var abi39 = {
 
 // src/clients/obligations/erc1155/payment.ts
 var erc1155PaymentDecodeFunction = (0, import_viem39.getAbiItem)({
-  abi: abi39.abi,
+  abi: abi40.abi,
   name: "decodeObligationData"
 });
 var erc1155PaymentObligationDataType = erc1155PaymentDecodeFunction.outputs[0];
@@ -53260,7 +53604,7 @@ var makeErc1155PaymentClient = (viemClient, addresses) => {
   const util = makeErc1155UtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.paymentObligation,
-    abi: abi39.abi,
+    abi: abi40.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -53301,7 +53645,7 @@ var makeErc1155PaymentClient = (viemClient, addresses) => {
     pay: async (price, payee, refUID = "0x0000000000000000000000000000000000000000000000000000000000000000") => {
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi39.abi,
+        abi: abi40.abi,
         functionName: "doObligation",
         args: [
           {
@@ -53320,7 +53664,7 @@ var makeErc1155PaymentClient = (viemClient, addresses) => {
       await util.approveAll(price.address, "payment");
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi39.abi,
+        abi: abi40.abi,
         functionName: "doObligation",
         args: [
           {
@@ -53344,7 +53688,7 @@ var makeErc1155PaymentClient = (viemClient, addresses) => {
       await getAtomicPaymentEscrowAttestation(viemClient, addresses, escrowUid, options);
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
-        abi: abi31.abi,
+        abi: abi32.abi,
         functionName: "payErc1155AndCollect",
         args: [escrowUid]
       });
@@ -53378,9 +53722,9 @@ var import_viem40 = require("viem");
 // src/contracts/obligations/escrow/hook-based/HookEscrowObligation.ts
 var HookEscrowObligation_exports = {};
 __export(HookEscrowObligation_exports, {
-  abi: () => abi40
+  abi: () => abi41
 });
-var abi40 = {
+var abi41 = {
   "abi": [
     {
       "type": "constructor",
@@ -55794,9 +56138,9 @@ var abi40 = {
 // src/contracts/obligations/escrow/hook-based/HooksEscrowObligation.ts
 var HooksEscrowObligation_exports = {};
 __export(HooksEscrowObligation_exports, {
-  abi: () => abi41
+  abi: () => abi42
 });
-var abi41 = {
+var abi42 = {
   "abi": [
     {
       "type": "constructor",
@@ -58351,9 +58695,9 @@ var abi41 = {
 // src/contracts/obligations/escrow/hook-based/hooks/AttestationEscrowHook.ts
 var AttestationEscrowHook_exports = {};
 __export(AttestationEscrowHook_exports, {
-  abi: () => abi42
+  abi: () => abi43
 });
-var abi42 = {
+var abi43 = {
   "abi": [
     {
       "type": "constructor",
@@ -59858,9 +60202,9 @@ var abi42 = {
 // src/contracts/obligations/escrow/hook-based/hooks/AttestationReferenceEscrowHook.ts
 var AttestationReferenceEscrowHook_exports = {};
 __export(AttestationReferenceEscrowHook_exports, {
-  abi: () => abi43
+  abi: () => abi44
 });
-var abi43 = {
+var abi44 = {
   "abi": [
     {
       "type": "constructor",
@@ -62028,9 +62372,9 @@ var abi43 = {
 // src/contracts/obligations/escrow/hook-based/hooks/ERC20EscrowHook.ts
 var ERC20EscrowHook_exports = {};
 __export(ERC20EscrowHook_exports, {
-  abi: () => abi44
+  abi: () => abi45
 });
-var abi44 = {
+var abi45 = {
   "abi": [
     {
       "type": "function",
@@ -63305,9 +63649,9 @@ var abi44 = {
 // src/contracts/obligations/escrow/hook-based/hooks/ERC721EscrowHook.ts
 var ERC721EscrowHook_exports = {};
 __export(ERC721EscrowHook_exports, {
-  abi: () => abi45
+  abi: () => abi46
 });
-var abi45 = {
+var abi46 = {
   "abi": [
     {
       "type": "function",
@@ -64518,9 +64862,9 @@ var abi45 = {
 // src/contracts/obligations/escrow/hook-based/hooks/ERC1155EscrowHook.ts
 var ERC1155EscrowHook_exports = {};
 __export(ERC1155EscrowHook_exports, {
-  abi: () => abi46
+  abi: () => abi47
 });
-var abi46 = {
+var abi47 = {
   "abi": [
     {
       "type": "function",
@@ -66047,9 +66391,9 @@ var abi46 = {
 // src/contracts/obligations/escrow/hook-based/hooks/NativeTokenEscrowHook.ts
 var NativeTokenEscrowHook_exports = {};
 __export(NativeTokenEscrowHook_exports, {
-  abi: () => abi47
+  abi: () => abi48
 });
-var abi47 = {
+var abi48 = {
   "abi": [
     {
       "type": "function",
@@ -67247,15 +67591,15 @@ var pickHookBasedAddresses = (addresses) => ({
   attestationEscrowHook: addresses.attestationEscrowHook,
   attestationReferenceEscrowHook: addresses.attestationReferenceEscrowHook
 });
-var hookEscrowObligationDataType = (0, import_viem40.getAbiItem)({ abi: abi40.abi, name: "doObligation" }).inputs[0];
-var hooksEscrowObligationDataType = (0, import_viem40.getAbiItem)({ abi: abi41.abi, name: "doObligation" }).inputs[0];
-var erc20HookDataType = (0, import_viem40.getAbiItem)({ abi: abi44.abi, name: "encodeHookData" }).inputs[0];
-var erc721HookDataType = (0, import_viem40.getAbiItem)({ abi: abi45.abi, name: "encodeHookData" }).inputs[0];
-var erc1155HookDataType = (0, import_viem40.getAbiItem)({ abi: abi46.abi, name: "encodeHookData" }).inputs[0];
-var nativeTokenHookDataType = (0, import_viem40.getAbiItem)({ abi: abi47.abi, name: "encodeHookData" }).inputs[0];
-var attestationHookDataType = (0, import_viem40.getAbiItem)({ abi: abi42.abi, name: "encodeHookData" }).inputs[0];
+var hookEscrowObligationDataType = (0, import_viem40.getAbiItem)({ abi: abi41.abi, name: "doObligation" }).inputs[0];
+var hooksEscrowObligationDataType = (0, import_viem40.getAbiItem)({ abi: abi42.abi, name: "doObligation" }).inputs[0];
+var erc20HookDataType = (0, import_viem40.getAbiItem)({ abi: abi45.abi, name: "encodeHookData" }).inputs[0];
+var erc721HookDataType = (0, import_viem40.getAbiItem)({ abi: abi46.abi, name: "encodeHookData" }).inputs[0];
+var erc1155HookDataType = (0, import_viem40.getAbiItem)({ abi: abi47.abi, name: "encodeHookData" }).inputs[0];
+var nativeTokenHookDataType = (0, import_viem40.getAbiItem)({ abi: abi48.abi, name: "encodeHookData" }).inputs[0];
+var attestationHookDataType = (0, import_viem40.getAbiItem)({ abi: abi43.abi, name: "encodeHookData" }).inputs[0];
 var attestationReferenceHookDataType = (0, import_viem40.getAbiItem)({
-  abi: abi43.abi,
+  abi: abi44.abi,
   name: "encodeHookData"
 }).inputs[0];
 var encodeHookEscrowObligation = (data) => (0, import_viem40.encodeAbiParameters)([hookEscrowObligationDataType], [data]);
@@ -67265,7 +67609,7 @@ var decodeHooksEscrowObligation = (data) => (0, import_viem40.decodeAbiParameter
 var makeSingleEscrowClient = (viemClient, addresses) => {
   const getSchema = async () => await viemClient.readContract({
     address: addresses.hookEscrowObligation,
-    abi: abi40.abi,
+    abi: abi41.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -67282,7 +67626,7 @@ var makeSingleEscrowClient = (viemClient, addresses) => {
     create: async (data, expiration, value = 0n) => {
       const hash = await writeContract(viemClient, {
         address: addresses.hookEscrowObligation,
-        abi: abi40.abi,
+        abi: abi41.abi,
         functionName: "doObligation",
         args: [data, expiration],
         value
@@ -67293,7 +67637,7 @@ var makeSingleEscrowClient = (viemClient, addresses) => {
     createFor: async (data, expiration, recipient, value = 0n) => {
       const hash = await writeContract(viemClient, {
         address: addresses.hookEscrowObligation,
-        abi: abi40.abi,
+        abi: abi41.abi,
         functionName: "doObligationFor",
         args: [data, expiration, recipient],
         value
@@ -67303,13 +67647,13 @@ var makeSingleEscrowClient = (viemClient, addresses) => {
     },
     collect: async (escrow, fulfillment) => await writeContract(viemClient, {
       address: addresses.hookEscrowObligation,
-      abi: abi40.abi,
+      abi: abi41.abi,
       functionName: "collect",
       args: [escrow, fulfillment]
     }),
     reclaim: async (escrow) => await writeContract(viemClient, {
       address: addresses.hookEscrowObligation,
-      abi: abi40.abi,
+      abi: abi41.abi,
       functionName: "reclaim",
       args: [escrow]
     })
@@ -67318,7 +67662,7 @@ var makeSingleEscrowClient = (viemClient, addresses) => {
 var makeMultiEscrowClient = (viemClient, addresses) => {
   const getSchema = async () => await viemClient.readContract({
     address: addresses.hooksEscrowObligation,
-    abi: abi41.abi,
+    abi: abi42.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -67335,7 +67679,7 @@ var makeMultiEscrowClient = (viemClient, addresses) => {
     create: async (data, expiration, value = data.values.reduce((a, b) => a + b, 0n)) => {
       const hash = await writeContract(viemClient, {
         address: addresses.hooksEscrowObligation,
-        abi: abi41.abi,
+        abi: abi42.abi,
         functionName: "doObligation",
         args: [data, expiration],
         value
@@ -67346,7 +67690,7 @@ var makeMultiEscrowClient = (viemClient, addresses) => {
     createFor: async (data, expiration, recipient, value = data.values.reduce((a, b) => a + b, 0n)) => {
       const hash = await writeContract(viemClient, {
         address: addresses.hooksEscrowObligation,
-        abi: abi41.abi,
+        abi: abi42.abi,
         functionName: "doObligationFor",
         args: [data, expiration, recipient],
         value
@@ -67356,13 +67700,13 @@ var makeMultiEscrowClient = (viemClient, addresses) => {
     },
     collect: async (escrow, fulfillment) => await writeContract(viemClient, {
       address: addresses.hooksEscrowObligation,
-      abi: abi41.abi,
+      abi: abi42.abi,
       functionName: "collect",
       args: [escrow, fulfillment]
     }),
     reclaim: async (escrow) => await writeContract(viemClient, {
       address: addresses.hooksEscrowObligation,
-      abi: abi41.abi,
+      abi: abi42.abi,
       functionName: "reclaim",
       args: [escrow]
     })
@@ -67380,13 +67724,13 @@ var makeHookBasedClient = (viemClient, addresses) => ({
       decodeHookData: (data) => (0, import_viem40.decodeAbiParameters)([erc20HookDataType], data)[0],
       approve: async (token) => await writeContract(viemClient, {
         address: token.token,
-        abi: abi28.abi,
+        abi: abi29.abi,
         functionName: "approve",
         args: [addresses.erc20EscrowHook, token.amount]
       }),
       deposit: async (caller, token) => await readContract(viemClient, {
         address: addresses.erc20EscrowHook,
-        abi: abi44.abi,
+        abi: abi45.abi,
         functionName: "deposits",
         args: [caller, token]
       })
@@ -67397,13 +67741,13 @@ var makeHookBasedClient = (viemClient, addresses) => ({
       decodeHookData: (data) => (0, import_viem40.decodeAbiParameters)([erc721HookDataType], data)[0],
       approve: async (token) => await writeContract(viemClient, {
         address: token.token,
-        abi: abi33.abi,
+        abi: abi34.abi,
         functionName: "approve",
         args: [addresses.erc721EscrowHook, token.tokenId]
       }),
       deposit: async (caller, token, tokenId) => await readContract(viemClient, {
         address: addresses.erc721EscrowHook,
-        abi: abi45.abi,
+        abi: abi46.abi,
         functionName: "deposits",
         args: [caller, token, tokenId]
       })
@@ -67414,13 +67758,13 @@ var makeHookBasedClient = (viemClient, addresses) => ({
       decodeHookData: (data) => (0, import_viem40.decodeAbiParameters)([erc1155HookDataType], data)[0],
       setApprovalForAll: async (token, approved = true) => await writeContract(viemClient, {
         address: token,
-        abi: abi37.abi,
+        abi: abi38.abi,
         functionName: "setApprovalForAll",
         args: [addresses.erc1155EscrowHook, approved]
       }),
       deposit: async (caller, token, tokenId) => await readContract(viemClient, {
         address: addresses.erc1155EscrowHook,
-        abi: abi46.abi,
+        abi: abi47.abi,
         functionName: "deposits",
         args: [caller, token, tokenId]
       })
@@ -67431,7 +67775,7 @@ var makeHookBasedClient = (viemClient, addresses) => ({
       decodeHookData: (data) => (0, import_viem40.decodeAbiParameters)([nativeTokenHookDataType], data)[0],
       deposit: async (caller) => await readContract(viemClient, {
         address: addresses.nativeTokenEscrowHook,
-        abi: abi47.abi,
+        abi: abi48.abi,
         functionName: "deposits",
         args: [caller]
       })
@@ -67455,9 +67799,9 @@ var import_viem41 = require("viem");
 // src/contracts/obligations/escrow/default/NativeTokenEscrowObligation.ts
 var NativeTokenEscrowObligation_exports = {};
 __export(NativeTokenEscrowObligation_exports, {
-  abi: () => abi48
+  abi: () => abi49
 });
-var abi48 = {
+var abi49 = {
   "abi": [
     {
       "type": "constructor",
@@ -69908,7 +70252,7 @@ var abi48 = {
 
 // src/clients/obligations/nativeToken/escrow/default.ts
 var nativeEscrowDoObligationFunction = (0, import_viem41.getAbiItem)({
-  abi: abi48.abi,
+  abi: abi49.abi,
   name: "doObligation"
 });
 var nativeEscrowObligationDataType = nativeEscrowDoObligationFunction.inputs[0];
@@ -69924,7 +70268,7 @@ var decodeObligation = (obligationData) => {
 var makeNativeTokenDefaultEscrowClient = (viemClient, addresses) => {
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligation,
-    abi: abi48.abi,
+    abi: abi49.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -69970,7 +70314,7 @@ var makeNativeTokenDefaultEscrowClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.escrowObligation, "NativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligation,
-        abi: abi48.abi,
+        abi: abi49.abi,
         functionName: "doObligation",
         args: [{ arbiter: item.arbiter, demand: item.demand, amount }, expiration],
         value: amount
@@ -69983,7 +70327,7 @@ var makeNativeTokenDefaultEscrowClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.escrowObligation, "NativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligation,
-        abi: abi48.abi,
+        abi: abi49.abi,
         functionName: "doObligationFor",
         args: [{ arbiter: item.arbiter, demand: item.demand, amount }, expiration, recipient],
         value: amount
@@ -69995,7 +70339,7 @@ var makeNativeTokenDefaultEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi48.abi,
+        abi: abi49.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -70004,7 +70348,7 @@ var makeNativeTokenDefaultEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi48.abi,
+        abi: abi49.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -70019,9 +70363,9 @@ var import_viem42 = require("viem");
 // src/contracts/obligations/escrow/unconditional/UnconditionalNativeTokenEscrowObligation.ts
 var UnconditionalNativeTokenEscrowObligation_exports = {};
 __export(UnconditionalNativeTokenEscrowObligation_exports, {
-  abi: () => abi49
+  abi: () => abi50
 });
-var abi49 = {
+var abi50 = {
   "abi": [
     {
       "type": "constructor",
@@ -72472,7 +72816,7 @@ var abi49 = {
 
 // src/clients/obligations/nativeToken/escrow/unconditional.ts
 var nativeEscrowDoObligationFunction2 = (0, import_viem42.getAbiItem)({
-  abi: abi49.abi,
+  abi: abi50.abi,
   name: "doObligation"
 });
 var nativeEscrowObligationDataType2 = nativeEscrowDoObligationFunction2.inputs[0];
@@ -72488,7 +72832,7 @@ var decodeObligation2 = (obligationData) => {
 var makeNativeTokenUnconditionalEscrowClient = (viemClient, addresses) => {
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligationUnconditional,
-    abi: abi49.abi,
+    abi: abi50.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -72534,7 +72878,7 @@ var makeNativeTokenUnconditionalEscrowClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.escrowObligationUnconditional, "UnconditionalNativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligationUnconditional,
-        abi: abi49.abi,
+        abi: abi50.abi,
         functionName: "doObligation",
         args: [{ arbiter: item.arbiter, demand: item.demand, amount }, expiration],
         value: amount
@@ -72547,7 +72891,7 @@ var makeNativeTokenUnconditionalEscrowClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.escrowObligationUnconditional, "UnconditionalNativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligationUnconditional,
-        abi: abi49.abi,
+        abi: abi50.abi,
         functionName: "doObligationFor",
         args: [{ arbiter: item.arbiter, demand: item.demand, amount }, expiration, recipient],
         value: amount
@@ -72559,7 +72903,7 @@ var makeNativeTokenUnconditionalEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi49.abi,
+        abi: abi50.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -72568,7 +72912,7 @@ var makeNativeTokenUnconditionalEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi49.abi,
+        abi: abi50.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -72595,9 +72939,9 @@ var import_viem43 = require("viem");
 // src/contracts/obligations/payment/NativeTokenPaymentObligation.ts
 var NativeTokenPaymentObligation_exports = {};
 __export(NativeTokenPaymentObligation_exports, {
-  abi: () => abi50
+  abi: () => abi51
 });
-var abi50 = {
+var abi51 = {
   "abi": [
     {
       "type": "constructor",
@@ -74614,7 +74958,7 @@ var abi50 = {
 
 // src/clients/obligations/nativeToken/payment.ts
 var nativePaymentDoObligationFunction = (0, import_viem43.getAbiItem)({
-  abi: abi50.abi,
+  abi: abi51.abi,
   name: "doObligation"
 });
 var nativePaymentObligationDataType = nativePaymentDoObligationFunction.inputs[0];
@@ -74643,7 +74987,7 @@ var decodeObligation3 = (obligationData) => {
 var makeNativeTokenPaymentClient = (viemClient, addresses) => {
   const getSchema = async () => await viemClient.readContract({
     address: addresses.paymentObligation,
-    abi: abi50.abi,
+    abi: abi51.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -74741,7 +75085,7 @@ var makeNativeTokenPaymentClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.paymentObligation, "NativeTokenPaymentObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.paymentObligation,
-        abi: abi50.abi,
+        abi: abi51.abi,
         functionName: "doObligation",
         args: [{ amount: data.amount, payee: data.payee }, refUID],
         value: data.amount
@@ -74754,7 +75098,7 @@ var makeNativeTokenPaymentClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.paymentObligation, "NativeTokenPaymentObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.paymentObligation,
-        abi: abi50.abi,
+        abi: abi51.abi,
         functionName: "doObligationFor",
         args: [{ amount: data.amount, payee: data.payee }, recipient, refUID],
         value: data.amount
@@ -74773,7 +75117,7 @@ var makeNativeTokenPaymentClient = (viemClient, addresses) => {
       assertDeployedContract(addresses.atomicPaymentUtils, "AtomicPaymentUtils");
       const hash = await viemClient.writeContract({
         address: addresses.atomicPaymentUtils,
-        abi: abi31.abi,
+        abi: abi32.abi,
         functionName: "payNativeAndCollect",
         args: [escrowUid],
         value: demand.amount,
@@ -74807,9 +75151,9 @@ var import_viem44 = require("viem");
 // src/contracts/obligations/StringObligation.ts
 var StringObligation_exports = {};
 __export(StringObligation_exports, {
-  abi: () => abi51
+  abi: () => abi52
 });
-var abi51 = {
+var abi52 = {
   "abi": [
     {
       "type": "constructor",
@@ -76395,7 +76739,7 @@ var abi51 = {
 
 // src/clients/obligations/string/index.ts
 var stringObligationDecodeFunction = (0, import_viem44.getAbiItem)({
-  abi: abi51.abi,
+  abi: abi52.abi,
   name: "decodeObligationData"
 });
 var stringObligationDataType = stringObligationDecodeFunction.outputs[0];
@@ -76416,7 +76760,7 @@ var makeStringObligationClient = (viemClient, addresses) => {
   const doObligation = async (item, schema = "0x0000000000000000000000000000000000000000000000000000000000000000", refUID = "0x0000000000000000000000000000000000000000000000000000000000000000") => {
     const { request } = await viemClient.simulateContract({
       address: addresses.stringObligation,
-      abi: abi51.abi,
+      abi: abi52.abi,
       functionName: "doObligation",
       args: [{ item, schema }, refUID]
     });
@@ -76433,7 +76777,7 @@ var makeStringObligationClient = (viemClient, addresses) => {
   };
   const getSchema = async () => await viemClient.readContract({
     address: addresses.stringObligation,
-    abi: abi51.abi,
+    abi: abi52.abi,
     functionName: "ATTESTATION_SCHEMA"
   });
   return {
@@ -76493,9 +76837,9 @@ var import_viem45 = require("viem");
 // src/contracts/obligations/escrow/default/TokenBundleEscrowObligation.ts
 var TokenBundleEscrowObligation_exports = {};
 __export(TokenBundleEscrowObligation_exports, {
-  abi: () => abi52
+  abi: () => abi53
 });
-var abi52 = {
+var abi53 = {
   "abi": [
     {
       "type": "constructor",
@@ -80014,7 +80358,7 @@ var makeTokenBundleUtilClient = (viemClient, addresses) => {
       for (const token of bundle.erc20s) {
         const hash = await writeContract(viemClient, {
           address: token.address,
-          abi: abi28.abi,
+          abi: abi29.abi,
           functionName: "approve",
           args: [target, token.value]
         });
@@ -80024,7 +80368,7 @@ var makeTokenBundleUtilClient = (viemClient, addresses) => {
       for (const address of erc721AddressesSet) {
         const hash = await writeContract(viemClient, {
           address,
-          abi: abi33.abi,
+          abi: abi34.abi,
           functionName: "setApprovalForAll",
           args: [target, true]
         });
@@ -80034,7 +80378,7 @@ var makeTokenBundleUtilClient = (viemClient, addresses) => {
       for (const address of erc1155AddressesSet) {
         const hash = await writeContract(viemClient, {
           address,
-          abi: abi37.abi,
+          abi: abi38.abi,
           functionName: "setApprovalForAll",
           args: [target, true]
         });
@@ -80047,7 +80391,7 @@ var makeTokenBundleUtilClient = (viemClient, addresses) => {
 
 // src/clients/obligations/tokenBundle/escrow/default.ts
 var tokenBundleEscrowDecodeFunction = (0, import_viem45.getAbiItem)({
-  abi: abi52.abi,
+  abi: abi53.abi,
   name: "decodeObligationData"
 });
 var tokenBundleEscrowObligationDataType = tokenBundleEscrowDecodeFunction.outputs[0];
@@ -80055,7 +80399,7 @@ var makeTokenBundleDefaultEscrowClient = (viemClient, addresses) => {
   const util = makeTokenBundleUtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligation,
-    abi: abi52.abi,
+    abi: abi53.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -80096,7 +80440,7 @@ var makeTokenBundleDefaultEscrowClient = (viemClient, addresses) => {
       const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi52.abi,
+        abi: abi53.abi,
         functionName: "doObligation",
         args: [
           {
@@ -80115,7 +80459,7 @@ var makeTokenBundleDefaultEscrowClient = (viemClient, addresses) => {
       const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi52.abi,
+        abi: abi53.abi,
         functionName: "doObligation",
         args: [
           {
@@ -80132,7 +80476,7 @@ var makeTokenBundleDefaultEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi52.abi,
+        abi: abi53.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -80141,7 +80485,7 @@ var makeTokenBundleDefaultEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligation,
-        abi: abi52.abi,
+        abi: abi53.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -80156,9 +80500,9 @@ var import_viem46 = require("viem");
 // src/contracts/obligations/escrow/unconditional/UnconditionalTokenBundleEscrowObligation.ts
 var UnconditionalTokenBundleEscrowObligation_exports = {};
 __export(UnconditionalTokenBundleEscrowObligation_exports, {
-  abi: () => abi53
+  abi: () => abi54
 });
-var abi53 = {
+var abi54 = {
   "abi": [
     {
       "type": "constructor",
@@ -83670,7 +84014,7 @@ var abi53 = {
 
 // src/clients/obligations/tokenBundle/escrow/unconditional.ts
 var tokenBundleEscrowDecodeFunction2 = (0, import_viem46.getAbiItem)({
-  abi: abi53.abi,
+  abi: abi54.abi,
   name: "decodeObligationData"
 });
 var tokenBundleEscrowObligationDataType2 = tokenBundleEscrowDecodeFunction2.outputs[0];
@@ -83678,7 +84022,7 @@ var makeTokenBundleUnconditionalEscrowClient = (viemClient, addresses) => {
   const util = makeTokenBundleUtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.escrowObligationUnconditional,
-    abi: abi53.abi,
+    abi: abi54.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -83719,7 +84063,7 @@ var makeTokenBundleUnconditionalEscrowClient = (viemClient, addresses) => {
       const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi53.abi,
+        abi: abi54.abi,
         functionName: "doObligation",
         args: [
           {
@@ -83738,7 +84082,7 @@ var makeTokenBundleUnconditionalEscrowClient = (viemClient, addresses) => {
       const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi53.abi,
+        abi: abi54.abi,
         functionName: "doObligation",
         args: [
           {
@@ -83755,7 +84099,7 @@ var makeTokenBundleUnconditionalEscrowClient = (viemClient, addresses) => {
     collect: async (buyAttestation, fulfillment) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi53.abi,
+        abi: abi54.abi,
         functionName: "collect",
         args: [buyAttestation, fulfillment]
       });
@@ -83764,7 +84108,7 @@ var makeTokenBundleUnconditionalEscrowClient = (viemClient, addresses) => {
     reclaim: async (buyAttestation) => {
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
-        abi: abi53.abi,
+        abi: abi54.abi,
         functionName: "reclaim",
         args: [buyAttestation]
       });
@@ -83791,9 +84135,9 @@ var import_viem47 = require("viem");
 // src/contracts/IEscrow.ts
 var IEscrow_exports = {};
 __export(IEscrow_exports, {
-  abi: () => abi54
+  abi: () => abi55
 });
-var abi54 = {
+var abi55 = {
   "abi": [
     {
       "type": "function",
@@ -84228,9 +84572,9 @@ var abi54 = {
 // src/contracts/obligations/payment/TokenBundlePaymentObligation.ts
 var TokenBundlePaymentObligation_exports = {};
 __export(TokenBundlePaymentObligation_exports, {
-  abi: () => abi55
+  abi: () => abi56
 });
-var abi55 = {
+var abi56 = {
   "abi": [
     {
       "type": "constructor",
@@ -86709,7 +87053,7 @@ var abi55 = {
 
 // src/clients/obligations/tokenBundle/payment.ts
 var tokenBundlePaymentDecodeFunction = (0, import_viem47.getAbiItem)({
-  abi: abi55.abi,
+  abi: abi56.abi,
   name: "decodeObligationData"
 });
 var tokenBundlePaymentObligationDataType = tokenBundlePaymentDecodeFunction.outputs[0];
@@ -86717,7 +87061,7 @@ var makeTokenBundlePaymentClient = (viemClient, addresses) => {
   const util = makeTokenBundleUtilClient(viemClient, addresses);
   const getSchema = async () => await viemClient.readContract({
     address: addresses.paymentObligation,
-    abi: abi55.abi,
+    abi: abi56.abi,
     functionName: "ATTESTATION_SCHEMA",
     authorizationList: void 0
   });
@@ -86758,7 +87102,7 @@ var makeTokenBundlePaymentClient = (viemClient, addresses) => {
       const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi55.abi,
+        abi: abi56.abi,
         functionName: "doObligation",
         args: [
           {
@@ -86777,7 +87121,7 @@ var makeTokenBundlePaymentClient = (viemClient, addresses) => {
       const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.paymentObligation,
-        abi: abi55.abi,
+        abi: abi56.abi,
         functionName: "doObligation",
         args: [
           {
@@ -86800,7 +87144,7 @@ var makeTokenBundlePaymentClient = (viemClient, addresses) => {
       const escrow = await getAtomicPaymentEscrowAttestation(viemClient, addresses, escrowUid, options);
       const [arbiter, demand] = await viemClient.readContract({
         address: escrow.attester,
-        abi: abi54.abi,
+        abi: abi55.abi,
         functionName: "decodeCondition",
         args: [escrow.data],
         authorizationList: void 0
@@ -86814,7 +87158,7 @@ var makeTokenBundlePaymentClient = (viemClient, addresses) => {
       )[0];
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
-        abi: abi31.abi,
+        abi: abi32.abi,
         functionName: "payBundleAndCollect",
         args: [escrowUid],
         value: data.nativeAmount
@@ -86849,9 +87193,9 @@ var import_viem48 = require("viem");
 // src/contracts/utils/splitters/commitment/CommitmentERC20Splitter.ts
 var CommitmentERC20Splitter_exports = {};
 __export(CommitmentERC20Splitter_exports, {
-  abi: () => abi56
+  abi: () => abi57
 });
-var abi56 = {
+var abi57 = {
   "abi": [
     {
       "type": "constructor",
@@ -89705,9 +90049,9 @@ var abi56 = {
 // src/contracts/utils/splitters/commitment/CommitmentERC1155Splitter.ts
 var CommitmentERC1155Splitter_exports = {};
 __export(CommitmentERC1155Splitter_exports, {
-  abi: () => abi57
+  abi: () => abi58
 });
-var abi57 = {
+var abi58 = {
   "abi": [
     {
       "type": "constructor",
@@ -92734,9 +93078,9 @@ var abi57 = {
 // src/contracts/utils/splitters/commitment/CommitmentNativeTokenSplitter.ts
 var CommitmentNativeTokenSplitter_exports = {};
 __export(CommitmentNativeTokenSplitter_exports, {
-  abi: () => abi58
+  abi: () => abi59
 });
-var abi58 = {
+var abi59 = {
   "abi": [
     {
       "type": "constructor",
@@ -95513,9 +95857,9 @@ var abi58 = {
 // src/contracts/utils/splitters/commitment/CommitmentTokenBundleSplitter.ts
 var CommitmentTokenBundleSplitter_exports = {};
 __export(CommitmentTokenBundleSplitter_exports, {
-  abi: () => abi59
+  abi: () => abi60
 });
-var abi59 = {
+var abi60 = {
   "abi": [
     {
       "type": "constructor",
@@ -99095,9 +99439,9 @@ var abi59 = {
 // src/contracts/utils/splitters/commitment/CommitmentTokenBundleSplitterUnvalidated.ts
 var CommitmentTokenBundleSplitterUnvalidated_exports = {};
 __export(CommitmentTokenBundleSplitterUnvalidated_exports, {
-  abi: () => abi60
+  abi: () => abi61
 });
-var abi60 = {
+var abi61 = {
   "abi": [
     {
       "type": "constructor",
@@ -102409,9 +102753,9 @@ var abi60 = {
 // src/contracts/utils/splitters/default/ERC20Splitter.ts
 var ERC20Splitter_exports = {};
 __export(ERC20Splitter_exports, {
-  abi: () => abi61
+  abi: () => abi62
 });
-var abi61 = {
+var abi62 = {
   "abi": [
     {
       "type": "constructor",
@@ -104383,9 +104727,9 @@ var abi61 = {
 // src/contracts/utils/splitters/default/ERC1155Splitter.ts
 var ERC1155Splitter_exports = {};
 __export(ERC1155Splitter_exports, {
-  abi: () => abi62
+  abi: () => abi63
 });
-var abi62 = {
+var abi63 = {
   "abi": [
     {
       "type": "constructor",
@@ -106530,9 +106874,9 @@ var abi62 = {
 // src/contracts/utils/splitters/default/NativeTokenSplitter.ts
 var NativeTokenSplitter_exports = {};
 __export(NativeTokenSplitter_exports, {
-  abi: () => abi63
+  abi: () => abi64
 });
-var abi63 = {
+var abi64 = {
   "abi": [
     {
       "type": "constructor",
@@ -108427,9 +108771,9 @@ var abi63 = {
 // src/contracts/utils/splitters/default/TokenBundleSplitter.ts
 var TokenBundleSplitter_exports = {};
 __export(TokenBundleSplitter_exports, {
-  abi: () => abi64
+  abi: () => abi65
 });
-var abi64 = {
+var abi65 = {
   "abi": [
     {
       "type": "constructor",
@@ -111127,9 +111471,9 @@ var abi64 = {
 // src/contracts/utils/splitters/default/TokenBundleSplitterUnvalidated.ts
 var TokenBundleSplitterUnvalidated_exports = {};
 __export(TokenBundleSplitterUnvalidated_exports, {
-  abi: () => abi65
+  abi: () => abi66
 });
-var abi65 = {
+var abi66 = {
   "abi": [
     {
       "type": "constructor",
@@ -113569,9 +113913,9 @@ var pickSplitterAddresses = (addresses) => ({
   commitmentTokenBundleSplitter: addresses.commitmentTokenBundleSplitter,
   commitmentTokenBundleSplitterUnvalidated: addresses.commitmentTokenBundleSplitterUnvalidated
 });
-var demandDataType2 = (0, import_viem48.getAbiItem)({ abi: abi61.abi, name: "decodeDemandData" }).outputs[0];
-var amountSplitType = (0, import_viem48.getAbiItem)({ abi: abi61.abi, name: "arbitrate" }).inputs[2];
-var bundleSplitType = (0, import_viem48.getAbiItem)({ abi: abi64.abi, name: "arbitrate" }).inputs[2];
+var demandDataType2 = (0, import_viem48.getAbiItem)({ abi: abi62.abi, name: "decodeDemandData" }).outputs[0];
+var amountSplitType = (0, import_viem48.getAbiItem)({ abi: abi62.abi, name: "arbitrate" }).inputs[2];
+var bundleSplitType = (0, import_viem48.getAbiItem)({ abi: abi65.abi, name: "arbitrate" }).inputs[2];
 var encodeSplitterDemand = (data) => (0, import_viem48.encodeAbiParameters)([demandDataType2], [data]);
 var decodeSplitterDemand = (data) => (0, import_viem48.decodeAbiParameters)([demandDataType2], data)[0];
 var encodeAmountSplits = (splits) => (0, import_viem48.encodeAbiParameters)([amountSplitType], [splits]);
@@ -113602,135 +113946,135 @@ var splitterAttestationIntentHash = (intent) => (0, import_viem48.keccak256)(
   )
 );
 var splitterFulfillmentIntentHash = (intent, fulfiller) => (0, import_viem48.keccak256)((0, import_viem48.encodeAbiParameters)([{ type: "bytes32" }, { type: "address" }], [splitterAttestationIntentHash(intent), fulfiller]));
-var makeAmountSplitterClient = (viemClient, address, abi80) => ({
+var makeAmountSplitterClient = (viemClient, address, abi81) => ({
   address,
   encodeDemand: encodeSplitterDemand,
   decodeDemand: decodeSplitterDemand,
   decisionKey: splitterDecisionKey,
   arbitrate: async (fulfillment, escrow, splits) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "arbitrate",
     args: [fulfillment, escrow, splits]
   }),
   requestArbitration: async (fulfillment, escrow, oracle, demand) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "requestArbitration",
     args: [fulfillment, escrow, oracle, demand]
   }),
   createFulfillment: async (obligationContract, data, expirationTime, refUID, value = 0n) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "createFulfillment",
     args: [obligationContract, data, expirationTime, refUID],
     value
   }),
   collectAndDistribute: async (escrow, fulfillment) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "collectAndDistribute",
     args: [escrow, fulfillment]
   }),
   unsafePartiallyCollectAndDistribute: async (escrow, fulfillment) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "unsafePartiallyCollectAndDistribute",
     args: [escrow, fulfillment]
   }),
   getSplits: async (oracle, fulfillment, escrow) => await readContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "getSplits",
     args: [oracle, fulfillment, escrow]
   }),
   hasDecision: async (oracle, fulfillment, escrow) => await readContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "hasDecision",
     args: [oracle, splitterDecisionKey(fulfillment, escrow)]
   }),
   check: async (fulfillment, demand, escrow) => await readContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "check",
     args: [fulfillment, demand, escrow]
   })
 });
-var makeBundleSplitterClient = (viemClient, address, abi80) => ({
+var makeBundleSplitterClient = (viemClient, address, abi81) => ({
   address,
   encodeDemand: encodeSplitterDemand,
   decodeDemand: decodeSplitterDemand,
   decisionKey: splitterDecisionKey,
   arbitrate: async (fulfillment, escrow, splits) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "arbitrate",
     args: [fulfillment, escrow, splits]
   }),
   requestArbitration: async (fulfillment, escrow, oracle, demand) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "requestArbitration",
     args: [fulfillment, escrow, oracle, demand]
   }),
   createFulfillment: async (obligationContract, data, expirationTime, refUID, value = 0n) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "createFulfillment",
     args: [obligationContract, data, expirationTime, refUID],
     value
   }),
   collectAndDistribute: async (escrow, fulfillment) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "collectAndDistribute",
     args: [escrow, fulfillment]
   }),
   unsafePartiallyCollectAndDistribute: async (escrow, fulfillment) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "unsafePartiallyCollectAndDistribute",
     args: [escrow, fulfillment]
   }),
   getSplits: async (oracle, fulfillment, escrow) => await readContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "getSplits",
     args: [oracle, fulfillment, escrow]
   }),
   hasDecision: async (oracle, fulfillment, escrow) => await readContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "hasDecision",
     args: [oracle, splitterDecisionKey(fulfillment, escrow)]
   }),
   check: async (fulfillment, demand, escrow) => await readContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "check",
     args: [fulfillment, demand, escrow]
   })
 });
-var makeCommitmentAmountSplitterClient = (viemClient, address, abi80) => ({
-  ...makeAmountSplitterClient(viemClient, address, abi80),
+var makeCommitmentAmountSplitterClient = (viemClient, address, abi81) => ({
+  ...makeAmountSplitterClient(viemClient, address, abi81),
   attestationIntentHash: splitterAttestationIntentHash,
   fulfillmentIntentHash: splitterFulfillmentIntentHash,
   createFulfillmentAndCollectAndDistribute: async (escrow, obligationContract, data, expirationTime, refUID, value = 0n) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "createFulfillmentAndCollectAndDistribute",
     args: [escrow, obligationContract, data, expirationTime, refUID],
     value
   })
 });
-var makeCommitmentBundleSplitterClient = (viemClient, address, abi80) => ({
-  ...makeBundleSplitterClient(viemClient, address, abi80),
+var makeCommitmentBundleSplitterClient = (viemClient, address, abi81) => ({
+  ...makeBundleSplitterClient(viemClient, address, abi81),
   attestationIntentHash: splitterAttestationIntentHash,
   fulfillmentIntentHash: splitterFulfillmentIntentHash,
   createFulfillmentAndCollectAndDistribute: async (escrow, obligationContract, data, expirationTime, refUID, value = 0n) => await writeContract(viemClient, {
     address,
-    abi: abi80,
+    abi: abi81,
     functionName: "createFulfillmentAndCollectAndDistribute",
     args: [escrow, obligationContract, data, expirationTime, refUID],
     value
@@ -113742,39 +114086,39 @@ var makeSplitterVariantNamespace = (fulfillment, commitment) => Object.assign(fu
   forTarget: (target = "fulfillment") => target === "fulfillment" ? fulfillment : commitment
 });
 var makeSplittersClient = (viemClient, addresses) => {
-  const erc20 = makeAmountSplitterClient(viemClient, addresses.erc20Splitter, abi61.abi);
+  const erc20 = makeAmountSplitterClient(viemClient, addresses.erc20Splitter, abi62.abi);
   const commitmentERC20 = makeCommitmentAmountSplitterClient(
     viemClient,
     addresses.commitmentERC20Splitter,
-    abi56.abi
+    abi57.abi
   );
-  const erc1155 = makeAmountSplitterClient(viemClient, addresses.erc1155Splitter, abi62.abi);
+  const erc1155 = makeAmountSplitterClient(viemClient, addresses.erc1155Splitter, abi63.abi);
   const commitmentERC1155 = makeCommitmentAmountSplitterClient(
     viemClient,
     addresses.commitmentERC1155Splitter,
-    abi57.abi
+    abi58.abi
   );
-  const nativeToken = makeAmountSplitterClient(viemClient, addresses.nativeTokenSplitter, abi63.abi);
+  const nativeToken = makeAmountSplitterClient(viemClient, addresses.nativeTokenSplitter, abi64.abi);
   const commitmentNativeToken = makeCommitmentAmountSplitterClient(
     viemClient,
     addresses.commitmentNativeTokenSplitter,
-    abi58.abi
+    abi59.abi
   );
-  const tokenBundle = makeBundleSplitterClient(viemClient, addresses.tokenBundleSplitter, abi64.abi);
+  const tokenBundle = makeBundleSplitterClient(viemClient, addresses.tokenBundleSplitter, abi65.abi);
   const commitmentTokenBundle = makeCommitmentBundleSplitterClient(
     viemClient,
     addresses.commitmentTokenBundleSplitter,
-    abi59.abi
+    abi60.abi
   );
   const tokenBundleUnvalidated = makeBundleSplitterClient(
     viemClient,
     addresses.tokenBundleSplitterUnvalidated,
-    abi65.abi
+    abi66.abi
   );
   const commitmentTokenBundleUnvalidated = makeCommitmentBundleSplitterClient(
     viemClient,
     addresses.commitmentTokenBundleSplitterUnvalidated,
-    abi60.abi
+    abi61.abi
   );
   return {
     encodeDemand: encodeSplitterDemand,
@@ -231899,8 +232243,8 @@ async function setupTestEnvironment(options) {
     const receipt = await testClient.waitForTransactionReceipt({ hash });
     return receipt.contractAddress;
   };
-  const deployFn = async (abi80, bytecode, args) => {
-    const hash = await testClient.deployContract({ abi: abi80, bytecode, args });
+  const deployFn = async (abi81, bytecode, args) => {
+    const hash = await testClient.deployContract({ abi: abi81, bytecode, args });
     const receipt = await testClient.waitForTransactionReceipt({ hash });
     return receipt.contractAddress;
   };
@@ -232317,9 +232661,9 @@ __export(contracts_exports, {
 // src/contracts/arbiters/IntrinsicsArbiter.ts
 var IntrinsicsArbiter_exports = {};
 __export(IntrinsicsArbiter_exports, {
-  abi: () => abi66
+  abi: () => abi67
 });
-var abi66 = {
+var abi67 = {
   "abi": [
     {
       "type": "function",
@@ -232699,9 +233043,9 @@ var abi66 = {
 // src/contracts/arbiters/ReferencesEscrowArbiter.ts
 var ReferencesEscrowArbiter_exports = {};
 __export(ReferencesEscrowArbiter_exports, {
-  abi: () => abi67
+  abi: () => abi68
 });
-var abi67 = {
+var abi68 = {
   "abi": [
     {
       "type": "function",
@@ -233053,9 +233397,9 @@ var abi67 = {
 // src/contracts/arbiters/TrivialArbiter.ts
 var TrivialArbiter_exports = {};
 __export(TrivialArbiter_exports, {
-  abi: () => abi68
+  abi: () => abi69
 });
-var abi68 = {
+var abi69 = {
   "abi": [
     {
       "type": "function",
@@ -233405,9 +233749,9 @@ var abi68 = {
 // src/contracts/IERC20.ts
 var IERC20_exports = {};
 __export(IERC20_exports, {
-  abi: () => abi69
+  abi: () => abi70
 });
-var abi69 = {
+var abi70 = {
   "abi": [
     {
       "type": "function",
@@ -233977,9 +234321,9 @@ var abi69 = {
 // src/contracts/ISchemaRegistry.ts
 var ISchemaRegistry_exports = {};
 __export(ISchemaRegistry_exports, {
-  abi: () => abi70
+  abi: () => abi71
 });
-var abi70 = {
+var abi71 = {
   "abi": [
     {
       "type": "function",
@@ -234385,9 +234729,9 @@ var abi70 = {
 // src/contracts/libraries/SchemaRegistryUtils.ts
 var SchemaRegistryUtils_exports = {};
 __export(SchemaRegistryUtils_exports, {
-  abi: () => abi71
+  abi: () => abi72
 });
-var abi71 = {
+var abi72 = {
   "abi": [
     {
       "type": "error",
@@ -234525,9 +234869,9 @@ var abi71 = {
 // src/contracts/obligations/escrow/unconditional/UnconditionalAttestationEscrowObligation.ts
 var UnconditionalAttestationEscrowObligation_exports = {};
 __export(UnconditionalAttestationEscrowObligation_exports, {
-  abi: () => abi72
+  abi: () => abi73
 });
-var abi72 = {
+var abi73 = {
   "abi": [
     {
       "type": "constructor",
@@ -237351,9 +237695,9 @@ var abi72 = {
 // src/contracts/obligations/escrow/unconditional/UnconditionalAttestationReferenceEscrowObligation.ts
 var UnconditionalAttestationReferenceEscrowObligation_exports = {};
 __export(UnconditionalAttestationReferenceEscrowObligation_exports, {
-  abi: () => abi73
+  abi: () => abi74
 });
-var abi73 = {
+var abi74 = {
   "abi": [
     {
       "type": "constructor",
@@ -239818,9 +240162,9 @@ var abi73 = {
 // src/contracts/obligations/escrow/hook-based/IEscrowHook.ts
 var IEscrowHook_exports = {};
 __export(IEscrowHook_exports, {
-  abi: () => abi74
+  abi: () => abi75
 });
-var abi74 = {
+var abi75 = {
   "abi": [
     {
       "type": "function",
@@ -240461,9 +240805,9 @@ var abi74 = {
 // src/contracts/utils/splitters/CommitmentBaseSplitter.ts
 var CommitmentBaseSplitter_exports = {};
 __export(CommitmentBaseSplitter_exports, {
-  abi: () => abi75
+  abi: () => abi76
 });
-var abi75 = {
+var abi76 = {
   "abi": [
     {
       "type": "receive",
@@ -242359,9 +242703,9 @@ var abi75 = {
 // src/contracts/utils/splitters/commitment/CommitmentTokenBundleSplitterBase.ts
 var CommitmentTokenBundleSplitterBase_exports = {};
 __export(CommitmentTokenBundleSplitterBase_exports, {
-  abi: () => abi76
+  abi: () => abi77
 });
-var abi76 = {
+var abi77 = {
   "abi": [
     {
       "type": "receive",
@@ -245509,9 +245853,9 @@ var abi76 = {
 // src/contracts/utils/splitters/BaseSplitter.ts
 var BaseSplitter_exports = {};
 __export(BaseSplitter_exports, {
-  abi: () => abi77
+  abi: () => abi78
 });
-var abi77 = {
+var abi78 = {
   "abi": [
     {
       "type": "receive",
@@ -246607,9 +246951,9 @@ var abi77 = {
 // src/contracts/utils/splitters/SplitterVerification.ts
 var SplitterVerification_exports = {};
 __export(SplitterVerification_exports, {
-  abi: () => abi78
+  abi: () => abi79
 });
-var abi78 = {
+var abi79 = {
   "abi": [
     {
       "type": "error",
@@ -246793,9 +247137,9 @@ var abi78 = {
 // src/contracts/utils/splitters/default/TokenBundleSplitterBase.ts
 var TokenBundleSplitterBase_exports = {};
 __export(TokenBundleSplitterBase_exports, {
-  abi: () => abi79
+  abi: () => abi80
 });
-var abi79 = {
+var abi80 = {
   "abi": [
     {
       "type": "receive",
@@ -249186,7 +249530,7 @@ var makeMinimalClient = (walletClient, contractAddresses2) => {
     getAttestedEventFromTxHash: async (hash) => {
       const tx = await viemClient.waitForTransactionReceipt({ hash });
       const events = (0, import_viem51.parseEventLogs)({
-        abi: abi14.abi,
+        abi: abi2.abi,
         eventName: "Attested",
         logs: tx.logs
       });
@@ -249320,7 +249664,9 @@ var makeMinimalClient = (walletClient, contractAddresses2) => {
 0 && (module.exports = {
   AllArbiter,
   AnyArbiter,
+  arbiterAddress,
   assertDeployedContract,
+  checkArbiter,
   contractAddresses,
   contracts,
   createAddressIndex,
