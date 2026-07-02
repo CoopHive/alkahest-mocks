@@ -104,6 +104,8 @@ TypeScript currently exposes only:
 
 The TypeScript namespace has deployed addresses and generated bindings for the unconditional contracts, but no ergonomic wrapper endpoints matching the other SDKs.
 
+Status: addressed. TypeScript now exposes `attestation.escrow.unconditional` and `attestation.escrow.referenceUnconditional`, plus `byChecks(...)` and `byStorageAndChecks(...)` selectors for the attestation-value and attestation-reference variants.
+
 Affected contracts:
 
 - `UnconditionalAttestationEscrowObligation`

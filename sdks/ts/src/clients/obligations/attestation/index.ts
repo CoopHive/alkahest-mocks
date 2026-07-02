@@ -6,6 +6,14 @@ import { type AttestationUtilClient, makeAttestationUtilClient } from "./util";
 export { type AttestationEscrowClient, makeAttestationEscrowClient } from "./escrow";
 export { type AttestationEscrowDefaultClient, makeAttestationEscrowDefaultClient } from "./escrow/default";
 export { type AttestationReferenceEscrowClient, makeAttestationReferenceEscrowClient } from "./escrow/reference";
+export {
+  type AttestationReferenceEscrowUnconditionalClient,
+  makeAttestationReferenceEscrowUnconditionalClient,
+} from "./escrow/referenceUnconditional";
+export {
+  type AttestationEscrowUnconditionalClient,
+  makeAttestationEscrowUnconditionalClient,
+} from "./escrow/unconditional";
 export { type AttestationUtilClient, makeAttestationUtilClient } from "./util";
 
 /** Addresses required by the attestation escrow clients. */

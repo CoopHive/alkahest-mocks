@@ -191,6 +191,29 @@ describe("Attestation Tests", () => {
       // Just verify the attestation exists but don't check revocation status
       expect(escrowAttestation.uid).toBe(escrowData.uid);
     });
+
+    test("exposes default and unconditional attestation escrow variants", () => {
+      expect(aliceClient.attestation.escrow.default.address).toBe(testContext.addresses.attestationEscrowObligation);
+      expect(aliceClient.attestation.escrow.unconditional.address).toBe(
+        testContext.addresses.attestationUnconditionalEscrowObligation,
+      );
+      expect(aliceClient.attestation.escrow.reference.address).toBe(
+        testContext.addresses.attestationReferenceEscrowObligation,
+      );
+      expect(aliceClient.attestation.escrow.referenceUnconditional.address).toBe(
+        testContext.addresses.attestationReferenceUnconditionalEscrowObligation,
+      );
+      expect(aliceClient.attestation.escrow.byChecks("default")).toBe(aliceClient.attestation.escrow.default);
+      expect(aliceClient.attestation.escrow.byChecks("unconditional")).toBe(
+        aliceClient.attestation.escrow.unconditional,
+      );
+      expect(aliceClient.attestation.escrow.byStorageAndChecks("reference", "default")).toBe(
+        aliceClient.attestation.escrow.reference,
+      );
+      expect(aliceClient.attestation.escrow.byStorageAndChecks("reference", "unconditional")).toBe(
+        aliceClient.attestation.escrow.referenceUnconditional,
+      );
+    });
   });
 
   describe("AttestationReferenceEscrowObligation", () => {
