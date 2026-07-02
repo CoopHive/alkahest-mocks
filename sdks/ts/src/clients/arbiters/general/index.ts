@@ -7,6 +7,8 @@ import { makeReferencesEscrowArbiterClient } from "./referencesEscrowArbiter";
 import { makeTrivialArbiterClient } from "./trivialArbiter";
 import { makeTrustedOracleArbiterClient } from "./trustedOracle";
 
+export type TrustedOracleDecisionTarget = "fulfillment" | "commitment";
+
 export {
   decodeDemand as decodeERC8004Demand,
   encodeDemand as encodeERC8004Demand,
@@ -55,6 +57,8 @@ export const makeGeneralArbitersClient = (viemClient: ViemClient, addresses: Cha
   const trustedOracle = makeTrustedOracleArbiterClient(viemClient, addresses);
   const commitmentTrustedOracle = makeCommitmentTrustedOracleArbiterClient(viemClient, addresses);
   const erc8004 = makeERC8004ArbiterClient(viemClient, addresses);
+  const trustedOracleFor = (target: TrustedOracleDecisionTarget = "fulfillment") =>
+    target === "fulfillment" ? trustedOracle : commitmentTrustedOracle;
 
   return {
     trivial,
@@ -62,6 +66,7 @@ export const makeGeneralArbitersClient = (viemClient: ViemClient, addresses: Cha
     referencesEscrow,
     trustedOracle,
     commitmentTrustedOracle,
+    trustedOracleFor,
     erc8004,
   };
 };

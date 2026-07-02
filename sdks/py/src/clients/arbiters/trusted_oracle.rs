@@ -1,6 +1,7 @@
 use alkahest_rs::{
-    contracts::arbiters::TrustedOracleArbiter, contracts::obligations::StringObligation,
-    extensions::ArbitersModule, extensions::OracleModule as InnerOracleClient,
+    clients::arbiters::TrustedOracleDecisionTarget, contracts::arbiters::TrustedOracleArbiter,
+    contracts::obligations::StringObligation, extensions::ArbitersModule,
+    extensions::OracleModule as InnerOracleClient,
 };
 use alloy::primitives::FixedBytes;
 use alloy::sol_types::SolValue;
@@ -972,6 +973,22 @@ impl TrustedOracle {
     /// Get the TrustedOracleArbiter contract address
     pub fn address(&self) -> String {
         format!("{:?}", self.inner.addresses.trusted_oracle_arbiter)
+    }
+
+    /// Get a trusted-oracle arbiter address by decision target.
+    ///
+    /// `target` must be "fulfillment" or "commitment".
+    pub fn address_for(&self, target: String) -> PyResult<String> {
+        let target = match target.as_str() {
+            "fulfillment" => TrustedOracleDecisionTarget::Fulfillment,
+            "commitment" => TrustedOracleDecisionTarget::Commitment,
+            _ => {
+                return Err(pyo3::exceptions::PyValueError::new_err(
+                    "unknown trusted oracle decision target",
+                ))
+            }
+        };
+        Ok(self.inner.trusted_oracle_address_for(target).to_string())
     }
 
     /// Arbitrate as a trusted oracle

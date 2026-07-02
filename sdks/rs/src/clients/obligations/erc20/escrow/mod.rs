@@ -10,6 +10,19 @@ pub mod unconditional;
 
 use super::Erc20Module;
 
+/// Default-checking or unconditional ERC20 escrow variant.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EscrowChecks {
+    Default,
+    Unconditional,
+}
+
+/// ERC20 escrow client selected by [`EscrowChecks`].
+pub enum EscrowVariant<'a> {
+    Default(default_escrow::Default<'a>),
+    Unconditional(unconditional::Unconditional<'a>),
+}
+
 /// Escrow API for ERC20 tokens
 pub struct Escrow<'a> {
     module: &'a Erc20Module,
@@ -28,5 +41,13 @@ impl<'a> Escrow<'a> {
     /// Access unconditional escrow API (no default fulfillment checks)
     pub fn unconditional(&self) -> unconditional::Unconditional<'_> {
         unconditional::Unconditional::new(self.module)
+    }
+
+    /// Select an escrow API by default-checking behavior.
+    pub fn by_checks(&self, checks: EscrowChecks) -> EscrowVariant<'_> {
+        match checks {
+            EscrowChecks::Default => EscrowVariant::Default(self.default()),
+            EscrowChecks::Unconditional => EscrowVariant::Unconditional(self.unconditional()),
+        }
     }
 }

@@ -5,6 +5,14 @@ import { makeExclusiveUnrevocableConfirmationArbiterClient } from "./exclusiveUn
 import { makeNonexclusiveRevocableConfirmationArbiterClient } from "./nonexclusiveRevocableConfirmationArbiter";
 import { makeNonexclusiveUnrevocableConfirmationArbiterClient } from "./nonexclusiveUnrevocableConfirmationArbiter";
 
+/** Semantic selector for the confirmation arbiter matrix. */
+export type ConfirmationArbiterOptions = {
+  /** Whether only one fulfillment can be confirmed for an escrow. */
+  exclusive: boolean;
+  /** Whether a confirmation can later be revoked. */
+  revocable: boolean;
+};
+
 /**
  * Confirmation Arbiters Client
  *
@@ -26,11 +34,18 @@ export const makeConfirmationArbitersClient = (viemClient: ViemClient, addresses
   const exclusiveUnrevocable = makeExclusiveUnrevocableConfirmationArbiterClient(viemClient, addresses);
   const nonexclusiveRevocable = makeNonexclusiveRevocableConfirmationArbiterClient(viemClient, addresses);
   const nonexclusiveUnrevocable = makeNonexclusiveUnrevocableConfirmationArbiterClient(viemClient, addresses);
+  const byOptions = ({ exclusive, revocable }: ConfirmationArbiterOptions) => {
+    if (exclusive && revocable) return exclusiveRevocable;
+    if (exclusive) return exclusiveUnrevocable;
+    if (revocable) return nonexclusiveRevocable;
+    return nonexclusiveUnrevocable;
+  };
 
   return {
     exclusiveRevocable,
     exclusiveUnrevocable,
     nonexclusiveRevocable,
     nonexclusiveUnrevocable,
+    byOptions,
   };
 };

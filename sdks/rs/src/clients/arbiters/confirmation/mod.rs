@@ -33,6 +33,34 @@ pub enum ConfirmationArbiterType {
     NonexclusiveUnrevocable,
 }
 
+/// Semantic selector for the confirmation arbiter matrix.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ConfirmationOptions {
+    /// Whether only one fulfillment can be confirmed for an escrow.
+    pub exclusive: bool,
+    /// Whether confirmations can be revoked.
+    pub revocable: bool,
+}
+
+impl From<ConfirmationOptions> for ConfirmationArbiterType {
+    fn from(options: ConfirmationOptions) -> Self {
+        match (options.exclusive, options.revocable) {
+            (true, true) => ConfirmationArbiterType::ExclusiveRevocable,
+            (true, false) => ConfirmationArbiterType::ExclusiveUnrevocable,
+            (false, true) => ConfirmationArbiterType::NonexclusiveRevocable,
+            (false, false) => ConfirmationArbiterType::NonexclusiveUnrevocable,
+        }
+    }
+}
+
+/// Confirmation arbiter client selected by [`ConfirmationOptions`].
+pub enum ConfirmationVariant<'a> {
+    ExclusiveRevocable(exclusive_revocable::ExclusiveRevocable<'a>),
+    ExclusiveUnrevocable(exclusive_unrevocable::ExclusiveUnrevocable<'a>),
+    NonexclusiveRevocable(nonexclusive_revocable::NonexclusiveRevocable<'a>),
+    NonexclusiveUnrevocable(nonexclusive_unrevocable::NonexclusiveUnrevocable<'a>),
+}
+
 /// Confirmation arbiters API
 pub struct Confirmation<'a> {
     module: &'a ArbitersModule,
@@ -64,6 +92,24 @@ impl<'a> Confirmation<'a> {
     ) -> nonexclusive_unrevocable::NonexclusiveUnrevocable<'_> {
         nonexclusive_unrevocable::NonexclusiveUnrevocable::new(self.module)
     }
+
+    /// Select a confirmation arbiter API by exclusivity and revocability.
+    pub fn by_options(&self, options: ConfirmationOptions) -> ConfirmationVariant<'_> {
+        match options.into() {
+            ConfirmationArbiterType::ExclusiveRevocable => {
+                ConfirmationVariant::ExclusiveRevocable(self.exclusive_revocable())
+            }
+            ConfirmationArbiterType::ExclusiveUnrevocable => {
+                ConfirmationVariant::ExclusiveUnrevocable(self.exclusive_unrevocable())
+            }
+            ConfirmationArbiterType::NonexclusiveRevocable => {
+                ConfirmationVariant::NonexclusiveRevocable(self.nonexclusive_revocable())
+            }
+            ConfirmationArbiterType::NonexclusiveUnrevocable => {
+                ConfirmationVariant::NonexclusiveUnrevocable(self.nonexclusive_unrevocable())
+            }
+        }
+    }
 }
 
 impl ArbitersModule {
@@ -85,6 +131,11 @@ impl ArbitersModule {
         }
     }
 
+    /// Get the address of a confirmation arbiter by semantic options.
+    pub fn confirmation_arbiter_address_by_options(&self, options: ConfirmationOptions) -> Address {
+        self.confirmation_arbiter_address(options.into())
+    }
+
     /// Access confirmation arbiters API
     ///
     /// # Example
@@ -94,5 +145,42 @@ impl ArbitersModule {
     /// ```
     pub fn confirmation(&self) -> Confirmation<'_> {
         Confirmation::new(self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn confirmation_options_map_to_contract_type() {
+        assert_eq!(
+            ConfirmationArbiterType::from(ConfirmationOptions {
+                exclusive: true,
+                revocable: true,
+            }),
+            ConfirmationArbiterType::ExclusiveRevocable
+        );
+        assert_eq!(
+            ConfirmationArbiterType::from(ConfirmationOptions {
+                exclusive: true,
+                revocable: false,
+            }),
+            ConfirmationArbiterType::ExclusiveUnrevocable
+        );
+        assert_eq!(
+            ConfirmationArbiterType::from(ConfirmationOptions {
+                exclusive: false,
+                revocable: true,
+            }),
+            ConfirmationArbiterType::NonexclusiveRevocable
+        );
+        assert_eq!(
+            ConfirmationArbiterType::from(ConfirmationOptions {
+                exclusive: false,
+                revocable: false,
+            }),
+            ConfirmationArbiterType::NonexclusiveUnrevocable
+        );
     }
 }

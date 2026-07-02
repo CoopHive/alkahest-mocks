@@ -81,6 +81,23 @@ pub enum SplitterContract {
     CommitmentTokenBundleSplitterUnvalidated,
 }
 
+/// Splitter asset family.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SplitterAsset {
+    Erc20,
+    Erc1155,
+    NativeToken,
+    TokenBundle,
+    TokenBundleUnvalidated,
+}
+
+/// Whether a splitter decision targets an existing fulfillment UID or a future fulfillment commitment.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SplitterDecisionTarget {
+    Fulfillment,
+    Commitment,
+}
+
 /// Rust client module for splitter helpers.
 ///
 /// Security note: the underlying splitter contracts have not been included in
@@ -153,6 +170,47 @@ impl SplittersModule {
         packed.extend_from_slice(escrow.as_slice());
         keccak256(packed)
     }
+
+    /// Get the splitter contract for an asset and decision target.
+    pub fn contract_for(asset: SplitterAsset, target: SplitterDecisionTarget) -> SplitterContract {
+        match (asset, target) {
+            (SplitterAsset::Erc20, SplitterDecisionTarget::Fulfillment) => {
+                SplitterContract::Erc20Splitter
+            }
+            (SplitterAsset::Erc20, SplitterDecisionTarget::Commitment) => {
+                SplitterContract::CommitmentErc20Splitter
+            }
+            (SplitterAsset::Erc1155, SplitterDecisionTarget::Fulfillment) => {
+                SplitterContract::Erc1155Splitter
+            }
+            (SplitterAsset::Erc1155, SplitterDecisionTarget::Commitment) => {
+                SplitterContract::CommitmentErc1155Splitter
+            }
+            (SplitterAsset::NativeToken, SplitterDecisionTarget::Fulfillment) => {
+                SplitterContract::NativeTokenSplitter
+            }
+            (SplitterAsset::NativeToken, SplitterDecisionTarget::Commitment) => {
+                SplitterContract::CommitmentNativeTokenSplitter
+            }
+            (SplitterAsset::TokenBundle, SplitterDecisionTarget::Fulfillment) => {
+                SplitterContract::TokenBundleSplitter
+            }
+            (SplitterAsset::TokenBundle, SplitterDecisionTarget::Commitment) => {
+                SplitterContract::CommitmentTokenBundleSplitter
+            }
+            (SplitterAsset::TokenBundleUnvalidated, SplitterDecisionTarget::Fulfillment) => {
+                SplitterContract::TokenBundleSplitterUnvalidated
+            }
+            (SplitterAsset::TokenBundleUnvalidated, SplitterDecisionTarget::Commitment) => {
+                SplitterContract::CommitmentTokenBundleSplitterUnvalidated
+            }
+        }
+    }
+
+    /// Get the splitter address for an asset and decision target.
+    pub fn address_for(&self, asset: SplitterAsset, target: SplitterDecisionTarget) -> Address {
+        self.address(Self::contract_for(asset, target))
+    }
 }
 
 impl AlkahestExtension for SplittersModule {
@@ -195,5 +253,27 @@ mod tests {
         );
 
         assert_ne!(key, FixedBytes::<32>::default());
+    }
+
+    #[test]
+    fn splitter_contract_selector_maps_asset_and_target() {
+        assert_eq!(
+            SplittersModule::contract_for(
+                SplitterAsset::Erc20,
+                SplitterDecisionTarget::Fulfillment
+            ),
+            SplitterContract::Erc20Splitter
+        );
+        assert_eq!(
+            SplittersModule::contract_for(SplitterAsset::Erc20, SplitterDecisionTarget::Commitment),
+            SplitterContract::CommitmentErc20Splitter
+        );
+        assert_eq!(
+            SplittersModule::contract_for(
+                SplitterAsset::TokenBundleUnvalidated,
+                SplitterDecisionTarget::Commitment
+            ),
+            SplitterContract::CommitmentTokenBundleSplitterUnvalidated
+        );
     }
 }

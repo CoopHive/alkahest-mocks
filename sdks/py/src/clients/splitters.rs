@@ -7,7 +7,11 @@
 //! professional manual audits and have only been reviewed by automated audit
 //! tooling so far.
 
-use alkahest_rs::{contracts, extensions::SplittersModule};
+use alkahest_rs::{
+    clients::splitters::{SplitterAsset, SplitterDecisionTarget},
+    contracts,
+    extensions::SplittersModule,
+};
 use alloy::{
     primitives::{keccak256, Address, Bytes, FixedBytes, U256},
     sol_types::SolValue,
@@ -42,6 +46,19 @@ impl SplittersClient {
             "token_bundle_splitter_unvalidated" => {
                 self.inner.addresses.token_bundle_splitter_unvalidated
             }
+            "commitment_erc20_splitter" => self.inner.addresses.commitment_erc20_splitter,
+            "commitment_erc1155_splitter" => self.inner.addresses.commitment_erc1155_splitter,
+            "commitment_native_token_splitter" => {
+                self.inner.addresses.commitment_native_token_splitter
+            }
+            "commitment_token_bundle_splitter" => {
+                self.inner.addresses.commitment_token_bundle_splitter
+            }
+            "commitment_token_bundle_splitter_unvalidated" => {
+                self.inner
+                    .addresses
+                    .commitment_token_bundle_splitter_unvalidated
+            }
             _ => {
                 return Err(pyo3::exceptions::PyValueError::new_err(
                     "unknown splitter contract",
@@ -49,6 +66,17 @@ impl SplittersClient {
             }
         };
         Ok(address.to_string())
+    }
+
+    /// Return a splitter address selected by asset and decision target.
+    ///
+    /// `asset` must be one of: "erc20", "erc1155", "native_token",
+    /// "token_bundle", "token_bundle_unvalidated".
+    /// `target` must be "fulfillment" or "commitment".
+    pub fn address_for(&self, asset: String, target: String) -> PyResult<String> {
+        let asset = parse_splitter_asset(&asset)?;
+        let target = parse_splitter_decision_target(&target)?;
+        Ok(self.inner.address_for(asset, target).to_string())
     }
 
     /// Encode splitter arbiter demand data.
@@ -70,6 +98,29 @@ impl SplittersClient {
         packed.extend_from_slice(fulfillment.as_slice());
         packed.extend_from_slice(escrow.as_slice());
         Ok(keccak256(packed).to_string())
+    }
+}
+
+fn parse_splitter_asset(asset: &str) -> PyResult<SplitterAsset> {
+    match asset {
+        "erc20" => Ok(SplitterAsset::Erc20),
+        "erc1155" => Ok(SplitterAsset::Erc1155),
+        "native_token" => Ok(SplitterAsset::NativeToken),
+        "token_bundle" => Ok(SplitterAsset::TokenBundle),
+        "token_bundle_unvalidated" => Ok(SplitterAsset::TokenBundleUnvalidated),
+        _ => Err(pyo3::exceptions::PyValueError::new_err(
+            "unknown splitter asset",
+        )),
+    }
+}
+
+fn parse_splitter_decision_target(target: &str) -> PyResult<SplitterDecisionTarget> {
+    match target {
+        "fulfillment" => Ok(SplitterDecisionTarget::Fulfillment),
+        "commitment" => Ok(SplitterDecisionTarget::Commitment),
+        _ => Err(pyo3::exceptions::PyValueError::new_err(
+            "unknown splitter decision target",
+        )),
     }
 }
 

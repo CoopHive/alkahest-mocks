@@ -10,6 +10,19 @@ pub mod unconditional;
 
 use super::TokenBundleModule;
 
+/// Default-checking or unconditional token-bundle escrow variant.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EscrowChecks {
+    Default,
+    Unconditional,
+}
+
+/// Token-bundle escrow client selected by [`EscrowChecks`].
+pub enum EscrowVariant<'a> {
+    Default(default_escrow::Default<'a>),
+    Unconditional(unconditional::Unconditional<'a>),
+}
+
 /// Escrow API for token bundles
 pub struct Escrow<'a> {
     module: &'a TokenBundleModule,
@@ -28,5 +41,13 @@ impl<'a> Escrow<'a> {
     /// Access unconditional escrow API (no default fulfillment checks)
     pub fn unconditional(&self) -> unconditional::Unconditional<'_> {
         unconditional::Unconditional::new(self.module)
+    }
+
+    /// Select an escrow API by default-checking behavior.
+    pub fn by_checks(&self, checks: EscrowChecks) -> EscrowVariant<'_> {
+        match checks {
+            EscrowChecks::Default => EscrowVariant::Default(self.default()),
+            EscrowChecks::Unconditional => EscrowVariant::Unconditional(self.unconditional()),
+        }
     }
 }

@@ -10,6 +10,19 @@ pub use unconditional::Unconditional;
 
 use super::super::AttestationModule;
 
+/// Default-checking or unconditional attestation-reference escrow variant.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EscrowChecks {
+    Default,
+    Unconditional,
+}
+
+/// Attestation-reference escrow client selected by [`EscrowChecks`].
+pub enum EscrowVariant<'a> {
+    Default(Default<'a>),
+    Unconditional(Unconditional<'a>),
+}
+
 /// Attestation-reference escrow API accessor.
 pub struct ReferenceEscrow<'a> {
     module: &'a AttestationModule,
@@ -28,5 +41,13 @@ impl<'a> ReferenceEscrow<'a> {
     /// Access unconditional escrow operations (no default fulfillment checks)
     pub fn unconditional(&self) -> Unconditional<'a> {
         Unconditional::new(self.module)
+    }
+
+    /// Select an escrow API by default-checking behavior.
+    pub fn by_checks(&self, checks: EscrowChecks) -> EscrowVariant<'a> {
+        match checks {
+            EscrowChecks::Default => EscrowVariant::Default(self.default()),
+            EscrowChecks::Unconditional => EscrowVariant::Unconditional(self.unconditional()),
+        }
     }
 }

@@ -13,7 +13,7 @@ pub mod exclusive_unrevocable;
 pub mod nonexclusive_revocable;
 pub mod nonexclusive_unrevocable;
 
-use alkahest_rs::extensions::ArbitersModule;
+use alkahest_rs::{clients::arbiters::ConfirmationOptions, extensions::ArbitersModule};
 use pyo3::{pyclass, pymethods};
 
 /// Confirmation arbiter type enum
@@ -94,5 +94,15 @@ impl Confirmation {
             }
         };
         format!("{:?}", addr)
+    }
+
+    /// Get the address of a confirmation arbiter by semantic options.
+    pub fn address_for(&self, exclusive: bool, revocable: bool) -> String {
+        self.inner
+            .confirmation_arbiter_address_by_options(ConfirmationOptions {
+                exclusive,
+                revocable,
+            })
+            .to_string()
     }
 }

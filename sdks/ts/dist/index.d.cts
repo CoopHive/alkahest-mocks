@@ -548,6 +548,14 @@ declare const isWebSocketTransport: (viemClient: ViemClient) => boolean;
  */
 declare const getOptimalPollingInterval: (viemClient: ViemClient, defaultInterval?: number) => number | undefined;
 
+/** Semantic selector for the confirmation arbiter matrix. */
+type ConfirmationArbiterOptions = {
+    /** Whether only one fulfillment can be confirmed for an escrow. */
+    exclusive: boolean;
+    /** Whether a confirmation can later be revoked. */
+    revocable: boolean;
+};
+
 /** ERC-8004 validation demand used by the ERC8004 arbiter. */
 type ERC8004ArbiterDemandData = {
     /** ERC-8004 ValidationRegistry contract to query. */
@@ -660,6 +668,8 @@ type ArbitrateManyResult = {
 declare const encodeDemand$c: () => "0x";
 declare const decodeDemand$c: (_demand: `0x${string}`) => Record<string, never>;
 
+type TrustedOracleDecisionTarget = "fulfillment" | "commitment";
+
 /**
  * Creates the default extension for the Alkahest client with all standard functionality
  * @param client - The base client to extend
@@ -707,6 +717,116 @@ declare const makeDefaultExtension: (client: any) => {
                 arbitrateMany: (arbitrate: (awd: AttestationWithDemand) => Promise<boolean | null>, options?: ArbitrateManyOptions) => Promise<ArbitrateManyResult>;
             };
             commitmentTrustedOracle: {
+                address: `0x${string}`;
+                arbitrate: (intentHash: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
+                requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+                getArbitrationRequests: (options?: {
+                    fromBlock?: bigint | "earliest";
+                    toBlock?: bigint | "latest";
+                }) => Promise<viem.GetLogsReturnType<{
+                    readonly name: "ArbitrationRequested";
+                    readonly type: "event";
+                    readonly inputs: readonly [{
+                        readonly type: "bytes32";
+                        readonly name: "intentHash";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "address";
+                        readonly name: "oracle";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "bytes";
+                        readonly name: "demand";
+                    }];
+                }, [{
+                    readonly name: "ArbitrationRequested";
+                    readonly type: "event";
+                    readonly inputs: readonly [{
+                        readonly type: "bytes32";
+                        readonly name: "intentHash";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "address";
+                        readonly name: "oracle";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "bytes";
+                        readonly name: "demand";
+                    }];
+                }], undefined, bigint | "earliest", bigint | "latest">>;
+                getArbitrationDecisions: (options?: {
+                    fromBlock?: bigint | "earliest";
+                    toBlock?: bigint | "latest";
+                }) => Promise<viem.GetLogsReturnType<{
+                    readonly name: "ArbitrationMade";
+                    readonly type: "event";
+                    readonly inputs: readonly [{
+                        readonly type: "bytes32";
+                        readonly name: "decisionKey";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "bytes32";
+                        readonly name: "intentHash";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "address";
+                        readonly name: "oracle";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "bool";
+                        readonly name: "decision";
+                    }];
+                }, [{
+                    readonly name: "ArbitrationMade";
+                    readonly type: "event";
+                    readonly inputs: readonly [{
+                        readonly type: "bytes32";
+                        readonly name: "decisionKey";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "bytes32";
+                        readonly name: "intentHash";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "address";
+                        readonly name: "oracle";
+                        readonly indexed: true;
+                    }, {
+                        readonly type: "bool";
+                        readonly name: "decision";
+                    }];
+                }], undefined, bigint | "earliest", bigint | "latest">>;
+                encodeDemand: (demand: CommitmentTrustedOracleArbiterDemandData) => `0x${string}`;
+                decodeDemand: (demandData: `0x${string}`) => CommitmentTrustedOracleArbiterDemandData;
+                attestationIntentHash: (intent: AttestationIntent | Attestation) => `0x${string}`;
+                decisionKeyFor: (intentHash: `0x${string}`, demand: `0x${string}`) => `0x${string}`;
+            };
+            trustedOracleFor: (target?: TrustedOracleDecisionTarget) => {
+                encodeDemand: (demand: TrustedOracleArbiterDemandData) => `0x${string}`;
+                decodeDemand: (demandData: `0x${string}`) => TrustedOracleArbiterDemandData;
+                arbitrateForDemand: (fulfillmentUid: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
+                arbitrateRaw: (fulfillmentUid: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+                checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+                    decisionKey: `0x${string}`;
+                    fulfillmentUid: `0x${string}`;
+                    oracle: `0x${string}`;
+                    decision: boolean;
+                } | undefined>;
+                waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+                    decisionKey?: `0x${string}` | undefined;
+                    fulfillmentUid?: `0x${string}` | undefined;
+                    oracle?: `0x${string}` | undefined;
+                    decision?: boolean | undefined;
+                }>;
+                waitForArbitrationRequest: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, pollingInterval?: number) => Promise<{
+                    fulfillmentUid?: `0x${string}` | undefined;
+                    oracle?: `0x${string}` | undefined;
+                }>;
+                listenForArbitrationRequestsOnly: (oracle: `0x${string}`, arbitrationHandler: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<boolean>, pollingInterval?: number) => viem.WatchEventReturnType;
+                getArbitrationRequests: (options?: ArbitrateManyOptions) => Promise<AttestationWithDemand[]>;
+                arbitrateMany: (arbitrate: (awd: AttestationWithDemand) => Promise<boolean | null>, options?: ArbitrateManyOptions) => Promise<ArbitrateManyResult>;
+            } | {
                 address: `0x${string}`;
                 arbitrate: (intentHash: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
                 requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
@@ -931,6 +1051,21 @@ declare const makeDefaultExtension: (client: any) => {
                     escrow?: `0x${string}` | undefined;
                 }>;
             };
+            byOptions: ({ exclusive, revocable }: ConfirmationArbiterOptions) => {
+                address: `0x${string}`;
+                confirm: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<`0x${string}`>;
+                requestConfirmation: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<`0x${string}`>;
+                isConfirmed: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                waitForConfirmation: (fulfillment: `0x${string}`, escrow: `0x${string}`, pollingInterval?: number) => Promise<{
+                    fulfillment?: `0x${string}` | undefined;
+                    escrow?: `0x${string}` | undefined;
+                }>;
+                waitForConfirmationRequest: (fulfillment: `0x${string}`, confirmer: `0x${string}`, escrow: `0x${string}`, pollingInterval?: number) => Promise<{
+                    fulfillment?: `0x${string}` | undefined;
+                    confirmer?: `0x${string}` | undefined;
+                    escrow?: `0x${string}` | undefined;
+                }>;
+            };
         };
     };
     /** Methods for interacting with ERC20 tokens */
@@ -1048,6 +1183,8 @@ declare const makeDefaultExtension: (client: any) => {
         encodeDemand: (data: SplitterDemandData) => `0x${string}`;
         decodeDemand: (data: `0x${string}`) => SplitterDemandData;
         decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+        attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+        fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
         erc20: {
             address: `0x${string}`;
             encodeDemand: (data: SplitterDemandData) => `0x${string}`;
@@ -1056,11 +1193,106 @@ declare const makeDefaultExtension: (client: any) => {
             arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
             requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
             createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-            collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-            unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        } & {
+            fulfillment: {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            commitment: {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            forTarget: {
+                (target: "fulfillment"): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target: "commitment"): {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target?: SplitterDecisionTarget): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                } | {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+            };
         };
         erc1155: {
             address: `0x${string}`;
@@ -1070,11 +1302,106 @@ declare const makeDefaultExtension: (client: any) => {
             arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
             requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
             createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-            collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-            unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        } & {
+            fulfillment: {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            commitment: {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            forTarget: {
+                (target: "fulfillment"): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target: "commitment"): {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target?: SplitterDecisionTarget): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                } | {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+            };
         };
         nativeToken: {
             address: `0x${string}`;
@@ -1084,11 +1411,106 @@ declare const makeDefaultExtension: (client: any) => {
             arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
             requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
             createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-            collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-            unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        } & {
+            fulfillment: {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            commitment: {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            forTarget: {
+                (target: "fulfillment"): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target: "commitment"): {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target?: SplitterDecisionTarget): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                } | {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+            };
         };
         tokenBundle: {
             address: `0x${string}`;
@@ -1098,11 +1520,106 @@ declare const makeDefaultExtension: (client: any) => {
             arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
             requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
             createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-            collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-            unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        } & {
+            fulfillment: {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            commitment: {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            forTarget: {
+                (target: "fulfillment"): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target: "commitment"): {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target?: SplitterDecisionTarget): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                } | {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+            };
         };
         tokenBundleUnvalidated: {
             address: `0x${string}`;
@@ -1112,11 +1629,106 @@ declare const makeDefaultExtension: (client: any) => {
             arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
             requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
             createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-            collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-            unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        } & {
+            fulfillment: {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            commitment: {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            forTarget: {
+                (target: "fulfillment"): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target: "commitment"): {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+                (target?: SplitterDecisionTarget): {
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                } | {
+                    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: abitype.Address) => `0x${string}`;
+                    createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    address: `0x${string}`;
+                    encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                    decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                    decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                    arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                    requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                    createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                    collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                    getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                    hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                };
+            };
         };
     };
     /** Methods for interacting with attestations */
@@ -10325,6 +10937,116 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
             attestationIntentHash: (intent: AttestationIntent | Attestation) => `0x${string}`;
             decisionKeyFor: (intentHash: `0x${string}`, demand: `0x${string}`) => `0x${string}`;
         };
+        trustedOracleFor: (target?: TrustedOracleDecisionTarget) => {
+            encodeDemand: (demand: TrustedOracleArbiterDemandData) => `0x${string}`;
+            decodeDemand: (demandData: `0x${string}`) => TrustedOracleArbiterDemandData;
+            arbitrateForDemand: (fulfillmentUid: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
+            arbitrateRaw: (fulfillmentUid: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+            checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+                decisionKey: `0x${string}`;
+                fulfillmentUid: `0x${string}`;
+                oracle: `0x${string}`;
+                decision: boolean;
+            } | undefined>;
+            waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+                decisionKey?: `0x${string}` | undefined;
+                fulfillmentUid?: `0x${string}` | undefined;
+                oracle?: `0x${string}` | undefined;
+                decision?: boolean | undefined;
+            }>;
+            waitForArbitrationRequest: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, pollingInterval?: number) => Promise<{
+                fulfillmentUid?: `0x${string}` | undefined;
+                oracle?: `0x${string}` | undefined;
+            }>;
+            listenForArbitrationRequestsOnly: (oracle: `0x${string}`, arbitrationHandler: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<boolean>, pollingInterval?: number) => viem.WatchEventReturnType;
+            getArbitrationRequests: (options?: ArbitrateManyOptions) => Promise<AttestationWithDemand[]>;
+            arbitrateMany: (arbitrate: (awd: AttestationWithDemand) => Promise<boolean | null>, options?: ArbitrateManyOptions) => Promise<ArbitrateManyResult>;
+        } | {
+            address: `0x${string}`;
+            arbitrate: (intentHash: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
+            requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+            getArbitrationRequests: (options?: {
+                fromBlock?: bigint | "earliest";
+                toBlock?: bigint | "latest";
+            }) => Promise<viem.GetLogsReturnType<{
+                readonly name: "ArbitrationRequested";
+                readonly type: "event";
+                readonly inputs: readonly [{
+                    readonly type: "bytes32";
+                    readonly name: "intentHash";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "address";
+                    readonly name: "oracle";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "bytes";
+                    readonly name: "demand";
+                }];
+            }, [{
+                readonly name: "ArbitrationRequested";
+                readonly type: "event";
+                readonly inputs: readonly [{
+                    readonly type: "bytes32";
+                    readonly name: "intentHash";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "address";
+                    readonly name: "oracle";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "bytes";
+                    readonly name: "demand";
+                }];
+            }], undefined, bigint | "earliest", bigint | "latest">>;
+            getArbitrationDecisions: (options?: {
+                fromBlock?: bigint | "earliest";
+                toBlock?: bigint | "latest";
+            }) => Promise<viem.GetLogsReturnType<{
+                readonly name: "ArbitrationMade";
+                readonly type: "event";
+                readonly inputs: readonly [{
+                    readonly type: "bytes32";
+                    readonly name: "decisionKey";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "bytes32";
+                    readonly name: "intentHash";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "address";
+                    readonly name: "oracle";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "bool";
+                    readonly name: "decision";
+                }];
+            }, [{
+                readonly name: "ArbitrationMade";
+                readonly type: "event";
+                readonly inputs: readonly [{
+                    readonly type: "bytes32";
+                    readonly name: "decisionKey";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "bytes32";
+                    readonly name: "intentHash";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "address";
+                    readonly name: "oracle";
+                    readonly indexed: true;
+                }, {
+                    readonly type: "bool";
+                    readonly name: "decision";
+                }];
+            }], undefined, bigint | "earliest", bigint | "latest">>;
+            encodeDemand: (demand: CommitmentTrustedOracleArbiterDemandData) => `0x${string}`;
+            decodeDemand: (demandData: `0x${string}`) => CommitmentTrustedOracleArbiterDemandData;
+            attestationIntentHash: (intent: AttestationIntent | Attestation) => `0x${string}`;
+            decisionKeyFor: (intentHash: `0x${string}`, demand: `0x${string}`) => `0x${string}`;
+        };
         erc8004: {
             address: `0x${string}`;
             encodeDemand: (demand: ERC8004ArbiterDemandData) => `0x${string}`;
@@ -10451,6 +11173,21 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
             }>;
         };
         nonexclusiveUnrevocable: {
+            address: `0x${string}`;
+            confirm: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<`0x${string}`>;
+            requestConfirmation: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<`0x${string}`>;
+            isConfirmed: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            waitForConfirmation: (fulfillment: `0x${string}`, escrow: `0x${string}`, pollingInterval?: number) => Promise<{
+                fulfillment?: `0x${string}` | undefined;
+                escrow?: `0x${string}` | undefined;
+            }>;
+            waitForConfirmationRequest: (fulfillment: `0x${string}`, confirmer: `0x${string}`, escrow: `0x${string}`, pollingInterval?: number) => Promise<{
+                fulfillment?: `0x${string}` | undefined;
+                confirmer?: `0x${string}` | undefined;
+                escrow?: `0x${string}` | undefined;
+            }>;
+        };
+        byOptions: ({ exclusive, revocable }: ConfirmationArbiterOptions) => {
             address: `0x${string}`;
             confirm: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<`0x${string}`>;
             requestConfirmation: (fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<`0x${string}`>;
@@ -10955,10 +11692,17 @@ declare const makeErc20UnconditionalEscrowClient: (viemClient: ViemClient, addre
     reclaim: (buyAttestation: `0x${string}`) => Promise<`0x${string}`>;
 };
 
+/** Default-checking or unconditional ERC20 escrow variant. */
+type Erc20EscrowChecks = "default" | "unconditional";
 /** ERC20 escrow client namespace. */
 type Erc20EscrowClient = {
     default: Erc20DefaultEscrowClient;
     unconditional: Erc20UnconditionalEscrowClient;
+    byChecks: {
+        (checks: "default"): Erc20DefaultEscrowClient;
+        (checks: "unconditional"): Erc20UnconditionalEscrowClient;
+        (checks?: Erc20EscrowChecks): Erc20DefaultEscrowClient | Erc20UnconditionalEscrowClient;
+    };
 };
 /** Create default and unconditional ERC20 escrow clients. */
 declare const makeErc20EscrowClient: (viemClient: ViemClient, addresses: Erc20Addresses) => Erc20EscrowClient;
@@ -11150,10 +11894,17 @@ declare const makeErc721UnconditionalEscrowClient: (viemClient: ViemClient, addr
     reclaim: (buyAttestation: `0x${string}`) => Promise<`0x${string}`>;
 };
 
+/** Default-checking or unconditional ERC721 escrow variant. */
+type Erc721EscrowChecks = "default" | "unconditional";
 /** ERC721 escrow client namespace. */
 type Erc721EscrowClient = {
     default: Erc721DefaultEscrowClient;
     unconditional: Erc721UnconditionalEscrowClient;
+    byChecks: {
+        (checks: "default"): Erc721DefaultEscrowClient;
+        (checks: "unconditional"): Erc721UnconditionalEscrowClient;
+        (checks?: Erc721EscrowChecks): Erc721DefaultEscrowClient | Erc721UnconditionalEscrowClient;
+    };
 };
 /** Create default and unconditional ERC721 escrow clients. */
 declare const makeErc721EscrowClient: (viemClient: ViemClient, addresses: Erc721Addresses) => Erc721EscrowClient;
@@ -11337,10 +12088,17 @@ declare const makeErc1155UnconditionalEscrowClient: (viemClient: ViemClient, add
     reclaim: (buyAttestation: `0x${string}`) => Promise<`0x${string}`>;
 };
 
+/** Default-checking or unconditional ERC1155 escrow variant. */
+type Erc1155EscrowChecks = "default" | "unconditional";
 /** ERC1155 escrow client namespace. */
 type Erc1155EscrowClient = {
     default: Erc1155DefaultEscrowClient;
     unconditional: Erc1155UnconditionalEscrowClient;
+    byChecks: {
+        (checks: "default"): Erc1155DefaultEscrowClient;
+        (checks: "unconditional"): Erc1155UnconditionalEscrowClient;
+        (checks?: Erc1155EscrowChecks): Erc1155DefaultEscrowClient | Erc1155UnconditionalEscrowClient;
+    };
 };
 /** Create default and unconditional ERC1155 escrow clients. */
 declare const makeErc1155EscrowClient: (viemClient: ViemClient, addresses: Erc1155Addresses) => Erc1155EscrowClient;
@@ -11728,10 +12486,17 @@ declare const makeNativeTokenUnconditionalEscrowClient: (viemClient: ViemClient,
     reclaim: (buyAttestation: `0x${string}`) => Promise<`0x${string}`>;
 };
 
+/** Default-checking or unconditional native-token escrow variant. */
+type NativeTokenEscrowChecks = "default" | "unconditional";
 /** Native-token escrow client namespace. */
 type NativeTokenEscrowClient = {
     default: NativeTokenDefaultEscrowClient;
     unconditional: NativeTokenUnconditionalEscrowClient;
+    byChecks: {
+        (checks: "default"): NativeTokenDefaultEscrowClient;
+        (checks: "unconditional"): NativeTokenUnconditionalEscrowClient;
+        (checks?: NativeTokenEscrowChecks): NativeTokenDefaultEscrowClient | NativeTokenUnconditionalEscrowClient;
+    };
 };
 /** Create default and unconditional native-token escrow clients. */
 declare const makeNativeTokenEscrowClient: (viemClient: ViemClient, addresses: NativeTokenAddresses) => NativeTokenEscrowClient;
@@ -12024,10 +12789,17 @@ declare const makeTokenBundleUnconditionalEscrowClient: (viemClient: ViemClient,
     reclaim: (buyAttestation: `0x${string}`) => Promise<`0x${string}`>;
 };
 
+/** Default-checking or unconditional token-bundle escrow variant. */
+type TokenBundleEscrowChecks = "default" | "unconditional";
 /** Token-bundle escrow client namespace. */
 type TokenBundleEscrowClient = {
     default: TokenBundleDefaultEscrowClient;
     unconditional: TokenBundleUnconditionalEscrowClient;
+    byChecks: {
+        (checks: "default"): TokenBundleDefaultEscrowClient;
+        (checks: "unconditional"): TokenBundleUnconditionalEscrowClient;
+        (checks?: TokenBundleEscrowChecks): TokenBundleDefaultEscrowClient | TokenBundleUnconditionalEscrowClient;
+    };
 };
 /** Create default and unconditional token-bundle escrow clients. */
 declare const makeTokenBundleEscrowClient: (viemClient: ViemClient, addresses: TokenBundleAddresses) => TokenBundleEscrowClient;
@@ -12141,6 +12913,11 @@ type SplitterAddresses = {
     nativeTokenSplitter: `0x${string}`;
     tokenBundleSplitter: `0x${string}`;
     tokenBundleSplitterUnvalidated: `0x${string}`;
+    commitmentERC20Splitter: `0x${string}`;
+    commitmentERC1155Splitter: `0x${string}`;
+    commitmentNativeTokenSplitter: `0x${string}`;
+    commitmentTokenBundleSplitter: `0x${string}`;
+    commitmentTokenBundleSplitterUnvalidated: `0x${string}`;
 };
 /** Pick splitter addresses from a full chain address map. */
 declare const pickSplitterAddresses: (addresses: ChainAddresses) => SplitterAddresses;
@@ -12185,11 +12962,28 @@ declare const encodeBundleSplits: (splits: BundleSplit[]) => `0x${string}`;
 declare const decodeBundleSplits: (data: `0x${string}`) => BundleSplit[];
 /** Compute the splitter decision key for a fulfillment and escrow UID. */
 declare const splitterDecisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+/** Splitter arbiter decision target. */
+type SplitterDecisionTarget = "fulfillment" | "commitment";
+type SplitterAttestationIntent = {
+    schema: `0x${string}`;
+    attester: Address;
+    recipient: Address;
+    expirationTime: bigint;
+    revocable: boolean;
+    refUID: `0x${string}`;
+    data: `0x${string}`;
+};
+/** Hashes the attestation fields that commitment splitters approve before a UID exists. */
+declare const splitterAttestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+/** Hashes a splitter fulfillment intent, binding the attestation fields to the recorded fulfiller. */
+declare const splitterFulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
 /** Create clients for all splitter contracts. */
 declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterAddresses) => {
     encodeDemand: (data: SplitterDemandData) => `0x${string}`;
     decodeDemand: (data: `0x${string}`) => SplitterDemandData;
     decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+    attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+    fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
     erc20: {
         address: `0x${string}`;
         encodeDemand: (data: SplitterDemandData) => `0x${string}`;
@@ -12198,11 +12992,106 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
         arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
         requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
         createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-        collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-        unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
         getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
         hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+    } & {
+        fulfillment: {
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        commitment: {
+            attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+            fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+            createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        forTarget: {
+            (target: "fulfillment"): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target: "commitment"): {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target?: SplitterDecisionTarget): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            } | {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+        };
     };
     erc1155: {
         address: `0x${string}`;
@@ -12212,11 +13101,106 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
         arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
         requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
         createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-        collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-        unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
         getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
         hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+    } & {
+        fulfillment: {
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        commitment: {
+            attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+            fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+            createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        forTarget: {
+            (target: "fulfillment"): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target: "commitment"): {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target?: SplitterDecisionTarget): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            } | {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+        };
     };
     nativeToken: {
         address: `0x${string}`;
@@ -12226,11 +13210,106 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
         arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
         requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
         createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-        collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-        unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
         getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
         hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+    } & {
+        fulfillment: {
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        commitment: {
+            attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+            fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+            createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        forTarget: {
+            (target: "fulfillment"): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target: "commitment"): {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target?: SplitterDecisionTarget): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            } | {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<AmountSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+        };
     };
     tokenBundle: {
         address: `0x${string}`;
@@ -12240,11 +13319,106 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
         arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
         requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
         createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-        collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-        unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
         getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
         hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+    } & {
+        fulfillment: {
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        commitment: {
+            attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+            fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+            createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        forTarget: {
+            (target: "fulfillment"): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target: "commitment"): {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target?: SplitterDecisionTarget): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            } | {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+        };
     };
     tokenBundleUnvalidated: {
         address: `0x${string}`;
@@ -12254,11 +13428,106 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
         arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
         requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
         createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
-        collectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
-        unsafePartiallyCollectAndDistribute: (escrowContract: `0x${string}`, escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+        unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
         getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
         hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+    } & {
+        fulfillment: {
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        commitment: {
+            attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+            fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+            createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            address: `0x${string}`;
+            encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+            decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+            decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+            arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+            requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+            createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+            collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+            getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+            hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        };
+        forTarget: {
+            (target: "fulfillment"): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target: "commitment"): {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+            (target?: SplitterDecisionTarget): {
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            } | {
+                attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
+                fulfillmentIntentHash: (intent: SplitterAttestationIntent | Attestation, fulfiller: Address) => `0x${string}`;
+                createFulfillmentAndCollectAndDistribute: (escrow: `0x${string}`, obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                address: `0x${string}`;
+                encodeDemand: (data: SplitterDemandData) => `0x${string}`;
+                decodeDemand: (data: `0x${string}`) => SplitterDemandData;
+                decisionKey: (fulfillment: `0x${string}`, escrow: `0x${string}`) => `0x${string}`;
+                arbitrate: (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: BundleSplit[]) => Promise<`0x${string}`>;
+                requestArbitration: (fulfillment: `0x${string}`, escrow: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<`0x${string}`>;
+                createFulfillment: (obligationContract: `0x${string}`, data: `0x${string}`, expirationTime: bigint, refUID: `0x${string}`, value?: bigint) => Promise<`0x${string}`>;
+                collectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
+                getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
+                hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            };
+        };
     };
 };
 /** Ergonomic client for splitter contracts. */
@@ -108548,4 +109817,4 @@ declare const makeClient: (walletClient: WalletClient<Transport, Chain, Account>
  */
 declare const makeMinimalClient: (walletClient: WalletClient<Transport, Chain, Account>, contractAddresses?: Partial<ChainAddresses>) => MinimalClient;
 
-export { type AlkahestClient, AllArbiter$1 as AllArbiter, type AllArbiterDemandData, type AmountSplit, type AmountSplitHookData, AnyArbiter$1 as AnyArbiter, type AnyArbiterDemandData, type ApprovalPurpose, type ArbitrationMode, type AtomicPaymentOptions, type Attestation, type AttestationAddresses, type AttestationClient, type AttestationEscrowClient, type AttestationEscrowDefaultClient, type AttestationEscrowHookData, type AttestationFilters, type AttestationReferenceEscrowClient, type AttestationReferenceEscrowHookData, type AttestationUtilClient, type AttestationWithDemand, type AttesterArbiterDemandData, type BatchFilters, type BlockFilters, type BundleSplit, type ChainAddresses, type CommitRevealAddresses, type CommitRevealDemandData, type CommitRevealObligationClient, type CommitRevealObligationData, type ContractAddressInfo, type DecodedDemandResult, type DecodedDemandWithChildren, type DecodersRecord, type Demand, type DemandDecoder, type DeployFn, type DeployOptions, type ERC8004ArbiterDemandData, type Eip2612Props, type EnhancedArbitrateFilters, type Erc1155, type Erc1155Addresses, type Erc1155Client, type Erc1155DefaultEscrowClient, type Erc1155EscrowClient, type Erc1155HookData, type Erc1155PaymentClient, type Erc1155UnconditionalEscrowClient, type Erc1155UtilClient, type Erc20, type Erc20Addresses, type Erc20Client, type Erc20DefaultEscrowClient, type Erc20EscrowClient, type Erc20PaymentClient, type Erc20UnconditionalEscrowClient, type Erc20UtilClient, type Erc721, type Erc721Addresses, type Erc721Client, type Erc721DefaultEscrowClient, type Erc721EscrowClient, type Erc721PaymentClient, type Erc721UnconditionalEscrowClient, type Erc721UtilClient, type EthArbitrationContext, type EthArbitrationRequest, type EthArbitrationResult, type EthBalanceArbitrationRequest, type EthTransferArbitrationRequest, type ExpirationTimeAfterArbiterDemandData, type ExpirationTimeBeforeArbiterDemandData, type ExpirationTimeEqualArbiterDemandData, type HookBasedAddresses, type HookBasedClient, type HookEscrowObligationData, type HooksEscrowObligationData, type MinimalClient, type NativeTokenAddresses, type NativeTokenArbitrationContext, type NativeTokenArbitrationRequest, type NativeTokenArbitrationResult, type NativeTokenBalanceArbitrationRequest, type NativeTokenClient, type NativeTokenDefaultEscrowClient, type NativeTokenDefaultEscrowObligationData, type NativeTokenEscrowArbitrationRequest, type NativeTokenEscrowClient, type NativeTokenHookData, type NativeTokenPaymentArbitrationRequest, type NativeTokenPaymentClient, type NativeTokenPaymentObligationData, type NativeTokenTransferArbitrationRequest, type NativeTokenUnconditionalEscrowClient, type NativeTokenUnconditionalEscrowObligationData, type PerformanceFilters, type PermitSignature, type RecipientArbiterDemandData, type RecursivelyDecodedDemand, type RefUidArbiterDemandData, type RevocableArbiterDemandData, type SchemaArbiterDemandData, type SignPermitProps, type SplitterAddresses, type SplitterDemandData, type SplittersClient, type StringAddresses, type StringObligationClient, type StringObligationData, type TestContext, type TimeAfterArbiterDemandData, type TimeBeforeArbiterDemandData, type TimeEqualArbiterDemandData, type TimeFilters, type TokenBundle, type TokenBundleAddresses, type TokenBundleClient, type TokenBundleDefaultEscrowClient, type TokenBundleEscrowClient, type TokenBundleFlat, type TokenBundlePaymentClient, type TokenBundleUnconditionalEscrowClient, type TokenBundleUtilClient, type TokenIdHookData, type TrustedOracleArbiterDemandData, type UidArbiterDemandData, type ViemClient, assertDeployedContract, contractAddresses, index as contracts, createAddressIndex, createDecodersFromAddresses, decodeAmountSplits, decodeDemand$b as decodeAttesterDemand, decodeBundleSplits, decodeObligation$3 as decodeDefaultEscrowObligation, decodeDemand$f as decodeDemand, decodeDemandWithAddresses, decodeDemand$e as decodeERC8004Demand, decodeDemand$a as decodeExpirationTimeAfterDemand, decodeDemand$9 as decodeExpirationTimeBeforeDemand, decodeDemand$8 as decodeExpirationTimeEqualDemand, decodeHookEscrowObligation, decodeHooksEscrowObligation, decodeObligation, decodeObligation$1 as decodePaymentObligation, decodeDemand$7 as decodeRecipientDemand, decodeDemand$6 as decodeRefUidDemand, decodeDemand$c as decodeReferencesEscrowDemand, decodeDemand$5 as decodeRevocableDemand, decodeDemand$4 as decodeSchemaDemand, decodeSplitterDemand, decodeDemand$3 as decodeTimeAfterDemand, decodeDemand$2 as decodeTimeBeforeDemand, decodeDemand$1 as decodeTimeEqualDemand, decodeDemand$d as decodeTrustedOracleDemand, decodeDemand as decodeUidDemand, decodeObligation$2 as decodeUnconditionalEscrowObligation, deployAlkahest, encodeAmountSplits, encodeDemand$b as encodeAttesterDemand, encodeBundleSplits, encodeObligation$3 as encodeDefaultEscrowObligation, encodeDemand$e as encodeERC8004Demand, encodeDemand$a as encodeExpirationTimeAfterDemand, encodeDemand$9 as encodeExpirationTimeBeforeDemand, encodeDemand$8 as encodeExpirationTimeEqualDemand, encodeHookEscrowObligation, encodeHooksEscrowObligation, encodeObligation, encodeObligation$1 as encodePaymentObligation, encodeDemand$7 as encodeRecipientDemand, encodeDemand$6 as encodeRefUidDemand, encodeDemand$c as encodeReferencesEscrowDemand, encodeDemand$5 as encodeRevocableDemand, encodeDemand$4 as encodeSchemaDemand, encodeSplitterDemand, encodeDemand$3 as encodeTimeAfterDemand, encodeDemand$2 as encodeTimeBeforeDemand, encodeDemand$1 as encodeTimeEqualDemand, encodeDemand$d as encodeTrustedOracleDemand, encodeDemand as encodeUidDemand, encodeObligation$2 as encodeUnconditionalEscrowObligation, requestHashFor as erc8004RequestHashFor, index$1 as fixtures, flattenTokenBundle, getAtomicPaymentEscrowAttestation, getAttestation, getAttestedEventFromTxHash, getAttestedEventsFromTxHash, getOptimalPollingInterval, isWebSocketTransport, lookupAddress, makeArbitersClient, makeAttestationClient, makeAttestationEscrowClient, makeAttestationEscrowDefaultClient, makeAttestationReferenceEscrowClient, makeAttestationUtilClient, makeClient, makeCommitRevealObligationClient, makeDefaultExtension, makeErc1155Client, makeErc1155DefaultEscrowClient, makeErc1155EscrowClient, makeErc1155PaymentClient, makeErc1155UnconditionalEscrowClient, makeErc1155UtilClient, makeErc20Client, makeErc20DefaultEscrowClient, makeErc20EscrowClient, makeErc20PaymentClient, makeErc20UnconditionalEscrowClient, makeErc20UtilClient, makeErc721Client, makeErc721DefaultEscrowClient, makeErc721EscrowClient, makeErc721PaymentClient, makeErc721UnconditionalEscrowClient, makeErc721UtilClient, makeHookBasedClient, makeMinimalClient, makeNativeTokenClient, makeNativeTokenDefaultEscrowClient, makeNativeTokenEscrowClient, makeNativeTokenPaymentClient, makeNativeTokenUnconditionalEscrowClient, makeSplittersClient, makeStringObligationClient, makeTokenBundleClient, makeTokenBundleDefaultEscrowClient, makeTokenBundleEscrowClient, makeTokenBundlePaymentClient, makeTokenBundleUnconditionalEscrowClient, makeTokenBundleUtilClient, pickAttestationAddresses, pickCommitRevealAddresses, pickErc1155Addresses, pickErc20Addresses, pickErc721Addresses, pickHookBasedAddresses, pickNativeTokenAddresses, pickPackagedEscrowObligations, pickSplitterAddresses, pickStringAddresses, pickTokenBundleAddresses, readContract, setupTestEnvironment, splitterDecisionKey, supportedChains, writeContract };
+export { type AlkahestClient, AllArbiter$1 as AllArbiter, type AllArbiterDemandData, type AmountSplit, type AmountSplitHookData, AnyArbiter$1 as AnyArbiter, type AnyArbiterDemandData, type ApprovalPurpose, type ArbitrationMode, type AtomicPaymentOptions, type Attestation, type AttestationAddresses, type AttestationClient, type AttestationEscrowClient, type AttestationEscrowDefaultClient, type AttestationEscrowHookData, type AttestationFilters, type AttestationReferenceEscrowClient, type AttestationReferenceEscrowHookData, type AttestationUtilClient, type AttestationWithDemand, type AttesterArbiterDemandData, type BatchFilters, type BlockFilters, type BundleSplit, type ChainAddresses, type CommitRevealAddresses, type CommitRevealDemandData, type CommitRevealObligationClient, type CommitRevealObligationData, type ContractAddressInfo, type DecodedDemandResult, type DecodedDemandWithChildren, type DecodersRecord, type Demand, type DemandDecoder, type DeployFn, type DeployOptions, type ERC8004ArbiterDemandData, type Eip2612Props, type EnhancedArbitrateFilters, type Erc1155, type Erc1155Addresses, type Erc1155Client, type Erc1155DefaultEscrowClient, type Erc1155EscrowClient, type Erc1155HookData, type Erc1155PaymentClient, type Erc1155UnconditionalEscrowClient, type Erc1155UtilClient, type Erc20, type Erc20Addresses, type Erc20Client, type Erc20DefaultEscrowClient, type Erc20EscrowClient, type Erc20PaymentClient, type Erc20UnconditionalEscrowClient, type Erc20UtilClient, type Erc721, type Erc721Addresses, type Erc721Client, type Erc721DefaultEscrowClient, type Erc721EscrowClient, type Erc721PaymentClient, type Erc721UnconditionalEscrowClient, type Erc721UtilClient, type EthArbitrationContext, type EthArbitrationRequest, type EthArbitrationResult, type EthBalanceArbitrationRequest, type EthTransferArbitrationRequest, type ExpirationTimeAfterArbiterDemandData, type ExpirationTimeBeforeArbiterDemandData, type ExpirationTimeEqualArbiterDemandData, type HookBasedAddresses, type HookBasedClient, type HookEscrowObligationData, type HooksEscrowObligationData, type MinimalClient, type NativeTokenAddresses, type NativeTokenArbitrationContext, type NativeTokenArbitrationRequest, type NativeTokenArbitrationResult, type NativeTokenBalanceArbitrationRequest, type NativeTokenClient, type NativeTokenDefaultEscrowClient, type NativeTokenDefaultEscrowObligationData, type NativeTokenEscrowArbitrationRequest, type NativeTokenEscrowClient, type NativeTokenHookData, type NativeTokenPaymentArbitrationRequest, type NativeTokenPaymentClient, type NativeTokenPaymentObligationData, type NativeTokenTransferArbitrationRequest, type NativeTokenUnconditionalEscrowClient, type NativeTokenUnconditionalEscrowObligationData, type PerformanceFilters, type PermitSignature, type RecipientArbiterDemandData, type RecursivelyDecodedDemand, type RefUidArbiterDemandData, type RevocableArbiterDemandData, type SchemaArbiterDemandData, type SignPermitProps, type SplitterAddresses, type SplitterAttestationIntent, type SplitterDecisionTarget, type SplitterDemandData, type SplittersClient, type StringAddresses, type StringObligationClient, type StringObligationData, type TestContext, type TimeAfterArbiterDemandData, type TimeBeforeArbiterDemandData, type TimeEqualArbiterDemandData, type TimeFilters, type TokenBundle, type TokenBundleAddresses, type TokenBundleClient, type TokenBundleDefaultEscrowClient, type TokenBundleEscrowClient, type TokenBundleFlat, type TokenBundlePaymentClient, type TokenBundleUnconditionalEscrowClient, type TokenBundleUtilClient, type TokenIdHookData, type TrustedOracleArbiterDemandData, type UidArbiterDemandData, type ViemClient, assertDeployedContract, contractAddresses, index as contracts, createAddressIndex, createDecodersFromAddresses, decodeAmountSplits, decodeDemand$b as decodeAttesterDemand, decodeBundleSplits, decodeObligation$3 as decodeDefaultEscrowObligation, decodeDemand$f as decodeDemand, decodeDemandWithAddresses, decodeDemand$e as decodeERC8004Demand, decodeDemand$a as decodeExpirationTimeAfterDemand, decodeDemand$9 as decodeExpirationTimeBeforeDemand, decodeDemand$8 as decodeExpirationTimeEqualDemand, decodeHookEscrowObligation, decodeHooksEscrowObligation, decodeObligation, decodeObligation$1 as decodePaymentObligation, decodeDemand$7 as decodeRecipientDemand, decodeDemand$6 as decodeRefUidDemand, decodeDemand$c as decodeReferencesEscrowDemand, decodeDemand$5 as decodeRevocableDemand, decodeDemand$4 as decodeSchemaDemand, decodeSplitterDemand, decodeDemand$3 as decodeTimeAfterDemand, decodeDemand$2 as decodeTimeBeforeDemand, decodeDemand$1 as decodeTimeEqualDemand, decodeDemand$d as decodeTrustedOracleDemand, decodeDemand as decodeUidDemand, decodeObligation$2 as decodeUnconditionalEscrowObligation, deployAlkahest, encodeAmountSplits, encodeDemand$b as encodeAttesterDemand, encodeBundleSplits, encodeObligation$3 as encodeDefaultEscrowObligation, encodeDemand$e as encodeERC8004Demand, encodeDemand$a as encodeExpirationTimeAfterDemand, encodeDemand$9 as encodeExpirationTimeBeforeDemand, encodeDemand$8 as encodeExpirationTimeEqualDemand, encodeHookEscrowObligation, encodeHooksEscrowObligation, encodeObligation, encodeObligation$1 as encodePaymentObligation, encodeDemand$7 as encodeRecipientDemand, encodeDemand$6 as encodeRefUidDemand, encodeDemand$c as encodeReferencesEscrowDemand, encodeDemand$5 as encodeRevocableDemand, encodeDemand$4 as encodeSchemaDemand, encodeSplitterDemand, encodeDemand$3 as encodeTimeAfterDemand, encodeDemand$2 as encodeTimeBeforeDemand, encodeDemand$1 as encodeTimeEqualDemand, encodeDemand$d as encodeTrustedOracleDemand, encodeDemand as encodeUidDemand, encodeObligation$2 as encodeUnconditionalEscrowObligation, requestHashFor as erc8004RequestHashFor, index$1 as fixtures, flattenTokenBundle, getAtomicPaymentEscrowAttestation, getAttestation, getAttestedEventFromTxHash, getAttestedEventsFromTxHash, getOptimalPollingInterval, isWebSocketTransport, lookupAddress, makeArbitersClient, makeAttestationClient, makeAttestationEscrowClient, makeAttestationEscrowDefaultClient, makeAttestationReferenceEscrowClient, makeAttestationUtilClient, makeClient, makeCommitRevealObligationClient, makeDefaultExtension, makeErc1155Client, makeErc1155DefaultEscrowClient, makeErc1155EscrowClient, makeErc1155PaymentClient, makeErc1155UnconditionalEscrowClient, makeErc1155UtilClient, makeErc20Client, makeErc20DefaultEscrowClient, makeErc20EscrowClient, makeErc20PaymentClient, makeErc20UnconditionalEscrowClient, makeErc20UtilClient, makeErc721Client, makeErc721DefaultEscrowClient, makeErc721EscrowClient, makeErc721PaymentClient, makeErc721UnconditionalEscrowClient, makeErc721UtilClient, makeHookBasedClient, makeMinimalClient, makeNativeTokenClient, makeNativeTokenDefaultEscrowClient, makeNativeTokenEscrowClient, makeNativeTokenPaymentClient, makeNativeTokenUnconditionalEscrowClient, makeSplittersClient, makeStringObligationClient, makeTokenBundleClient, makeTokenBundleDefaultEscrowClient, makeTokenBundleEscrowClient, makeTokenBundlePaymentClient, makeTokenBundleUnconditionalEscrowClient, makeTokenBundleUtilClient, pickAttestationAddresses, pickCommitRevealAddresses, pickErc1155Addresses, pickErc20Addresses, pickErc721Addresses, pickHookBasedAddresses, pickNativeTokenAddresses, pickPackagedEscrowObligations, pickSplitterAddresses, pickStringAddresses, pickTokenBundleAddresses, readContract, setupTestEnvironment, splitterAttestationIntentHash, splitterDecisionKey, splitterFulfillmentIntentHash, supportedChains, writeContract };

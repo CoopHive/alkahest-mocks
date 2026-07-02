@@ -33,7 +33,7 @@ mod trusted_oracle;
 pub use codec::{ArbiterDemandCodec, ArbiterDemandCodecRegistry, DecodedExtensionDemand};
 
 // Re-export confirmation types
-pub use confirmation::ConfirmationArbiterType;
+pub use confirmation::{ConfirmationArbiterType, ConfirmationOptions, ConfirmationVariant};
 
 // Re-export logical APIs
 pub use logical::{
@@ -277,6 +277,13 @@ pub enum ArbitersContract {
     NonexclusiveUnrevocableConfirmationArbiter,
 }
 
+/// Whether an oracle decision targets an existing fulfillment UID or a future attestation commitment.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrustedOracleDecisionTarget {
+    Fulfillment,
+    Commitment,
+}
+
 impl ContractModule for ArbitersModule {
     type Contract = ArbitersContract;
 
@@ -391,6 +398,24 @@ impl ArbitersModule {
     /// ```
     pub fn trusted_oracle(&self) -> trusted_oracle::TrustedOracle<'_> {
         trusted_oracle::TrustedOracle::new(self)
+    }
+
+    /// Get the trusted-oracle arbiter contract for a decision target.
+    pub fn trusted_oracle_contract_for(
+        &self,
+        target: TrustedOracleDecisionTarget,
+    ) -> ArbitersContract {
+        match target {
+            TrustedOracleDecisionTarget::Fulfillment => ArbitersContract::TrustedOracleArbiter,
+            TrustedOracleDecisionTarget::Commitment => {
+                ArbitersContract::CommitmentTrustedOracleArbiter
+            }
+        }
+    }
+
+    /// Get the trusted-oracle arbiter address for a decision target.
+    pub fn trusted_oracle_address_for(&self, target: TrustedOracleDecisionTarget) -> Address {
+        self.address(self.trusted_oracle_contract_for(target))
     }
 
     pub fn encode_erc8004_demand(

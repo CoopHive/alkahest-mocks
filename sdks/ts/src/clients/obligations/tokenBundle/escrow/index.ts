@@ -6,10 +6,18 @@ import { makeTokenBundleUnconditionalEscrowClient, type TokenBundleUnconditional
 export { makeTokenBundleDefaultEscrowClient, type TokenBundleDefaultEscrowClient } from "./default";
 export { makeTokenBundleUnconditionalEscrowClient, type TokenBundleUnconditionalEscrowClient } from "./unconditional";
 
+/** Default-checking or unconditional token-bundle escrow variant. */
+export type TokenBundleEscrowChecks = "default" | "unconditional";
+
 /** Token-bundle escrow client namespace. */
 export type TokenBundleEscrowClient = {
   default: TokenBundleDefaultEscrowClient;
   unconditional: TokenBundleUnconditionalEscrowClient;
+  byChecks: {
+    (checks: "default"): TokenBundleDefaultEscrowClient;
+    (checks: "unconditional"): TokenBundleUnconditionalEscrowClient;
+    (checks?: TokenBundleEscrowChecks): TokenBundleDefaultEscrowClient | TokenBundleUnconditionalEscrowClient;
+  };
 };
 
 /** Create default and unconditional token-bundle escrow clients. */
@@ -17,8 +25,14 @@ export const makeTokenBundleEscrowClient = (
   viemClient: ViemClient,
   addresses: TokenBundleAddresses,
 ): TokenBundleEscrowClient => {
+  const defaultEscrow = makeTokenBundleDefaultEscrowClient(viemClient, addresses);
+  const unconditional = makeTokenBundleUnconditionalEscrowClient(viemClient, addresses);
+  const byChecks = (checks: TokenBundleEscrowChecks = "default") =>
+    checks === "default" ? defaultEscrow : unconditional;
+
   return {
-    default: makeTokenBundleDefaultEscrowClient(viemClient, addresses),
-    unconditional: makeTokenBundleUnconditionalEscrowClient(viemClient, addresses),
+    default: defaultEscrow,
+    unconditional,
+    byChecks,
   };
 };
