@@ -1,4 +1,14 @@
-import { decodeAbiParameters, encodeAbiParameters, encodePacked, getAbiItem, keccak256, type Address } from "viem";
+import {
+  type Address,
+  type BlockNumber,
+  type BlockTag,
+  decodeAbiParameters,
+  encodeAbiParameters,
+  encodePacked,
+  getAbiItem,
+  keccak256,
+  parseAbiItem,
+} from "viem";
 import { abi as commitmentERC20SplitterAbi } from "../../contracts/utils/splitters/commitment/CommitmentERC20Splitter";
 import { abi as commitmentERC1155SplitterAbi } from "../../contracts/utils/splitters/commitment/CommitmentERC1155Splitter";
 import { abi as commitmentNativeTokenSplitterAbi } from "../../contracts/utils/splitters/commitment/CommitmentNativeTokenSplitter";
@@ -10,7 +20,7 @@ import { abi as nativeTokenSplitterAbi } from "../../contracts/utils/splitters/d
 import { abi as tokenBundleSplitterAbi } from "../../contracts/utils/splitters/default/TokenBundleSplitter";
 import { abi as tokenBundleSplitterUnvalidatedAbi } from "../../contracts/utils/splitters/default/TokenBundleSplitterUnvalidated";
 import type { Attestation, ChainAddresses } from "../../types";
-import { readContract, type ViemClient, writeContract } from "../../utils";
+import { getOptimalPollingInterval, readContract, type ViemClient, writeContract } from "../../utils";
 
 /**
  * Security note: the underlying splitter contracts were not included in the
@@ -60,6 +70,34 @@ export type AmountSplit = {
   recipient: `0x${string}`;
   /** Amount assigned to this recipient. */
   amount: bigint;
+};
+
+export type SplitterArbitrationMode = "past" | "pastUnarbitrated" | "allUnarbitrated" | "all" | "future";
+
+export type AmountSplitterArbitrationRequest = {
+  fulfillmentOrIntent: `0x${string}`;
+  escrow: `0x${string}`;
+  demand: `0x${string}`;
+};
+
+export type AmountSplitterDecision = {
+  hash: `0x${string}`;
+  fulfillmentOrIntent: `0x${string}`;
+  escrow: `0x${string}`;
+  splits: AmountSplit[];
+};
+
+export type AmountSplitterArbitrateManyOptions = {
+  mode?: SplitterArbitrationMode;
+  fromBlock?: BlockNumber | BlockTag;
+  toBlock?: BlockNumber | BlockTag;
+  onAfterArbitrate?: (decision: AmountSplitterDecision) => Promise<void>;
+  pollingInterval?: number;
+};
+
+export type AmountSplitterArbitrateManyResult = {
+  decisions: AmountSplitterDecision[];
+  unwatch: () => void;
 };
 
 /** Split item for token-bundle splitters. */
@@ -157,18 +195,137 @@ const makeAmountSplitterClient = (
   viemClient: ViemClient,
   address: `0x${string}`,
   abi: any,
-) => ({
-  address,
-  encodeDemand: encodeSplitterDemand,
-  decodeDemand: decodeSplitterDemand,
-  decisionKey: splitterDecisionKey,
-  arbitrate: async (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) =>
+) => {
+  const arbitrationRequestedEvent = parseAbiItem(
+    "event ArbitrationRequested(bytes32 indexed fulfillment, bytes32 indexed escrow, address indexed oracle, bytes demand)",
+  );
+
+  const arbitrate = async (fulfillment: `0x${string}`, escrow: `0x${string}`, splits: AmountSplit[]) =>
     await writeContract(viemClient, {
       address,
       abi,
       functionName: "arbitrate",
       args: [fulfillment, escrow, splits],
-    }),
+    });
+
+  const hasDecisionFor = async (oracle: `0x${string}`, fulfillmentOrIntent: `0x${string}`, escrow: `0x${string}`) =>
+    await readContract<boolean>(viemClient, {
+      address,
+      abi,
+      functionName: "hasDecision",
+      args: [oracle, splitterDecisionKey(fulfillmentOrIntent, escrow)],
+    });
+
+  const getArbitrationRequests = async (
+    options: AmountSplitterArbitrateManyOptions = {},
+  ): Promise<AmountSplitterArbitrationRequest[]> => {
+    const logs = await viemClient.getLogs({
+      address,
+      event: arbitrationRequestedEvent,
+      args: { oracle: viemClient.account.address },
+      fromBlock: options.fromBlock ?? "earliest",
+      toBlock: options.toBlock ?? "latest",
+    });
+
+    const requests = logs.map((log) => ({
+      fulfillmentOrIntent: log.args.fulfillment as `0x${string}`,
+      escrow: log.args.escrow as `0x${string}`,
+      demand: log.args.demand as `0x${string}`,
+    }));
+
+    if (options.mode === "pastUnarbitrated" || options.mode === "allUnarbitrated") {
+      const filtered = await Promise.all(
+        requests.map(async (request) =>
+          (await hasDecisionFor(viemClient.account.address, request.fulfillmentOrIntent, request.escrow))
+            ? null
+            : request,
+        ),
+      );
+      return filtered.filter((request) => request !== null) as AmountSplitterArbitrationRequest[];
+    }
+
+    return requests;
+  };
+
+  const arbitrateMany = async (
+    decide: (request: AmountSplitterArbitrationRequest) => Promise<AmountSplit[] | null>,
+    options: AmountSplitterArbitrateManyOptions = {},
+  ): Promise<AmountSplitterArbitrateManyResult> => {
+    const mode = options.mode ?? "allUnarbitrated";
+    const shouldProcessPast = mode !== "future";
+    const shouldListen = mode === "all" || mode === "allUnarbitrated" || mode === "future";
+
+    let decisions: AmountSplitterDecision[] = [];
+    if (shouldProcessPast) {
+      const requests = await getArbitrationRequests(options);
+      const decisionResults: (AmountSplitterDecision | null)[] = [];
+
+      for (const request of requests) {
+        const splits = await decide(request);
+        if (splits === null) {
+          decisionResults.push(null);
+          continue;
+        }
+
+        const hash = await arbitrate(request.fulfillmentOrIntent, request.escrow, splits);
+        decisionResults.push({
+          hash,
+          fulfillmentOrIntent: request.fulfillmentOrIntent,
+          escrow: request.escrow,
+          splits,
+        });
+      }
+
+      decisions = decisionResults.filter((decision) => decision !== null) as AmountSplitterDecision[];
+      await Promise.all(decisions.map((decision) => viemClient.waitForTransactionReceipt({ hash: decision.hash })));
+    }
+
+    if (!shouldListen) {
+      return { decisions, unwatch: () => {} };
+    }
+
+    const optimalInterval = getOptimalPollingInterval(viemClient, options.pollingInterval);
+    const unwatch = viemClient.watchEvent({
+      address,
+      event: arbitrationRequestedEvent,
+      args: { oracle: viemClient.account.address },
+      pollingInterval: optimalInterval,
+      onLogs: async (logs) => {
+        await Promise.all(
+          logs.map(async (log) => {
+            const request = {
+              fulfillmentOrIntent: log.args.fulfillment as `0x${string}`,
+              escrow: log.args.escrow as `0x${string}`,
+              demand: log.args.demand as `0x${string}`,
+            };
+            const splits = await decide(request);
+            if (splits === null) return;
+
+            const hash = await arbitrate(request.fulfillmentOrIntent, request.escrow, splits);
+            const decision = {
+              hash,
+              fulfillmentOrIntent: request.fulfillmentOrIntent,
+              escrow: request.escrow,
+              splits,
+            };
+
+            if (options.onAfterArbitrate) {
+              await options.onAfterArbitrate(decision);
+            }
+          }),
+        );
+      },
+    });
+
+    return { decisions, unwatch };
+  };
+
+  return {
+    address,
+    encodeDemand: encodeSplitterDemand,
+    decodeDemand: decodeSplitterDemand,
+    decisionKey: splitterDecisionKey,
+    arbitrate,
   requestArbitration: async (
     fulfillment: `0x${string}`,
     escrow: `0x${string}`,
@@ -216,13 +373,9 @@ const makeAmountSplitterClient = (
       functionName: "getSplits",
       args: [oracle, fulfillment, escrow],
     }),
-  hasDecision: async (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) =>
-    await readContract<boolean>(viemClient, {
-      address,
-      abi,
-      functionName: "hasDecision",
-      args: [oracle, splitterDecisionKey(fulfillment, escrow)],
-    }),
+    hasDecision: hasDecisionFor,
+    getArbitrationRequests,
+    arbitrateMany,
   check: async (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) =>
     await readContract<boolean>(viemClient, {
       address,
@@ -230,7 +383,8 @@ const makeAmountSplitterClient = (
       functionName: "check",
       args: [fulfillment, demand, escrow],
     }),
-});
+  };
+};
 
 const makeBundleSplitterClient = (
   viemClient: ViemClient,

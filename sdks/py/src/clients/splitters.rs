@@ -8,7 +8,10 @@
 //! tooling so far.
 
 use alkahest_rs::{
-    clients::splitters::{SplitterAsset, SplitterContract, SplitterDecisionTarget},
+    clients::splitters::{
+        AmountSplitterArbitrationRequest, AmountSplitterDecision, SplitterArbitrationMode,
+        SplitterAsset, SplitterContract, SplitterDecisionTarget,
+    },
     contracts,
     extensions::SplittersModule,
 };
@@ -16,8 +19,9 @@ use alloy::{
     primitives::{keccak256, Address, Bytes, FixedBytes, U256},
     sol_types::SolValue,
 };
-use pyo3::{pyclass, pymethods, PyAny, PyResult, Python};
-use pyo3_async_runtimes::tokio::future_into_py;
+use pyo3::{pyclass, pymethods, types::PyAnyMethods, PyAny, PyObject, PyResult, Python};
+use pyo3_async_runtimes::tokio::{future_into_py, into_future};
+use std::{future::Future, pin::Pin, sync::Arc};
 
 use crate::{
     contract::PyAttestation,
@@ -364,6 +368,169 @@ impl SplittersClient {
             Ok(has_decision)
         })
     }
+
+    #[pyo3(signature = (contract, decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many_amount<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let is_async = Python::with_gil(|py| {
+            let inspect = py.import("inspect").ok()?;
+            inspect
+                .getattr("iscoroutinefunction")
+                .ok()?
+                .call1((decision_func.clone_ref(py),))
+                .ok()?
+                .extract::<bool>()
+                .ok()
+        })
+        .unwrap_or(false);
+
+        if is_async {
+            return self.arbitrate_many_amount_async_impl(
+                py,
+                contract,
+                decision_func,
+                callback_func,
+                mode,
+                timeout_seconds,
+            );
+        }
+
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let contract = parse_splitter_contract(&contract)?;
+            let mode = parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+
+            let decide = |request: &AmountSplitterArbitrationRequest| -> Option<Vec<contracts::utils::splitters::ERC20Splitter::Split>> {
+                Python::with_gil(|py| {
+                    let result = decision_func
+                        .call1(py, (request.fulfillment.to_string(), request.escrow.to_string(), request.demand.to_vec()))
+                        .ok()?;
+                    if result.is_none(py) {
+                        return None;
+                    }
+                    let py_splits = result.extract::<Vec<PyAmountSplit>>(py).ok()?;
+                    parse_amount_splits(&py_splits).ok()
+                })
+            };
+
+            let callback = |decision: &AmountSplitterDecision| {
+                if let Some(ref py_callback) = callback_func {
+                    Python::with_gil(|py| {
+                        let py_decision = PyAmountSplitterDecision::from(decision);
+                        if let Err(e) = py_callback.call1(py, (py_decision,)) {
+                            eprintln!("Python callback failed: {}", e);
+                        }
+                    });
+                }
+                Box::pin(async {})
+            };
+
+            let result = inner
+                .arbitrate_many_amount_blocking_sync(contract, decide, callback, mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .iter()
+                .map(PyAmountSplitterDecision::from)
+                .collect::<Vec<_>>())
+        })
+    }
+
+    fn arbitrate_many_amount_async_impl<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let contract = parse_splitter_contract(&contract)?;
+            let mode = parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+            let decision_func = Arc::new(decision_func);
+            let callback_func = Arc::new(callback_func);
+
+            let decide = move |request: &AmountSplitterArbitrationRequest| -> Pin<
+                Box<dyn Future<Output = Option<Vec<contracts::utils::splitters::ERC20Splitter::Split>>> + Send + 'static>,
+            > {
+                let request = request.clone();
+                let decision_func = Arc::clone(&decision_func);
+                Box::pin(async move {
+                    let coro_result = Python::with_gil(|py| {
+                        decision_func
+                            .clone_ref(py)
+                            .call1(py, (request.fulfillment.to_string(), request.escrow.to_string(), request.demand.to_vec()))
+                    });
+                    let coro = match coro_result {
+                        Ok(coro) => coro,
+                        Err(e) => {
+                            eprintln!("Python async splitter decision function failed: {}", e);
+                            return None;
+                        }
+                    };
+                    if Python::with_gil(|py| coro.is_none(py)) {
+                        return None;
+                    }
+                    let future = match Python::with_gil(|py| into_future(coro.into_bound(py))) {
+                        Ok(future) => future,
+                        Err(e) => {
+                            eprintln!("Failed to convert coroutine to future: {}", e);
+                            return None;
+                        }
+                    };
+                    match future.await {
+                        Ok(result) => Python::with_gil(|py| {
+                            if result.is_none(py) {
+                                return None;
+                            }
+                            let py_splits = result.extract::<Vec<PyAmountSplit>>(py).ok()?;
+                            parse_amount_splits(&py_splits).ok()
+                        }),
+                        Err(e) => {
+                            eprintln!("Python async splitter decision function failed: {}", e);
+                            None
+                        }
+                    }
+                })
+            };
+
+            let callback = move |decision: &AmountSplitterDecision| {
+                let callback_func = Arc::clone(&callback_func);
+                let py_decision = PyAmountSplitterDecision::from(decision);
+                Box::pin(async move {
+                    if let Some(ref py_callback) = callback_func.as_ref() {
+                        Python::with_gil(|py| {
+                            let _ = py_callback.clone_ref(py).call1(py, (py_decision,));
+                        });
+                    }
+                })
+            };
+
+            let result = inner
+                .arbitrate_many_amount_blocking_async(contract, decide, callback, mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .iter()
+                .map(PyAmountSplitterDecision::from)
+                .collect::<Vec<_>>())
+        })
+    }
 }
 
 fn parse_splitter_contract(contract: &str) -> PyResult<SplitterContract> {
@@ -405,6 +572,19 @@ fn parse_splitter_decision_target(target: &str) -> PyResult<SplitterDecisionTarg
         "commitment" => Ok(SplitterDecisionTarget::Commitment),
         _ => Err(pyo3::exceptions::PyValueError::new_err(
             "unknown splitter decision target",
+        )),
+    }
+}
+
+fn parse_splitter_arbitration_mode(mode: &str) -> PyResult<SplitterArbitrationMode> {
+    match mode {
+        "past" => Ok(SplitterArbitrationMode::Past),
+        "past_unarbitrated" | "pastUnarbitrated" => Ok(SplitterArbitrationMode::PastUnarbitrated),
+        "all_unarbitrated" | "allUnarbitrated" => Ok(SplitterArbitrationMode::AllUnarbitrated),
+        "all" => Ok(SplitterArbitrationMode::All),
+        "future" => Ok(SplitterArbitrationMode::Future),
+        _ => Err(pyo3::exceptions::PyValueError::new_err(
+            "unknown splitter arbitration mode",
         )),
     }
 }
@@ -496,6 +676,48 @@ impl From<contracts::utils::splitters::ERC20Splitter::Split> for PyAmountSplit {
         Self {
             recipient: data.recipient.to_string(),
             amount: data.amount.to_string(),
+        }
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyAmountSplitterDecision {
+    #[pyo3(get)]
+    pub fulfillment: String,
+    #[pyo3(get)]
+    pub escrow: String,
+    #[pyo3(get)]
+    pub splits: Vec<PyAmountSplit>,
+    #[pyo3(get)]
+    pub transaction_hash: String,
+}
+
+#[pymethods]
+impl PyAmountSplitterDecision {
+    #[new]
+    pub fn new(
+        fulfillment: String,
+        escrow: String,
+        splits: Vec<PyAmountSplit>,
+        transaction_hash: String,
+    ) -> Self {
+        Self {
+            fulfillment,
+            escrow,
+            splits,
+            transaction_hash,
+        }
+    }
+}
+
+impl From<&AmountSplitterDecision> for PyAmountSplitterDecision {
+    fn from(decision: &AmountSplitterDecision) -> Self {
+        Self {
+            fulfillment: decision.fulfillment.to_string(),
+            escrow: decision.escrow.to_string(),
+            splits: decision.splits.iter().cloned().map(PyAmountSplit::from).collect(),
+            transaction_hash: decision.receipt.transaction_hash.to_string(),
         }
     }
 }

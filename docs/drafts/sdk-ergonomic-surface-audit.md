@@ -179,8 +179,9 @@ Status: partially addressed. Commitment trusted-oracle daemon parity is now
 covered: TypeScript exposes `arbitrateMany`, encoded-demand arbitration, raw
 arbitration, request logs, request records, existing-decision checks, and wait
 helpers; Rust and Python expose commitment callback workers plus
-existing-decision checks and wait helpers for decisions and requests. Splitter
-daemon helpers remain open.
+existing-decision checks and wait helpers for decisions and requests. Amount
+splitter daemon helpers are now exposed across TypeScript, Rust, and Python.
+Bundle splitter daemon helpers remain open.
 
 Affected SDK surfaces:
 
@@ -190,13 +191,10 @@ Affected SDK surfaces:
 
 Remaining review order:
 
-1. Add fulfillment splitter daemon helpers for amount splits.
-2. Add fulfillment splitter daemon helpers for bundle splits.
-3. Add commitment splitter daemon helpers, using intent hashes instead of
-   fulfillment UIDs.
-4. Decide whether TypeScript should mirror trusted oracle naming
+1. Add splitter daemon helpers for bundle splits.
+2. Decide whether TypeScript should mirror trusted oracle naming
    (`arbitrateMany`, `listenAndArbitrate`) or use splitter-specific names.
-5. Decide whether Rust/Python should expose one generic callback API selected by
+3. Decide whether Rust/Python should expose one generic callback API selected by
    `SplitterContract`, or separate amount/bundle callback APIs with stronger
    split typing.
 
