@@ -312,6 +312,85 @@ impl OracleClient {
         })
     }
 
+    pub fn commitment_existing_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let event = inner
+                .commitment_existing_arbitration(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(event.map(|event| PyCommitmentArbitrationMadeLog {
+                decision_key: event.decisionKey.to_string(),
+                intent_hash: event.intentHash.to_string(),
+                oracle: format!("{:?}", event.oracle),
+                decision: event.decision,
+            }))
+        })
+    }
+
+    pub fn commitment_wait_for_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        demand: Vec<u8>,
+        from_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let event = inner
+                .commitment_wait_for_arbitration(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                    from_block,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(PyCommitmentArbitrationMadeLog {
+                decision_key: event.decisionKey.to_string(),
+                intent_hash: event.intentHash.to_string(),
+                oracle: format!("{:?}", event.oracle),
+                decision: event.decision,
+            })
+        })
+    }
+
+    pub fn commitment_wait_for_arbitration_request<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        from_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let event = inner
+                .commitment_wait_for_arbitration_request(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    from_block,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(PyCommitmentArbitrationRequestedLog {
+                intent_hash: event.intentHash.to_string(),
+                oracle: format!("{:?}", event.oracle),
+                demand: event.demand.to_vec(),
+            })
+        })
+    }
+
     /// Wait for an arbitration event
     ///
     /// Args:
@@ -1466,6 +1545,88 @@ impl TrustedOracle {
                     decision: log.inner.data.decision,
                 })
                 .collect::<Vec<_>>())
+        })
+    }
+
+    pub fn commitment_existing_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let event = inner
+                .trusted_oracle()
+                .commitment_existing_arbitration(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(event.map(|event| PyCommitmentArbitrationMadeLog {
+                decision_key: event.decisionKey.to_string(),
+                intent_hash: event.intentHash.to_string(),
+                oracle: format!("{:?}", event.oracle),
+                decision: event.decision,
+            }))
+        })
+    }
+
+    pub fn commitment_wait_for_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        demand: Vec<u8>,
+        from_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let event = inner
+                .trusted_oracle()
+                .commitment_wait_for_arbitration(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    demand.into(),
+                    from_block,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(PyCommitmentArbitrationMadeLog {
+                decision_key: event.decisionKey.to_string(),
+                intent_hash: event.intentHash.to_string(),
+                oracle: format!("{:?}", event.oracle),
+                decision: event.decision,
+            })
+        })
+    }
+
+    pub fn commitment_wait_for_arbitration_request<'py>(
+        &self,
+        py: Python<'py>,
+        intent_hash: String,
+        oracle: String,
+        from_block: Option<u64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let event = inner
+                .trusted_oracle()
+                .commitment_wait_for_arbitration_request(
+                    intent_hash.parse().map_err(map_parse_to_pyerr)?,
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
+                    from_block,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(PyCommitmentArbitrationRequestedLog {
+                intent_hash: event.intentHash.to_string(),
+                oracle: format!("{:?}", event.oracle),
+                demand: event.demand.to_vec(),
+            })
         })
     }
 

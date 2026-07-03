@@ -583,6 +583,80 @@ impl TrustedOracleModule {
             .collect()
     }
 
+    /// Read an existing commitment-oracle decision for an encoded demand, if one has been recorded.
+    pub async fn commitment_existing_arbitration(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<Option<CommitmentTrustedOracleArbiter::ArbitrationMade>> {
+        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
+        let decision_key = commitment_decision_key_for(intent_hash, decision_context);
+        let filter = Filter::new()
+            .address(self.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic1(decision_key)
+            .topic2(intent_hash)
+            .topic3(oracle)
+            .from_block(0);
+
+        let logs = self.public_provider.get_logs(&filter).await?;
+        match logs.first() {
+            Some(log) => Ok(Some(
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationMade>()?
+                    .inner
+                    .data,
+            )),
+            None => Ok(None),
+        }
+    }
+
+    /// Wait for a commitment-oracle decision for an encoded demand.
+    pub async fn commitment_wait_for_arbitration(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+        from_block: Option<u64>,
+    ) -> eyre::Result<CommitmentTrustedOracleArbiter::ArbitrationMade> {
+        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
+        let decision_key = commitment_decision_key_for(intent_hash, decision_context);
+        let filter = Filter::new()
+            .from_block(from_block.unwrap_or(0))
+            .address(self.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic1(decision_key)
+            .topic2(intent_hash)
+            .topic3(oracle);
+
+        let log =
+            crate::utils::wait_for_first_log(&*self.public_provider, &filter, self.poll_interval)
+                .await?;
+        let decoded = log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationMade>()?;
+        Ok(decoded.inner.data)
+    }
+
+    /// Wait for a commitment-oracle arbitration request.
+    pub async fn commitment_wait_for_arbitration_request(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        from_block: Option<u64>,
+    ) -> eyre::Result<CommitmentTrustedOracleArbiter::ArbitrationRequested> {
+        let filter = Filter::new()
+            .from_block(from_block.unwrap_or(0))
+            .address(self.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationRequested::SIGNATURE_HASH)
+            .topic1(intent_hash)
+            .topic2(oracle);
+
+        let log =
+            crate::utils::wait_for_first_log(&*self.public_provider, &filter, self.poll_interval)
+                .await?;
+        let decoded = log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()?;
+        Ok(decoded.inner.data)
+    }
+
     fn make_arbitration_requested_filter(&self) -> Filter {
         Filter::new()
             .address(self.addresses.trusted_oracle_arbiter)
@@ -1640,6 +1714,86 @@ impl<'a> TrustedOracle<'a> {
                     .map_err(Into::into)
             })
             .collect()
+    }
+
+    /// Read an existing commitment-oracle decision for an encoded demand, if one has been recorded.
+    pub async fn commitment_existing_arbitration(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<Option<CommitmentTrustedOracleArbiter::ArbitrationMade>> {
+        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
+        let decision_key = commitment_decision_key_for(intent_hash, decision_context);
+        let filter = Filter::new()
+            .address(self.module.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic1(decision_key)
+            .topic2(intent_hash)
+            .topic3(oracle)
+            .from_block(0);
+
+        let logs = self.module.public_provider.get_logs(&filter).await?;
+        match logs.first() {
+            Some(log) => Ok(Some(
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationMade>()?
+                    .inner
+                    .data,
+            )),
+            None => Ok(None),
+        }
+    }
+
+    /// Wait for a commitment-oracle decision for an encoded demand.
+    pub async fn commitment_wait_for_arbitration(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+        from_block: Option<u64>,
+    ) -> eyre::Result<CommitmentTrustedOracleArbiter::ArbitrationMade> {
+        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
+        let decision_key = commitment_decision_key_for(intent_hash, decision_context);
+        let filter = Filter::new()
+            .from_block(from_block.unwrap_or(0))
+            .address(self.module.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic1(decision_key)
+            .topic2(intent_hash)
+            .topic3(oracle);
+
+        let log = crate::utils::wait_for_first_log(
+            &*self.module.public_provider,
+            &filter,
+            self.module.poll_interval,
+        )
+        .await?;
+        let decoded = log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationMade>()?;
+        Ok(decoded.inner.data)
+    }
+
+    /// Wait for a commitment-oracle arbitration request.
+    pub async fn commitment_wait_for_arbitration_request(
+        &self,
+        intent_hash: FixedBytes<32>,
+        oracle: Address,
+        from_block: Option<u64>,
+    ) -> eyre::Result<CommitmentTrustedOracleArbiter::ArbitrationRequested> {
+        let filter = Filter::new()
+            .from_block(from_block.unwrap_or(0))
+            .address(self.module.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationRequested::SIGNATURE_HASH)
+            .topic1(intent_hash)
+            .topic2(oracle);
+
+        let log = crate::utils::wait_for_first_log(
+            &*self.module.public_provider,
+            &filter,
+            self.module.poll_interval,
+        )
+        .await?;
+        let decoded = log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()?;
+        Ok(decoded.inner.data)
     }
 
     /// Wait for a trusted oracle arbitration event

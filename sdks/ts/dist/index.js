@@ -2733,7 +2733,7 @@ var readContract = async (viemClient, params) => {
 };
 
 // src/utils/demandParsing.ts
-import { isAddressEqual as isAddressEqual3, zeroAddress as zeroAddress3 } from "viem";
+import { isAddressEqual as isAddressEqual4, zeroAddress as zeroAddress3 } from "viem";
 
 // src/clients/arbiters/attestationProperties/attesterArbiter.ts
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from "viem";
@@ -8611,6 +8611,7 @@ import {
   decodeAbiParameters as decodeAbiParameters14,
   encodeAbiParameters as encodeAbiParameters14,
   getAbiItem as getAbiItem14,
+  isAddressEqual as isAddressEqual2,
   keccak256 as keccak2562,
   parseAbiItem
 } from "viem";
@@ -9745,14 +9746,24 @@ var makeCommitmentTrustedOracleArbiterClient = (viemClient, addresses) => {
   const arbitrationRequestedEvent = parseAbiItem(
     "event ArbitrationRequested(bytes32 indexed intentHash, address indexed oracle, bytes demand)"
   );
-  const arbitrate = async (intentHash, demand, decision) => await viemClient.writeContract({
+  const arbitrateRaw = async (intentHash, decisionContext, decision) => await viemClient.writeContract({
     address: addresses.commitmentTrustedOracleArbiter,
     abi: abi16.abi,
     functionName: "arbitrate",
-    args: [intentHash, demand, decision],
+    args: [intentHash, decisionContext, decision],
     account: viemClient.account,
     chain: viemClient.chain
   });
+  const decisionContextFromDemand = (demand) => {
+    const decoded = decodeDemand14(demand);
+    if (!isAddressEqual2(decoded.oracle, viemClient.account.address)) {
+      throw new Error(
+        `CommitmentTrustedOracle demand is for oracle ${decoded.oracle}, not this client ${viemClient.account.address}`
+      );
+    }
+    return decoded.data;
+  };
+  const decisionKeyFromDemand = (intentHash, demand) => decisionKeyFor(intentHash, decodeDemand14(demand).data);
   const requestArbitration = async (intentHash, oracle, demand) => await viemClient.writeContract({
     address: addresses.commitmentTrustedOracleArbiter,
     abi: abi16.abi,
@@ -9761,7 +9772,41 @@ var makeCommitmentTrustedOracleArbiterClient = (viemClient, addresses) => {
     account: viemClient.account,
     chain: viemClient.chain
   });
-  const getArbitrationRequests = async (options = {}) => await viemClient.getLogs({
+  const getArbitrationRequests = async (options = {}) => {
+    const logs = await viemClient.getLogs({
+      address: addresses.commitmentTrustedOracleArbiter,
+      event: arbitrationRequestedEvent,
+      args: { oracle: viemClient.account.address },
+      fromBlock: options.fromBlock ?? "earliest",
+      toBlock: options.toBlock ?? "latest"
+    });
+    const requests = logs.map((log) => ({
+      intentHash: log.args.intentHash,
+      demand: log.args.demand
+    }));
+    if (options.mode === "pastUnarbitrated" || options.mode === "allUnarbitrated") {
+      const filteredRequests = await Promise.all(
+        requests.map(async (request) => {
+          const decisionKey = decisionKeyFromDemand(request.intentHash, request.demand);
+          const existingLogs = await viemClient.getLogs({
+            address: addresses.commitmentTrustedOracleArbiter,
+            event: arbitrationMadeEvent,
+            args: {
+              decisionKey,
+              intentHash: request.intentHash,
+              oracle: viemClient.account.address
+            },
+            fromBlock: "earliest",
+            toBlock: "latest"
+          });
+          return existingLogs.length === 0 ? request : null;
+        })
+      );
+      return filteredRequests.filter((request) => request !== null);
+    }
+    return requests;
+  };
+  const getArbitrationRequestLogs = async (options = {}) => await viemClient.getLogs({
     address: addresses.commitmentTrustedOracleArbiter,
     event: arbitrationRequestedEvent,
     args: { oracle: viemClient.account.address },
@@ -9775,12 +9820,134 @@ var makeCommitmentTrustedOracleArbiterClient = (viemClient, addresses) => {
     fromBlock: options.fromBlock ?? "earliest",
     toBlock: options.toBlock ?? "latest"
   });
+  const arbitrateMany = async (arbitrate, options = {}) => {
+    const mode = options.mode ?? "allUnarbitrated";
+    const shouldProcessPast = mode !== "future";
+    const shouldListen = mode === "all" || mode === "allUnarbitrated" || mode === "future";
+    let decisions = [];
+    if (shouldProcessPast) {
+      const requests = await getArbitrationRequests(options);
+      const decisionResults = [];
+      for (const request of requests) {
+        const decision = await arbitrate(request);
+        if (decision === null) {
+          decisionResults.push(null);
+          continue;
+        }
+        const hash = await arbitrateRaw(request.intentHash, decisionContextFromDemand(request.demand), decision);
+        decisionResults.push({ hash, intentHash: request.intentHash, decision });
+      }
+      decisions = decisionResults.filter((decision) => decision !== null);
+      await Promise.all(decisions.map((decision) => viemClient.waitForTransactionReceipt({ hash: decision.hash })));
+    }
+    if (!shouldListen) {
+      return { decisions, unwatch: () => {
+      } };
+    }
+    const optimalInterval = getOptimalPollingInterval(viemClient, options.pollingInterval);
+    const unwatch = viemClient.watchEvent({
+      address: addresses.commitmentTrustedOracleArbiter,
+      event: arbitrationRequestedEvent,
+      args: { oracle: viemClient.account.address },
+      pollingInterval: optimalInterval,
+      onLogs: async (logs) => {
+        await Promise.all(
+          logs.map(async (log) => {
+            const request = {
+              intentHash: log.args.intentHash,
+              demand: log.args.demand
+            };
+            const decisionResult = await arbitrate(request);
+            if (decisionResult === null) return;
+            const hash = await arbitrateRaw(request.intentHash, decisionContextFromDemand(request.demand), decisionResult);
+            const decision = { hash, intentHash: request.intentHash, decision: decisionResult };
+            if (options.onAfterArbitrate) {
+              await options.onAfterArbitrate(decision);
+            }
+          })
+        );
+      }
+    });
+    return { decisions, unwatch };
+  };
   return {
     address: addresses.commitmentTrustedOracleArbiter,
-    arbitrate,
+    arbitrate: arbitrateRaw,
+    arbitrateRaw,
+    arbitrateForDemand: async (intentHash, demand, decision) => {
+      return await arbitrateRaw(intentHash, decisionContextFromDemand(demand), decision);
+    },
     requestArbitration,
     getArbitrationRequests,
+    getArbitrationRequestLogs,
     getArbitrationDecisions,
+    checkExistingArbitration: async (intentHash, oracle, demand) => {
+      const logs = await viemClient.getLogs({
+        address: addresses.commitmentTrustedOracleArbiter,
+        event: arbitrationMadeEvent,
+        args: { decisionKey: decisionKeyFromDemand(intentHash, demand), intentHash, oracle },
+        fromBlock: "earliest",
+        toBlock: "latest"
+      });
+      if (logs.length > 0 && logs[0]) {
+        return logs[0].args;
+      }
+      return void 0;
+    },
+    waitForArbitration: async (intentHash, oracle, demand, pollingInterval) => {
+      const decisionKey = decisionKeyFromDemand(intentHash, demand);
+      const logs = await viemClient.getLogs({
+        address: addresses.commitmentTrustedOracleArbiter,
+        event: arbitrationMadeEvent,
+        args: { decisionKey, intentHash, oracle },
+        fromBlock: "earliest",
+        toBlock: "latest"
+      });
+      if (logs.length && logs[0]) return logs[0].args;
+      const optimalInterval = getOptimalPollingInterval(viemClient, pollingInterval ?? 1e3);
+      return new Promise((resolve) => {
+        const unwatch = viemClient.watchEvent({
+          address: addresses.commitmentTrustedOracleArbiter,
+          event: arbitrationMadeEvent,
+          args: { decisionKey, intentHash, oracle },
+          pollingInterval: optimalInterval,
+          onLogs: (logs2) => {
+            if (logs2[0]) {
+              resolve(logs2[0].args);
+              unwatch();
+            }
+          },
+          fromBlock: 1n
+        });
+      });
+    },
+    waitForArbitrationRequest: async (intentHash, oracle, pollingInterval) => {
+      const logs = await viemClient.getLogs({
+        address: addresses.commitmentTrustedOracleArbiter,
+        event: arbitrationRequestedEvent,
+        args: { intentHash, oracle },
+        fromBlock: "earliest",
+        toBlock: "latest"
+      });
+      if (logs.length && logs[0]) return logs[0].args;
+      const optimalInterval = getOptimalPollingInterval(viemClient, pollingInterval ?? 1e3);
+      return new Promise((resolve) => {
+        const unwatch = viemClient.watchEvent({
+          address: addresses.commitmentTrustedOracleArbiter,
+          event: arbitrationRequestedEvent,
+          args: { intentHash, oracle },
+          pollingInterval: optimalInterval,
+          onLogs: (logs2) => {
+            if (logs2[0]) {
+              resolve(logs2[0].args);
+              unwatch();
+            }
+          },
+          fromBlock: 1n
+        });
+      });
+    },
+    arbitrateMany,
     encodeDemand: encodeDemand14,
     decodeDemand: decodeDemand14,
     attestationIntentHash,
@@ -9803,7 +9970,7 @@ import {
   decodeAbiParameters as decodeAbiParameters15,
   encodeAbiParameters as encodeAbiParameters15,
   getAbiItem as getAbiItem15,
-  isAddressEqual as isAddressEqual2,
+  isAddressEqual as isAddressEqual3,
   keccak256 as keccak2563,
   parseAbiItem as parseAbiItem2
 } from "viem";
@@ -10534,7 +10701,7 @@ var makeTrustedOracleArbiterClient = (viemClient, addresses) => {
   });
   const decisionContextFromDemand = (demand) => {
     const decoded = decodeDemand16(demand);
-    if (!isAddressEqual2(decoded.oracle, viemClient.account.address)) {
+    if (!isAddressEqual3(decoded.oracle, viemClient.account.address)) {
       throw new Error(
         `TrustedOracle demand is for oracle ${decoded.oracle}, not this client ${viemClient.account.address}`
       );
@@ -12033,7 +12200,7 @@ var AnyArbiter = {
 var createDecodersFromAddresses = (addresses, extraDecoders = {}) => {
   const decoders = {};
   const registerDecoder = (arbiter, decoder) => {
-    if (!isAddressEqual3(arbiter, zeroAddress3)) {
+    if (!isAddressEqual4(arbiter, zeroAddress3)) {
       decoders[arbiter.toLowerCase()] = decoder;
     }
   };
@@ -27797,7 +27964,7 @@ var abi28 = {
 };
 
 // src/clients/obligations/attestation/util.ts
-import { isAddressEqual as isAddressEqual4, parseEventLogs as parseEventLogs2 } from "viem";
+import { isAddressEqual as isAddressEqual5, parseEventLogs as parseEventLogs2 } from "viem";
 var makeAttestationUtilClient = (viemClient, addresses) => {
   return {
     address: addresses.atomicUtils,
@@ -27818,7 +27985,7 @@ var makeAttestationUtilClient = (viemClient, addresses) => {
         abi: abi28.abi,
         eventName: "ReferenceEscrowCreated",
         logs: receipt.logs
-      }).filter((event) => isAddressEqual4(event.address, addresses.atomicUtils));
+      }).filter((event) => isAddressEqual5(event.address, addresses.atomicUtils));
       const created = referenceEscrowEvents.at(-1);
       if (!created) {
         throw new Error(`No ReferenceEscrowCreated event found in transaction ${hash}`);
@@ -89494,7 +89661,7 @@ var makeTokenBundleEscrowClient = (viemClient, addresses) => {
 };
 
 // src/clients/obligations/tokenBundle/payment.ts
-import { decodeAbiParameters as decodeAbiParameters39, encodeAbiParameters as encodeAbiParameters39, getAbiItem as getAbiItem39, isAddressEqual as isAddressEqual5 } from "viem";
+import { decodeAbiParameters as decodeAbiParameters39, encodeAbiParameters as encodeAbiParameters39, getAbiItem as getAbiItem39, isAddressEqual as isAddressEqual6 } from "viem";
 
 // src/contracts/IEscrow.ts
 var IEscrow_exports = {};
@@ -92513,7 +92680,7 @@ var makeTokenBundlePaymentClient = (viemClient, addresses) => {
         args: [escrow.data],
         authorizationList: void 0
       });
-      if (!isAddressEqual5(arbiter, addresses.paymentObligation)) {
+      if (!isAddressEqual6(arbiter, addresses.paymentObligation)) {
         throw new Error(`Escrow demand is not TokenBundlePaymentObligation: ${arbiter}`);
       }
       const data = decodeAbiParameters39(
@@ -237774,7 +237941,7 @@ async function setupTestEnvironment(options) {
 }
 
 // src/addressIndex.ts
-import { isAddressEqual as isAddressEqual6, zeroAddress as zeroAddress4 } from "viem";
+import { isAddressEqual as isAddressEqual7, zeroAddress as zeroAddress4 } from "viem";
 var ADDRESS_SLOTS = [
   { contract: "eas", section: "arbiters_addresses", field: "eas" },
   { contract: "easSchemaRegistry", section: "attestation_addresses", field: "eas_schema_registry" },
@@ -237930,7 +238097,7 @@ function createAddressIndex(addresses) {
   for (const slot of ADDRESS_SLOTS) {
     const address = addresses[slot.contract];
     if (!address) continue;
-    if (isAddressEqual6(address, zeroAddress4)) continue;
+    if (isAddressEqual7(address, zeroAddress4)) continue;
     const key = address.toLowerCase();
     index[key] ??= [];
     index[key].push({

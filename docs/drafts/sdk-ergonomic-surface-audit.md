@@ -154,6 +154,64 @@ Affected contracts:
 - `NativeTokenEscrowHook`
 - `TokenBundleEscrowHook`
 
+### 7. Splitter Oracle Daemon APIs Are Missing
+
+Trusted oracle arbiter clients expose daemon-style arbitration helpers that let an
+oracle process historical and future arbitration requests through a callback and
+submit decisions automatically. Depending on SDK, this includes helpers such as
+`arbitrateMany`, `listenAndArbitrate`, past-unarbitrated request filtering, and
+post-decision callbacks.
+
+Splitter clients currently expose the direct contract primitives:
+
+- `requestArbitration`
+- `arbitrate`
+- `getSplits`
+- `hasDecision`
+- fulfillment creation
+- collection and distribution helpers
+- commitment intent hash helpers
+
+They do not expose equivalent callback-based oracle workflows for splitter
+decisions.
+
+Status: partially addressed. The TypeScript commitment trusted-oracle client now
+exposes `arbitrateMany`, encoded-demand arbitration, raw arbitration, request
+logs, request records, existing-decision checks, and wait helpers. Rust and
+Python now expose commitment existing-decision checks and wait helpers for
+decisions and requests. Rust/Python callback-based daemon helpers remain open.
+
+Affected SDK surfaces:
+
+- TypeScript splitter clients under `client.splitters`
+- Rust `SplittersClient`
+- Python `SplittersClient`
+
+Proposed review order:
+
+1. Add Rust/Python commitment trusted-oracle callback daemon helpers, using
+   intent hashes instead of fulfillment UIDs.
+2. Add fulfillment splitter daemon helpers for amount splits.
+3. Add fulfillment splitter daemon helpers for bundle splits.
+4. Add commitment splitter daemon helpers, using intent hashes instead of
+   fulfillment UIDs.
+5. Decide whether TypeScript should mirror trusted oracle naming
+   (`arbitrateMany`, `listenAndArbitrate`) or use splitter-specific names.
+6. Decide whether Rust/Python should expose one generic callback API selected by
+   `SplitterContract`, or separate amount/bundle callback APIs with stronger
+   split typing.
+
+Design notes:
+
+- Amount and bundle split callbacks likely need different return types.
+- Commitment splitter requests identify a future attestation intent hash, not an
+  existing EAS fulfillment UID.
+- Full trusted-oracle parity may not be possible without a caller-provided
+  metadata store for commitment requests; a useful first pass can still process
+  request logs and call back with `(fulfillmentOrIntent, escrow, demand)`.
+- Existing direct splitter methods should remain available for manual oracle
+  operation.
+
 ## Covered Or Intentionally Out Of Scope
 
 The core escrow and payment obligation workflows are broadly covered across all SDKs:

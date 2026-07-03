@@ -631,3 +631,113 @@ test("waitForArbitration integration with escrow collection", { timeout: 15000 }
 
   expect(collectionHash).toBeTruthy();
 });
+
+test("commitment trusted oracle arbitrateMany approves future fulfillment intents", async () => {
+  const arbiter = testContext.addresses.commitmentTrustedOracleArbiter;
+  const demand = testContext.alice.client.arbiters.general.commitmentTrustedOracle.encodeDemand({
+    oracle: testContext.bob.address,
+    data: encodeAbiParameters(parseAbiParameters("(string mockDemand)"), [{ mockDemand: "foo" }]),
+  });
+
+  const { attested: escrow } = await testContext.alice.client.erc20.escrow.default.permitAndCreate(
+    {
+      address: testContext.mockAddresses.erc20A,
+      value: 10n,
+    },
+    { arbiter, demand },
+    0n,
+  );
+
+  const schema = await testContext.bob.client.stringObligation.getSchema();
+  const intentHash = testContext.bob.client.arbiters.general.commitmentTrustedOracle.attestationIntentHash({
+    schema,
+    attester: testContext.addresses.stringObligation,
+    recipient: testContext.bob.address,
+    expirationTime: 0n,
+    revocable: false,
+    refUID: escrow.uid,
+    data: testContext.bob.client.stringObligation.encode({
+      item: "foo",
+      schema: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    }),
+  });
+
+  const requestHash = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.requestArbitration(
+    intentHash,
+    testContext.bob.address,
+    demand,
+  );
+  await testContext.testClient.waitForTransactionReceipt({ hash: requestHash });
+
+  const demandAbi = parseAbiParameters("(string mockDemand)");
+  const { decisions } = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.arbitrateMany(
+    async ({ intentHash: requestedIntentHash, demand }) => {
+      expect(requestedIntentHash).toBe(intentHash);
+      const outerDemand = testContext.bob.client.arbiters.general.commitmentTrustedOracle.decodeDemand(demand);
+      const demandData = decodeAbiParameters(demandAbi, outerDemand.data);
+      return demandData[0].mockDemand === "foo";
+    },
+    { mode: "past" },
+  );
+
+  expect(decisions.length).toBe(1);
+  expect(decisions[0]?.decision).toBe(true);
+
+  const existing = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.checkExistingArbitration(
+    intentHash,
+    testContext.bob.address,
+    demand,
+  );
+  expect(existing?.decision).toBe(true);
+
+  const waited = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.waitForArbitration(
+    intentHash,
+    testContext.bob.address,
+    demand,
+  );
+  expect(waited.intentHash).toBe(intentHash);
+  expect(waited.decision).toBe(true);
+
+  const { attested: fulfillment } = await testContext.bob.client.stringObligation.doObligation(
+    "foo",
+    undefined,
+    escrow.uid,
+  );
+  const collectionHash = await testContext.bob.client.erc20.escrow.default.collect(escrow.uid, fulfillment.uid);
+
+  expect(collectionHash).toBeTruthy();
+});
+
+test("commitment trusted oracle status helpers ignore wrong decision context", async () => {
+  const demand = testContext.alice.client.arbiters.general.commitmentTrustedOracle.encodeDemand({
+    oracle: testContext.bob.address,
+    data: encodeAbiParameters(parseAbiParameters("(string mockDemand)"), [{ mockDemand: "foo" }]),
+  });
+
+  const intentHash = testContext.bob.client.arbiters.general.commitmentTrustedOracle.attestationIntentHash({
+    schema: await testContext.bob.client.stringObligation.getSchema(),
+    attester: testContext.addresses.stringObligation,
+    recipient: testContext.bob.address,
+    expirationTime: 0n,
+    revocable: false,
+    refUID: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    data: testContext.bob.client.stringObligation.encode({
+      item: "foo",
+      schema: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    }),
+  });
+
+  const wrongDecisionHash = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.arbitrateRaw(
+    intentHash,
+    demand,
+    true,
+  );
+  await testContext.testClient.waitForTransactionReceipt({ hash: wrongDecisionHash });
+
+  const existingWrong = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.checkExistingArbitration(
+    intentHash,
+    testContext.bob.address,
+    demand,
+  );
+  expect(existingWrong).toBeUndefined();
+});

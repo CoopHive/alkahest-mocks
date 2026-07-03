@@ -9882,14 +9882,24 @@ var makeCommitmentTrustedOracleArbiterClient = (viemClient, addresses) => {
   const arbitrationRequestedEvent = (0, import_viem17.parseAbiItem)(
     "event ArbitrationRequested(bytes32 indexed intentHash, address indexed oracle, bytes demand)"
   );
-  const arbitrate = async (intentHash, demand, decision) => await viemClient.writeContract({
+  const arbitrateRaw = async (intentHash, decisionContext, decision) => await viemClient.writeContract({
     address: addresses.commitmentTrustedOracleArbiter,
     abi: abi16.abi,
     functionName: "arbitrate",
-    args: [intentHash, demand, decision],
+    args: [intentHash, decisionContext, decision],
     account: viemClient.account,
     chain: viemClient.chain
   });
+  const decisionContextFromDemand = (demand) => {
+    const decoded = decodeDemand14(demand);
+    if (!(0, import_viem17.isAddressEqual)(decoded.oracle, viemClient.account.address)) {
+      throw new Error(
+        `CommitmentTrustedOracle demand is for oracle ${decoded.oracle}, not this client ${viemClient.account.address}`
+      );
+    }
+    return decoded.data;
+  };
+  const decisionKeyFromDemand = (intentHash, demand) => decisionKeyFor(intentHash, decodeDemand14(demand).data);
   const requestArbitration = async (intentHash, oracle, demand) => await viemClient.writeContract({
     address: addresses.commitmentTrustedOracleArbiter,
     abi: abi16.abi,
@@ -9898,7 +9908,41 @@ var makeCommitmentTrustedOracleArbiterClient = (viemClient, addresses) => {
     account: viemClient.account,
     chain: viemClient.chain
   });
-  const getArbitrationRequests = async (options = {}) => await viemClient.getLogs({
+  const getArbitrationRequests = async (options = {}) => {
+    const logs = await viemClient.getLogs({
+      address: addresses.commitmentTrustedOracleArbiter,
+      event: arbitrationRequestedEvent,
+      args: { oracle: viemClient.account.address },
+      fromBlock: options.fromBlock ?? "earliest",
+      toBlock: options.toBlock ?? "latest"
+    });
+    const requests = logs.map((log) => ({
+      intentHash: log.args.intentHash,
+      demand: log.args.demand
+    }));
+    if (options.mode === "pastUnarbitrated" || options.mode === "allUnarbitrated") {
+      const filteredRequests = await Promise.all(
+        requests.map(async (request) => {
+          const decisionKey = decisionKeyFromDemand(request.intentHash, request.demand);
+          const existingLogs = await viemClient.getLogs({
+            address: addresses.commitmentTrustedOracleArbiter,
+            event: arbitrationMadeEvent,
+            args: {
+              decisionKey,
+              intentHash: request.intentHash,
+              oracle: viemClient.account.address
+            },
+            fromBlock: "earliest",
+            toBlock: "latest"
+          });
+          return existingLogs.length === 0 ? request : null;
+        })
+      );
+      return filteredRequests.filter((request) => request !== null);
+    }
+    return requests;
+  };
+  const getArbitrationRequestLogs = async (options = {}) => await viemClient.getLogs({
     address: addresses.commitmentTrustedOracleArbiter,
     event: arbitrationRequestedEvent,
     args: { oracle: viemClient.account.address },
@@ -9912,12 +9956,134 @@ var makeCommitmentTrustedOracleArbiterClient = (viemClient, addresses) => {
     fromBlock: options.fromBlock ?? "earliest",
     toBlock: options.toBlock ?? "latest"
   });
+  const arbitrateMany = async (arbitrate, options = {}) => {
+    const mode = options.mode ?? "allUnarbitrated";
+    const shouldProcessPast = mode !== "future";
+    const shouldListen = mode === "all" || mode === "allUnarbitrated" || mode === "future";
+    let decisions = [];
+    if (shouldProcessPast) {
+      const requests = await getArbitrationRequests(options);
+      const decisionResults = [];
+      for (const request of requests) {
+        const decision = await arbitrate(request);
+        if (decision === null) {
+          decisionResults.push(null);
+          continue;
+        }
+        const hash = await arbitrateRaw(request.intentHash, decisionContextFromDemand(request.demand), decision);
+        decisionResults.push({ hash, intentHash: request.intentHash, decision });
+      }
+      decisions = decisionResults.filter((decision) => decision !== null);
+      await Promise.all(decisions.map((decision) => viemClient.waitForTransactionReceipt({ hash: decision.hash })));
+    }
+    if (!shouldListen) {
+      return { decisions, unwatch: () => {
+      } };
+    }
+    const optimalInterval = getOptimalPollingInterval(viemClient, options.pollingInterval);
+    const unwatch = viemClient.watchEvent({
+      address: addresses.commitmentTrustedOracleArbiter,
+      event: arbitrationRequestedEvent,
+      args: { oracle: viemClient.account.address },
+      pollingInterval: optimalInterval,
+      onLogs: async (logs) => {
+        await Promise.all(
+          logs.map(async (log) => {
+            const request = {
+              intentHash: log.args.intentHash,
+              demand: log.args.demand
+            };
+            const decisionResult = await arbitrate(request);
+            if (decisionResult === null) return;
+            const hash = await arbitrateRaw(request.intentHash, decisionContextFromDemand(request.demand), decisionResult);
+            const decision = { hash, intentHash: request.intentHash, decision: decisionResult };
+            if (options.onAfterArbitrate) {
+              await options.onAfterArbitrate(decision);
+            }
+          })
+        );
+      }
+    });
+    return { decisions, unwatch };
+  };
   return {
     address: addresses.commitmentTrustedOracleArbiter,
-    arbitrate,
+    arbitrate: arbitrateRaw,
+    arbitrateRaw,
+    arbitrateForDemand: async (intentHash, demand, decision) => {
+      return await arbitrateRaw(intentHash, decisionContextFromDemand(demand), decision);
+    },
     requestArbitration,
     getArbitrationRequests,
+    getArbitrationRequestLogs,
     getArbitrationDecisions,
+    checkExistingArbitration: async (intentHash, oracle, demand) => {
+      const logs = await viemClient.getLogs({
+        address: addresses.commitmentTrustedOracleArbiter,
+        event: arbitrationMadeEvent,
+        args: { decisionKey: decisionKeyFromDemand(intentHash, demand), intentHash, oracle },
+        fromBlock: "earliest",
+        toBlock: "latest"
+      });
+      if (logs.length > 0 && logs[0]) {
+        return logs[0].args;
+      }
+      return void 0;
+    },
+    waitForArbitration: async (intentHash, oracle, demand, pollingInterval) => {
+      const decisionKey = decisionKeyFromDemand(intentHash, demand);
+      const logs = await viemClient.getLogs({
+        address: addresses.commitmentTrustedOracleArbiter,
+        event: arbitrationMadeEvent,
+        args: { decisionKey, intentHash, oracle },
+        fromBlock: "earliest",
+        toBlock: "latest"
+      });
+      if (logs.length && logs[0]) return logs[0].args;
+      const optimalInterval = getOptimalPollingInterval(viemClient, pollingInterval ?? 1e3);
+      return new Promise((resolve) => {
+        const unwatch = viemClient.watchEvent({
+          address: addresses.commitmentTrustedOracleArbiter,
+          event: arbitrationMadeEvent,
+          args: { decisionKey, intentHash, oracle },
+          pollingInterval: optimalInterval,
+          onLogs: (logs2) => {
+            if (logs2[0]) {
+              resolve(logs2[0].args);
+              unwatch();
+            }
+          },
+          fromBlock: 1n
+        });
+      });
+    },
+    waitForArbitrationRequest: async (intentHash, oracle, pollingInterval) => {
+      const logs = await viemClient.getLogs({
+        address: addresses.commitmentTrustedOracleArbiter,
+        event: arbitrationRequestedEvent,
+        args: { intentHash, oracle },
+        fromBlock: "earliest",
+        toBlock: "latest"
+      });
+      if (logs.length && logs[0]) return logs[0].args;
+      const optimalInterval = getOptimalPollingInterval(viemClient, pollingInterval ?? 1e3);
+      return new Promise((resolve) => {
+        const unwatch = viemClient.watchEvent({
+          address: addresses.commitmentTrustedOracleArbiter,
+          event: arbitrationRequestedEvent,
+          args: { intentHash, oracle },
+          pollingInterval: optimalInterval,
+          onLogs: (logs2) => {
+            if (logs2[0]) {
+              resolve(logs2[0].args);
+              unwatch();
+            }
+          },
+          fromBlock: 1n
+        });
+      });
+    },
+    arbitrateMany,
     encodeDemand: encodeDemand14,
     decodeDemand: decodeDemand14,
     attestationIntentHash,
