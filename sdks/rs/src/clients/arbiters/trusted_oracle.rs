@@ -150,6 +150,20 @@ pub struct Decision {
     pub receipt: TransactionReceipt,
 }
 
+/// A future attestation intent paired with its demand data from a commitment-oracle request.
+#[derive(Debug, Clone)]
+pub struct CommitmentArbitrationRequest {
+    pub intent_hash: FixedBytes<32>,
+    pub demand: Bytes,
+}
+
+/// Decision submitted for a commitment-oracle request.
+pub struct CommitmentDecision {
+    pub intent_hash: FixedBytes<32>,
+    pub decision: bool,
+    pub receipt: TransactionReceipt,
+}
+
 /// Result from `arbitrate_many`
 pub struct ArbitrateManyResult {
     /// Decisions made for past attestations (empty for `Future` mode)
@@ -159,6 +173,14 @@ pub struct ArbitrateManyResult {
     /// This handle is transport-agnostic: it wraps either a pubsub subscription
     /// id (ws/wss) or a cancellation token (http/https). Use
     /// [`SubscriptionHandle::unsubscribe`] to release the listener.
+    pub subscription: Option<SubscriptionHandle>,
+}
+
+/// Result from commitment-oracle `arbitrate_many` helpers.
+pub struct CommitmentArbitrateManyResult {
+    /// Decisions made for past requests (empty for `Future` mode)
+    pub past_decisions: Vec<CommitmentDecision>,
+    /// Handle to the future-event listener (None for `Past`/`PastUnarbitrated` modes).
     pub subscription: Option<SubscriptionHandle>,
 }
 
@@ -655,6 +677,220 @@ impl TrustedOracleModule {
                 .await?;
         let decoded = log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()?;
         Ok(decoded.inner.data)
+    }
+
+    fn make_commitment_arbitration_requested_filter(&self) -> Filter {
+        Filter::new()
+            .address(self.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationRequested::SIGNATURE_HASH)
+            .topic2(self.signer_address)
+            .from_block(BlockNumberOrTag::Earliest)
+    }
+
+    fn make_commitment_arbitration_made_filter(
+        &self,
+        request: &CommitmentArbitrationRequest,
+    ) -> eyre::Result<Filter> {
+        let decision_context =
+            commitment_decision_context_from_encoded_demand(&request.demand, self.signer_address)?;
+        let decision_key = commitment_decision_key_for(request.intent_hash, decision_context);
+        Ok(Filter::new()
+            .address(self.addresses.commitment_trusted_oracle_arbiter)
+            .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic1(decision_key)
+            .topic2(request.intent_hash)
+            .topic3(self.signer_address)
+            .from_block(BlockNumberOrTag::Earliest)
+            .to_block(BlockNumberOrTag::Latest))
+    }
+
+    async fn get_past_commitment_requests(
+        &self,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<CommitmentArbitrationRequest>> {
+        let requests = self
+            .commitment_arbitration_requests(None, None)
+            .await?
+            .into_iter()
+            .map(|log| CommitmentArbitrationRequest {
+                intent_hash: log.inner.data.intentHash,
+                demand: log.inner.data.demand,
+            })
+            .collect::<Vec<_>>();
+
+        if !skip_arbitrated {
+            return Ok(requests);
+        }
+
+        let mut filtered = Vec::new();
+        for request in requests {
+            let Ok(filter) = self.make_commitment_arbitration_made_filter(&request) else {
+                continue;
+            };
+            if self.public_provider.get_logs(&filter).await?.is_empty() {
+                filtered.push(request);
+            }
+        }
+
+        Ok(filtered)
+    }
+
+    async fn submit_commitment_arbitrations(
+        &self,
+        decisions: Vec<Option<bool>>,
+        requests: Vec<CommitmentArbitrationRequest>,
+    ) -> eyre::Result<Vec<CommitmentDecision>> {
+        use itertools::izip;
+
+        let arbitration_futs = requests
+            .iter()
+            .zip(decisions.iter())
+            .filter_map(|(request, decision)| {
+                let arbiter = CommitmentTrustedOracleArbiter::new(
+                    self.addresses.commitment_trusted_oracle_arbiter,
+                    &*self.wallet_provider,
+                );
+                if let Some(decision) = decision {
+                    let demand = request.demand.clone();
+                    let intent_hash = request.intent_hash;
+                    let signer_address = self.signer_address;
+                    Some(async move {
+                        let decision_context = commitment_decision_context_from_encoded_demand(
+                            &demand,
+                            signer_address,
+                        )?;
+                        Ok::<_, eyre::Report>(
+                            arbiter
+                                .arbitrate(intent_hash, decision_context, *decision)
+                                .send()
+                                .await?,
+                        )
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+
+        let mut pending_txs = Vec::new();
+        for fut in arbitration_futs {
+            pending_txs.push(fut.await?);
+        }
+
+        let receipt_futs = pending_txs
+            .into_iter()
+            .map(|tx| async move { tx.get_receipt().await });
+        let receipts = try_join_all(receipt_futs).await?;
+
+        Ok(izip!(requests, decisions, receipts)
+            .filter(|(_, d, _)| d.is_some())
+            .map(|(request, decision, receipt)| CommitmentDecision {
+                intent_hash: request.intent_hash,
+                decision: decision.unwrap(),
+                receipt,
+            })
+            .collect())
+    }
+
+    /// Arbitrate commitment-oracle requests in blocking mode with a sync callback.
+    pub async fn commitment_arbitrate_many_blocking_sync<
+        Arbitrate: Fn(&CommitmentArbitrationRequest) -> Option<bool>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&CommitmentDecision) -> OnDecisionFut,
+    >(
+        &self,
+        arbitrate: Arbitrate,
+        on_decision: OnDecision,
+        mode: ArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<CommitmentArbitrateManyResult> {
+        use ArbitrationMode::*;
+
+        let skip_arbitrated = matches!(mode, PastUnarbitrated | AllUnarbitrated);
+        let include_past = matches!(mode, Past | PastUnarbitrated | All | AllUnarbitrated);
+        let include_future = matches!(mode, Future | All | AllUnarbitrated);
+
+        let past_decisions = if include_past {
+            let requests = self.get_past_commitment_requests(skip_arbitrated).await?;
+            let decisions = requests.iter().map(&arbitrate).collect();
+            self.submit_commitment_arbitrations(decisions, requests)
+                .await?
+        } else {
+            Vec::new()
+        };
+
+        let subscription = if include_future {
+            let filter = self.make_commitment_arbitration_requested_filter();
+            let (stream, handle) = self.open_log_stream(&filter, self.poll_interval).await?;
+            self.handle_commitment_stream_blocking_sync(
+                stream,
+                &arbitrate,
+                &on_decision,
+                skip_arbitrated,
+                timeout,
+            )
+            .await;
+            Some(handle)
+        } else {
+            None
+        };
+
+        Ok(CommitmentArbitrateManyResult {
+            past_decisions,
+            subscription,
+        })
+    }
+
+    /// Arbitrate commitment-oracle requests in blocking mode with an async callback.
+    pub async fn commitment_arbitrate_many_blocking_async<
+        ArbitrateFut: std::future::Future<Output = Option<bool>>,
+        Arbitrate: Fn(&CommitmentArbitrationRequest) -> ArbitrateFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&CommitmentDecision) -> OnDecisionFut,
+    >(
+        &self,
+        arbitrate: Arbitrate,
+        on_decision: OnDecision,
+        mode: ArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<CommitmentArbitrateManyResult> {
+        use ArbitrationMode::*;
+        use futures::future::join_all;
+
+        let skip_arbitrated = matches!(mode, PastUnarbitrated | AllUnarbitrated);
+        let include_past = matches!(mode, Past | PastUnarbitrated | All | AllUnarbitrated);
+        let include_future = matches!(mode, Future | All | AllUnarbitrated);
+
+        let past_decisions = if include_past {
+            let requests = self.get_past_commitment_requests(skip_arbitrated).await?;
+            let decision_futs = requests.iter().map(&arbitrate);
+            let decisions = join_all(decision_futs).await;
+            self.submit_commitment_arbitrations(decisions, requests)
+                .await?
+        } else {
+            Vec::new()
+        };
+
+        let subscription = if include_future {
+            let filter = self.make_commitment_arbitration_requested_filter();
+            let (stream, handle) = self.open_log_stream(&filter, self.poll_interval).await?;
+            self.handle_commitment_stream_blocking_async(
+                stream,
+                &arbitrate,
+                &on_decision,
+                skip_arbitrated,
+                timeout,
+            )
+            .await;
+            Some(handle)
+        } else {
+            None
+        };
+
+        Ok(CommitmentArbitrateManyResult {
+            past_decisions,
+            subscription,
+        })
     }
 
     fn make_arbitration_requested_filter(&self) -> Filter {
@@ -1169,6 +1405,109 @@ impl TrustedOracleModule {
         }
     }
 
+    async fn handle_commitment_stream_blocking_sync<
+        Arbitrate: Fn(&CommitmentArbitrationRequest) -> Option<bool>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&CommitmentDecision) -> OnDecisionFut,
+    >(
+        &self,
+        mut stream: BoxedLogStream,
+        arbitrate: &Arbitrate,
+        on_decision: &OnDecision,
+        skip_arbitrated: bool,
+        timeout: Option<Duration>,
+    ) {
+        let arbiter = CommitmentTrustedOracleArbiter::new(
+            self.addresses.commitment_trusted_oracle_arbiter,
+            &*self.wallet_provider,
+        );
+
+        loop {
+            let next_result = if let Some(timeout_duration) = timeout {
+                match tokio::time::timeout(timeout_duration, stream.next()).await {
+                    Ok(Some(log)) => Some(log),
+                    Ok(None) => None,
+                    Err(_) => {
+                        tracing::info!("Stream timeout reached after {:?}", timeout_duration);
+                        break;
+                    }
+                }
+            } else {
+                stream.next().await
+            };
+
+            let Some(log) = next_result else {
+                break;
+            };
+
+            let Ok(arbitration_log) =
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()
+            else {
+                continue;
+            };
+
+            let request = CommitmentArbitrationRequest {
+                intent_hash: arbitration_log.inner.intentHash,
+                demand: arbitration_log.inner.demand.clone(),
+            };
+
+            if skip_arbitrated {
+                let Ok(filter) = self.make_commitment_arbitration_made_filter(&request) else {
+                    continue;
+                };
+                if let Ok(logs) = self.public_provider.get_logs(&filter).await {
+                    if !logs.is_empty() {
+                        continue;
+                    }
+                }
+            }
+
+            let Some(decision_value) = arbitrate(&request) else {
+                continue;
+            };
+
+            let Ok(nonce) = self
+                .wallet_provider
+                .get_transaction_count(self.signer_address)
+                .await
+            else {
+                continue;
+            };
+
+            let Ok(decision_context) = commitment_decision_context_from_encoded_demand(
+                &request.demand,
+                self.signer_address,
+            ) else {
+                continue;
+            };
+
+            match arbiter
+                .arbitrate(request.intent_hash, decision_context, decision_value)
+                .nonce(nonce)
+                .send()
+                .await
+            {
+                Ok(tx) => {
+                    if let Ok(receipt) = tx.get_receipt().await {
+                        let decision = CommitmentDecision {
+                            intent_hash: request.intent_hash,
+                            decision: decision_value,
+                            receipt,
+                        };
+                        on_decision(&decision).await;
+                    }
+                }
+                Err(err) => {
+                    tracing::error!(
+                        "Commitment arbitration failed for {}: {}",
+                        request.intent_hash,
+                        err
+                    );
+                }
+            }
+        }
+    }
+
     async fn handle_stream_blocking_async<
         ArbitrateFut: std::future::Future<Output = Option<bool>>,
         Arbitrate: Fn(&AttestationWithDemand) -> ArbitrateFut,
@@ -1281,6 +1620,110 @@ impl TrustedOracleModule {
                 }
                 Err(err) => {
                     tracing::error!("Arbitration failed for {}: {}", attestation.uid, err);
+                }
+            }
+        }
+    }
+
+    async fn handle_commitment_stream_blocking_async<
+        ArbitrateFut: std::future::Future<Output = Option<bool>>,
+        Arbitrate: Fn(&CommitmentArbitrationRequest) -> ArbitrateFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&CommitmentDecision) -> OnDecisionFut,
+    >(
+        &self,
+        mut stream: BoxedLogStream,
+        arbitrate: &Arbitrate,
+        on_decision: &OnDecision,
+        skip_arbitrated: bool,
+        timeout: Option<Duration>,
+    ) {
+        let arbiter = CommitmentTrustedOracleArbiter::new(
+            self.addresses.commitment_trusted_oracle_arbiter,
+            &*self.wallet_provider,
+        );
+
+        loop {
+            let next_result = if let Some(timeout_duration) = timeout {
+                match tokio::time::timeout(timeout_duration, stream.next()).await {
+                    Ok(Some(log)) => Some(log),
+                    Ok(None) => None,
+                    Err(_) => {
+                        tracing::info!("Stream timeout reached after {:?}", timeout_duration);
+                        break;
+                    }
+                }
+            } else {
+                stream.next().await
+            };
+
+            let Some(log) = next_result else {
+                break;
+            };
+
+            let Ok(arbitration_log) =
+                log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()
+            else {
+                continue;
+            };
+
+            let request = CommitmentArbitrationRequest {
+                intent_hash: arbitration_log.inner.intentHash,
+                demand: arbitration_log.inner.demand.clone(),
+            };
+
+            if skip_arbitrated {
+                let Ok(filter) = self.make_commitment_arbitration_made_filter(&request) else {
+                    continue;
+                };
+                if let Ok(logs) = self.public_provider.get_logs(&filter).await {
+                    if !logs.is_empty() {
+                        continue;
+                    }
+                }
+            }
+
+            let Some(decision_value) = arbitrate(&request).await else {
+                continue;
+            };
+
+            let Ok(nonce) = self
+                .wallet_provider
+                .get_transaction_count(self.signer_address)
+                .await
+            else {
+                continue;
+            };
+
+            let Ok(decision_context) = commitment_decision_context_from_encoded_demand(
+                &request.demand,
+                self.signer_address,
+            ) else {
+                continue;
+            };
+
+            match arbiter
+                .arbitrate(request.intent_hash, decision_context, decision_value)
+                .nonce(nonce)
+                .send()
+                .await
+            {
+                Ok(tx) => {
+                    if let Ok(receipt) = tx.get_receipt().await {
+                        let decision = CommitmentDecision {
+                            intent_hash: request.intent_hash,
+                            decision: decision_value,
+                            receipt,
+                        };
+                        on_decision(&decision).await;
+                    }
+                }
+                Err(err) => {
+                    tracing::error!(
+                        "Commitment arbitration failed for {}: {}",
+                        request.intent_hash,
+                        err
+                    );
                 }
             }
         }
@@ -1516,6 +1959,23 @@ pub struct TrustedOracle<'a> {
 impl<'a> TrustedOracle<'a> {
     pub fn new(module: &'a ArbitersModule) -> Self {
         Self { module }
+    }
+
+    fn oracle_module(&self) -> eyre::Result<TrustedOracleModule> {
+        TrustedOracleModule::new(
+            self.module.public_provider.clone(),
+            self.module.wallet_provider.clone(),
+            self.module.signer.address(),
+            self.module.poll_interval,
+            Some(TrustedOracleAddresses {
+                eas: self.module.addresses.eas,
+                trusted_oracle_arbiter: self.module.addresses.trusted_oracle_arbiter,
+                commitment_trusted_oracle_arbiter: self
+                    .module
+                    .addresses
+                    .commitment_trusted_oracle_arbiter,
+            }),
+        )
     }
 
     /// Get the TrustedOracleArbiter contract address
@@ -1794,6 +2254,41 @@ impl<'a> TrustedOracle<'a> {
         .await?;
         let decoded = log.log_decode::<CommitmentTrustedOracleArbiter::ArbitrationRequested>()?;
         Ok(decoded.inner.data)
+    }
+
+    /// Arbitrate commitment-oracle requests in blocking mode with a sync callback.
+    pub async fn commitment_arbitrate_many_blocking_sync<
+        Arbitrate: Fn(&CommitmentArbitrationRequest) -> Option<bool>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&CommitmentDecision) -> OnDecisionFut,
+    >(
+        &self,
+        arbitrate: Arbitrate,
+        on_decision: OnDecision,
+        mode: ArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<CommitmentArbitrateManyResult> {
+        self.oracle_module()?
+            .commitment_arbitrate_many_blocking_sync(arbitrate, on_decision, mode, timeout)
+            .await
+    }
+
+    /// Arbitrate commitment-oracle requests in blocking mode with an async callback.
+    pub async fn commitment_arbitrate_many_blocking_async<
+        ArbitrateFut: std::future::Future<Output = Option<bool>>,
+        Arbitrate: Fn(&CommitmentArbitrationRequest) -> ArbitrateFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&CommitmentDecision) -> OnDecisionFut,
+    >(
+        &self,
+        arbitrate: Arbitrate,
+        on_decision: OnDecision,
+        mode: ArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<CommitmentArbitrateManyResult> {
+        self.oracle_module()?
+            .commitment_arbitrate_many_blocking_async(arbitrate, on_decision, mode, timeout)
+            .await
     }
 
     /// Wait for a trusted oracle arbitration event

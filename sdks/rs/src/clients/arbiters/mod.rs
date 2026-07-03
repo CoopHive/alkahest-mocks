@@ -43,10 +43,10 @@ pub use logical::{
 
 // Re-export trusted oracle module (with backwards-compatible aliases)
 pub use trusted_oracle::{
-    ArbitrateManyResult, ArbitrationMode, AttestationWithDemand, Decision, OracleAddresses,
-    OracleModule, TrustedOracle, TrustedOracleAddresses, TrustedOracleModule,
-    commitment_attestation_intent_hash, commitment_attestation_intent_hash_raw,
-    commitment_decision_key_for,
+    ArbitrateManyResult, ArbitrationMode, AttestationWithDemand, CommitmentArbitrateManyResult,
+    CommitmentArbitrationRequest, CommitmentDecision, Decision, OracleAddresses, OracleModule,
+    TrustedOracle, TrustedOracleAddresses, TrustedOracleModule, commitment_attestation_intent_hash,
+    commitment_attestation_intent_hash_raw, commitment_decision_key_for,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

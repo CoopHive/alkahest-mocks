@@ -391,6 +391,210 @@ impl OracleClient {
         })
     }
 
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn commitment_arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<PyArbitrationMode>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let is_async = Python::with_gil(|py| {
+            let inspect = py.import("inspect").ok()?;
+            inspect
+                .getattr("iscoroutinefunction")
+                .ok()?
+                .call1((decision_func.clone_ref(py),))
+                .ok()?
+                .extract::<bool>()
+                .ok()
+        })
+        .unwrap_or(false);
+
+        if is_async {
+            return self.commitment_arbitrate_many_async_impl(
+                py,
+                decision_func,
+                callback_func,
+                mode,
+                timeout_seconds,
+            );
+        }
+
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let rust_mode = mode.unwrap_or_default().into();
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+
+            let arbitrate_func =
+                |request: &alkahest_rs::clients::oracle::CommitmentArbitrationRequest| -> Option<bool> {
+                    Python::with_gil(|py| {
+                        let result = decision_func
+                            .call1(py, (request.intent_hash.to_string(), request.demand.to_vec()))
+                            .ok()?;
+                        if result.is_none(py) {
+                            return None;
+                        }
+                        result
+                            .extract::<bool>(py)
+                            .or_else(|_| result.is_truthy(py))
+                            .ok()
+                    })
+                };
+
+            let callback = |decision: &alkahest_rs::clients::oracle::CommitmentDecision| {
+                if let Some(ref py_callback) = callback_func {
+                    Python::with_gil(|py| {
+                        let py_decision = PyCommitmentDecision::__new__(
+                            decision.intent_hash.to_string(),
+                            decision.decision,
+                            format!(
+                                "0x{}",
+                                alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                            ),
+                        );
+
+                        if let Err(e) = py_callback.call1(py, (py_decision,)) {
+                            eprintln!("Python callback failed: {}", e);
+                        }
+                    });
+                }
+
+                Box::pin(async {})
+            };
+
+            let result = inner
+                .commitment_arbitrate_many_blocking_sync(arbitrate_func, callback, rust_mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .into_iter()
+                .map(|decision| {
+                    PyCommitmentDecision::__new__(
+                        decision.intent_hash.to_string(),
+                        decision.decision,
+                        format!(
+                            "0x{}",
+                            alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                        ),
+                    )
+                })
+                .collect::<Vec<_>>())
+        })
+    }
+
+    fn commitment_arbitrate_many_async_impl<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<PyArbitrationMode>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+
+        future_into_py(py, async move {
+            let rust_mode = mode.unwrap_or_default().into();
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+            let decision_func = Arc::new(decision_func);
+            let callback_func = Arc::new(callback_func);
+
+            let arbitrate = move |request: &alkahest_rs::clients::oracle::CommitmentArbitrationRequest| -> Pin<
+                Box<dyn Future<Output = Option<bool>> + Send + 'static>,
+            > {
+                let request = request.clone();
+                let decision_func = Arc::clone(&decision_func);
+
+                Box::pin(async move {
+                    let coro_result = Python::with_gil(|py| {
+                        decision_func
+                            .clone_ref(py)
+                            .call1(py, (request.intent_hash.to_string(), request.demand.to_vec()))
+                    });
+
+                    let coro = match coro_result {
+                        Ok(coro) => coro,
+                        Err(e) => {
+                            eprintln!("Python async decision function failed: {}", e);
+                            return None;
+                        }
+                    };
+
+                    if Python::with_gil(|py| coro.is_none(py)) {
+                        return None;
+                    }
+
+                    let future = match Python::with_gil(|py| into_future(coro.into_bound(py))) {
+                        Ok(future) => future,
+                        Err(e) => {
+                            eprintln!("Failed to convert coroutine to future: {}", e);
+                            return None;
+                        }
+                    };
+
+                    match future.await {
+                        Ok(result) => Python::with_gil(|py| {
+                            if result.is_none(py) {
+                                return None;
+                            }
+                            result
+                                .extract::<bool>(py)
+                                .or_else(|_| result.is_truthy(py))
+                                .ok()
+                        }),
+                        Err(e) => {
+                            eprintln!("Python async decision function failed: {}", e);
+                            None
+                        }
+                    }
+                })
+            };
+
+            let callback = move |decision: &alkahest_rs::clients::oracle::CommitmentDecision| {
+                let callback_func = Arc::clone(&callback_func);
+                let py_decision = PyCommitmentDecision::__new__(
+                    decision.intent_hash.to_string(),
+                    decision.decision,
+                    format!(
+                        "0x{}",
+                        alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                    ),
+                );
+
+                Box::pin(async move {
+                    if let Some(ref py_callback) = callback_func.as_ref() {
+                        Python::with_gil(|py| {
+                            let _ = py_callback.clone_ref(py).call1(py, (py_decision,));
+                        });
+                    }
+                })
+            };
+
+            let result = inner
+                .commitment_arbitrate_many_blocking_async(arbitrate, callback, rust_mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .into_iter()
+                .map(|decision| {
+                    PyCommitmentDecision::__new__(
+                        decision.intent_hash.to_string(),
+                        decision.decision,
+                        format!(
+                            "0x{}",
+                            alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                        ),
+                    )
+                })
+                .collect::<Vec<_>>())
+        })
+    }
+
     /// Wait for an arbitration event
     ///
     /// Args:
@@ -1152,6 +1356,36 @@ impl PyCommitmentArbitrationMadeLog {
 
 #[pyclass]
 #[derive(Clone)]
+pub struct PyCommitmentDecision {
+    #[pyo3(get)]
+    pub intent_hash: String,
+    #[pyo3(get)]
+    pub decision: bool,
+    #[pyo3(get)]
+    pub transaction_hash: String,
+}
+
+#[pymethods]
+impl PyCommitmentDecision {
+    #[new]
+    pub fn __new__(intent_hash: String, decision: bool, transaction_hash: String) -> Self {
+        Self {
+            intent_hash,
+            decision,
+            transaction_hash,
+        }
+    }
+
+    pub fn __repr__(&self) -> String {
+        format!(
+            "PyCommitmentDecision(intent_hash='{}', decision={}, transaction_hash='{}')",
+            self.intent_hash, self.decision, self.transaction_hash
+        )
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
 pub struct PyDecision {
     #[pyo3(get)]
     pub attestation: PyOracleAttestation,
@@ -1627,6 +1861,212 @@ impl TrustedOracle {
                 oracle: format!("{:?}", event.oracle),
                 demand: event.demand.to_vec(),
             })
+        })
+    }
+
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn commitment_arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<PyArbitrationMode>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let is_async = Python::with_gil(|py| {
+            let inspect = py.import("inspect").ok()?;
+            inspect
+                .getattr("iscoroutinefunction")
+                .ok()?
+                .call1((decision_func.clone_ref(py),))
+                .ok()?
+                .extract::<bool>()
+                .ok()
+        })
+        .unwrap_or(false);
+
+        if is_async {
+            return self.commitment_arbitrate_many_async_impl(
+                py,
+                decision_func,
+                callback_func,
+                mode,
+                timeout_seconds,
+            );
+        }
+
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let rust_mode = mode.unwrap_or_default().into();
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+
+            let arbitrate_func =
+                |request: &alkahest_rs::clients::oracle::CommitmentArbitrationRequest| -> Option<bool> {
+                    Python::with_gil(|py| {
+                        let result = decision_func
+                            .call1(py, (request.intent_hash.to_string(), request.demand.to_vec()))
+                            .ok()?;
+                        if result.is_none(py) {
+                            return None;
+                        }
+                        result
+                            .extract::<bool>(py)
+                            .or_else(|_| result.is_truthy(py))
+                            .ok()
+                    })
+                };
+
+            let callback = |decision: &alkahest_rs::clients::oracle::CommitmentDecision| {
+                if let Some(ref py_callback) = callback_func {
+                    Python::with_gil(|py| {
+                        let py_decision = PyCommitmentDecision::__new__(
+                            decision.intent_hash.to_string(),
+                            decision.decision,
+                            format!(
+                                "0x{}",
+                                alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                            ),
+                        );
+
+                        if let Err(e) = py_callback.call1(py, (py_decision,)) {
+                            eprintln!("Python callback failed: {}", e);
+                        }
+                    });
+                }
+
+                Box::pin(async {})
+            };
+
+            let result = inner
+                .trusted_oracle()
+                .commitment_arbitrate_many_blocking_sync(arbitrate_func, callback, rust_mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .into_iter()
+                .map(|decision| {
+                    PyCommitmentDecision::__new__(
+                        decision.intent_hash.to_string(),
+                        decision.decision,
+                        format!(
+                            "0x{}",
+                            alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                        ),
+                    )
+                })
+                .collect::<Vec<_>>())
+        })
+    }
+
+    fn commitment_arbitrate_many_async_impl<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<PyArbitrationMode>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+
+        future_into_py(py, async move {
+            let rust_mode = mode.unwrap_or_default().into();
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+            let decision_func = Arc::new(decision_func);
+            let callback_func = Arc::new(callback_func);
+
+            let arbitrate = move |request: &alkahest_rs::clients::oracle::CommitmentArbitrationRequest| -> Pin<
+                Box<dyn Future<Output = Option<bool>> + Send + 'static>,
+            > {
+                let request = request.clone();
+                let decision_func = Arc::clone(&decision_func);
+
+                Box::pin(async move {
+                    let coro_result = Python::with_gil(|py| {
+                        decision_func
+                            .clone_ref(py)
+                            .call1(py, (request.intent_hash.to_string(), request.demand.to_vec()))
+                    });
+
+                    let coro = match coro_result {
+                        Ok(coro) => coro,
+                        Err(e) => {
+                            eprintln!("Python async decision function failed: {}", e);
+                            return None;
+                        }
+                    };
+
+                    if Python::with_gil(|py| coro.is_none(py)) {
+                        return None;
+                    }
+
+                    let future = match Python::with_gil(|py| into_future(coro.into_bound(py))) {
+                        Ok(future) => future,
+                        Err(e) => {
+                            eprintln!("Failed to convert coroutine to future: {}", e);
+                            return None;
+                        }
+                    };
+
+                    match future.await {
+                        Ok(result) => Python::with_gil(|py| {
+                            if result.is_none(py) {
+                                return None;
+                            }
+                            result
+                                .extract::<bool>(py)
+                                .or_else(|_| result.is_truthy(py))
+                                .ok()
+                        }),
+                        Err(e) => {
+                            eprintln!("Python async decision function failed: {}", e);
+                            None
+                        }
+                    }
+                })
+            };
+
+            let callback = move |decision: &alkahest_rs::clients::oracle::CommitmentDecision| {
+                let callback_func = Arc::clone(&callback_func);
+                let py_decision = PyCommitmentDecision::__new__(
+                    decision.intent_hash.to_string(),
+                    decision.decision,
+                    format!(
+                        "0x{}",
+                        alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                    ),
+                );
+
+                Box::pin(async move {
+                    if let Some(ref py_callback) = callback_func.as_ref() {
+                        Python::with_gil(|py| {
+                            let _ = py_callback.clone_ref(py).call1(py, (py_decision,));
+                        });
+                    }
+                })
+            };
+
+            let result = inner
+                .trusted_oracle()
+                .commitment_arbitrate_many_blocking_async(arbitrate, callback, rust_mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .into_iter()
+                .map(|decision| {
+                    PyCommitmentDecision::__new__(
+                        decision.intent_hash.to_string(),
+                        decision.decision,
+                        format!(
+                            "0x{}",
+                            alloy::hex::encode(decision.receipt.transaction_hash.as_slice())
+                        ),
+                    )
+                })
+                .collect::<Vec<_>>())
         })
     }
 

@@ -175,11 +175,12 @@ Splitter clients currently expose the direct contract primitives:
 They do not expose equivalent callback-based oracle workflows for splitter
 decisions.
 
-Status: partially addressed. The TypeScript commitment trusted-oracle client now
-exposes `arbitrateMany`, encoded-demand arbitration, raw arbitration, request
-logs, request records, existing-decision checks, and wait helpers. Rust and
-Python now expose commitment existing-decision checks and wait helpers for
-decisions and requests. Rust/Python callback-based daemon helpers remain open.
+Status: partially addressed. Commitment trusted-oracle daemon parity is now
+covered: TypeScript exposes `arbitrateMany`, encoded-demand arbitration, raw
+arbitration, request logs, request records, existing-decision checks, and wait
+helpers; Rust and Python expose commitment callback workers plus
+existing-decision checks and wait helpers for decisions and requests. Splitter
+daemon helpers remain open.
 
 Affected SDK surfaces:
 
@@ -187,17 +188,15 @@ Affected SDK surfaces:
 - Rust `SplittersClient`
 - Python `SplittersClient`
 
-Proposed review order:
+Remaining review order:
 
-1. Add Rust/Python commitment trusted-oracle callback daemon helpers, using
-   intent hashes instead of fulfillment UIDs.
-2. Add fulfillment splitter daemon helpers for amount splits.
-3. Add fulfillment splitter daemon helpers for bundle splits.
-4. Add commitment splitter daemon helpers, using intent hashes instead of
+1. Add fulfillment splitter daemon helpers for amount splits.
+2. Add fulfillment splitter daemon helpers for bundle splits.
+3. Add commitment splitter daemon helpers, using intent hashes instead of
    fulfillment UIDs.
-5. Decide whether TypeScript should mirror trusted oracle naming
+4. Decide whether TypeScript should mirror trusted oracle naming
    (`arbitrateMany`, `listenAndArbitrate`) or use splitter-specific names.
-6. Decide whether Rust/Python should expose one generic callback API selected by
+5. Decide whether Rust/Python should expose one generic callback API selected by
    `SplitterContract`, or separate amount/bundle callback APIs with stronger
    split typing.
 
