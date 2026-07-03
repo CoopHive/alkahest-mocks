@@ -181,7 +181,10 @@ arbitration, request logs, request records, existing-decision checks, and wait
 helpers; Rust and Python expose commitment callback workers plus
 existing-decision checks and wait helpers for decisions and requests. Amount and
 bundle splitter daemon helpers are now exposed across TypeScript, Rust, and
-Python.
+Python. Rust now also exposes TS-shaped splitter submodules such as
+`client.splitters().erc20().fulfillment()` and
+`client.splitters().token_bundle().commitment()`, while retaining the lower-level
+contract-selector methods.
 
 Affected SDK surfaces:
 
@@ -193,9 +196,9 @@ Remaining review order:
 
 1. Decide whether TypeScript should mirror trusted oracle naming
    (`arbitrateMany`, `listenAndArbitrate`) or use splitter-specific names.
-2. Decide whether Rust/Python should expose one generic callback API selected by
-   `SplitterContract`, or separate amount/bundle callback APIs with stronger
-   split typing.
+2. Decide whether Python should mirror the TypeScript/Rust splitter submodule
+   layout or keep the single `client.splitters` object with explicit contract
+   keys.
 
 Design notes:
 

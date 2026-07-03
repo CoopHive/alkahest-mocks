@@ -717,6 +717,51 @@ impl SplittersModule {
         self.address(Self::contract_for(asset, target))
     }
 
+    /// Access ERC20 splitter variants.
+    pub fn erc20(&self) -> AmountSplitterNamespace<'_> {
+        AmountSplitterNamespace::new(
+            self,
+            SplitterContract::Erc20Splitter,
+            SplitterContract::CommitmentErc20Splitter,
+        )
+    }
+
+    /// Access ERC1155 splitter variants.
+    pub fn erc1155(&self) -> AmountSplitterNamespace<'_> {
+        AmountSplitterNamespace::new(
+            self,
+            SplitterContract::Erc1155Splitter,
+            SplitterContract::CommitmentErc1155Splitter,
+        )
+    }
+
+    /// Access native-token splitter variants.
+    pub fn native_token(&self) -> AmountSplitterNamespace<'_> {
+        AmountSplitterNamespace::new(
+            self,
+            SplitterContract::NativeTokenSplitter,
+            SplitterContract::CommitmentNativeTokenSplitter,
+        )
+    }
+
+    /// Access token-bundle splitter variants.
+    pub fn token_bundle(&self) -> BundleSplitterNamespace<'_> {
+        BundleSplitterNamespace::new(
+            self,
+            SplitterContract::TokenBundleSplitter,
+            SplitterContract::CommitmentTokenBundleSplitter,
+        )
+    }
+
+    /// Access unvalidated token-bundle splitter variants.
+    pub fn token_bundle_unvalidated(&self) -> BundleSplitterNamespace<'_> {
+        BundleSplitterNamespace::new(
+            self,
+            SplitterContract::TokenBundleSplitterUnvalidated,
+            SplitterContract::CommitmentTokenBundleSplitterUnvalidated,
+        )
+    }
+
     /// Whether a splitter contract uses bundle split data.
     pub fn is_bundle_contract(contract: SplitterContract) -> bool {
         matches!(
@@ -1341,6 +1386,936 @@ impl SplittersModule {
     }
 }
 
+/// Amount-splitter asset namespace with fulfillment and commitment variants.
+pub struct AmountSplitterNamespace<'a> {
+    module: &'a SplittersModule,
+    fulfillment_contract: SplitterContract,
+    commitment_contract: SplitterContract,
+}
+
+impl<'a> AmountSplitterNamespace<'a> {
+    fn new(
+        module: &'a SplittersModule,
+        fulfillment_contract: SplitterContract,
+        commitment_contract: SplitterContract,
+    ) -> Self {
+        Self {
+            module,
+            fulfillment_contract,
+            commitment_contract,
+        }
+    }
+
+    /// Access the fulfillment-UID splitter variant.
+    pub fn fulfillment(&self) -> AmountSplitter<'_> {
+        AmountSplitter::new(self.module, self.fulfillment_contract)
+    }
+
+    /// Access the pre-attestation commitment splitter variant.
+    pub fn commitment(&self) -> CommitmentAmountSplitter<'_> {
+        CommitmentAmountSplitter::new(self.module, self.commitment_contract)
+    }
+
+    /// Select a splitter variant by decision target.
+    pub fn for_target(&self, target: SplitterDecisionTarget) -> AmountSplitterVariant<'_> {
+        match target {
+            SplitterDecisionTarget::Fulfillment => {
+                AmountSplitterVariant::Fulfillment(self.fulfillment())
+            }
+            SplitterDecisionTarget::Commitment => {
+                AmountSplitterVariant::Commitment(self.commitment())
+            }
+        }
+    }
+
+    /// Address of the fulfillment-UID splitter variant.
+    pub fn address(&self) -> Address {
+        self.fulfillment().address()
+    }
+
+    /// Records amount-based splits on the fulfillment-UID splitter variant.
+    pub async fn arbitrate(
+        &self,
+        fulfillment: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        splits: Vec<AmountSplit>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .arbitrate(fulfillment, escrow, splits)
+            .await
+    }
+
+    /// Emits an arbitration request on the fulfillment-UID splitter variant.
+    pub async fn request_arbitration(
+        &self,
+        fulfillment: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .request_arbitration(fulfillment, escrow, oracle, demand)
+            .await
+    }
+
+    /// Creates a splitter-owned fulfillment attestation on the fulfillment-UID variant.
+    pub async fn create_fulfillment(
+        &self,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .create_fulfillment(obligation_contract, data, expiration_time, ref_uid, value)
+            .await
+    }
+
+    /// Collects and distributes through the fulfillment-UID splitter variant.
+    pub async fn collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .collect_and_distribute(escrow, fulfillment)
+            .await
+    }
+
+    /// Collects and distributes through the fulfillment-UID variant, continuing after transfer failures.
+    pub async fn unsafe_partially_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .unsafe_partially_collect_and_distribute(escrow, fulfillment)
+            .await
+    }
+
+    /// Reads amount-based splits from the fulfillment-UID splitter variant.
+    pub async fn get_splits(
+        &self,
+        oracle: Address,
+        fulfillment: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+    ) -> eyre::Result<Vec<AmountSplit>> {
+        self.fulfillment()
+            .get_splits(oracle, fulfillment, escrow)
+            .await
+    }
+
+    /// Checks whether the fulfillment-UID splitter variant has a recorded decision.
+    pub async fn has_decision(
+        &self,
+        oracle: Address,
+        decision_key: FixedBytes<32>,
+    ) -> eyre::Result<bool> {
+        self.fulfillment().has_decision(oracle, decision_key).await
+    }
+
+    /// Reads arbitration requests for this oracle from the fulfillment-UID splitter variant.
+    pub async fn arbitration_requests(
+        &self,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<AmountSplitterArbitrationRequest>> {
+        self.fulfillment()
+            .arbitration_requests(skip_arbitrated)
+            .await
+    }
+
+    /// Arbitrate fulfillment-UID splitter requests in blocking mode with a sync callback.
+    pub async fn arbitrate_many_blocking_sync<
+        Decide: Fn(&AmountSplitterArbitrationRequest) -> Option<Vec<AmountSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&AmountSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<AmountSplitterArbitrateManyResult> {
+        self.fulfillment()
+            .arbitrate_many_blocking_sync(decide, on_decision, mode, timeout)
+            .await
+    }
+
+    /// Arbitrate fulfillment-UID splitter requests in blocking mode with an async callback.
+    pub async fn arbitrate_many_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<AmountSplit>>>,
+        Decide: Fn(&AmountSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&AmountSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<AmountSplitterArbitrateManyResult> {
+        self.fulfillment()
+            .arbitrate_many_blocking_async(decide, on_decision, mode, timeout)
+            .await
+    }
+}
+
+/// Amount-splitter variant selected by decision target.
+pub enum AmountSplitterVariant<'a> {
+    Fulfillment(AmountSplitter<'a>),
+    Commitment(CommitmentAmountSplitter<'a>),
+}
+
+/// Fulfillment-UID amount splitter client.
+pub struct AmountSplitter<'a> {
+    module: &'a SplittersModule,
+    contract: SplitterContract,
+}
+
+impl<'a> AmountSplitter<'a> {
+    fn new(module: &'a SplittersModule, contract: SplitterContract) -> Self {
+        Self { module, contract }
+    }
+
+    pub fn address(&self) -> Address {
+        self.module.address(self.contract)
+    }
+
+    pub async fn arbitrate(
+        &self,
+        fulfillment_or_intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        splits: Vec<AmountSplit>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .arbitrate_amount(self.contract, fulfillment_or_intent, escrow, splits)
+            .await
+    }
+
+    pub async fn request_arbitration(
+        &self,
+        fulfillment_or_intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .request_arbitration(self.contract, fulfillment_or_intent, escrow, oracle, demand)
+            .await
+    }
+
+    pub async fn create_fulfillment(
+        &self,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .create_fulfillment(
+                self.contract,
+                obligation_contract,
+                data,
+                expiration_time,
+                ref_uid,
+                value,
+            )
+            .await
+    }
+
+    pub async fn collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .collect_and_distribute(self.contract, escrow, fulfillment)
+            .await
+    }
+
+    pub async fn unsafe_partially_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .unsafe_partially_collect_and_distribute(self.contract, escrow, fulfillment)
+            .await
+    }
+
+    pub async fn get_splits(
+        &self,
+        oracle: Address,
+        fulfillment_or_intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+    ) -> eyre::Result<Vec<AmountSplit>> {
+        self.module
+            .get_amount_splits(self.contract, oracle, fulfillment_or_intent, escrow)
+            .await
+    }
+
+    pub async fn has_decision(
+        &self,
+        oracle: Address,
+        decision_key: FixedBytes<32>,
+    ) -> eyre::Result<bool> {
+        self.module
+            .has_decision(self.contract, oracle, decision_key)
+            .await
+    }
+
+    pub async fn arbitration_requests(
+        &self,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<AmountSplitterArbitrationRequest>> {
+        self.module
+            .amount_arbitration_requests(self.contract, skip_arbitrated)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_sync<
+        Decide: Fn(&AmountSplitterArbitrationRequest) -> Option<Vec<AmountSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&AmountSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<AmountSplitterArbitrateManyResult> {
+        self.module
+            .arbitrate_many_amount_blocking_sync(self.contract, decide, on_decision, mode, timeout)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<AmountSplit>>>,
+        Decide: Fn(&AmountSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&AmountSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<AmountSplitterArbitrateManyResult> {
+        self.module
+            .arbitrate_many_amount_blocking_async(self.contract, decide, on_decision, mode, timeout)
+            .await
+    }
+}
+
+/// Pre-attestation commitment amount splitter client.
+pub struct CommitmentAmountSplitter<'a> {
+    inner: AmountSplitter<'a>,
+}
+
+impl<'a> CommitmentAmountSplitter<'a> {
+    fn new(module: &'a SplittersModule, contract: SplitterContract) -> Self {
+        Self {
+            inner: AmountSplitter::new(module, contract),
+        }
+    }
+
+    pub fn address(&self) -> Address {
+        self.inner.address()
+    }
+
+    pub async fn arbitrate(
+        &self,
+        intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        splits: Vec<AmountSplit>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner.arbitrate(intent, escrow, splits).await
+    }
+
+    pub async fn request_arbitration(
+        &self,
+        intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .request_arbitration(intent, escrow, oracle, demand)
+            .await
+    }
+
+    pub async fn create_fulfillment(
+        &self,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .create_fulfillment(obligation_contract, data, expiration_time, ref_uid, value)
+            .await
+    }
+
+    pub async fn create_fulfillment_and_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .module
+            .create_fulfillment_and_collect_and_distribute(
+                self.inner.contract,
+                escrow,
+                obligation_contract,
+                data,
+                expiration_time,
+                ref_uid,
+                value,
+            )
+            .await
+    }
+
+    pub async fn collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner.collect_and_distribute(escrow, fulfillment).await
+    }
+
+    pub async fn unsafe_partially_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .unsafe_partially_collect_and_distribute(escrow, fulfillment)
+            .await
+    }
+
+    pub async fn get_splits(
+        &self,
+        oracle: Address,
+        intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+    ) -> eyre::Result<Vec<AmountSplit>> {
+        self.inner.get_splits(oracle, intent, escrow).await
+    }
+
+    pub async fn has_decision(
+        &self,
+        oracle: Address,
+        decision_key: FixedBytes<32>,
+    ) -> eyre::Result<bool> {
+        self.inner.has_decision(oracle, decision_key).await
+    }
+
+    pub async fn arbitration_requests(
+        &self,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<AmountSplitterArbitrationRequest>> {
+        self.inner.arbitration_requests(skip_arbitrated).await
+    }
+
+    pub async fn arbitrate_many_blocking_sync<
+        Decide: Fn(&AmountSplitterArbitrationRequest) -> Option<Vec<AmountSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&AmountSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<AmountSplitterArbitrateManyResult> {
+        self.inner
+            .arbitrate_many_blocking_sync(decide, on_decision, mode, timeout)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<AmountSplit>>>,
+        Decide: Fn(&AmountSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&AmountSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<AmountSplitterArbitrateManyResult> {
+        self.inner
+            .arbitrate_many_blocking_async(decide, on_decision, mode, timeout)
+            .await
+    }
+}
+
+/// Token-bundle splitter asset namespace with fulfillment and commitment variants.
+pub struct BundleSplitterNamespace<'a> {
+    module: &'a SplittersModule,
+    fulfillment_contract: SplitterContract,
+    commitment_contract: SplitterContract,
+}
+
+impl<'a> BundleSplitterNamespace<'a> {
+    fn new(
+        module: &'a SplittersModule,
+        fulfillment_contract: SplitterContract,
+        commitment_contract: SplitterContract,
+    ) -> Self {
+        Self {
+            module,
+            fulfillment_contract,
+            commitment_contract,
+        }
+    }
+
+    pub fn fulfillment(&self) -> BundleSplitter<'_> {
+        BundleSplitter::new(self.module, self.fulfillment_contract)
+    }
+
+    pub fn commitment(&self) -> CommitmentBundleSplitter<'_> {
+        CommitmentBundleSplitter::new(self.module, self.commitment_contract)
+    }
+
+    pub fn for_target(&self, target: SplitterDecisionTarget) -> BundleSplitterVariant<'_> {
+        match target {
+            SplitterDecisionTarget::Fulfillment => {
+                BundleSplitterVariant::Fulfillment(self.fulfillment())
+            }
+            SplitterDecisionTarget::Commitment => {
+                BundleSplitterVariant::Commitment(self.commitment())
+            }
+        }
+    }
+
+    pub fn address(&self) -> Address {
+        self.fulfillment().address()
+    }
+
+    pub async fn arbitrate(
+        &self,
+        fulfillment: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        splits: Vec<BundleSplit>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .arbitrate(fulfillment, escrow, splits)
+            .await
+    }
+
+    pub async fn request_arbitration(
+        &self,
+        fulfillment: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .request_arbitration(fulfillment, escrow, oracle, demand)
+            .await
+    }
+
+    pub async fn create_fulfillment(
+        &self,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .create_fulfillment(obligation_contract, data, expiration_time, ref_uid, value)
+            .await
+    }
+
+    pub async fn collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .collect_and_distribute(escrow, fulfillment)
+            .await
+    }
+
+    pub async fn unsafe_partially_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.fulfillment()
+            .unsafe_partially_collect_and_distribute(escrow, fulfillment)
+            .await
+    }
+
+    pub async fn get_splits(
+        &self,
+        oracle: Address,
+        fulfillment: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+    ) -> eyre::Result<Vec<BundleSplit>> {
+        self.fulfillment()
+            .get_splits(oracle, fulfillment, escrow)
+            .await
+    }
+
+    pub async fn has_decision(
+        &self,
+        oracle: Address,
+        decision_key: FixedBytes<32>,
+    ) -> eyre::Result<bool> {
+        self.fulfillment().has_decision(oracle, decision_key).await
+    }
+
+    pub async fn arbitration_requests(
+        &self,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<BundleSplitterArbitrationRequest>> {
+        self.fulfillment()
+            .arbitration_requests(skip_arbitrated)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_sync<
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> Option<Vec<BundleSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        self.fulfillment()
+            .arbitrate_many_blocking_sync(decide, on_decision, mode, timeout)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<BundleSplit>>>,
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        self.fulfillment()
+            .arbitrate_many_blocking_async(decide, on_decision, mode, timeout)
+            .await
+    }
+}
+
+/// Token-bundle splitter variant selected by decision target.
+pub enum BundleSplitterVariant<'a> {
+    Fulfillment(BundleSplitter<'a>),
+    Commitment(CommitmentBundleSplitter<'a>),
+}
+
+/// Fulfillment-UID token-bundle splitter client.
+pub struct BundleSplitter<'a> {
+    module: &'a SplittersModule,
+    contract: SplitterContract,
+}
+
+impl<'a> BundleSplitter<'a> {
+    fn new(module: &'a SplittersModule, contract: SplitterContract) -> Self {
+        Self { module, contract }
+    }
+
+    pub fn address(&self) -> Address {
+        self.module.address(self.contract)
+    }
+
+    pub async fn arbitrate(
+        &self,
+        fulfillment_or_intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        splits: Vec<BundleSplit>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .arbitrate_bundle(self.contract, fulfillment_or_intent, escrow, splits)
+            .await
+    }
+
+    pub async fn request_arbitration(
+        &self,
+        fulfillment_or_intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .request_arbitration(self.contract, fulfillment_or_intent, escrow, oracle, demand)
+            .await
+    }
+
+    pub async fn create_fulfillment(
+        &self,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .create_fulfillment(
+                self.contract,
+                obligation_contract,
+                data,
+                expiration_time,
+                ref_uid,
+                value,
+            )
+            .await
+    }
+
+    pub async fn collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .collect_and_distribute(self.contract, escrow, fulfillment)
+            .await
+    }
+
+    pub async fn unsafe_partially_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.module
+            .unsafe_partially_collect_and_distribute(self.contract, escrow, fulfillment)
+            .await
+    }
+
+    pub async fn get_splits(
+        &self,
+        oracle: Address,
+        fulfillment_or_intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+    ) -> eyre::Result<Vec<BundleSplit>> {
+        self.module
+            .get_bundle_splits(self.contract, oracle, fulfillment_or_intent, escrow)
+            .await
+    }
+
+    pub async fn has_decision(
+        &self,
+        oracle: Address,
+        decision_key: FixedBytes<32>,
+    ) -> eyre::Result<bool> {
+        self.module
+            .has_decision(self.contract, oracle, decision_key)
+            .await
+    }
+
+    pub async fn arbitration_requests(
+        &self,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<BundleSplitterArbitrationRequest>> {
+        self.module
+            .bundle_arbitration_requests(self.contract, skip_arbitrated)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_sync<
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> Option<Vec<BundleSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        self.module
+            .arbitrate_many_bundle_blocking_sync(self.contract, decide, on_decision, mode, timeout)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<BundleSplit>>>,
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        self.module
+            .arbitrate_many_bundle_blocking_async(self.contract, decide, on_decision, mode, timeout)
+            .await
+    }
+}
+
+/// Pre-attestation commitment token-bundle splitter client.
+pub struct CommitmentBundleSplitter<'a> {
+    inner: BundleSplitter<'a>,
+}
+
+impl<'a> CommitmentBundleSplitter<'a> {
+    fn new(module: &'a SplittersModule, contract: SplitterContract) -> Self {
+        Self {
+            inner: BundleSplitter::new(module, contract),
+        }
+    }
+
+    pub fn address(&self) -> Address {
+        self.inner.address()
+    }
+
+    pub async fn arbitrate(
+        &self,
+        intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        splits: Vec<BundleSplit>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner.arbitrate(intent, escrow, splits).await
+    }
+
+    pub async fn request_arbitration(
+        &self,
+        intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+        oracle: Address,
+        demand: Bytes,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .request_arbitration(intent, escrow, oracle, demand)
+            .await
+    }
+
+    pub async fn create_fulfillment(
+        &self,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .create_fulfillment(obligation_contract, data, expiration_time, ref_uid, value)
+            .await
+    }
+
+    pub async fn create_fulfillment_and_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        obligation_contract: Address,
+        data: Bytes,
+        expiration_time: u64,
+        ref_uid: FixedBytes<32>,
+        value: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .module
+            .create_fulfillment_and_collect_and_distribute(
+                self.inner.contract,
+                escrow,
+                obligation_contract,
+                data,
+                expiration_time,
+                ref_uid,
+                value,
+            )
+            .await
+    }
+
+    pub async fn collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner.collect_and_distribute(escrow, fulfillment).await
+    }
+
+    pub async fn unsafe_partially_collect_and_distribute(
+        &self,
+        escrow: FixedBytes<32>,
+        fulfillment: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        self.inner
+            .unsafe_partially_collect_and_distribute(escrow, fulfillment)
+            .await
+    }
+
+    pub async fn get_splits(
+        &self,
+        oracle: Address,
+        intent: FixedBytes<32>,
+        escrow: FixedBytes<32>,
+    ) -> eyre::Result<Vec<BundleSplit>> {
+        self.inner.get_splits(oracle, intent, escrow).await
+    }
+
+    pub async fn has_decision(
+        &self,
+        oracle: Address,
+        decision_key: FixedBytes<32>,
+    ) -> eyre::Result<bool> {
+        self.inner.has_decision(oracle, decision_key).await
+    }
+
+    pub async fn arbitration_requests(
+        &self,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<BundleSplitterArbitrationRequest>> {
+        self.inner.arbitration_requests(skip_arbitrated).await
+    }
+
+    pub async fn arbitrate_many_blocking_sync<
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> Option<Vec<BundleSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        self.inner
+            .arbitrate_many_blocking_sync(decide, on_decision, mode, timeout)
+            .await
+    }
+
+    pub async fn arbitrate_many_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<BundleSplit>>>,
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        self.inner
+            .arbitrate_many_blocking_async(decide, on_decision, mode, timeout)
+            .await
+    }
+}
+
 impl AlkahestExtension for SplittersModule {
     type Config = SplittersAddresses;
 
@@ -1425,6 +2400,52 @@ mod tests {
         assert!(SplittersModule::is_commitment_contract(
             SplitterContract::CommitmentTokenBundleSplitter
         ));
+    }
+
+    #[tokio::test]
+    async fn splitter_submodule_accessors_select_expected_addresses() {
+        let addresses = SplittersAddresses {
+            erc20_splitter: Address::repeat_byte(0x01),
+            erc1155_splitter: Address::repeat_byte(0x02),
+            native_token_splitter: Address::repeat_byte(0x03),
+            token_bundle_splitter: Address::repeat_byte(0x04),
+            token_bundle_splitter_unvalidated: Address::repeat_byte(0x05),
+            commitment_erc20_splitter: Address::repeat_byte(0x06),
+            commitment_erc1155_splitter: Address::repeat_byte(0x07),
+            commitment_native_token_splitter: Address::repeat_byte(0x08),
+            commitment_token_bundle_splitter: Address::repeat_byte(0x09),
+            commitment_token_bundle_splitter_unvalidated: Address::repeat_byte(0x0a),
+        };
+        let signer = PrivateKeySigner::random();
+        let public_provider = crate::utils::transport::get_public_provider("http://127.0.0.1:8545")
+            .await
+            .unwrap();
+        let wallet_provider =
+            crate::utils::transport::get_wallet_provider(signer.clone(), "http://127.0.0.1:8545")
+                .await
+                .unwrap();
+        let module = SplittersModule::new(
+            signer,
+            std::sync::Arc::new(public_provider),
+            std::sync::Arc::new(wallet_provider),
+            Duration::from_secs(1),
+            Some(addresses),
+        )
+        .unwrap();
+
+        assert_eq!(module.erc20().address(), Address::repeat_byte(0x01));
+        assert_eq!(
+            module.erc20().commitment().address(),
+            Address::repeat_byte(0x06)
+        );
+        assert_eq!(
+            module.token_bundle().fulfillment().address(),
+            Address::repeat_byte(0x04)
+        );
+        assert_eq!(
+            module.token_bundle_unvalidated().commitment().address(),
+            Address::repeat_byte(0x0a)
+        );
     }
 
     #[test]
