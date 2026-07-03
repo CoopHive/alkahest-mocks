@@ -1654,6 +1654,8 @@ declare const makeDefaultExtension: (client: any) => {
             unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+            arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         } & {
             fulfillment: {
@@ -1668,6 +1670,8 @@ declare const makeDefaultExtension: (client: any) => {
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             commitment: {
@@ -1685,6 +1689,8 @@ declare const makeDefaultExtension: (client: any) => {
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             forTarget: {
@@ -1700,6 +1706,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 };
                 (target: "commitment"): {
@@ -1717,6 +1725,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 };
                 (target?: SplitterDecisionTarget): {
@@ -1731,6 +1741,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 } | {
                     attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
@@ -1747,6 +1759,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 };
             };
@@ -1763,6 +1777,8 @@ declare const makeDefaultExtension: (client: any) => {
             unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+            arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         } & {
             fulfillment: {
@@ -1777,6 +1793,8 @@ declare const makeDefaultExtension: (client: any) => {
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             commitment: {
@@ -1794,6 +1812,8 @@ declare const makeDefaultExtension: (client: any) => {
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             forTarget: {
@@ -1809,6 +1829,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 };
                 (target: "commitment"): {
@@ -1826,6 +1848,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 };
                 (target?: SplitterDecisionTarget): {
@@ -1840,6 +1864,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 } | {
                     attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
@@ -1856,6 +1882,8 @@ declare const makeDefaultExtension: (client: any) => {
                     unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                     getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                     hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                    getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                    arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                     check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
                 };
             };
@@ -13293,6 +13321,28 @@ type AmountSplitterArbitrateManyResult = {
     decisions: AmountSplitterDecision[];
     unwatch: () => void;
 };
+type BundleSplitterArbitrationRequest = {
+    fulfillmentOrIntent: `0x${string}`;
+    escrow: `0x${string}`;
+    demand: `0x${string}`;
+};
+type BundleSplitterDecision = {
+    hash: `0x${string}`;
+    fulfillmentOrIntent: `0x${string}`;
+    escrow: `0x${string}`;
+    splits: BundleSplit[];
+};
+type BundleSplitterArbitrateManyOptions = {
+    mode?: SplitterArbitrationMode;
+    fromBlock?: BlockNumber | BlockTag;
+    toBlock?: BlockNumber | BlockTag;
+    onAfterArbitrate?: (decision: BundleSplitterDecision) => Promise<void>;
+    pollingInterval?: number;
+};
+type BundleSplitterArbitrateManyResult = {
+    decisions: BundleSplitterDecision[];
+    unwatch: () => void;
+};
 /** Split item for token-bundle splitters. */
 type BundleSplit = {
     /** Recipient address, or the splitter executor sentinel. */
@@ -13723,6 +13773,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
         unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
         getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
         hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+        arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
         check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
     } & {
         fulfillment: {
@@ -13737,6 +13789,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
             unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+            arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         };
         commitment: {
@@ -13754,6 +13808,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
             unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+            arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         };
         forTarget: {
@@ -13769,6 +13825,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             (target: "commitment"): {
@@ -13786,6 +13844,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             (target?: SplitterDecisionTarget): {
@@ -13800,6 +13860,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             } | {
                 attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
@@ -13816,6 +13878,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
         };
@@ -13832,6 +13896,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
         unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
         getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
         hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+        getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+        arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
         check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
     } & {
         fulfillment: {
@@ -13846,6 +13912,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
             unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+            arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         };
         commitment: {
@@ -13863,6 +13931,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
             unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
             getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
             hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+            getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+            arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
             check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
         };
         forTarget: {
@@ -13878,6 +13948,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             (target: "commitment"): {
@@ -13895,6 +13967,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
             (target?: SplitterDecisionTarget): {
@@ -13909,6 +13983,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             } | {
                 attestationIntentHash: (intent: SplitterAttestationIntent | Attestation) => `0x${string}`;
@@ -13925,6 +14001,8 @@ declare const makeSplittersClient: (viemClient: ViemClient, addresses: SplitterA
                 unsafePartiallyCollectAndDistribute: (escrow: `0x${string}`, fulfillment: `0x${string}`) => Promise<`0x${string}`>;
                 getSplits: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<BundleSplit[]>;
                 hasDecision: (oracle: `0x${string}`, fulfillment: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
+                getArbitrationRequests: (options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrationRequest[]>;
+                arbitrateMany: (decide: (request: BundleSplitterArbitrationRequest) => Promise<BundleSplit[] | null>, options?: BundleSplitterArbitrateManyOptions) => Promise<BundleSplitterArbitrateManyResult>;
                 check: (fulfillment: Attestation, demand: `0x${string}`, escrow: `0x${string}`) => Promise<boolean>;
             };
         };
@@ -110217,4 +110295,4 @@ declare const makeClient: (walletClient: WalletClient<Transport, Chain, Account>
  */
 declare const makeMinimalClient: (walletClient: WalletClient<Transport, Chain, Account>, contractAddresses?: Partial<ChainAddresses>) => MinimalClient;
 
-export { type AlkahestClient, AllArbiter$1 as AllArbiter, type AllArbiterDemandData, type AmountSplit, type AmountSplitHookData, type AmountSplitterArbitrateManyOptions, type AmountSplitterArbitrateManyResult, type AmountSplitterArbitrationRequest, type AmountSplitterDecision, AnyArbiter$1 as AnyArbiter, type AnyArbiterDemandData, type ApprovalPurpose, type ArbiterContractKey, type ArbiterTarget, type ArbitrationMode, type AtomicPaymentOptions, type Attestation, type AttestationAddresses, type AttestationClient, type AttestationEscrowClient, type AttestationEscrowDefaultClient, type AttestationEscrowHookData, type AttestationEscrowUnconditionalClient, type AttestationFilters, type AttestationReferenceEscrowClient, type AttestationReferenceEscrowHookData, type AttestationReferenceEscrowUnconditionalClient, type AttestationUtilClient, type AttestationWithDemand, type AttesterArbiterDemandData, type BatchFilters, type BlockFilters, type BundleSplit, type ChainAddresses, type CommitRevealAddresses, type CommitRevealDemandData, type CommitRevealObligationClient, type CommitRevealObligationData, type ContractAddressInfo, type DecodedDemandResult, type DecodedDemandWithChildren, type DecodersRecord, type Demand, type DemandDecoder, type DeployFn, type DeployOptions, type ERC8004ArbiterDemandData, type Eip2612Props, type EnhancedArbitrateFilters, type Erc1155, type Erc1155Addresses, type Erc1155Client, type Erc1155DefaultEscrowClient, type Erc1155EscrowClient, type Erc1155HookData, type Erc1155PaymentClient, type Erc1155UnconditionalEscrowClient, type Erc1155UtilClient, type Erc20, type Erc20Addresses, type Erc20Client, type Erc20DefaultEscrowClient, type Erc20EscrowClient, type Erc20PaymentClient, type Erc20UnconditionalEscrowClient, type Erc20UtilClient, type Erc721, type Erc721Addresses, type Erc721Client, type Erc721DefaultEscrowClient, type Erc721EscrowClient, type Erc721PaymentClient, type Erc721UnconditionalEscrowClient, type Erc721UtilClient, type EthArbitrationContext, type EthArbitrationRequest, type EthArbitrationResult, type EthBalanceArbitrationRequest, type EthTransferArbitrationRequest, type ExpirationTimeAfterArbiterDemandData, type ExpirationTimeBeforeArbiterDemandData, type ExpirationTimeEqualArbiterDemandData, type HookBasedAddresses, type HookBasedClient, type HookEscrowObligationData, type HooksEscrowObligationData, type MinimalClient, type NativeTokenAddresses, type NativeTokenArbitrationContext, type NativeTokenArbitrationRequest, type NativeTokenArbitrationResult, type NativeTokenBalanceArbitrationRequest, type NativeTokenClient, type NativeTokenDefaultEscrowClient, type NativeTokenDefaultEscrowObligationData, type NativeTokenEscrowArbitrationRequest, type NativeTokenEscrowClient, type NativeTokenHookData, type NativeTokenPaymentArbitrationRequest, type NativeTokenPaymentClient, type NativeTokenPaymentObligationData, type NativeTokenTransferArbitrationRequest, type NativeTokenUnconditionalEscrowClient, type NativeTokenUnconditionalEscrowObligationData, type PerformanceFilters, type PermitSignature, type RecipientArbiterDemandData, type RecursivelyDecodedDemand, type RefUidArbiterDemandData, type RevocableArbiterDemandData, type SchemaArbiterDemandData, type SignPermitProps, type SplitterAddresses, type SplitterArbitrationMode, type SplitterAttestationIntent, type SplitterDecisionTarget, type SplitterDemandData, type SplittersClient, type StringAddresses, type StringObligationClient, type StringObligationData, type TestContext, type TimeAfterArbiterDemandData, type TimeBeforeArbiterDemandData, type TimeEqualArbiterDemandData, type TimeFilters, type TokenBundle, type TokenBundleAddresses, type TokenBundleClient, type TokenBundleDefaultEscrowClient, type TokenBundleEscrowClient, type TokenBundleFlat, type TokenBundlePaymentClient, type TokenBundleUnconditionalEscrowClient, type TokenBundleUtilClient, type TokenIdHookData, type TrustedOracleArbiterDemandData, type UidArbiterDemandData, type ViemClient, arbiterAddress, assertDeployedContract, checkArbiter, contractAddresses, index as contracts, createAddressIndex, createDecodersFromAddresses, decodeAmountSplits, decodeDemand$b as decodeAttesterDemand, decodeBundleSplits, decodeObligation$3 as decodeDefaultEscrowObligation, decodeDemand$f as decodeDemand, decodeDemandWithAddresses, decodeDemand$e as decodeERC8004Demand, decodeDemand$a as decodeExpirationTimeAfterDemand, decodeDemand$9 as decodeExpirationTimeBeforeDemand, decodeDemand$8 as decodeExpirationTimeEqualDemand, decodeHookEscrowObligation, decodeHooksEscrowObligation, decodeObligation, decodeObligation$1 as decodePaymentObligation, decodeDemand$7 as decodeRecipientDemand, decodeDemand$6 as decodeRefUidDemand, decodeDemand$c as decodeReferencesEscrowDemand, decodeDemand$5 as decodeRevocableDemand, decodeDemand$4 as decodeSchemaDemand, decodeSplitterDemand, decodeDemand$3 as decodeTimeAfterDemand, decodeDemand$2 as decodeTimeBeforeDemand, decodeDemand$1 as decodeTimeEqualDemand, decodeDemand$d as decodeTrustedOracleDemand, decodeDemand as decodeUidDemand, decodeObligation$2 as decodeUnconditionalEscrowObligation, deployAlkahest, encodeAmountSplits, encodeDemand$b as encodeAttesterDemand, encodeBundleSplits, encodeObligation$3 as encodeDefaultEscrowObligation, encodeDemand$e as encodeERC8004Demand, encodeDemand$a as encodeExpirationTimeAfterDemand, encodeDemand$9 as encodeExpirationTimeBeforeDemand, encodeDemand$8 as encodeExpirationTimeEqualDemand, encodeHookEscrowObligation, encodeHooksEscrowObligation, encodeObligation, encodeObligation$1 as encodePaymentObligation, encodeDemand$7 as encodeRecipientDemand, encodeDemand$6 as encodeRefUidDemand, encodeDemand$c as encodeReferencesEscrowDemand, encodeDemand$5 as encodeRevocableDemand, encodeDemand$4 as encodeSchemaDemand, encodeSplitterDemand, encodeDemand$3 as encodeTimeAfterDemand, encodeDemand$2 as encodeTimeBeforeDemand, encodeDemand$1 as encodeTimeEqualDemand, encodeDemand$d as encodeTrustedOracleDemand, encodeDemand as encodeUidDemand, encodeObligation$2 as encodeUnconditionalEscrowObligation, requestHashFor as erc8004RequestHashFor, index$1 as fixtures, flattenTokenBundle, getAtomicPaymentEscrowAttestation, getAttestation, getAttestedEventFromTxHash, getAttestedEventsFromTxHash, getOptimalPollingInterval, isWebSocketTransport, lookupAddress, makeArbitersClient, makeAttestationClient, makeAttestationEscrowClient, makeAttestationEscrowDefaultClient, makeAttestationEscrowUnconditionalClient, makeAttestationReferenceEscrowClient, makeAttestationReferenceEscrowUnconditionalClient, makeAttestationUtilClient, makeClient, makeCommitRevealObligationClient, makeDefaultExtension, makeErc1155Client, makeErc1155DefaultEscrowClient, makeErc1155EscrowClient, makeErc1155PaymentClient, makeErc1155UnconditionalEscrowClient, makeErc1155UtilClient, makeErc20Client, makeErc20DefaultEscrowClient, makeErc20EscrowClient, makeErc20PaymentClient, makeErc20UnconditionalEscrowClient, makeErc20UtilClient, makeErc721Client, makeErc721DefaultEscrowClient, makeErc721EscrowClient, makeErc721PaymentClient, makeErc721UnconditionalEscrowClient, makeErc721UtilClient, makeHookBasedClient, makeMinimalClient, makeNativeTokenClient, makeNativeTokenDefaultEscrowClient, makeNativeTokenEscrowClient, makeNativeTokenPaymentClient, makeNativeTokenUnconditionalEscrowClient, makeSplittersClient, makeStringObligationClient, makeTokenBundleClient, makeTokenBundleDefaultEscrowClient, makeTokenBundleEscrowClient, makeTokenBundlePaymentClient, makeTokenBundleUnconditionalEscrowClient, makeTokenBundleUtilClient, pickAttestationAddresses, pickCommitRevealAddresses, pickErc1155Addresses, pickErc20Addresses, pickErc721Addresses, pickHookBasedAddresses, pickNativeTokenAddresses, pickPackagedEscrowObligations, pickSplitterAddresses, pickStringAddresses, pickTokenBundleAddresses, readContract, setupTestEnvironment, splitterAttestationIntentHash, splitterDecisionKey, splitterFulfillmentIntentHash, supportedChains, writeContract };
+export { type AlkahestClient, AllArbiter$1 as AllArbiter, type AllArbiterDemandData, type AmountSplit, type AmountSplitHookData, type AmountSplitterArbitrateManyOptions, type AmountSplitterArbitrateManyResult, type AmountSplitterArbitrationRequest, type AmountSplitterDecision, AnyArbiter$1 as AnyArbiter, type AnyArbiterDemandData, type ApprovalPurpose, type ArbiterContractKey, type ArbiterTarget, type ArbitrationMode, type AtomicPaymentOptions, type Attestation, type AttestationAddresses, type AttestationClient, type AttestationEscrowClient, type AttestationEscrowDefaultClient, type AttestationEscrowHookData, type AttestationEscrowUnconditionalClient, type AttestationFilters, type AttestationReferenceEscrowClient, type AttestationReferenceEscrowHookData, type AttestationReferenceEscrowUnconditionalClient, type AttestationUtilClient, type AttestationWithDemand, type AttesterArbiterDemandData, type BatchFilters, type BlockFilters, type BundleSplit, type BundleSplitterArbitrateManyOptions, type BundleSplitterArbitrateManyResult, type BundleSplitterArbitrationRequest, type BundleSplitterDecision, type ChainAddresses, type CommitRevealAddresses, type CommitRevealDemandData, type CommitRevealObligationClient, type CommitRevealObligationData, type ContractAddressInfo, type DecodedDemandResult, type DecodedDemandWithChildren, type DecodersRecord, type Demand, type DemandDecoder, type DeployFn, type DeployOptions, type ERC8004ArbiterDemandData, type Eip2612Props, type EnhancedArbitrateFilters, type Erc1155, type Erc1155Addresses, type Erc1155Client, type Erc1155DefaultEscrowClient, type Erc1155EscrowClient, type Erc1155HookData, type Erc1155PaymentClient, type Erc1155UnconditionalEscrowClient, type Erc1155UtilClient, type Erc20, type Erc20Addresses, type Erc20Client, type Erc20DefaultEscrowClient, type Erc20EscrowClient, type Erc20PaymentClient, type Erc20UnconditionalEscrowClient, type Erc20UtilClient, type Erc721, type Erc721Addresses, type Erc721Client, type Erc721DefaultEscrowClient, type Erc721EscrowClient, type Erc721PaymentClient, type Erc721UnconditionalEscrowClient, type Erc721UtilClient, type EthArbitrationContext, type EthArbitrationRequest, type EthArbitrationResult, type EthBalanceArbitrationRequest, type EthTransferArbitrationRequest, type ExpirationTimeAfterArbiterDemandData, type ExpirationTimeBeforeArbiterDemandData, type ExpirationTimeEqualArbiterDemandData, type HookBasedAddresses, type HookBasedClient, type HookEscrowObligationData, type HooksEscrowObligationData, type MinimalClient, type NativeTokenAddresses, type NativeTokenArbitrationContext, type NativeTokenArbitrationRequest, type NativeTokenArbitrationResult, type NativeTokenBalanceArbitrationRequest, type NativeTokenClient, type NativeTokenDefaultEscrowClient, type NativeTokenDefaultEscrowObligationData, type NativeTokenEscrowArbitrationRequest, type NativeTokenEscrowClient, type NativeTokenHookData, type NativeTokenPaymentArbitrationRequest, type NativeTokenPaymentClient, type NativeTokenPaymentObligationData, type NativeTokenTransferArbitrationRequest, type NativeTokenUnconditionalEscrowClient, type NativeTokenUnconditionalEscrowObligationData, type PerformanceFilters, type PermitSignature, type RecipientArbiterDemandData, type RecursivelyDecodedDemand, type RefUidArbiterDemandData, type RevocableArbiterDemandData, type SchemaArbiterDemandData, type SignPermitProps, type SplitterAddresses, type SplitterArbitrationMode, type SplitterAttestationIntent, type SplitterDecisionTarget, type SplitterDemandData, type SplittersClient, type StringAddresses, type StringObligationClient, type StringObligationData, type TestContext, type TimeAfterArbiterDemandData, type TimeBeforeArbiterDemandData, type TimeEqualArbiterDemandData, type TimeFilters, type TokenBundle, type TokenBundleAddresses, type TokenBundleClient, type TokenBundleDefaultEscrowClient, type TokenBundleEscrowClient, type TokenBundleFlat, type TokenBundlePaymentClient, type TokenBundleUnconditionalEscrowClient, type TokenBundleUtilClient, type TokenIdHookData, type TrustedOracleArbiterDemandData, type UidArbiterDemandData, type ViemClient, arbiterAddress, assertDeployedContract, checkArbiter, contractAddresses, index as contracts, createAddressIndex, createDecodersFromAddresses, decodeAmountSplits, decodeDemand$b as decodeAttesterDemand, decodeBundleSplits, decodeObligation$3 as decodeDefaultEscrowObligation, decodeDemand$f as decodeDemand, decodeDemandWithAddresses, decodeDemand$e as decodeERC8004Demand, decodeDemand$a as decodeExpirationTimeAfterDemand, decodeDemand$9 as decodeExpirationTimeBeforeDemand, decodeDemand$8 as decodeExpirationTimeEqualDemand, decodeHookEscrowObligation, decodeHooksEscrowObligation, decodeObligation, decodeObligation$1 as decodePaymentObligation, decodeDemand$7 as decodeRecipientDemand, decodeDemand$6 as decodeRefUidDemand, decodeDemand$c as decodeReferencesEscrowDemand, decodeDemand$5 as decodeRevocableDemand, decodeDemand$4 as decodeSchemaDemand, decodeSplitterDemand, decodeDemand$3 as decodeTimeAfterDemand, decodeDemand$2 as decodeTimeBeforeDemand, decodeDemand$1 as decodeTimeEqualDemand, decodeDemand$d as decodeTrustedOracleDemand, decodeDemand as decodeUidDemand, decodeObligation$2 as decodeUnconditionalEscrowObligation, deployAlkahest, encodeAmountSplits, encodeDemand$b as encodeAttesterDemand, encodeBundleSplits, encodeObligation$3 as encodeDefaultEscrowObligation, encodeDemand$e as encodeERC8004Demand, encodeDemand$a as encodeExpirationTimeAfterDemand, encodeDemand$9 as encodeExpirationTimeBeforeDemand, encodeDemand$8 as encodeExpirationTimeEqualDemand, encodeHookEscrowObligation, encodeHooksEscrowObligation, encodeObligation, encodeObligation$1 as encodePaymentObligation, encodeDemand$7 as encodeRecipientDemand, encodeDemand$6 as encodeRefUidDemand, encodeDemand$c as encodeReferencesEscrowDemand, encodeDemand$5 as encodeRevocableDemand, encodeDemand$4 as encodeSchemaDemand, encodeSplitterDemand, encodeDemand$3 as encodeTimeAfterDemand, encodeDemand$2 as encodeTimeBeforeDemand, encodeDemand$1 as encodeTimeEqualDemand, encodeDemand$d as encodeTrustedOracleDemand, encodeDemand as encodeUidDemand, encodeObligation$2 as encodeUnconditionalEscrowObligation, requestHashFor as erc8004RequestHashFor, index$1 as fixtures, flattenTokenBundle, getAtomicPaymentEscrowAttestation, getAttestation, getAttestedEventFromTxHash, getAttestedEventsFromTxHash, getOptimalPollingInterval, isWebSocketTransport, lookupAddress, makeArbitersClient, makeAttestationClient, makeAttestationEscrowClient, makeAttestationEscrowDefaultClient, makeAttestationEscrowUnconditionalClient, makeAttestationReferenceEscrowClient, makeAttestationReferenceEscrowUnconditionalClient, makeAttestationUtilClient, makeClient, makeCommitRevealObligationClient, makeDefaultExtension, makeErc1155Client, makeErc1155DefaultEscrowClient, makeErc1155EscrowClient, makeErc1155PaymentClient, makeErc1155UnconditionalEscrowClient, makeErc1155UtilClient, makeErc20Client, makeErc20DefaultEscrowClient, makeErc20EscrowClient, makeErc20PaymentClient, makeErc20UnconditionalEscrowClient, makeErc20UtilClient, makeErc721Client, makeErc721DefaultEscrowClient, makeErc721EscrowClient, makeErc721PaymentClient, makeErc721UnconditionalEscrowClient, makeErc721UtilClient, makeHookBasedClient, makeMinimalClient, makeNativeTokenClient, makeNativeTokenDefaultEscrowClient, makeNativeTokenEscrowClient, makeNativeTokenPaymentClient, makeNativeTokenUnconditionalEscrowClient, makeSplittersClient, makeStringObligationClient, makeTokenBundleClient, makeTokenBundleDefaultEscrowClient, makeTokenBundleEscrowClient, makeTokenBundlePaymentClient, makeTokenBundleUnconditionalEscrowClient, makeTokenBundleUtilClient, pickAttestationAddresses, pickCommitRevealAddresses, pickErc1155Addresses, pickErc20Addresses, pickErc721Addresses, pickHookBasedAddresses, pickNativeTokenAddresses, pickPackagedEscrowObligations, pickSplitterAddresses, pickStringAddresses, pickTokenBundleAddresses, readContract, setupTestEnvironment, splitterAttestationIntentHash, splitterDecisionKey, splitterFulfillmentIntentHash, supportedChains, writeContract };

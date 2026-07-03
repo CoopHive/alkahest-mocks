@@ -9,8 +9,9 @@
 
 use alkahest_rs::{
     clients::splitters::{
-        AmountSplitterArbitrationRequest, AmountSplitterDecision, SplitterArbitrationMode,
-        SplitterAsset, SplitterContract, SplitterDecisionTarget,
+        AmountSplitterArbitrationRequest, AmountSplitterDecision, BundleSplitterArbitrationRequest,
+        BundleSplitterDecision, SplitterArbitrationMode, SplitterAsset, SplitterContract,
+        SplitterDecisionTarget,
     },
     contracts,
     extensions::SplittersModule,
@@ -405,7 +406,8 @@ impl SplittersClient {
         let inner = self.inner.clone();
         future_into_py(py, async move {
             let contract = parse_splitter_contract(&contract)?;
-            let mode = parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
+            let mode =
+                parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
             let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
 
             let decide = |request: &AmountSplitterArbitrationRequest| -> Option<Vec<contracts::utils::splitters::ERC20Splitter::Split>> {
@@ -458,21 +460,32 @@ impl SplittersClient {
         let inner = self.inner.clone();
         future_into_py(py, async move {
             let contract = parse_splitter_contract(&contract)?;
-            let mode = parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
+            let mode =
+                parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
             let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
             let decision_func = Arc::new(decision_func);
             let callback_func = Arc::new(callback_func);
 
             let decide = move |request: &AmountSplitterArbitrationRequest| -> Pin<
-                Box<dyn Future<Output = Option<Vec<contracts::utils::splitters::ERC20Splitter::Split>>> + Send + 'static>,
+                Box<
+                    dyn Future<
+                            Output = Option<Vec<contracts::utils::splitters::ERC20Splitter::Split>>,
+                        > + Send
+                        + 'static,
+                >,
             > {
                 let request = request.clone();
                 let decision_func = Arc::clone(&decision_func);
                 Box::pin(async move {
                     let coro_result = Python::with_gil(|py| {
-                        decision_func
-                            .clone_ref(py)
-                            .call1(py, (request.fulfillment.to_string(), request.escrow.to_string(), request.demand.to_vec()))
+                        decision_func.clone_ref(py).call1(
+                            py,
+                            (
+                                request.fulfillment.to_string(),
+                                request.escrow.to_string(),
+                                request.demand.to_vec(),
+                            ),
+                        )
                     });
                     let coro = match coro_result {
                         Ok(coro) => coro,
@@ -528,6 +541,183 @@ impl SplittersClient {
                 .past_decisions
                 .iter()
                 .map(PyAmountSplitterDecision::from)
+                .collect::<Vec<_>>())
+        })
+    }
+
+    #[pyo3(signature = (contract, decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many_bundle<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let is_async = Python::with_gil(|py| {
+            let inspect = py.import("inspect").ok()?;
+            inspect
+                .getattr("iscoroutinefunction")
+                .ok()?
+                .call1((decision_func.clone_ref(py),))
+                .ok()?
+                .extract::<bool>()
+                .ok()
+        })
+        .unwrap_or(false);
+
+        if is_async {
+            return self.arbitrate_many_bundle_async_impl(
+                py,
+                contract,
+                decision_func,
+                callback_func,
+                mode,
+                timeout_seconds,
+            );
+        }
+
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let contract = parse_splitter_contract(&contract)?;
+            let mode =
+                parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+
+            let decide = |request: &BundleSplitterArbitrationRequest| -> Option<Vec<BundleSplit>> {
+                Python::with_gil(|py| {
+                    let result = decision_func
+                        .call1(
+                            py,
+                            (
+                                request.fulfillment.to_string(),
+                                request.escrow.to_string(),
+                                request.demand.to_vec(),
+                            ),
+                        )
+                        .ok()?;
+                    if result.is_none(py) {
+                        return None;
+                    }
+                    let py_splits = result.extract::<Vec<PyBundleSplit>>(py).ok()?;
+                    parse_bundle_splits(&py_splits).ok()
+                })
+            };
+
+            let callback = |decision: &BundleSplitterDecision| {
+                if let Some(ref py_callback) = callback_func {
+                    Python::with_gil(|py| {
+                        let py_decision = PyBundleSplitterDecision::from(decision);
+                        if let Err(e) = py_callback.call1(py, (py_decision,)) {
+                            eprintln!("Python callback failed: {}", e);
+                        }
+                    });
+                }
+                Box::pin(async {})
+            };
+
+            let result = inner
+                .arbitrate_many_bundle_blocking_sync(contract, decide, callback, mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .iter()
+                .map(PyBundleSplitterDecision::from)
+                .collect::<Vec<_>>())
+        })
+    }
+
+    fn arbitrate_many_bundle_async_impl<'py>(
+        &self,
+        py: Python<'py>,
+        contract: String,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let contract = parse_splitter_contract(&contract)?;
+            let mode =
+                parse_splitter_arbitration_mode(mode.as_deref().unwrap_or("all_unarbitrated"))?;
+            let timeout = timeout_seconds.map(std::time::Duration::from_secs_f64);
+            let decision_func = Arc::new(decision_func);
+            let callback_func = Arc::new(callback_func);
+
+            let decide = move |request: &BundleSplitterArbitrationRequest| -> Pin<
+                Box<dyn Future<Output = Option<Vec<BundleSplit>>> + Send + 'static>,
+            > {
+                let request = request.clone();
+                let decision_func = Arc::clone(&decision_func);
+                Box::pin(async move {
+                    let coro_result = Python::with_gil(|py| {
+                        decision_func.clone_ref(py).call1(
+                            py,
+                            (
+                                request.fulfillment.to_string(),
+                                request.escrow.to_string(),
+                                request.demand.to_vec(),
+                            ),
+                        )
+                    });
+                    let coro = match coro_result {
+                        Ok(coro) => coro,
+                        Err(e) => {
+                            eprintln!("Python async splitter decision function failed: {}", e);
+                            return None;
+                        }
+                    };
+                    if Python::with_gil(|py| coro.is_none(py)) {
+                        return None;
+                    }
+                    let future = match Python::with_gil(|py| into_future(coro.into_bound(py))) {
+                        Ok(future) => future,
+                        Err(e) => {
+                            eprintln!("Failed to convert coroutine to future: {}", e);
+                            return None;
+                        }
+                    };
+                    match future.await {
+                        Ok(result) => Python::with_gil(|py| {
+                            if result.is_none(py) {
+                                return None;
+                            }
+                            let py_splits = result.extract::<Vec<PyBundleSplit>>(py).ok()?;
+                            parse_bundle_splits(&py_splits).ok()
+                        }),
+                        Err(e) => {
+                            eprintln!("Python async splitter decision function failed: {}", e);
+                            None
+                        }
+                    }
+                })
+            };
+
+            let callback = move |decision: &BundleSplitterDecision| {
+                let callback_func = Arc::clone(&callback_func);
+                let py_decision = PyBundleSplitterDecision::from(decision);
+                Box::pin(async move {
+                    if let Some(ref py_callback) = callback_func.as_ref() {
+                        Python::with_gil(|py| {
+                            let _ = py_callback.clone_ref(py).call1(py, (py_decision,));
+                        });
+                    }
+                })
+            };
+
+            let result = inner
+                .arbitrate_many_bundle_blocking_async(contract, decide, callback, mode, timeout)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+
+            Ok(result
+                .past_decisions
+                .iter()
+                .map(PyBundleSplitterDecision::from)
                 .collect::<Vec<_>>())
         })
     }
@@ -716,7 +906,12 @@ impl From<&AmountSplitterDecision> for PyAmountSplitterDecision {
         Self {
             fulfillment: decision.fulfillment.to_string(),
             escrow: decision.escrow.to_string(),
-            splits: decision.splits.iter().cloned().map(PyAmountSplit::from).collect(),
+            splits: decision
+                .splits
+                .iter()
+                .cloned()
+                .map(PyAmountSplit::from)
+                .collect(),
             transaction_hash: decision.receipt.transaction_hash.to_string(),
         }
     }
@@ -807,6 +1002,53 @@ impl From<BundleSplit> for PyBundleSplit {
             erc20_amounts: stringify_u256_vec(data.erc20Amounts),
             erc721_indices: stringify_u256_vec(data.erc721Indices),
             erc1155_amounts: stringify_u256_vec(data.erc1155Amounts),
+        }
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyBundleSplitterDecision {
+    #[pyo3(get)]
+    pub fulfillment: String,
+    #[pyo3(get)]
+    pub escrow: String,
+    #[pyo3(get)]
+    pub splits: Vec<PyBundleSplit>,
+    #[pyo3(get)]
+    pub transaction_hash: String,
+}
+
+#[pymethods]
+impl PyBundleSplitterDecision {
+    #[new]
+    pub fn new(
+        fulfillment: String,
+        escrow: String,
+        splits: Vec<PyBundleSplit>,
+        transaction_hash: String,
+    ) -> Self {
+        Self {
+            fulfillment,
+            escrow,
+            splits,
+            transaction_hash,
+        }
+    }
+}
+
+impl From<&BundleSplitterDecision> for PyBundleSplitterDecision {
+    fn from(decision: &BundleSplitterDecision) -> Self {
+        Self {
+            fulfillment: decision.fulfillment.to_string(),
+            escrow: decision.escrow.to_string(),
+            splits: decision
+                .splits
+                .iter()
+                .cloned()
+                .map(PyBundleSplit::from)
+                .collect(),
+            transaction_hash: decision.receipt.transaction_hash.to_string(),
         }
     }
 }

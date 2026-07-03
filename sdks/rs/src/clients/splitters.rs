@@ -47,6 +47,371 @@ impl SplitterSubscriptionHandle {
     }
 }
 
+impl SplittersModule {
+    fn bundle_request_filter(&self, contract: SplitterContract) -> eyre::Result<Filter> {
+        if !Self::is_bundle_contract(contract) {
+            eyre::bail!("bundle splitter daemon helpers only support bundle splitter contracts");
+        }
+
+        Ok(Filter::new()
+            .address(self.ensure_contract(contract)?)
+            .event_signature(
+                contracts::utils::splitters::ERC20Splitter::ArbitrationRequested::SIGNATURE_HASH,
+            )
+            .topic3(self.signer.address())
+            .from_block(BlockNumberOrTag::Earliest))
+    }
+
+    async fn bundle_request_is_arbitrated(
+        &self,
+        contract: SplitterContract,
+        request: &BundleSplitterArbitrationRequest,
+    ) -> eyre::Result<bool> {
+        self.has_decision(
+            contract,
+            self.signer.address(),
+            Self::decision_key(request.fulfillment, request.escrow),
+        )
+        .await
+    }
+
+    /// Read token-bundle splitter arbitration requests for this oracle.
+    pub async fn bundle_arbitration_requests(
+        &self,
+        contract: SplitterContract,
+        skip_arbitrated: bool,
+    ) -> eyre::Result<Vec<BundleSplitterArbitrationRequest>> {
+        let filter = self.bundle_request_filter(contract)?;
+        let logs = self.public_provider.get_logs(&filter).await?;
+        let requests = logs
+            .into_iter()
+            .map(|log| {
+                log.log_decode::<contracts::utils::splitters::ERC20Splitter::ArbitrationRequested>()
+                    .map(|decoded| BundleSplitterArbitrationRequest {
+                        fulfillment: decoded.inner.data.fulfillment,
+                        escrow: decoded.inner.data.escrow,
+                        demand: decoded.inner.data.demand,
+                    })
+                    .map_err(Into::into)
+            })
+            .collect::<eyre::Result<Vec<_>>>()?;
+
+        if !skip_arbitrated {
+            return Ok(requests);
+        }
+
+        let mut filtered = Vec::new();
+        for request in requests {
+            if !self
+                .bundle_request_is_arbitrated(contract, &request)
+                .await?
+            {
+                filtered.push(request);
+            }
+        }
+        Ok(filtered)
+    }
+
+    async fn submit_bundle_splitter_decisions(
+        &self,
+        contract: SplitterContract,
+        requests: Vec<BundleSplitterArbitrationRequest>,
+        decisions: Vec<Option<Vec<BundleSplit>>>,
+    ) -> eyre::Result<Vec<BundleSplitterDecision>> {
+        let mut results = Vec::new();
+
+        for (request, decision) in requests.into_iter().zip(decisions.into_iter()) {
+            let Some(splits) = decision else {
+                continue;
+            };
+
+            let receipt = self
+                .arbitrate_bundle(
+                    contract,
+                    request.fulfillment,
+                    request.escrow,
+                    splits.clone(),
+                )
+                .await?;
+            results.push(BundleSplitterDecision {
+                fulfillment: request.fulfillment,
+                escrow: request.escrow,
+                splits,
+                receipt,
+            });
+        }
+
+        Ok(results)
+    }
+
+    /// Arbitrate token-bundle splitter requests in blocking mode with a sync callback.
+    pub async fn arbitrate_many_bundle_blocking_sync<
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> Option<Vec<BundleSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        contract: SplitterContract,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        let skip_arbitrated = matches!(
+            mode,
+            SplitterArbitrationMode::PastUnarbitrated | SplitterArbitrationMode::AllUnarbitrated
+        );
+        let include_past = matches!(
+            mode,
+            SplitterArbitrationMode::Past
+                | SplitterArbitrationMode::PastUnarbitrated
+                | SplitterArbitrationMode::All
+                | SplitterArbitrationMode::AllUnarbitrated
+        );
+        let include_future = matches!(
+            mode,
+            SplitterArbitrationMode::Future
+                | SplitterArbitrationMode::All
+                | SplitterArbitrationMode::AllUnarbitrated
+        );
+
+        let past_decisions = if include_past {
+            let requests = self
+                .bundle_arbitration_requests(contract, skip_arbitrated)
+                .await?;
+            let decisions = requests.iter().map(&decide).collect();
+            self.submit_bundle_splitter_decisions(contract, requests, decisions)
+                .await?
+        } else {
+            Vec::new()
+        };
+
+        let subscription = if include_future {
+            let filter = self.bundle_request_filter(contract)?;
+            let (stream, handle) = self.open_log_stream(&filter).await?;
+            self.handle_bundle_stream_blocking_sync(
+                contract,
+                stream,
+                &decide,
+                &on_decision,
+                skip_arbitrated,
+                timeout,
+            )
+            .await;
+            Some(handle)
+        } else {
+            None
+        };
+
+        Ok(BundleSplitterArbitrateManyResult {
+            past_decisions,
+            subscription,
+        })
+    }
+
+    /// Arbitrate token-bundle splitter requests in blocking mode with an async callback.
+    pub async fn arbitrate_many_bundle_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<BundleSplit>>>,
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        contract: SplitterContract,
+        decide: Decide,
+        on_decision: OnDecision,
+        mode: SplitterArbitrationMode,
+        timeout: Option<Duration>,
+    ) -> eyre::Result<BundleSplitterArbitrateManyResult> {
+        let skip_arbitrated = matches!(
+            mode,
+            SplitterArbitrationMode::PastUnarbitrated | SplitterArbitrationMode::AllUnarbitrated
+        );
+        let include_past = matches!(
+            mode,
+            SplitterArbitrationMode::Past
+                | SplitterArbitrationMode::PastUnarbitrated
+                | SplitterArbitrationMode::All
+                | SplitterArbitrationMode::AllUnarbitrated
+        );
+        let include_future = matches!(
+            mode,
+            SplitterArbitrationMode::Future
+                | SplitterArbitrationMode::All
+                | SplitterArbitrationMode::AllUnarbitrated
+        );
+
+        let past_decisions = if include_past {
+            let requests = self
+                .bundle_arbitration_requests(contract, skip_arbitrated)
+                .await?;
+            let decisions = try_join_all(
+                requests
+                    .iter()
+                    .map(|request| async { Ok::<_, eyre::Report>(decide(request).await) }),
+            )
+            .await?;
+            self.submit_bundle_splitter_decisions(contract, requests, decisions)
+                .await?
+        } else {
+            Vec::new()
+        };
+
+        let subscription = if include_future {
+            let filter = self.bundle_request_filter(contract)?;
+            let (stream, handle) = self.open_log_stream(&filter).await?;
+            self.handle_bundle_stream_blocking_async(
+                contract,
+                stream,
+                &decide,
+                &on_decision,
+                skip_arbitrated,
+                timeout,
+            )
+            .await;
+            Some(handle)
+        } else {
+            None
+        };
+
+        Ok(BundleSplitterArbitrateManyResult {
+            past_decisions,
+            subscription,
+        })
+    }
+
+    async fn handle_bundle_stream_blocking_sync<
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> Option<Vec<BundleSplit>>,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        contract: SplitterContract,
+        mut stream: BoxedLogStream,
+        decide: &Decide,
+        on_decision: &OnDecision,
+        skip_arbitrated: bool,
+        timeout: Option<Duration>,
+    ) {
+        loop {
+            let next = if let Some(timeout_duration) = timeout {
+                match tokio::time::timeout(timeout_duration, stream.next()).await {
+                    Ok(Some(log)) => Some(log),
+                    Ok(None) => None,
+                    Err(_) => break,
+                }
+            } else {
+                stream.next().await
+            };
+            let Some(log) = next else { break };
+            let Ok(decoded) = log
+                .log_decode::<contracts::utils::splitters::ERC20Splitter::ArbitrationRequested>()
+            else {
+                continue;
+            };
+            let request = BundleSplitterArbitrationRequest {
+                fulfillment: decoded.inner.data.fulfillment,
+                escrow: decoded.inner.data.escrow,
+                demand: decoded.inner.data.demand,
+            };
+            if skip_arbitrated
+                && self
+                    .bundle_request_is_arbitrated(contract, &request)
+                    .await
+                    .unwrap_or(true)
+            {
+                continue;
+            }
+            let Some(splits) = decide(&request) else {
+                continue;
+            };
+            if let Ok(receipt) = self
+                .arbitrate_bundle(
+                    contract,
+                    request.fulfillment,
+                    request.escrow,
+                    splits.clone(),
+                )
+                .await
+            {
+                let decision = BundleSplitterDecision {
+                    fulfillment: request.fulfillment,
+                    escrow: request.escrow,
+                    splits,
+                    receipt,
+                };
+                on_decision(&decision).await;
+            }
+        }
+    }
+
+    async fn handle_bundle_stream_blocking_async<
+        DecideFut: std::future::Future<Output = Option<Vec<BundleSplit>>>,
+        Decide: Fn(&BundleSplitterArbitrationRequest) -> DecideFut,
+        OnDecisionFut: std::future::Future<Output = ()>,
+        OnDecision: Fn(&BundleSplitterDecision) -> OnDecisionFut,
+    >(
+        &self,
+        contract: SplitterContract,
+        mut stream: BoxedLogStream,
+        decide: &Decide,
+        on_decision: &OnDecision,
+        skip_arbitrated: bool,
+        timeout: Option<Duration>,
+    ) {
+        loop {
+            let next = if let Some(timeout_duration) = timeout {
+                match tokio::time::timeout(timeout_duration, stream.next()).await {
+                    Ok(Some(log)) => Some(log),
+                    Ok(None) => None,
+                    Err(_) => break,
+                }
+            } else {
+                stream.next().await
+            };
+            let Some(log) = next else { break };
+            let Ok(decoded) = log
+                .log_decode::<contracts::utils::splitters::ERC20Splitter::ArbitrationRequested>()
+            else {
+                continue;
+            };
+            let request = BundleSplitterArbitrationRequest {
+                fulfillment: decoded.inner.data.fulfillment,
+                escrow: decoded.inner.data.escrow,
+                demand: decoded.inner.data.demand,
+            };
+            if skip_arbitrated
+                && self
+                    .bundle_request_is_arbitrated(contract, &request)
+                    .await
+                    .unwrap_or(true)
+            {
+                continue;
+            }
+            let Some(splits) = decide(&request).await else {
+                continue;
+            };
+            if let Ok(receipt) = self
+                .arbitrate_bundle(
+                    contract,
+                    request.fulfillment,
+                    request.escrow,
+                    splits.clone(),
+                )
+                .await
+            {
+                let decision = BundleSplitterDecision {
+                    fulfillment: request.fulfillment,
+                    escrow: request.escrow,
+                    splits,
+                    receipt,
+                };
+                on_decision(&decision).await;
+            }
+        }
+    }
+}
+
 /// Common splitter arbiter demand data.
 pub type SplitterDemandData = contracts::utils::splitters::ERC20Splitter::DemandData;
 /// Split item for native/ERC20/ERC1155 amount-based splitters.
@@ -88,6 +453,28 @@ pub struct AmountSplitterDecision {
 /// Result from amount-splitter daemon helpers.
 pub struct AmountSplitterArbitrateManyResult {
     pub past_decisions: Vec<AmountSplitterDecision>,
+    pub subscription: Option<SplitterSubscriptionHandle>,
+}
+
+/// Splitter arbitration request emitted by a token-bundle splitter.
+#[derive(Debug, Clone)]
+pub struct BundleSplitterArbitrationRequest {
+    pub fulfillment: FixedBytes<32>,
+    pub escrow: FixedBytes<32>,
+    pub demand: Bytes,
+}
+
+/// Token-bundle splitter decision submitted by a daemon helper.
+pub struct BundleSplitterDecision {
+    pub fulfillment: FixedBytes<32>,
+    pub escrow: FixedBytes<32>,
+    pub splits: Vec<BundleSplit>,
+    pub receipt: TransactionReceipt,
+}
+
+/// Result from token-bundle splitter daemon helpers.
+pub struct BundleSplitterArbitrateManyResult {
+    pub past_decisions: Vec<BundleSplitterDecision>,
     pub subscription: Option<SplitterSubscriptionHandle>,
 }
 
