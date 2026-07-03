@@ -42,7 +42,11 @@ use tokio::runtime::Runtime;
 use types::{DefaultExtensionConfig, EscowClaimedLog};
 
 use crate::{
-    clients::splitters::{PyAmountSplit, PyBundleSplit, PySplitterDemandData},
+    clients::splitters::{
+        PyAmountSplit, PyAmountSplitterClient, PyAmountSplitterNamespace, PyBundleSplit,
+        PyBundleSplitterClient, PyBundleSplitterNamespace, PyCommitmentAmountSplitterClient,
+        PyCommitmentBundleSplitterClient, PySplitterDemandData,
+    },
     clients::{
         arbiters::trusted_oracle::{
             PyArbitrationMode, PyAttestationWithDemand, PyCommitmentArbitrationMadeLog,
@@ -667,6 +671,12 @@ fn alkahest_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyAttestationHookData>()?;
     m.add_class::<PyAttestationReferenceHookData>()?;
     m.add_class::<SplittersClient>()?;
+    m.add_class::<PyAmountSplitterNamespace>()?;
+    m.add_class::<PyAmountSplitterClient>()?;
+    m.add_class::<PyCommitmentAmountSplitterClient>()?;
+    m.add_class::<PyBundleSplitterNamespace>()?;
+    m.add_class::<PyBundleSplitterClient>()?;
+    m.add_class::<PyCommitmentBundleSplitterClient>()?;
     m.add_class::<PySplitterDemandData>()?;
     m.add_class::<PyAmountSplit>()?;
     m.add_class::<PyBundleSplit>()?;

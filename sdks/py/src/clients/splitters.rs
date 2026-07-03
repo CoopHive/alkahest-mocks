@@ -88,6 +88,51 @@ impl SplittersClient {
         Ok(self.inner.address_for(asset, target).to_string())
     }
 
+    #[getter]
+    pub fn erc20(&self) -> PyAmountSplitterNamespace {
+        PyAmountSplitterNamespace::new(
+            self.inner.clone(),
+            "erc20_splitter",
+            "commitment_erc20_splitter",
+        )
+    }
+
+    #[getter]
+    pub fn erc1155(&self) -> PyAmountSplitterNamespace {
+        PyAmountSplitterNamespace::new(
+            self.inner.clone(),
+            "erc1155_splitter",
+            "commitment_erc1155_splitter",
+        )
+    }
+
+    #[getter]
+    pub fn native_token(&self) -> PyAmountSplitterNamespace {
+        PyAmountSplitterNamespace::new(
+            self.inner.clone(),
+            "native_token_splitter",
+            "commitment_native_token_splitter",
+        )
+    }
+
+    #[getter]
+    pub fn token_bundle(&self) -> PyBundleSplitterNamespace {
+        PyBundleSplitterNamespace::new(
+            self.inner.clone(),
+            "token_bundle_splitter",
+            "commitment_token_bundle_splitter",
+        )
+    }
+
+    #[getter]
+    pub fn token_bundle_unvalidated(&self) -> PyBundleSplitterNamespace {
+        PyBundleSplitterNamespace::new(
+            self.inner.clone(),
+            "token_bundle_splitter_unvalidated",
+            "commitment_token_bundle_splitter_unvalidated",
+        )
+    }
+
     /// Encode splitter arbiter demand data.
     pub fn encode_demand(&self, data: &PySplitterDemandData) -> PyResult<Vec<u8>> {
         PySplitterDemandData::encode(data)
@@ -720,6 +765,896 @@ impl SplittersClient {
                 .map(PyBundleSplitterDecision::from)
                 .collect::<Vec<_>>())
         })
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyAmountSplitterNamespace {
+    inner: SplittersModule,
+    fulfillment_contract: String,
+    commitment_contract: String,
+}
+
+impl PyAmountSplitterNamespace {
+    fn new(inner: SplittersModule, fulfillment_contract: &str, commitment_contract: &str) -> Self {
+        Self {
+            inner,
+            fulfillment_contract: fulfillment_contract.to_string(),
+            commitment_contract: commitment_contract.to_string(),
+        }
+    }
+
+    fn root(&self) -> SplittersClient {
+        SplittersClient::new(self.inner.clone())
+    }
+}
+
+#[pymethods]
+impl PyAmountSplitterNamespace {
+    #[getter]
+    pub fn fulfillment(&self) -> PyAmountSplitterClient {
+        PyAmountSplitterClient::new(self.inner.clone(), self.fulfillment_contract.clone())
+    }
+
+    #[getter]
+    pub fn commitment(&self) -> PyCommitmentAmountSplitterClient {
+        PyCommitmentAmountSplitterClient::new(self.inner.clone(), self.commitment_contract.clone())
+    }
+
+    pub fn for_target<'py>(&self, py: Python<'py>, target: String) -> PyResult<PyObject> {
+        match parse_splitter_decision_target(&target)? {
+            SplitterDecisionTarget::Fulfillment => {
+                Ok(pyo3::Py::new(py, self.fulfillment())?.into_any())
+            }
+            SplitterDecisionTarget::Commitment => {
+                Ok(pyo3::Py::new(py, self.commitment())?.into_any())
+            }
+        }
+    }
+
+    pub fn address(&self) -> PyResult<String> {
+        self.root().address(self.fulfillment_contract.clone())
+    }
+
+    pub fn arbitrate_amount<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment: String,
+        escrow: String,
+        splits: Vec<PyAmountSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .arbitrate(py, fulfillment, escrow, splits)
+    }
+
+    pub fn arbitrate<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment: String,
+        escrow: String,
+        splits: Vec<PyAmountSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.arbitrate_amount(py, fulfillment, escrow, splits)
+    }
+
+    pub fn request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment: String,
+        escrow: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .request_arbitration(py, fulfillment, escrow, oracle, demand)
+    }
+
+    #[pyo3(signature = (obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment<'py>(
+        &self,
+        py: Python<'py>,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment().create_fulfillment(
+            py,
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    pub fn collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn unsafe_partially_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .unsafe_partially_collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn get_splits<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        fulfillment: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .get_splits(py, oracle, fulfillment, escrow)
+    }
+
+    pub fn has_decision<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        decision_key: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment().has_decision(py, oracle, decision_key)
+    }
+
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .arbitrate_many(py, decision_func, callback_func, mode, timeout_seconds)
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyAmountSplitterClient {
+    inner: SplittersModule,
+    contract: String,
+}
+
+impl PyAmountSplitterClient {
+    fn new(inner: SplittersModule, contract: String) -> Self {
+        Self { inner, contract }
+    }
+
+    fn root(&self) -> SplittersClient {
+        SplittersClient::new(self.inner.clone())
+    }
+}
+
+#[pymethods]
+impl PyAmountSplitterClient {
+    pub fn address(&self) -> PyResult<String> {
+        self.root().address(self.contract.clone())
+    }
+
+    pub fn arbitrate<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment_or_intent: String,
+        escrow: String,
+        splits: Vec<PyAmountSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().arbitrate_amount(
+            py,
+            self.contract.clone(),
+            fulfillment_or_intent,
+            escrow,
+            splits,
+        )
+    }
+
+    pub fn request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment_or_intent: String,
+        escrow: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().request_arbitration(
+            py,
+            self.contract.clone(),
+            fulfillment_or_intent,
+            escrow,
+            oracle,
+            demand,
+        )
+    }
+
+    #[pyo3(signature = (obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment<'py>(
+        &self,
+        py: Python<'py>,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().create_fulfillment(
+            py,
+            self.contract.clone(),
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    pub fn collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root()
+            .collect_and_distribute(py, self.contract.clone(), escrow, fulfillment)
+    }
+
+    pub fn unsafe_partially_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().unsafe_partially_collect_and_distribute(
+            py,
+            self.contract.clone(),
+            escrow,
+            fulfillment,
+        )
+    }
+
+    pub fn get_splits<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        fulfillment_or_intent: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().get_amount_splits(
+            py,
+            self.contract.clone(),
+            oracle,
+            fulfillment_or_intent,
+            escrow,
+        )
+    }
+
+    pub fn has_decision<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        decision_key: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root()
+            .has_decision(py, self.contract.clone(), oracle, decision_key)
+    }
+
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().arbitrate_many_amount(
+            py,
+            self.contract.clone(),
+            decision_func,
+            callback_func,
+            mode,
+            timeout_seconds,
+        )
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyCommitmentAmountSplitterClient {
+    inner: SplittersModule,
+    contract: String,
+}
+
+impl PyCommitmentAmountSplitterClient {
+    fn new(inner: SplittersModule, contract: String) -> Self {
+        Self { inner, contract }
+    }
+
+    fn amount(&self) -> PyAmountSplitterClient {
+        PyAmountSplitterClient::new(self.inner.clone(), self.contract.clone())
+    }
+}
+
+#[pymethods]
+impl PyCommitmentAmountSplitterClient {
+    pub fn address(&self) -> PyResult<String> {
+        self.amount().address()
+    }
+
+    pub fn arbitrate<'py>(
+        &self,
+        py: Python<'py>,
+        intent: String,
+        escrow: String,
+        splits: Vec<PyAmountSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount().arbitrate(py, intent, escrow, splits)
+    }
+
+    pub fn request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent: String,
+        escrow: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount()
+            .request_arbitration(py, intent, escrow, oracle, demand)
+    }
+
+    #[pyo3(signature = (obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment<'py>(
+        &self,
+        py: Python<'py>,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount().create_fulfillment(
+            py,
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    #[pyo3(signature = (escrow, obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment_and_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        SplittersClient::new(self.inner.clone()).create_fulfillment_and_collect_and_distribute(
+            py,
+            self.contract.clone(),
+            escrow,
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    pub fn collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount()
+            .collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn unsafe_partially_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount()
+            .unsafe_partially_collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn get_splits<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        intent: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount().get_splits(py, oracle, intent, escrow)
+    }
+
+    pub fn has_decision<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        decision_key: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount().has_decision(py, oracle, decision_key)
+    }
+
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.amount()
+            .arbitrate_many(py, decision_func, callback_func, mode, timeout_seconds)
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyBundleSplitterNamespace {
+    inner: SplittersModule,
+    fulfillment_contract: String,
+    commitment_contract: String,
+}
+
+impl PyBundleSplitterNamespace {
+    fn new(inner: SplittersModule, fulfillment_contract: &str, commitment_contract: &str) -> Self {
+        Self {
+            inner,
+            fulfillment_contract: fulfillment_contract.to_string(),
+            commitment_contract: commitment_contract.to_string(),
+        }
+    }
+
+    fn root(&self) -> SplittersClient {
+        SplittersClient::new(self.inner.clone())
+    }
+}
+
+#[pymethods]
+impl PyBundleSplitterNamespace {
+    #[getter]
+    pub fn fulfillment(&self) -> PyBundleSplitterClient {
+        PyBundleSplitterClient::new(self.inner.clone(), self.fulfillment_contract.clone())
+    }
+
+    #[getter]
+    pub fn commitment(&self) -> PyCommitmentBundleSplitterClient {
+        PyCommitmentBundleSplitterClient::new(self.inner.clone(), self.commitment_contract.clone())
+    }
+
+    pub fn for_target<'py>(&self, py: Python<'py>, target: String) -> PyResult<PyObject> {
+        match parse_splitter_decision_target(&target)? {
+            SplitterDecisionTarget::Fulfillment => {
+                Ok(pyo3::Py::new(py, self.fulfillment())?.into_any())
+            }
+            SplitterDecisionTarget::Commitment => {
+                Ok(pyo3::Py::new(py, self.commitment())?.into_any())
+            }
+        }
+    }
+
+    pub fn address(&self) -> PyResult<String> {
+        self.root().address(self.fulfillment_contract.clone())
+    }
+
+    pub fn arbitrate_bundle<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment: String,
+        escrow: String,
+        splits: Vec<PyBundleSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .arbitrate(py, fulfillment, escrow, splits)
+    }
+
+    pub fn arbitrate<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment: String,
+        escrow: String,
+        splits: Vec<PyBundleSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.arbitrate_bundle(py, fulfillment, escrow, splits)
+    }
+
+    pub fn request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment: String,
+        escrow: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .request_arbitration(py, fulfillment, escrow, oracle, demand)
+    }
+
+    #[pyo3(signature = (obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment<'py>(
+        &self,
+        py: Python<'py>,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment().create_fulfillment(
+            py,
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    pub fn collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn unsafe_partially_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .unsafe_partially_collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn get_splits<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        fulfillment: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .get_splits(py, oracle, fulfillment, escrow)
+    }
+
+    pub fn has_decision<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        decision_key: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment().has_decision(py, oracle, decision_key)
+    }
+
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.fulfillment()
+            .arbitrate_many(py, decision_func, callback_func, mode, timeout_seconds)
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyBundleSplitterClient {
+    inner: SplittersModule,
+    contract: String,
+}
+
+impl PyBundleSplitterClient {
+    fn new(inner: SplittersModule, contract: String) -> Self {
+        Self { inner, contract }
+    }
+
+    fn root(&self) -> SplittersClient {
+        SplittersClient::new(self.inner.clone())
+    }
+}
+
+#[pymethods]
+impl PyBundleSplitterClient {
+    pub fn address(&self) -> PyResult<String> {
+        self.root().address(self.contract.clone())
+    }
+
+    pub fn arbitrate<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment_or_intent: String,
+        escrow: String,
+        splits: Vec<PyBundleSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().arbitrate_bundle(
+            py,
+            self.contract.clone(),
+            fulfillment_or_intent,
+            escrow,
+            splits,
+        )
+    }
+
+    pub fn request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        fulfillment_or_intent: String,
+        escrow: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().request_arbitration(
+            py,
+            self.contract.clone(),
+            fulfillment_or_intent,
+            escrow,
+            oracle,
+            demand,
+        )
+    }
+
+    #[pyo3(signature = (obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment<'py>(
+        &self,
+        py: Python<'py>,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().create_fulfillment(
+            py,
+            self.contract.clone(),
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    pub fn collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root()
+            .collect_and_distribute(py, self.contract.clone(), escrow, fulfillment)
+    }
+
+    pub fn unsafe_partially_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().unsafe_partially_collect_and_distribute(
+            py,
+            self.contract.clone(),
+            escrow,
+            fulfillment,
+        )
+    }
+
+    pub fn get_splits<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        fulfillment_or_intent: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().get_bundle_splits(
+            py,
+            self.contract.clone(),
+            oracle,
+            fulfillment_or_intent,
+            escrow,
+        )
+    }
+
+    pub fn has_decision<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        decision_key: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root()
+            .has_decision(py, self.contract.clone(), oracle, decision_key)
+    }
+
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.root().arbitrate_many_bundle(
+            py,
+            self.contract.clone(),
+            decision_func,
+            callback_func,
+            mode,
+            timeout_seconds,
+        )
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyCommitmentBundleSplitterClient {
+    inner: SplittersModule,
+    contract: String,
+}
+
+impl PyCommitmentBundleSplitterClient {
+    fn new(inner: SplittersModule, contract: String) -> Self {
+        Self { inner, contract }
+    }
+
+    fn bundle(&self) -> PyBundleSplitterClient {
+        PyBundleSplitterClient::new(self.inner.clone(), self.contract.clone())
+    }
+}
+
+#[pymethods]
+impl PyCommitmentBundleSplitterClient {
+    pub fn address(&self) -> PyResult<String> {
+        self.bundle().address()
+    }
+
+    pub fn arbitrate<'py>(
+        &self,
+        py: Python<'py>,
+        intent: String,
+        escrow: String,
+        splits: Vec<PyBundleSplit>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle().arbitrate(py, intent, escrow, splits)
+    }
+
+    pub fn request_arbitration<'py>(
+        &self,
+        py: Python<'py>,
+        intent: String,
+        escrow: String,
+        oracle: String,
+        demand: Vec<u8>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle()
+            .request_arbitration(py, intent, escrow, oracle, demand)
+    }
+
+    #[pyo3(signature = (obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment<'py>(
+        &self,
+        py: Python<'py>,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle().create_fulfillment(
+            py,
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    #[pyo3(signature = (escrow, obligation_contract, data, expiration_time, ref_uid, value = "0".to_string()))]
+    pub fn create_fulfillment_and_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        obligation_contract: String,
+        data: Vec<u8>,
+        expiration_time: u64,
+        ref_uid: String,
+        value: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        SplittersClient::new(self.inner.clone()).create_fulfillment_and_collect_and_distribute(
+            py,
+            self.contract.clone(),
+            escrow,
+            obligation_contract,
+            data,
+            expiration_time,
+            ref_uid,
+            value,
+        )
+    }
+
+    pub fn collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle()
+            .collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn unsafe_partially_collect_and_distribute<'py>(
+        &self,
+        py: Python<'py>,
+        escrow: String,
+        fulfillment: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle()
+            .unsafe_partially_collect_and_distribute(py, escrow, fulfillment)
+    }
+
+    pub fn get_splits<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        intent: String,
+        escrow: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle().get_splits(py, oracle, intent, escrow)
+    }
+
+    pub fn has_decision<'py>(
+        &self,
+        py: Python<'py>,
+        oracle: String,
+        decision_key: String,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle().has_decision(py, oracle, decision_key)
+    }
+
+    #[pyo3(signature = (decision_func, callback_func=None, mode=None, timeout_seconds=None))]
+    pub fn arbitrate_many<'py>(
+        &self,
+        py: Python<'py>,
+        decision_func: PyObject,
+        callback_func: Option<PyObject>,
+        mode: Option<String>,
+        timeout_seconds: Option<f64>,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        self.bundle()
+            .arbitrate_many(py, decision_func, callback_func, mode, timeout_seconds)
     }
 }
 

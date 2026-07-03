@@ -175,7 +175,7 @@ Splitter clients currently expose the direct contract primitives:
 They do not expose equivalent callback-based oracle workflows for splitter
 decisions.
 
-Status: partially addressed. Commitment trusted-oracle daemon parity is now
+Status: addressed. Commitment trusted-oracle daemon parity is now
 covered: TypeScript exposes `arbitrateMany`, encoded-demand arbitration, raw
 arbitration, request logs, request records, existing-decision checks, and wait
 helpers; Rust and Python expose commitment callback workers plus
@@ -184,7 +184,9 @@ bundle splitter daemon helpers are now exposed across TypeScript, Rust, and
 Python. Rust now also exposes TS-shaped splitter submodules such as
 `client.splitters().erc20().fulfillment()` and
 `client.splitters().token_bundle().commitment()`, while retaining the lower-level
-contract-selector methods.
+contract-selector methods. Python exposes matching splitter submodules such as
+`client.splitters.erc20.fulfillment` and `client.splitters.token_bundle.commitment`,
+while retaining the lower-level contract-key methods.
 
 Affected SDK surfaces:
 
@@ -192,13 +194,12 @@ Affected SDK surfaces:
 - Rust `SplittersClient`
 - Python `SplittersClient`
 
-Remaining review order:
+Resolution notes:
 
-1. Decide whether TypeScript should mirror trusted oracle naming
-   (`arbitrateMany`, `listenAndArbitrate`) or use splitter-specific names.
-2. Decide whether Python should mirror the TypeScript/Rust splitter submodule
-   layout or keep the single `client.splitters` object with explicit contract
-   keys.
+- TypeScript and Rust do not have a separate `listenAndArbitrate` API; their
+  `arbitrateMany` / `arbitrate_many` helpers use modes to select past-only,
+  future-only, or combined processing.
+- Python now mirrors the TypeScript/Rust splitter submodule layout.
 
 Design notes:
 

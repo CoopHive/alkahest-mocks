@@ -58,6 +58,18 @@ async def test_alkahest_client_init_default(env):
     assert hasattr(splitters_client, 'arbitrate_bundle'), "Splitters client should arbitrate bundle splits"
     assert hasattr(splitters_client, 'collect_and_distribute'), "Splitters client should collect and distribute"
     assert hasattr(splitters_client, 'attestation_intent_hash'), "Splitters client should hash attestation intents"
+    assert hasattr(splitters_client, 'erc20'), "Splitters client should expose ERC20 submodule"
+    assert hasattr(splitters_client.erc20, 'fulfillment'), "ERC20 splitter should expose fulfillment variant"
+    assert hasattr(splitters_client.erc20, 'commitment'), "ERC20 splitter should expose commitment variant"
+    assert hasattr(splitters_client.erc20.fulfillment, 'arbitrate'), "ERC20 fulfillment splitter should arbitrate"
+    assert hasattr(splitters_client.erc20.commitment, 'create_fulfillment_and_collect_and_distribute'), (
+        "ERC20 commitment splitter should expose atomic fulfillment and collect"
+    )
+    assert hasattr(splitters_client.token_bundle, 'fulfillment'), "Bundle splitter should expose fulfillment variant"
+    assert hasattr(splitters_client.token_bundle, 'commitment'), "Bundle splitter should expose commitment variant"
+    assert hasattr(splitters_client.token_bundle_unvalidated.commitment, 'arbitrate_many'), (
+        "Unvalidated bundle commitment splitter should expose daemon arbitration"
+    )
     assert hasattr(attestation_client.util, 'attest_and_create_reference_escrow'), (
         "Attestation util should have atomic reference escrow helper"
     )
