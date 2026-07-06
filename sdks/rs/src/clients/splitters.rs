@@ -37,6 +37,16 @@ pub struct SplittersAddresses {
     pub token_bundle_splitter: Address,
     /// TokenBundleSplitterUnvalidated contract address.
     pub token_bundle_splitter_unvalidated: Address,
+    /// CommitmentERC20Splitter contract address.
+    pub commitment_erc20_splitter: Address,
+    /// CommitmentERC1155Splitter contract address.
+    pub commitment_erc1155_splitter: Address,
+    /// CommitmentNativeTokenSplitter contract address.
+    pub commitment_native_token_splitter: Address,
+    /// CommitmentTokenBundleSplitter contract address.
+    pub commitment_token_bundle_splitter: Address,
+    /// CommitmentTokenBundleSplitterUnvalidated contract address.
+    pub commitment_token_bundle_splitter_unvalidated: Address,
 }
 
 impl Default for SplittersAddresses {
@@ -59,6 +69,16 @@ pub enum SplitterContract {
     TokenBundleSplitter,
     /// TokenBundleSplitterUnvalidated contract.
     TokenBundleSplitterUnvalidated,
+    /// CommitmentERC20Splitter contract.
+    CommitmentErc20Splitter,
+    /// CommitmentERC1155Splitter contract.
+    CommitmentErc1155Splitter,
+    /// CommitmentNativeTokenSplitter contract.
+    CommitmentNativeTokenSplitter,
+    /// CommitmentTokenBundleSplitter contract.
+    CommitmentTokenBundleSplitter,
+    /// CommitmentTokenBundleSplitterUnvalidated contract.
+    CommitmentTokenBundleSplitterUnvalidated,
 }
 
 /// Rust client module for splitter helpers.
@@ -84,6 +104,19 @@ impl ContractModule for SplittersModule {
             SplitterContract::TokenBundleSplitter => self.addresses.token_bundle_splitter,
             SplitterContract::TokenBundleSplitterUnvalidated => {
                 self.addresses.token_bundle_splitter_unvalidated
+            }
+            SplitterContract::CommitmentErc20Splitter => self.addresses.commitment_erc20_splitter,
+            SplitterContract::CommitmentErc1155Splitter => {
+                self.addresses.commitment_erc1155_splitter
+            }
+            SplitterContract::CommitmentNativeTokenSplitter => {
+                self.addresses.commitment_native_token_splitter
+            }
+            SplitterContract::CommitmentTokenBundleSplitter => {
+                self.addresses.commitment_token_bundle_splitter
+            }
+            SplitterContract::CommitmentTokenBundleSplitterUnvalidated => {
+                self.addresses.commitment_token_bundle_splitter_unvalidated
             }
         }
     }

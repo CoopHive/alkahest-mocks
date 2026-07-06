@@ -78,7 +78,7 @@ async def run_worker(ctx: SchedulerContext, oracle_client) -> None:
             # Submit decision on-chain manually
             # This is the key difference from sync oracles: we call arbitrate()
             # directly instead of returning True/False from the callback
-            await oracle_client.oracle.arbitrate(uid, list(job.demand), decision)
+            await oracle_client.oracle.arbitrate_raw(uid, list(job.demand), decision)
         else:
             # Wait for new work or timeout
             ctx.notify.clear()
@@ -153,7 +153,7 @@ async def test_asynchronous_offchain_oracle_uptime_flow(env, alice_client, bob_c
 
     # Step 3: Request arbitration
     await bob_client.oracle.request_arbitration(
-        fulfillment_uid, oracle_address, inner_demand_data
+        fulfillment_uid, oracle_address, demand_bytes
     )
 
     # Step 4: Set up scheduler context (shared state between listener and worker)
@@ -178,8 +178,9 @@ async def test_asynchronous_offchain_oracle_uptime_flow(env, alice_client, bob_c
             if uid is None or uid in ctx.job_db:
                 return None
 
-            # Parse demand from callback argument
-            demand_json = json.loads(bytes(demand).decode("utf-8"))
+            decoded_demand = TrustedOracleArbiterDemandData.decode(demand)
+            inner_demand = bytes(decoded_demand.data)
+            demand_json = json.loads(inner_demand.decode("utf-8"))
 
             # Verify URL matches
             if statement != demand_json["service_url"]:
@@ -202,7 +203,7 @@ async def test_asynchronous_offchain_oracle_uptime_flow(env, alice_client, bob_c
             ctx.job_db[uid] = UptimeJob(
                 min_uptime=demand_json["min_uptime"],
                 schedule=schedule,
-                demand=bytes(demand),
+                demand=inner_demand,
             )
             ctx.notify.set()  # Wake up worker
 

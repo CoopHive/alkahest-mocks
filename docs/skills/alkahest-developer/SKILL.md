@@ -261,12 +261,10 @@ const commitment = await client.commitReveal.computeCommitment(
 );
 // 2. Commit (sends bond as ETH)
 await client.commitReveal.commit(commitment, bondAmount, commitDeadline);
-// 3. Wait 1+ blocks, then reveal
-const { attested } = await client.commitReveal.doObligation(
+// 3. Wait 1+ blocks, then reveal. The matching bond is reclaimed on reveal.
+await client.commitReveal.doObligation(
   { payload, salt, schema }, escrowUid,
 );
-// 4. Reclaim bond
-await client.commitReveal.reclaimBond(attested.uid);
 ```
 
 **Rust:**
@@ -275,9 +273,8 @@ let commitment = client.commit_reveal().compute_commitment(
     escrow_uid, claimer, &obligation_data,
 ).await?;
 client.commit_reveal().commit(commitment, bond_amount, commit_deadline).await?;
-// wait 1+ blocks
+// wait 1+ blocks; the matching bond is reclaimed on reveal
 let receipt = client.commit_reveal().do_obligation(&obligation_data, Some(escrow_uid)).await?;
-client.commit_reveal().reclaim_bond(obligation_uid).await?;
 ```
 
 **Python:**
@@ -286,9 +283,8 @@ commitment = await client.commit_reveal.compute_commitment(
     escrow_uid, claimer, payload, salt, schema,
 )
 await client.commit_reveal.commit(commitment, bond_amount, commit_deadline)
-# wait 1+ blocks
+# wait 1+ blocks; the matching bond is reclaimed on reveal
 uid = await client.commit_reveal.do_obligation(payload, salt, schema, ref_uid=escrow_uid)
-await client.commit_reveal.reclaim_bond(uid)
 ```
 
 ## Atomic Payment Utilities

@@ -63,7 +63,7 @@ contract TokenBundlePaymentObligation is BaseObligation, BaseArbiter {
             _eas,
             _schemaRegistry,
             "uint256 nativeAmount, address[] erc20Tokens, uint256[] erc20Amounts, address[] erc721Tokens, uint256[] erc721TokenIds, address[] erc1155Tokens, uint256[] erc1155TokenIds, uint256[] erc1155Amounts, address payee",
-            true
+            false
         )
     {}
 

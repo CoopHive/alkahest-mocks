@@ -74,14 +74,6 @@ pub mod arbiters {
         #[allow(missing_docs)]
         #[sol(rpc)]
         #[derive(Debug)]
-        TrustedOracleArbiter,
-        "src/contracts/arbiters/TrustedOracleArbiter.json"
-    );
-
-    sol!(
-        #[allow(missing_docs)]
-        #[sol(rpc)]
-        #[derive(Debug)]
         IntrinsicsArbiter,
         "src/contracts/arbiters/IntrinsicsArbiter.json"
     );
@@ -101,6 +93,29 @@ pub mod arbiters {
         ERC8004Arbiter,
         "src/contracts/arbiters/ERC8004Arbiter.json"
     );
+
+    // trusted-oracle submodule
+    pub mod trusted_oracle {
+        use alloy::sol;
+
+        sol!(
+            #[allow(missing_docs)]
+            #[sol(rpc)]
+            #[derive(Debug)]
+            TrustedOracleArbiter,
+            "src/contracts/arbiters/trusted-oracle/TrustedOracleArbiter.json"
+        );
+
+        sol!(
+            #[allow(missing_docs)]
+            #[sol(rpc)]
+            #[derive(Debug)]
+            CommitmentTrustedOracleArbiter,
+            "src/contracts/arbiters/trusted-oracle/CommitmentTrustedOracleArbiter.json"
+        );
+    }
+
+    pub use trusted_oracle::{CommitmentTrustedOracleArbiter, TrustedOracleArbiter};
 
     // attestation-properties submodule
     pub mod attestation_properties {
@@ -554,55 +569,114 @@ pub mod utils {
     }
 
     pub mod splitters {
-        use alloy::sol;
-
-        sol!(
-            #[allow(missing_docs)]
-            #[sol(rpc)]
-            #[derive(Debug)]
-            ERC20Splitter,
-            "src/contracts/utils/splitters/ERC20Splitter.json"
-        );
-
-        sol!(
-            #[allow(missing_docs)]
-            #[sol(rpc)]
-            #[derive(Debug)]
-            ERC1155Splitter,
-            "src/contracts/utils/splitters/ERC1155Splitter.json"
-        );
-
-        sol!(
-            #[allow(missing_docs)]
-            #[sol(rpc)]
-            #[derive(Debug)]
-            NativeTokenSplitter,
-            "src/contracts/utils/splitters/NativeTokenSplitter.json"
-        );
-
-        pub mod token_bundle {
+        pub mod default {
             use alloy::sol;
 
             sol!(
                 #[allow(missing_docs)]
                 #[sol(rpc)]
                 #[derive(Debug)]
-                TokenBundleSplitter,
-                "src/contracts/utils/splitters/TokenBundleSplitter.json"
+                ERC20Splitter,
+                "src/contracts/utils/splitters/default/ERC20Splitter.json"
             );
+
+            sol!(
+                #[allow(missing_docs)]
+                #[sol(rpc)]
+                #[derive(Debug)]
+                ERC1155Splitter,
+                "src/contracts/utils/splitters/default/ERC1155Splitter.json"
+            );
+
+            sol!(
+                #[allow(missing_docs)]
+                #[sol(rpc)]
+                #[derive(Debug)]
+                NativeTokenSplitter,
+                "src/contracts/utils/splitters/default/NativeTokenSplitter.json"
+            );
+
+            pub mod token_bundle {
+                use alloy::sol;
+
+                sol!(
+                    #[allow(missing_docs)]
+                    #[sol(rpc)]
+                    #[derive(Debug)]
+                    TokenBundleSplitter,
+                    "src/contracts/utils/splitters/default/TokenBundleSplitter.json"
+                );
+            }
+
+            pub mod token_bundle_unvalidated {
+                use alloy::sol;
+
+                sol!(
+                    #[allow(missing_docs)]
+                    #[sol(rpc)]
+                    #[derive(Debug)]
+                    TokenBundleSplitterUnvalidated,
+                    "src/contracts/utils/splitters/default/TokenBundleSplitterUnvalidated.json"
+                );
+            }
         }
 
-        pub mod token_bundle_unvalidated {
+        pub mod commitment {
             use alloy::sol;
 
             sol!(
                 #[allow(missing_docs)]
                 #[sol(rpc)]
                 #[derive(Debug)]
-                TokenBundleSplitterUnvalidated,
-                "src/contracts/utils/splitters/TokenBundleSplitterUnvalidated.json"
+                CommitmentERC20Splitter,
+                "src/contracts/utils/splitters/commitment/CommitmentERC20Splitter.json"
             );
+
+            sol!(
+                #[allow(missing_docs)]
+                #[sol(rpc)]
+                #[derive(Debug)]
+                CommitmentERC1155Splitter,
+                "src/contracts/utils/splitters/commitment/CommitmentERC1155Splitter.json"
+            );
+
+            sol!(
+                #[allow(missing_docs)]
+                #[sol(rpc)]
+                #[derive(Debug)]
+                CommitmentNativeTokenSplitter,
+                "src/contracts/utils/splitters/commitment/CommitmentNativeTokenSplitter.json"
+            );
+
+            pub mod token_bundle {
+                use alloy::sol;
+
+                sol!(
+                    #[allow(missing_docs)]
+                    #[sol(rpc)]
+                    #[derive(Debug)]
+                    CommitmentTokenBundleSplitter,
+                    "src/contracts/utils/splitters/commitment/CommitmentTokenBundleSplitter.json"
+                );
+            }
+
+            pub mod token_bundle_unvalidated {
+                use alloy::sol;
+
+                sol!(
+                    #[allow(missing_docs)]
+                    #[sol(rpc)]
+                    #[derive(Debug)]
+                    CommitmentTokenBundleSplitterUnvalidated,
+                    "src/contracts/utils/splitters/commitment/CommitmentTokenBundleSplitterUnvalidated.json"
+                );
+            }
         }
+
+        pub use default::{
+            ERC20Splitter, ERC1155Splitter, NativeTokenSplitter, token_bundle,
+            token_bundle_unvalidated,
+        };
     }
 
     // Re-export the main contract types for convenience

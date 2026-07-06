@@ -47,7 +47,7 @@ async def test_arbitrate_past_sync(env, alice_client, bob_client, charlie_client
     fulfillment_uid = await string_client.do_obligation("good", escrow_uid)
 
     # Bob (fulfiller) requests Charlie (oracle) to arbitrate
-    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, inner_demand_data)
+    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, demand_bytes)
 
     # Decision function that approves "good" obligations
     def decision_function(attestation, demand):
@@ -108,8 +108,8 @@ async def test_conditional_arbitrate_past(env, alice_client, bob_client, charlie
     bad_fulfillment = await string_client.do_obligation("bad", escrow_uid)
 
     # Bob (fulfiller) requests Charlie (oracle) to arbitrate both
-    await bob_client.oracle.request_arbitration(good_fulfillment, env.charlie, inner_demand_data)
-    await bob_client.oracle.request_arbitration(bad_fulfillment, env.charlie, inner_demand_data)
+    await bob_client.oracle.request_arbitration(good_fulfillment, env.charlie, demand_bytes)
+    await bob_client.oracle.request_arbitration(bad_fulfillment, env.charlie, demand_bytes)
 
     # Decision function that approves only "good" obligations
     def decision_function(attestation, demand):
@@ -161,7 +161,7 @@ async def test_skip_arbitrated(env, alice_client, bob_client, charlie_client):
     fulfillment_uid = await string_client.do_obligation("good", escrow_uid)
 
     # Bob (fulfiller) requests Charlie (oracle) to arbitrate
-    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, inner_demand_data)
+    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, demand_bytes)
 
     # Decision function
     def decision_function(attestation, demand):

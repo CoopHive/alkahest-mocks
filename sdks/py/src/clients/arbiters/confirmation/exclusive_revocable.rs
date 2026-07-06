@@ -137,6 +137,7 @@ impl ExclusiveRevocable {
         py: pyo3::Python<'py>,
         fulfillment: String,
         confirmer: String,
+        escrow: String,
         from_block: Option<u64>,
     ) -> PyResult<pyo3::Bound<'py, pyo3::PyAny>> {
         let inner = self.inner.clone();
@@ -147,6 +148,7 @@ impl ExclusiveRevocable {
                 .wait_for_confirmation_request(
                     fulfillment.parse().map_err(map_parse_to_pyerr)?,
                     confirmer.parse().map_err(map_parse_to_pyerr)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
                     from_block,
                 )
                 .await
@@ -154,6 +156,7 @@ impl ExclusiveRevocable {
             Ok(PyConfirmationRequestedLog {
                 fulfillment: log.data.fulfillment.to_string(),
                 confirmer: format!("{:?}", log.data.confirmer),
+                escrow: log.data.escrow.to_string(),
             })
         })
     }
@@ -209,14 +212,16 @@ pub struct PyConfirmationRequestedLog {
     pub fulfillment: String,
     #[pyo3(get)]
     pub confirmer: String,
+    #[pyo3(get)]
+    pub escrow: String,
 }
 
 #[pymethods]
 impl PyConfirmationRequestedLog {
     fn __repr__(&self) -> String {
         format!(
-            "PyConfirmationRequestedLog(fulfillment='{}', confirmer='{}')",
-            self.fulfillment, self.confirmer
+            "PyConfirmationRequestedLog(fulfillment='{}', confirmer='{}', escrow='{}')",
+            self.fulfillment, self.confirmer, self.escrow
         )
     }
 }

@@ -38,6 +38,7 @@ contract AttestationEscrowHook is IEscrowHook, ApprovedEscrowHook {
     error NoPendingAttestation(address caller, bytes32 hookDataHash);
     error IncorrectPayment(uint256 expected, uint256 received);
     error NativeTokenTransferFailed(address to, uint256 amount);
+    error UnsupportedRevocableAttestation();
 
     constructor(IEAS _eas) {
         eas = _eas;
@@ -48,6 +49,7 @@ contract AttestationEscrowHook is IEscrowHook, ApprovedEscrowHook {
     function onLock(bytes calldata data, address from, address escrow) external payable override {
         _checkLockCaller(from, escrow);
         HookData memory decoded = abi.decode(data, (HookData));
+        if (decoded.attestation.data.revocable) revert UnsupportedRevocableAttestation();
         uint256 requiredValue = decoded.attestation.data.value;
         if (msg.value != requiredValue) revert IncorrectPayment(requiredValue, msg.value);
 

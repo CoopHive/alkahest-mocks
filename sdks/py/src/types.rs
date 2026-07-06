@@ -58,6 +58,11 @@ pub struct SplittersAddresses {
     pub native_token_splitter: String,
     pub token_bundle_splitter: String,
     pub token_bundle_splitter_unvalidated: String,
+    pub commitment_erc20_splitter: String,
+    pub commitment_erc1155_splitter: String,
+    pub commitment_native_token_splitter: String,
+    pub commitment_token_bundle_splitter: String,
+    pub commitment_token_bundle_splitter_unvalidated: String,
 }
 
 #[derive(FromPyObject)]
@@ -65,6 +70,7 @@ pub struct ArbitersAddresses {
     pub eas: String,
     pub trivial_arbiter: String,
     pub trusted_oracle_arbiter: String,
+    pub commitment_trusted_oracle_arbiter: String,
     pub intrinsics_arbiter: String,
     pub erc8004_arbiter: String,
     pub references_escrow_arbiter: String,
@@ -278,6 +284,13 @@ impl TryFrom<SplittersAddresses> for alkahest_rs::clients::splitters::SplittersA
             native_token_splitter: parse_address!(native_token_splitter),
             token_bundle_splitter: parse_address!(token_bundle_splitter),
             token_bundle_splitter_unvalidated: parse_address!(token_bundle_splitter_unvalidated),
+            commitment_erc20_splitter: parse_address!(commitment_erc20_splitter),
+            commitment_erc1155_splitter: parse_address!(commitment_erc1155_splitter),
+            commitment_native_token_splitter: parse_address!(commitment_native_token_splitter),
+            commitment_token_bundle_splitter: parse_address!(commitment_token_bundle_splitter),
+            commitment_token_bundle_splitter_unvalidated: parse_address!(
+                commitment_token_bundle_splitter_unvalidated
+            ),
         })
     }
 }
@@ -373,6 +386,7 @@ impl TryFrom<ArbitersAddresses> for alkahest_rs::clients::arbiters::ArbitersAddr
             eas: parse_address!(eas),
             trivial_arbiter: parse_address!(trivial_arbiter),
             trusted_oracle_arbiter: parse_address!(trusted_oracle_arbiter),
+            commitment_trusted_oracle_arbiter: parse_address!(commitment_trusted_oracle_arbiter),
             intrinsics_arbiter: parse_address!(intrinsics_arbiter),
             erc8004_arbiter: parse_address!(erc8004_arbiter),
             references_escrow_arbiter: parse_address!(references_escrow_arbiter),
@@ -834,6 +848,13 @@ impl PyDefaultExtensionConfig {
             );
             add_py_info(
                 &mut out,
+                &section.commitment_trusted_oracle_arbiter,
+                "arbiters_addresses",
+                "commitment_trusted_oracle_arbiter",
+                None,
+            );
+            add_py_info(
+                &mut out,
                 &section.intrinsics_arbiter,
                 "arbiters_addresses",
                 "intrinsics_arbiter",
@@ -1106,6 +1127,41 @@ impl PyDefaultExtensionConfig {
                 &section.token_bundle_splitter_unvalidated,
                 "splitters_addresses",
                 "token_bundle_splitter_unvalidated",
+                None,
+            );
+            add_py_info(
+                &mut out,
+                &section.commitment_erc20_splitter,
+                "splitters_addresses",
+                "commitment_erc20_splitter",
+                None,
+            );
+            add_py_info(
+                &mut out,
+                &section.commitment_erc1155_splitter,
+                "splitters_addresses",
+                "commitment_erc1155_splitter",
+                None,
+            );
+            add_py_info(
+                &mut out,
+                &section.commitment_native_token_splitter,
+                "splitters_addresses",
+                "commitment_native_token_splitter",
+                None,
+            );
+            add_py_info(
+                &mut out,
+                &section.commitment_token_bundle_splitter,
+                "splitters_addresses",
+                "commitment_token_bundle_splitter",
+                None,
+            );
+            add_py_info(
+                &mut out,
+                &section.commitment_token_bundle_splitter_unvalidated,
+                "splitters_addresses",
+                "commitment_token_bundle_splitter_unvalidated",
                 None,
             );
         }
@@ -1450,6 +1506,16 @@ pub struct PySplittersAddresses {
     pub token_bundle_splitter: String,
     #[pyo3(get)]
     pub token_bundle_splitter_unvalidated: String,
+    #[pyo3(get)]
+    pub commitment_erc20_splitter: String,
+    #[pyo3(get)]
+    pub commitment_erc1155_splitter: String,
+    #[pyo3(get)]
+    pub commitment_native_token_splitter: String,
+    #[pyo3(get)]
+    pub commitment_token_bundle_splitter: String,
+    #[pyo3(get)]
+    pub commitment_token_bundle_splitter_unvalidated: String,
 }
 
 #[pymethods]
@@ -1461,6 +1527,11 @@ impl PySplittersAddresses {
         native_token_splitter: String,
         token_bundle_splitter: String,
         token_bundle_splitter_unvalidated: String,
+        commitment_erc20_splitter: String,
+        commitment_erc1155_splitter: String,
+        commitment_native_token_splitter: String,
+        commitment_token_bundle_splitter: String,
+        commitment_token_bundle_splitter_unvalidated: String,
     ) -> Self {
         Self {
             erc20_splitter,
@@ -1468,6 +1539,11 @@ impl PySplittersAddresses {
             native_token_splitter,
             token_bundle_splitter,
             token_bundle_splitter_unvalidated,
+            commitment_erc20_splitter,
+            commitment_erc1155_splitter,
+            commitment_native_token_splitter,
+            commitment_token_bundle_splitter,
+            commitment_token_bundle_splitter_unvalidated,
         }
     }
 }
@@ -1482,6 +1558,20 @@ impl From<&alkahest_rs::clients::splitters::SplittersAddresses> for PySplittersA
             token_bundle_splitter_unvalidated: format!(
                 "{:?}",
                 data.token_bundle_splitter_unvalidated
+            ),
+            commitment_erc20_splitter: format!("{:?}", data.commitment_erc20_splitter),
+            commitment_erc1155_splitter: format!("{:?}", data.commitment_erc1155_splitter),
+            commitment_native_token_splitter: format!(
+                "{:?}",
+                data.commitment_native_token_splitter
+            ),
+            commitment_token_bundle_splitter: format!(
+                "{:?}",
+                data.commitment_token_bundle_splitter
+            ),
+            commitment_token_bundle_splitter_unvalidated: format!(
+                "{:?}",
+                data.commitment_token_bundle_splitter_unvalidated
             ),
         }
     }
@@ -1559,6 +1649,8 @@ pub struct PyArbitersAddresses {
     #[pyo3(get)]
     pub trusted_oracle_arbiter: String,
     #[pyo3(get)]
+    pub commitment_trusted_oracle_arbiter: String,
+    #[pyo3(get)]
     pub intrinsics_arbiter: String,
     #[pyo3(get)]
     pub erc8004_arbiter: String,
@@ -1608,6 +1700,10 @@ impl From<&alkahest_rs::clients::arbiters::ArbitersAddresses> for PyArbitersAddr
             eas: format!("{:?}", data.eas),
             trivial_arbiter: format!("{:?}", data.trivial_arbiter),
             trusted_oracle_arbiter: format!("{:?}", data.trusted_oracle_arbiter),
+            commitment_trusted_oracle_arbiter: format!(
+                "{:?}",
+                data.commitment_trusted_oracle_arbiter
+            ),
             intrinsics_arbiter: format!("{:?}", data.intrinsics_arbiter),
             erc8004_arbiter: format!("{:?}", data.erc8004_arbiter),
             references_escrow_arbiter: format!("{:?}", data.references_escrow_arbiter),

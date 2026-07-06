@@ -23,7 +23,7 @@ Learn more at [Alkahest Docs](https://www.arkhai.io/docs).
 
 ## Security
 
-Alkahest has been audited by [Zellic](https://www.zellic.io/). The full audit report is available [here](https://github.com/Zellic/publications/blob/master/Arkhai%20Alkahest%20-%20Zellic%20Audit%20Report.pdf).
+Alkahest has been audited by [Zellic](https://www.zellic.io/). The full audit report is available in [docs/audits/reports/zellic-2026-06-30.pdf](docs/audits/reports/zellic-2026-06-30.pdf).
 
 ## Repository Structure
 

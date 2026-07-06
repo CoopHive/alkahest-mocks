@@ -12,7 +12,7 @@ import { AllArbiter, AnyArbiter, makeLogicalArbitersClient } from "./logical";
  *
  * API structure:
  * - client.arbiters.general.intrinsics (no DemandData)
- * - client.arbiters.general.trustedOracle.arbitrate(...)
+ * - client.arbiters.general.trustedOracle.arbitrateForDemand(...)
  * - client.arbiters.logical.any.encodeDemand(...)
  * - client.arbiters.logical.all.decodeDemand(...)
  * - client.arbiters.attestationProperties.recipient.encodeDemand(...)

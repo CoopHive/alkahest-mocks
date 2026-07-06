@@ -3,7 +3,7 @@ import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from "viem";
 import { abi as commitRevealObligationAbi } from "../../../contracts/obligations/CommitRevealObligation";
 import type { ChainAddresses } from "../../../types";
 import type { ViemClient } from "../../../utils";
-import { getAttestation, getAttestedEventFromTxHash } from "../../../utils";
+import { assertDeployedContract, getAttestation, getAttestedEventFromTxHash } from "../../../utils";
 
 const commitRevealDecodeFunction = getAbiItem({
   abi: commitRevealObligationAbi.abi,
@@ -146,6 +146,7 @@ export const makeCommitRevealObligationClient = (viemClient: ViemClient, address
       refUID: `0x${string}` = "0x0000000000000000000000000000000000000000000000000000000000000000",
       value: bigint = 0n,
     ) => {
+      assertDeployedContract(contractAddress, "CommitRevealObligation");
       const { request } = await viemClient.simulateContract({
         address: contractAddress,
         abi,
@@ -179,6 +180,7 @@ export const makeCommitRevealObligationClient = (viemClient: ViemClient, address
 
     /** Submits a commitment hash, locks `bondAmount`, and records the demand reveal deadline. */
     commit: async (commitment: `0x${string}`, bondAmount: bigint, commitDeadline: bigint) => {
+      assertDeployedContract(contractAddress, "CommitRevealObligation");
       const { request } = await viemClient.simulateContract({
         address: contractAddress,
         abi,
@@ -201,7 +203,7 @@ export const makeCommitRevealObligationClient = (viemClient: ViemClient, address
         address: contractAddress,
         abi,
         functionName: "computeCommitment",
-        args: [refUID, claimer, data],
+        args: [claimer, refUID, data],
       });
     },
 

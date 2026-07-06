@@ -16,7 +16,10 @@ use alkahest_rs::{
     types::{ArbiterData, Erc20Data},
     utils::{TestContext, setup_test_environment},
 };
-use alloy::primitives::{Bytes, FixedBytes};
+use alloy::{
+    primitives::{Bytes, FixedBytes},
+    sol_types::SolType,
+};
 use eyre::{Result, WrapErr, eyre};
 use serde::{Deserialize, Serialize};
 use tokio::sync::{Mutex, Notify};
@@ -85,8 +88,16 @@ fn schedule_pings(
             return None;
         };
 
-        // Parse demand directly from awd.demand (the inner demand data passed to request_arbitration)
-        let Ok(parsed_demand) = serde_json::from_slice::<UptimeDemand>(demand_bytes.as_ref())
+        let Ok(decoded_demand) =
+            <contracts::arbiters::TrustedOracleArbiter::DemandData as SolType>::abi_decode(
+                demand_bytes.as_ref(),
+            )
+        else {
+            return None;
+        };
+
+        let inner_demand_data = decoded_demand.data;
+        let Ok(parsed_demand) = serde_json::from_slice::<UptimeDemand>(inner_demand_data.as_ref())
         else {
             return None;
         };
@@ -108,7 +119,7 @@ fn schedule_pings(
         ctx.job_db.lock().await.entry(uid).or_insert(UptimeJob {
             min_uptime: parsed_demand.min_uptime,
             schedule,
-            demand: demand_bytes,
+            demand: inner_demand_data,
         });
         ctx.notify.notify_one();
         None
@@ -140,7 +151,7 @@ async fn setup_escrow_with_uptime_demand(
 
     let arbiter_item = ArbiterData {
         arbiter: test.addresses.arbiters_addresses.trusted_oracle_arbiter,
-        demand: encoded_demand,
+        demand: encoded_demand.clone(),
     };
 
     let price = Erc20Data {
@@ -171,8 +182,7 @@ async fn setup_escrow_with_uptime_demand(
         .await?;
     let fulfillment_uid = DefaultAlkahestClient::get_attested_event(fulfillment_receipt)?.uid;
 
-    // Return inner_demand_data (not encoded_demand) for use with arbitration
-    Ok((escrow_uid, fulfillment_uid, service_url, inner_demand_data))
+    Ok((escrow_uid, fulfillment_uid, service_url, encoded_demand))
 }
 
 async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()> {
@@ -190,7 +200,7 @@ async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()>
         check_interval_secs: 2,
     };
 
-    let (escrow_uid, fulfillment_uid, service_url, inner_demand_data) =
+    let (escrow_uid, fulfillment_uid, service_url, encoded_demand) =
         setup_escrow_with_uptime_demand(test, &demand, charlie_client.address).await?;
 
     let url_index: UrlIndex = Arc::new(Mutex::new(HashMap::new()));
@@ -232,7 +242,7 @@ async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()>
                 let decision = uptime >= job.min_uptime;
                 worker_arbiters
                     .trusted_oracle()
-                    .arbitrate(uid, job.demand.clone(), decision)
+                    .arbitrate_raw(uid, job.demand.clone(), decision)
                     .await
                     .expect("oracle arbitration tx should succeed");
             } else {
@@ -261,10 +271,9 @@ async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()>
         });
     }
 
-    // Request arbitration first (using the inner demand data, not the full encoded DemandData)
     test.bob_client
         .oracle()
-        .request_arbitration(fulfillment_uid, charlie_client.address, inner_demand_data)
+        .request_arbitration(fulfillment_uid, charlie_client.address, encoded_demand)
         .await?;
 
     // Listen for arbitration requests

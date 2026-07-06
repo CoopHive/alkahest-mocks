@@ -6,8 +6,8 @@ use alloy::primitives::{Address, FixedBytes};
 use alloy::rpc::types::TransactionReceipt;
 use alloy::sol_types::SolValue as _;
 
-use crate::contracts;
 use crate::types::{ArbiterData, DecodedAttestation, NativeTokenData};
+use crate::{contracts, utils::contract_safety::ensure_deployed_contract};
 
 use super::super::NativeTokenModule;
 
@@ -57,6 +57,10 @@ impl<'a> Unconditional<'a> {
         item: &ArbiterData,
         expiration: u64,
     ) -> eyre::Result<TransactionReceipt> {
+        ensure_deployed_contract(
+            self.module.addresses.escrow_obligation_unconditional,
+            "UnconditionalNativeTokenEscrowObligation",
+        )?;
         let escrow_obligation_contract =
             contracts::obligations::escrow::unconditional::UnconditionalNativeTokenEscrowObligation::new(
                 self.module.addresses.escrow_obligation_unconditional,

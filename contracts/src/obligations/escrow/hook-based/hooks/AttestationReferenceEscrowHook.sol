@@ -11,15 +11,15 @@ import {Attestation} from "@eas/Common.sol";
 import {SchemaRegistryUtils} from "../../../../libraries/SchemaRegistryUtils.sol";
 
 /// @title AttestationReferenceEscrowHook
-/// @notice An IEscrowHook that creates a validation attestation referencing
+/// @notice An IEscrowHook that creates an attestation referencing
 ///         a pre-existing attestation on release.
 /// @dev hookData is abi.encode(HookData).
 ///      Like AttestationEscrowHook, no assets are locked. On release, a
-///      validation attestation is created that references the original
-///      attestation UID, serving as a "stamp of approval."
+///      non-revocable attestation is created that references the original
+///      attestation UID.
 ///
-///      The validation schema is registered at deploy time. The attester
-///      of the validation attestation is this hook contract.
+///      The reference-attestation schema is registered at deploy time. The
+///      attester of the released attestation is this hook contract.
 ///
 ///      Security note: This contract has not been included in professional manual audits and
 ///      has only been reviewed by automated audit tooling so far.
@@ -27,25 +27,24 @@ contract AttestationReferenceEscrowHook is IEscrowHook, ApprovedEscrowHook, Sche
     using SchemaRegistryUtils for ISchemaRegistry;
 
     struct HookData {
-        bytes32 attestationUid;
-        address recipient; // recipient of the validation attestation
-        uint64 validationExpirationTime;
-        bool validationRevocable;
+        bytes32 referencedAttestationUid;
+        address recipient;
+        uint64 expirationTime;
     }
 
     IEAS public immutable eas;
-    bytes32 public immutable VALIDATION_SCHEMA;
+    bytes32 public immutable REFERENCE_ATTESTATION_SCHEMA;
 
     /// @notice Tracks pending: caller → hookDataHash → count.
     mapping(address => mapping(bytes32 => uint256)) public pending;
 
     error AttestationCreationFailed();
-    error NoPendingValidation(address caller, bytes32 hookDataHash);
+    error NoPendingReferenceAttestation(address caller, bytes32 hookDataHash);
 
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry) SchemaResolver(_eas) {
         eas = _eas;
-        VALIDATION_SCHEMA =
-            _schemaRegistry.registerOrReuse("bytes32 validatedAttestationUid", ISchemaResolver(address(this)), true);
+        REFERENCE_ATTESTATION_SCHEMA =
+            _schemaRegistry.registerOrReuse("bytes32 referencedAttestationUid", ISchemaResolver(address(this)), false);
     }
 
     // ──────────────────────────────────────────────
@@ -75,23 +74,23 @@ contract AttestationReferenceEscrowHook is IEscrowHook, ApprovedEscrowHook, Sche
         _checkAttestationCaller(escrow);
         bytes32 dataHash = keccak256(data);
         if (pending[msg.sender][dataHash] == 0) {
-            revert NoPendingValidation(msg.sender, dataHash);
+            revert NoPendingReferenceAttestation(msg.sender, dataHash);
         }
 
         pending[msg.sender][dataHash]--;
 
         HookData memory decoded = abi.decode(data, (HookData));
-        bytes memory validationData = abi.encode(decoded.attestationUid);
+        bytes memory referenceData = abi.encode(decoded.referencedAttestationUid);
 
         try eas.attest(
             AttestationRequest({
-                schema: VALIDATION_SCHEMA,
+                schema: REFERENCE_ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
                     recipient: decoded.recipient,
-                    expirationTime: decoded.validationExpirationTime,
-                    revocable: decoded.validationRevocable,
-                    refUID: decoded.attestationUid,
-                    data: validationData,
+                    expirationTime: decoded.expirationTime,
+                    revocable: false,
+                    refUID: decoded.referencedAttestationUid,
+                    data: referenceData,
                     value: 0
                 })
             })

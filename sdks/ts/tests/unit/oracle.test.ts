@@ -185,6 +185,72 @@ test("arbitrateMany with pastUnarbitrated skips already arbitrated", async () =>
   expect(secondDecisions.length).toBe(0);
 });
 
+test("TrustedOracle status helpers ignore wrong decision context", async () => {
+  const arbiter = testContext.addresses.trustedOracleArbiter;
+  const demand = testContext.alice.client.arbiters.general.trustedOracle.encodeDemand({
+    oracle: testContext.bob.address,
+    data: encodeAbiParameters(parseAbiParameters("(string mockDemand)"), [{ mockDemand: "foo" }]),
+  });
+
+  const { attested: escrow } = await testContext.alice.client.erc20.escrow.default.permitAndCreate(
+    {
+      address: testContext.mockAddresses.erc20A,
+      value: 10n,
+    },
+    { arbiter, demand },
+    0n,
+  );
+
+  const { attested: fulfillment } = await testContext.bob.client.stringObligation.doObligation("foo", undefined, escrow.uid);
+
+  const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
+    fulfillment.uid,
+    testContext.bob.address,
+    demand,
+  );
+  await testContext.testClient.waitForTransactionReceipt({ hash: requestHash });
+
+  const wrongDecisionHash = await testContext.bob.client.arbiters.general.trustedOracle.arbitrateRaw(
+    fulfillment.uid,
+    demand,
+    true,
+  );
+  await testContext.testClient.waitForTransactionReceipt({ hash: wrongDecisionHash });
+
+  const existingWrong = await testContext.bob.client.arbiters.general.trustedOracle.checkExistingArbitration(
+    fulfillment.uid,
+    testContext.bob.address,
+    demand,
+  );
+  expect(existingWrong).toBeUndefined();
+
+  const pendingWait = testContext.bob.client.arbiters.general.trustedOracle
+    .waitForArbitration(fulfillment.uid, testContext.bob.address, demand, 50)
+    .then(() => "resolved");
+  const waitRace = await Promise.race([pendingWait, Bun.sleep(150).then(() => "timeout")]);
+  expect(waitRace).toBe("timeout");
+
+  const obligationAbi = parseAbiParameters("(string item, bytes32 schema)");
+  const { decisions } = await testContext.bob.client.arbiters.general.trustedOracle.arbitrateMany(
+    async ({ attestation }) => {
+      const obligation = testContext.bob.client.extractObligationData(obligationAbi, attestation);
+      return obligation[0].item === "foo";
+    },
+    { mode: "pastUnarbitrated" },
+  );
+
+  expect(decisions.length).toBe(1);
+  const firstDecision = decisions[0];
+  if (!firstDecision) throw new Error("No decision found");
+  await testContext.testClient.waitForTransactionReceipt({ hash: firstDecision.hash });
+
+  const waited = await pendingWait;
+  expect(waited).toBe("resolved");
+
+  const collectionHash = await testContext.bob.client.erc20.escrow.default.collect(escrow.uid, fulfillment.uid);
+  expect(collectionHash).toBeTruthy();
+});
+
 test("arbitrateMany with mode all (past + future)", async () => {
   const arbiter = testContext.addresses.trustedOracleArbiter;
   const demand = testContext.alice.client.arbiters.general.trustedOracle.encodeDemand({
@@ -397,6 +463,7 @@ test("waitForArbitration with existing decision", async () => {
   const result = await testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
+    demand,
   );
 
   expect(result.fulfillmentUid).toBe(fulfillment.uid);
@@ -436,6 +503,7 @@ test("waitForArbitration with new decision", async () => {
   const waitPromise = testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
+    demand,
   );
 
   // Make arbitration decision after a short delay
@@ -487,6 +555,7 @@ test("waitForArbitration with false decision", async () => {
   const waitPromise = testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
+    demand,
   );
 
   // Make arbitration decision with false result
@@ -538,6 +607,7 @@ test("waitForArbitration integration with escrow collection", async () => {
   const waitPromise = testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
+    demand,
   );
 
   // Make arbitration decision

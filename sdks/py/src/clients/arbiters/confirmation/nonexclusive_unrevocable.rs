@@ -116,6 +116,7 @@ impl NonexclusiveUnrevocable {
         py: pyo3::Python<'py>,
         fulfillment: String,
         confirmer: String,
+        escrow: String,
         from_block: Option<u64>,
     ) -> PyResult<pyo3::Bound<'py, pyo3::PyAny>> {
         let inner = self.inner.clone();
@@ -126,6 +127,7 @@ impl NonexclusiveUnrevocable {
                 .wait_for_confirmation_request(
                     fulfillment.parse().map_err(map_parse_to_pyerr)?,
                     confirmer.parse().map_err(map_parse_to_pyerr)?,
+                    escrow.parse().map_err(map_parse_to_pyerr)?,
                     from_block,
                 )
                 .await
@@ -133,6 +135,7 @@ impl NonexclusiveUnrevocable {
             Ok(PyConfirmationRequestedLog {
                 fulfillment: log.data.fulfillment.to_string(),
                 confirmer: format!("{:?}", log.data.confirmer),
+                escrow: log.data.escrow.to_string(),
             })
         })
     }

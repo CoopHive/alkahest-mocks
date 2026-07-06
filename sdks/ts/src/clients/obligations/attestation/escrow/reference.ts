@@ -15,11 +15,10 @@ const escrow2ObligationDataType = escrow2ObligationDecodeFunction.outputs[0];
  * AttestationReferenceEscrowObligation ObligationData type
  */
 export type AttestationReferenceEscrowObligationData = {
-  attestationUid: `0x${string}`;
+  referencedAttestationUid: `0x${string}`;
   arbiter: `0x${string}`;
   demand: `0x${string}`;
-  validationExpirationTime: bigint;
-  validationRevocable: boolean;
+  expirationTime: bigint;
 };
 
 /**
@@ -96,20 +95,19 @@ export const makeAttestationReferenceEscrowClient = (viemClient: ViemClient, add
      * Creates an escrow using an attestation UID as reference.
      * This function uses AttestationReferenceEscrowObligation which references the attestation by UID
      * instead of storing the full attestation data, making it more gas efficient. When collecting
-     * payment, this contract creates a validation attestation that references the original attestation,
+     * payment, this contract creates an attestation that references the original attestation,
      * allowing it to work with any schema implementation without requiring attestation rights.
      *
-     * @param attestationUid - The UID of the attestation to be escrowed
+     * @param referencedAttestationUid - The UID of the attestation to be referenced
      * @param item - The arbiter and demand data for the escrow
      * @param expiration - Optional expiration time for the escrow (default: 0 = no expiration)
      * @returns The transaction hash and attested escrow data
      */
     create: async (
-      attestationUid: `0x${string}`,
+      referencedAttestationUid: `0x${string}`,
       item: Demand,
       expiration: bigint = 0n,
-      validationExpirationTime: bigint = 0n,
-      validationRevocable = true,
+      referenceExpirationTime: bigint = 0n,
     ) => {
       const hash = await writeContract(viemClient, {
         address: addresses.attestationReferenceEscrowObligation,
@@ -117,11 +115,10 @@ export const makeAttestationReferenceEscrowClient = (viemClient: ViemClient, add
         functionName: "doObligation",
         args: [
           {
-            attestationUid,
+            referencedAttestationUid,
             arbiter: item.arbiter,
             demand: item.demand,
-            validationExpirationTime,
-            validationRevocable,
+            expirationTime: referenceExpirationTime,
           },
           expiration,
         ],
@@ -133,12 +130,12 @@ export const makeAttestationReferenceEscrowClient = (viemClient: ViemClient, add
 
     /**
      * Collects payment from an attestation escrow by providing a fulfillment attestation.
-     * This function is used with AttestationReferenceEscrowObligation and creates a validation
+     * This function is used with AttestationReferenceEscrowObligation and creates an
      * attestation referencing the original attestation.
      *
      * @param escrowAttestation - The UID of the escrow attestation
      * @param fulfillmentAttestation - The UID of the fulfillment attestation
-     * @returns The transaction hash and validation attestation data
+     * @returns The transaction hash and reference attestation data
      */
     collect: async (escrowAttestation: `0x${string}`, fulfillmentAttestation: `0x${string}`) => {
       const hash = await writeContract(viemClient, {

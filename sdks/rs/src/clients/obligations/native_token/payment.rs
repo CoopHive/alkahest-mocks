@@ -9,6 +9,7 @@ use alloy::sol_types::SolValue;
 
 use crate::contracts;
 use crate::types::{DecodedAttestation, NativeTokenData};
+use crate::utils::contract_safety::{ensure_deployed_contract, ensure_packaged_escrow_attester};
 
 use super::NativeTokenModule;
 
@@ -69,6 +70,10 @@ impl<'a> Payment<'a> {
         price: &NativeTokenData,
         payee: Address,
     ) -> eyre::Result<TransactionReceipt> {
+        ensure_deployed_contract(
+            self.module.addresses.payment_obligation,
+            "NativeTokenPaymentObligation",
+        )?;
         let payment_obligation_contract = contracts::obligations::NativeTokenPaymentObligation::new(
             self.module.addresses.payment_obligation,
             &self.module.wallet_provider,
@@ -101,6 +106,32 @@ impl<'a> Payment<'a> {
         escrow_uid: FixedBytes<32>,
     ) -> eyre::Result<TransactionReceipt> {
         let amount = self.native_payment_amount(escrow_uid).await?;
+        self.pay_native_and_collect_unchecked_with_amount(escrow_uid, amount)
+            .await
+    }
+
+    /// Pays a native-token payment obligation and collects without SDK escrow-attester validation.
+    ///
+    /// Use only after independently validating that `escrow_uid` was authored by
+    /// the escrow contract you intend to settle.
+    pub async fn pay_native_and_collect_unchecked(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<TransactionReceipt> {
+        let amount = self.native_payment_amount_unchecked(escrow_uid).await?;
+        self.pay_native_and_collect_unchecked_with_amount(escrow_uid, amount)
+            .await
+    }
+
+    async fn pay_native_and_collect_unchecked_with_amount(
+        &self,
+        escrow_uid: FixedBytes<32>,
+        amount: U256,
+    ) -> eyre::Result<TransactionReceipt> {
+        ensure_deployed_contract(
+            self.module.addresses.atomic_payment_utils,
+            "AtomicPaymentUtils",
+        )?;
         let utility = contracts::utils::AtomicPaymentUtils::new(
             self.module.addresses.atomic_payment_utils,
             &self.module.wallet_provider,
@@ -116,6 +147,18 @@ impl<'a> Payment<'a> {
     }
 
     async fn native_payment_amount(&self, escrow_uid: FixedBytes<32>) -> eyre::Result<U256> {
+        let eas = contracts::IEAS::new(self.module.addresses.eas, &self.module.wallet_provider);
+        let escrow = eas.getAttestation(escrow_uid).call().await?;
+        ensure_packaged_escrow_attester(escrow.attester, &self.module.packaged_escrow_obligations)?;
+        let decoder = EscrowConditionDecoder::new(escrow.attester, &self.module.wallet_provider);
+        let decoded = decoder.decodeCondition(escrow.data).call().await?;
+        self.native_payment_amount_from_demand_bytes(&decoded.demand)
+    }
+
+    async fn native_payment_amount_unchecked(
+        &self,
+        escrow_uid: FixedBytes<32>,
+    ) -> eyre::Result<U256> {
         let eas = contracts::IEAS::new(self.module.addresses.eas, &self.module.wallet_provider);
         let escrow = eas.getAttestation(escrow_uid).call().await?;
         let decoder = EscrowConditionDecoder::new(escrow.attester, &self.module.wallet_provider);

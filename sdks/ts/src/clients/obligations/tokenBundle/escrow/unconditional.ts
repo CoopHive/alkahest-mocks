@@ -120,17 +120,19 @@ export const makeTokenBundleUnconditionalEscrowClient = (viemClient: ViemClient,
     },
 
     create: async (price: TokenBundle, item: Demand, expiration: bigint) => {
+      const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
         abi: tokenBundleEscrowAbi.abi,
         functionName: "doObligation",
         args: [
           {
-            ...flattenTokenBundle(price),
+            ...flatBundle,
             ...item,
           },
           expiration,
         ],
+        value: flatBundle.nativeAmount,
       });
 
       const attested = await getAttestedEventFromTxHash(viemClient, hash);
@@ -139,17 +141,19 @@ export const makeTokenBundleUnconditionalEscrowClient = (viemClient: ViemClient,
 
     approveAndCreate: async (price: TokenBundle, item: Demand, expiration: bigint) => {
       await util.approve(price, "escrow");
+      const flatBundle = flattenTokenBundle(price);
       const hash = await writeContract(viemClient, {
         address: addresses.escrowObligationUnconditional,
         abi: tokenBundleEscrowAbi.abi,
         functionName: "doObligation",
         args: [
           {
-            ...flattenTokenBundle(price),
+            ...flatBundle,
             ...item,
           },
           expiration,
         ],
+        value: flatBundle.nativeAmount,
       });
 
       const attested = await getAttestedEventFromTxHash(viemClient, hash);

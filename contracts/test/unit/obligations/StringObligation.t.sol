@@ -45,10 +45,10 @@ contract StringObligationTest is Test {
     function testConstructorReusesExistingSchema() public {
         address predicted = vm.computeCreateAddress(address(this), vm.getNonce(address(this)));
         bytes32 expectedSchema =
-            SchemaRegistryUtils.getUID("string item, bytes32 schema", ISchemaResolver(predicted), true);
+            SchemaRegistryUtils.getUID("string item, bytes32 schema", ISchemaResolver(predicted), false);
 
         bytes32 registeredSchema =
-            schemaRegistry.register("string item, bytes32 schema", ISchemaResolver(predicted), true);
+            schemaRegistry.register("string item, bytes32 schema", ISchemaResolver(predicted), false);
         assertEq(registeredSchema, expectedSchema);
 
         StringObligation reusedSchemaObligation = new StringObligation(eas, schemaRegistry);

@@ -158,7 +158,7 @@ mod transport_parity {
             .await?;
         bob_client
             .oracle()
-            .arbitrate(fulfillment_event.uid, Bytes::default(), true)
+            .arbitrate_raw(fulfillment_event.uid, Bytes::default(), true)
             .await?;
 
         let made = waiter

@@ -15,7 +15,7 @@ use alkahest_rs::{
     types::{ArbiterData, Erc20Data},
     utils::{TestContext, setup_test_environment},
 };
-use alloy::primitives::Bytes;
+use alloy::{primitives::Bytes, sol_types::SolType};
 use eyre::{Result, WrapErr, eyre};
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -72,7 +72,7 @@ async fn run_synchronous_oracle_capitalization_example(test: &TestContext) -> ey
 
     let arbiter_item = ArbiterData {
         arbiter: test.addresses.arbiters_addresses.trusted_oracle_arbiter,
-        demand: encoded_demand,
+        demand: encoded_demand.clone(),
     };
 
     let price = Erc20Data {
@@ -110,11 +110,9 @@ async fn run_synchronous_oracle_capitalization_example(test: &TestContext) -> ey
 
     println!("step3: bob fulfilled with uid {}", fulfillment_uid);
     // Step 3. Bob asks Charlie to arbitrate his fulfillment.
-    // Pass the inner data field (not the full encoded DemandData) because
-    // TrustedOracleArbiter.check() uses only demand_.data for the decisionKey
     test.bob_client
         .oracle()
-        .request_arbitration(fulfillment_uid, charlie_client.address, inner_demand_data)
+        .request_arbitration(fulfillment_uid, charlie_client.address, encoded_demand)
         .await?;
 
     println!("step4: bob requested arbitration from charlie");
@@ -134,9 +132,14 @@ async fn run_synchronous_oracle_capitalization_example(test: &TestContext) -> ey
                         return Some(false);
                     };
 
-                    // Parse the demand payload directly from awd.demand
-                    // (the inner demand data passed to request_arbitration)
-                    let Ok(payload) = serde_json::from_slice::<ShellOracleDemand>(demand.as_ref())
+                    let Ok(decoded_demand) =
+                        <contracts::arbiters::TrustedOracleArbiter::DemandData as SolType>::abi_decode(
+                            demand.as_ref(),
+                        )
+                    else {
+                        return Some(false);
+                    };
+                    let Ok(payload) = serde_json::from_slice::<ShellOracleDemand>(decoded_demand.data.as_ref())
                     else {
                         return Some(false);
                     };

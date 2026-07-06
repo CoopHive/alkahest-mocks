@@ -6,11 +6,18 @@ import {IEAS} from "@eas/IEAS.sol";
 import {ISchemaRegistry} from "@eas/ISchemaRegistry.sol";
 import {AtomicPaymentUtils} from "@src/utils/atomic/AtomicPaymentUtils.sol";
 import {AtomicAttestationUtils} from "@src/utils/atomic/AtomicAttestationUtils.sol";
-import {ERC20Splitter} from "@src/utils/splitters/ERC20Splitter.sol";
-import {ERC1155Splitter} from "@src/utils/splitters/ERC1155Splitter.sol";
-import {NativeTokenSplitter} from "@src/utils/splitters/NativeTokenSplitter.sol";
-import {TokenBundleSplitter} from "@src/utils/splitters/TokenBundleSplitter.sol";
-import {TokenBundleSplitterUnvalidated} from "@src/utils/splitters/TokenBundleSplitterUnvalidated.sol";
+import {ERC20Splitter} from "@src/utils/splitters/default/ERC20Splitter.sol";
+import {ERC1155Splitter} from "@src/utils/splitters/default/ERC1155Splitter.sol";
+import {NativeTokenSplitter} from "@src/utils/splitters/default/NativeTokenSplitter.sol";
+import {TokenBundleSplitter} from "@src/utils/splitters/default/TokenBundleSplitter.sol";
+import {TokenBundleSplitterUnvalidated} from "@src/utils/splitters/default/TokenBundleSplitterUnvalidated.sol";
+import {CommitmentERC20Splitter} from "@src/utils/splitters/commitment/CommitmentERC20Splitter.sol";
+import {CommitmentERC1155Splitter} from "@src/utils/splitters/commitment/CommitmentERC1155Splitter.sol";
+import {CommitmentNativeTokenSplitter} from "@src/utils/splitters/commitment/CommitmentNativeTokenSplitter.sol";
+import {CommitmentTokenBundleSplitter} from "@src/utils/splitters/commitment/CommitmentTokenBundleSplitter.sol";
+import {
+    CommitmentTokenBundleSplitterUnvalidated
+} from "@src/utils/splitters/commitment/CommitmentTokenBundleSplitterUnvalidated.sol";
 
 // ERC20 Contracts
 import {ERC20EscrowObligation} from "@src/obligations/escrow/default/ERC20EscrowObligation.sol";
@@ -73,7 +80,8 @@ import {
 
 // Arbiter Contracts
 import {TrivialArbiter} from "@src/arbiters/TrivialArbiter.sol";
-import {TrustedOracleArbiter} from "@src/arbiters/TrustedOracleArbiter.sol";
+import {TrustedOracleArbiter} from "@src/arbiters/trusted-oracle/TrustedOracleArbiter.sol";
+import {CommitmentTrustedOracleArbiter} from "@src/arbiters/trusted-oracle/CommitmentTrustedOracleArbiter.sol";
 import {ReferencesEscrowArbiter} from "@src/arbiters/ReferencesEscrowArbiter.sol";
 
 // Additional Arbiters
@@ -139,6 +147,7 @@ contract Deploy is Script {
         // Deploy arbiters
         TrivialArbiter trivialArbiter = new TrivialArbiter();
         TrustedOracleArbiter trustedOracleArbiter = new TrustedOracleArbiter(IEAS(easAddress));
+        CommitmentTrustedOracleArbiter commitmentTrustedOracleArbiter = new CommitmentTrustedOracleArbiter();
         ReferencesEscrowArbiter referencesEscrowArbiter = new ReferencesEscrowArbiter();
 
         // Deploy Additional Arbiters
@@ -181,7 +190,6 @@ contract Deploy is Script {
             ISchemaRegistry(schemaRegistryAddress),
             0x07dD7186410Aa0fe85670531FC6EFc9cd980c558 // slashedBondRecipient (treasury)
         );
-
         // Deploy ERC20 contracts
         ERC20EscrowObligation erc20Escrow =
             new ERC20EscrowObligation(IEAS(easAddress), ISchemaRegistry(schemaRegistryAddress));
@@ -253,12 +261,21 @@ contract Deploy is Script {
             new AttestationReferenceEscrowHook(IEAS(easAddress), ISchemaRegistry(schemaRegistryAddress));
 
         // Deploy splitters
-        ERC20Splitter erc20Splitter = new ERC20Splitter(IEAS(easAddress));
-        ERC1155Splitter erc1155Splitter = new ERC1155Splitter(IEAS(easAddress));
-        NativeTokenSplitter nativeTokenSplitter = new NativeTokenSplitter(IEAS(easAddress));
-        TokenBundleSplitter tokenBundleSplitter = new TokenBundleSplitter(IEAS(easAddress));
+        ERC20Splitter erc20Splitter = new ERC20Splitter(IEAS(easAddress), erc20Escrow);
+        ERC1155Splitter erc1155Splitter = new ERC1155Splitter(IEAS(easAddress), erc1155Escrow);
+        NativeTokenSplitter nativeTokenSplitter = new NativeTokenSplitter(IEAS(easAddress), nativeEscrow);
+        TokenBundleSplitter tokenBundleSplitter = new TokenBundleSplitter(IEAS(easAddress), bundleEscrow);
         TokenBundleSplitterUnvalidated tokenBundleSplitterUnvalidated =
-            new TokenBundleSplitterUnvalidated(IEAS(easAddress));
+            new TokenBundleSplitterUnvalidated(IEAS(easAddress), bundleEscrow);
+        CommitmentERC20Splitter commitmentERC20Splitter = new CommitmentERC20Splitter(IEAS(easAddress), erc20Escrow);
+        CommitmentERC1155Splitter commitmentERC1155Splitter =
+            new CommitmentERC1155Splitter(IEAS(easAddress), erc1155Escrow);
+        CommitmentNativeTokenSplitter commitmentNativeTokenSplitter =
+            new CommitmentNativeTokenSplitter(IEAS(easAddress), nativeEscrow);
+        CommitmentTokenBundleSplitter commitmentTokenBundleSplitter =
+            new CommitmentTokenBundleSplitter(IEAS(easAddress), bundleEscrow);
+        CommitmentTokenBundleSplitterUnvalidated commitmentTokenBundleSplitterUnvalidated =
+            new CommitmentTokenBundleSplitterUnvalidated(IEAS(easAddress), bundleEscrow);
 
         vm.stopBroadcast();
 
@@ -270,6 +287,7 @@ contract Deploy is Script {
         console.log("\nArbiters:");
         console.log("TrivialArbiter:", address(trivialArbiter));
         console.log("TrustedOracleArbiter:", address(trustedOracleArbiter));
+        console.log("CommitmentTrustedOracleArbiter:", address(commitmentTrustedOracleArbiter));
         console.log("ReferencesEscrowArbiter:", address(referencesEscrowArbiter));
 
         console.log("\nAdditional Arbiters:");
@@ -357,6 +375,11 @@ contract Deploy is Script {
         console.log("NativeTokenSplitter:", address(nativeTokenSplitter));
         console.log("TokenBundleSplitter:", address(tokenBundleSplitter));
         console.log("TokenBundleSplitterUnvalidated:", address(tokenBundleSplitterUnvalidated));
+        console.log("CommitmentERC20Splitter:", address(commitmentERC20Splitter));
+        console.log("CommitmentERC1155Splitter:", address(commitmentERC1155Splitter));
+        console.log("CommitmentNativeTokenSplitter:", address(commitmentNativeTokenSplitter));
+        console.log("CommitmentTokenBundleSplitter:", address(commitmentTokenBundleSplitter));
+        console.log("CommitmentTokenBundleSplitterUnvalidated:", address(commitmentTokenBundleSplitterUnvalidated));
 
         // Create JSON with deployed addresses
         string memory deploymentJson = "deploymentJson";
@@ -368,6 +391,7 @@ contract Deploy is Script {
         // Add arbiter addresses
         vm.serializeAddress(deploymentJson, "trivialArbiter", address(trivialArbiter));
         vm.serializeAddress(deploymentJson, "trustedOracleArbiter", address(trustedOracleArbiter));
+        vm.serializeAddress(deploymentJson, "commitmentTrustedOracleArbiter", address(commitmentTrustedOracleArbiter));
         vm.serializeAddress(deploymentJson, "referencesEscrowArbiter", address(referencesEscrowArbiter));
 
         // Add Additional Arbiters
@@ -478,8 +502,15 @@ contract Deploy is Script {
         vm.serializeAddress(deploymentJson, "erc1155Splitter", address(erc1155Splitter));
         vm.serializeAddress(deploymentJson, "nativeTokenSplitter", address(nativeTokenSplitter));
         vm.serializeAddress(deploymentJson, "tokenBundleSplitter", address(tokenBundleSplitter));
+        vm.serializeAddress(deploymentJson, "tokenBundleSplitterUnvalidated", address(tokenBundleSplitterUnvalidated));
+        vm.serializeAddress(deploymentJson, "commitmentERC20Splitter", address(commitmentERC20Splitter));
+        vm.serializeAddress(deploymentJson, "commitmentERC1155Splitter", address(commitmentERC1155Splitter));
+        vm.serializeAddress(deploymentJson, "commitmentNativeTokenSplitter", address(commitmentNativeTokenSplitter));
+        vm.serializeAddress(deploymentJson, "commitmentTokenBundleSplitter", address(commitmentTokenBundleSplitter));
         string memory finalJson = vm.serializeAddress(
-            deploymentJson, "tokenBundleSplitterUnvalidated", address(tokenBundleSplitterUnvalidated)
+            deploymentJson,
+            "commitmentTokenBundleSplitterUnvalidated",
+            address(commitmentTokenBundleSplitterUnvalidated)
         );
 
         // Generate timestamp for filename

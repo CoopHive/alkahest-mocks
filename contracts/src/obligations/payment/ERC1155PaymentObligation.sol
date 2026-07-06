@@ -43,7 +43,7 @@ contract ERC1155PaymentObligation is BaseObligation, BaseArbiter {
     /// @param _eas EAS contract used to create and read payment attestations.
     /// @param _schemaRegistry EAS schema registry used to register or reuse the payment schema.
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry)
-        BaseObligation(_eas, _schemaRegistry, "address token, uint256 tokenId, uint256 amount, address payee", true)
+        BaseObligation(_eas, _schemaRegistry, "address token, uint256 tokenId, uint256 amount, address payee", false)
     {}
 
     /// @notice Transfers ERC1155 tokens and attests to the payment for the caller.

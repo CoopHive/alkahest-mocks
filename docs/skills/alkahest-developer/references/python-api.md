@@ -107,7 +107,6 @@ client
 │   ├── do_obligation(payload, salt, schema, ref_uid?) -> str (uid)
 │   ├── commit(commitment, bond_amount, commit_deadline) -> str (tx_hash)
 │   ├── compute_commitment(ref_uid, claimer, payload, salt, schema) -> str
-│   ├── reclaim_bond(obligation_uid) -> str (tx_hash)
 │   ├── slash_bond(commitment) -> str (tx_hash)
 │   ├── slashed_bond_recipient() -> str (address)
 │   ├── get_commitment(commitment) -> tuple(u64, u64, str, str, str)

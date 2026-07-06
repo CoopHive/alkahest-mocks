@@ -180,6 +180,18 @@ contract AttestationEscrowObligationTest is Test {
         assertGt(escrow.revocationTime, 0, "Escrow attestation should be revoked");
     }
 
+    function testDoObligationRejectsRevocableReleasedAttestation() public {
+        AttestationRequest memory attestationRequest = createTestAttestationRequest();
+        attestationRequest.data.revocable = true;
+        AttestationEscrowObligation.ObligationData memory data = AttestationEscrowObligation.ObligationData({
+            attestation: attestationRequest, arbiter: address(mockArbiter), demand: abi.encode("test demand")
+        });
+
+        vm.prank(requester);
+        vm.expectRevert(AttestationEscrowObligation.UnsupportedRevocableAttestation.selector);
+        escrowObligation.doObligation(data, uint64(block.timestamp + EXPIRATION_TIME));
+    }
+
     function testDoObligationRequiresExactPaidAttestationValue() public {
         AttestationRequest memory attestationRequest = createPaidAttestationRequest(1 wei);
         AttestationEscrowObligation.ObligationData memory data = AttestationEscrowObligation.ObligationData({
@@ -215,6 +227,44 @@ contract AttestationEscrowObligationTest is Test {
         assertNotEq(attestationUid, bytes32(0));
         assertEq(payableResolver.attestValue(), 1 wei);
         assertEq(address(escrowObligation).balance, 0);
+    }
+
+    function testCollectEscrowRejectsSelfSchemaAttestationRelease() public {
+        AttestationEscrowObligation.ObligationData memory forgedInnerEscrowData =
+            AttestationEscrowObligation.ObligationData({
+                attestation: createPaidAttestationRequest(1 wei),
+                arbiter: address(mockArbiter),
+                demand: abi.encode("forged demand")
+            });
+
+        AttestationRequest memory selfSchemaRequest = AttestationRequest({
+            schema: escrowObligation.ATTESTATION_SCHEMA(),
+            data: AttestationRequestData({
+                recipient: requester,
+                expirationTime: uint64(block.timestamp + 1 days),
+                revocable: false,
+                refUID: bytes32(0),
+                data: abi.encode(forgedInnerEscrowData),
+                value: 0
+            })
+        });
+
+        AttestationEscrowObligation.ObligationData memory outerEscrowData = AttestationEscrowObligation.ObligationData({
+            attestation: selfSchemaRequest, arbiter: address(mockArbiter), demand: abi.encode("outer demand")
+        });
+
+        vm.prank(requester);
+        bytes32 outerEscrowUid = escrowObligation.doObligation(outerEscrowData, uint64(block.timestamp + 1 days));
+
+        StringObligation stringObligation = new StringObligation(eas, schemaRegistry);
+        vm.prank(attester);
+        bytes32 fulfillmentUid = stringObligation.doObligation(
+            StringObligation.ObligationData({item: "fulfillment data", schema: bytes32(0)}), outerEscrowUid
+        );
+
+        vm.prank(attester);
+        vm.expectRevert(BaseEscrowObligation.InvalidEscrowAttestation.selector);
+        escrowObligation.collect(outerEscrowUid, fulfillmentUid);
     }
 
     function testReclaimExpiredRefundsPaidAttestationValue() public {
@@ -443,7 +493,7 @@ contract AttestationEscrowObligationTest is Test {
         AttestationRequestData memory requestData = AttestationRequestData({
             recipient: recipient,
             expirationTime: 0,
-            revocable: true,
+            revocable: false,
             refUID: bytes32(0),
             data: abi.encode("test attestation data"),
             value: 0
@@ -456,7 +506,7 @@ contract AttestationEscrowObligationTest is Test {
         AttestationRequestData memory requestData = AttestationRequestData({
             recipient: recipient,
             expirationTime: 0,
-            revocable: true,
+            revocable: false,
             refUID: bytes32(0),
             data: abi.encode("paid attestation data"),
             value: value

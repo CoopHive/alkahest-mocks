@@ -159,6 +159,32 @@ impl Payment {
         })
     }
 
+    /// Pays the ERC20 demand for an escrow and collects without SDK escrow-attester validation.
+    ///
+    /// Use only after independently validating that `escrow_uid` was authored by
+    /// the escrow contract you intend to settle.
+    pub fn pay_erc20_and_collect_unchecked<'py>(
+        &self,
+        py: pyo3::Python<'py>,
+        escrow_uid: String,
+    ) -> PyResult<pyo3::Bound<'py, pyo3::PyAny>> {
+        let inner = self.inner.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            let receipt = inner
+                .payment()
+                .pay_erc20_and_collect_unchecked(escrow_uid.parse().map_err(map_parse_to_pyerr)?)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(LogWithHash::<AttestedLog> {
+                log: get_attested_event(receipt.clone())
+                    .map_err(map_eyre_to_pyerr)?
+                    .data
+                    .into(),
+                transaction_hash: receipt.transaction_hash.to_string(),
+            })
+        })
+    }
+
     /// Pays the ERC20 demand for an escrow using permit and collects atomically.
     /// Pay with an ERC20 permit and collect the matching escrow atomically.
     ///
@@ -175,6 +201,34 @@ impl Payment {
             let receipt = inner
                 .payment()
                 .permit_and_pay_erc20_and_collect(escrow_uid.parse().map_err(map_parse_to_pyerr)?)
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(LogWithHash::<AttestedLog> {
+                log: get_attested_event(receipt.clone())
+                    .map_err(map_eyre_to_pyerr)?
+                    .data
+                    .into(),
+                transaction_hash: receipt.transaction_hash.to_string(),
+            })
+        })
+    }
+
+    /// Pays with an ERC20 permit and collects without SDK escrow-attester validation.
+    ///
+    /// Use only after independently validating that `escrow_uid` was authored by
+    /// the escrow contract you intend to settle.
+    pub fn permit_and_pay_erc20_and_collect_unchecked<'py>(
+        &self,
+        py: pyo3::Python<'py>,
+        escrow_uid: String,
+    ) -> PyResult<pyo3::Bound<'py, pyo3::PyAny>> {
+        let inner = self.inner.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            let receipt = inner
+                .payment()
+                .permit_and_pay_erc20_and_collect_unchecked(
+                    escrow_uid.parse().map_err(map_parse_to_pyerr)?,
+                )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
             Ok(LogWithHash::<AttestedLog> {

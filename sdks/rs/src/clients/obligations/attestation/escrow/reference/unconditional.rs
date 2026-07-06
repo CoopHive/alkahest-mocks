@@ -56,9 +56,10 @@ impl<'a> Unconditional<'a> {
     /// Creates a unconditional escrow using an attestation UID as reference.
     pub async fn create(
         &self,
-        attestation_uid: FixedBytes<32>,
+        referenced_attestation_uid: FixedBytes<32>,
         demand: &ArbiterData,
         expiration: u64,
+        reference_expiration: u64,
     ) -> eyre::Result<TransactionReceipt> {
         let escrow_contract =
             contracts::obligations::escrow::unconditional::UnconditionalAttestationReferenceEscrowObligation::new(
@@ -69,11 +70,10 @@ impl<'a> Unconditional<'a> {
         let receipt = escrow_contract
             .doObligation(
                 contracts::obligations::escrow::unconditional::UnconditionalAttestationReferenceEscrowObligation::ObligationData {
-                    attestationUid: attestation_uid,
+                    referencedAttestationUid: referenced_attestation_uid,
                     arbiter: demand.arbiter,
                     demand: demand.demand.clone(),
-                    validationExpirationTime: 0,
-                    validationRevocable: true,
+                    expirationTime: reference_expiration,
                 },
                 expiration,
             )

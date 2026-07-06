@@ -83,9 +83,7 @@ async def test_synchronous_offchain_oracle_capitalization_flow(env, alice_client
     )
 
     # Step 3: Bob asks the oracle to arbitrate his fulfillment
-    # Pass the inner data field (not the full encoded DemandData) because
-    # TrustedOracleArbiter.check() uses only demand_.data for the decisionKey
-    await bob_client.oracle.request_arbitration(fulfillment_uid, oracle_address, inner_demand_data)
+    await bob_client.oracle.request_arbitration(fulfillment_uid, oracle_address, demand_bytes)
 
     # Step 4: Oracle evaluates with async decision function
     async def decision_function(attestation, demand):
@@ -99,7 +97,8 @@ async def test_synchronous_offchain_oracle_capitalization_flow(env, alice_client
 
         # Parse the demand directly from callback argument (no need to fetch from escrow!)
         try:
-            demand_json = json.loads(bytes(demand).decode('utf-8'))
+            decoded_demand = TrustedOracleArbiterDemandData.decode(demand)
+            demand_json = json.loads(bytes(decoded_demand.data).decode('utf-8'))
         except Exception as e:
             print(f"Failed to parse demand: {e}")
             return False

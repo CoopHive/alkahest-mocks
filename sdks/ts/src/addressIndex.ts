@@ -1,4 +1,5 @@
 import type { ChainAddresses } from "./types";
+import { isAddressEqual, zeroAddress } from "viem";
 
 export type ContractAddressInfo = {
   address: `0x${string}`;
@@ -20,6 +21,11 @@ const ADDRESS_SLOTS: AddressSlot[] = [
   { contract: "easSchemaRegistry", section: "attestation_addresses", field: "eas_schema_registry" },
   { contract: "trivialArbiter", section: "arbiters_addresses", field: "trivial_arbiter" },
   { contract: "trustedOracleArbiter", section: "arbiters_addresses", field: "trusted_oracle_arbiter" },
+  {
+    contract: "commitmentTrustedOracleArbiter",
+    section: "arbiters_addresses",
+    field: "commitment_trusted_oracle_arbiter",
+  },
   { contract: "intrinsicsArbiter", section: "arbiters_addresses", field: "intrinsics_arbiter" },
   { contract: "erc8004Arbiter", section: "arbiters_addresses", field: "erc8004_arbiter" },
   { contract: "referencesEscrowArbiter", section: "arbiters_addresses", field: "references_escrow_arbiter" },
@@ -83,6 +89,27 @@ const ADDRESS_SLOTS: AddressSlot[] = [
     contract: "tokenBundleSplitterUnvalidated",
     section: "splitters_addresses",
     field: "token_bundle_splitter_unvalidated",
+  },
+  { contract: "commitmentERC20Splitter", section: "splitters_addresses", field: "commitment_erc20_splitter" },
+  {
+    contract: "commitmentERC1155Splitter",
+    section: "splitters_addresses",
+    field: "commitment_erc1155_splitter",
+  },
+  {
+    contract: "commitmentNativeTokenSplitter",
+    section: "splitters_addresses",
+    field: "commitment_native_token_splitter",
+  },
+  {
+    contract: "commitmentTokenBundleSplitter",
+    section: "splitters_addresses",
+    field: "commitment_token_bundle_splitter",
+  },
+  {
+    contract: "commitmentTokenBundleSplitterUnvalidated",
+    section: "splitters_addresses",
+    field: "commitment_token_bundle_splitter_unvalidated",
   },
   { contract: "atomicAttestationUtils", section: "attestation_addresses", field: "atomic_attestation_utils" },
   { contract: "eas", section: "attestation_addresses", field: "eas" },
@@ -150,6 +177,7 @@ export function createAddressIndex(
   for (const slot of ADDRESS_SLOTS) {
     const address = addresses[slot.contract];
     if (!address) continue;
+    if (isAddressEqual(address, zeroAddress)) continue;
 
     const key = address.toLowerCase();
     index[key] ??= [];

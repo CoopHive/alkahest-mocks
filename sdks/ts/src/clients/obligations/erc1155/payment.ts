@@ -3,6 +3,7 @@ import { abi as erc1155PaymentAbi } from "../../../contracts/obligations/payment
 import { abi as atomicPaymentUtilsAbi } from "../../../contracts/utils/AtomicPaymentUtils";
 import type { Erc1155 } from "../../../types";
 import { getAttestation, getAttestedEventFromTxHash, type ViemClient, writeContract } from "../../../utils";
+import { getAtomicPaymentEscrowAttestation, type AtomicPaymentOptions } from "../../../utils/contractSafety";
 import type { Erc1155Addresses } from "./index";
 import { makeErc1155UtilClient } from "./util";
 
@@ -149,7 +150,8 @@ export const makeErc1155PaymentClient = (viemClient: ViemClient, addresses: Erc1
      * professional manual audits and has only been reviewed by automated audit
      * tooling so far.
      */
-    payErc1155AndCollect: async (escrowUid: `0x${string}`) => {
+    payErc1155AndCollect: async (escrowUid: `0x${string}`, options?: AtomicPaymentOptions) => {
+      await getAtomicPaymentEscrowAttestation(viemClient, addresses, escrowUid, options);
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
         abi: atomicPaymentUtilsAbi.abi,

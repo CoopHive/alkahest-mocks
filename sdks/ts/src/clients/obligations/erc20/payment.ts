@@ -1,9 +1,9 @@
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from "viem";
-import { abi as easAbi } from "../../../contracts/IEAS";
 import { abi as erc20PaymentAbi } from "../../../contracts/obligations/payment/ERC20PaymentObligation";
 import { abi as atomicPaymentUtilsAbi } from "../../../contracts/utils/AtomicPaymentUtils";
 import type { Erc20 } from "../../../types";
 import { getAttestation, getAttestedEventFromTxHash, type ViemClient, writeContract } from "../../../utils";
+import { getAtomicPaymentEscrowAttestation, type AtomicPaymentOptions } from "../../../utils/contractSafety";
 import type { Erc20Addresses } from "./index";
 import { makeErc20UtilClient } from "./util";
 
@@ -54,14 +54,8 @@ export const makeErc20PaymentClient = (viemClient: ViemClient, addresses: Erc20A
       authorizationList: undefined,
     });
 
-  const getPaymentDemand = async (escrowUid: `0x${string}`) => {
-    const escrow = await viemClient.readContract({
-      address: addresses.eas,
-      abi: easAbi.abi,
-      functionName: "getAttestation",
-      args: [escrowUid],
-      authorizationList: undefined,
-    });
+  const getPaymentDemand = async (escrowUid: `0x${string}`, options?: AtomicPaymentOptions) => {
+    const escrow = await getAtomicPaymentEscrowAttestation(viemClient, addresses, escrowUid, options);
 
     const [, demand] = await viemClient.readContract({
       address: escrow.attester,
@@ -196,7 +190,8 @@ export const makeErc20PaymentClient = (viemClient: ViemClient, addresses: Erc20A
      * professional manual audits and has only been reviewed by automated audit
      * tooling so far.
      */
-    payErc20AndCollect: async (escrowUid: `0x${string}`) => {
+    payErc20AndCollect: async (escrowUid: `0x${string}`, options?: AtomicPaymentOptions) => {
+      await getAtomicPaymentEscrowAttestation(viemClient, addresses, escrowUid, options);
       const hash = await writeContract(viemClient, {
         address: addresses.atomicPaymentUtils,
         abi: atomicPaymentUtilsAbi.abi,
@@ -213,9 +208,9 @@ export const makeErc20PaymentClient = (viemClient: ViemClient, addresses: Erc20A
      * professional manual audits and has only been reviewed by automated audit
      * tooling so far.
      */
-    permitAndPayErc20AndCollect: async (escrowUid: `0x${string}`) => {
+    permitAndPayErc20AndCollect: async (escrowUid: `0x${string}`, options?: AtomicPaymentOptions) => {
       const deadline = util.getPermitDeadline();
-      const demand = await getPaymentDemand(escrowUid);
+      const demand = await getPaymentDemand(escrowUid, options);
       const permit = await util.getPermitSignature(
         addresses.atomicPaymentUtils,
         { address: demand.token, value: demand.amount },

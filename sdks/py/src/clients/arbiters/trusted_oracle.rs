@@ -124,7 +124,7 @@ impl OracleClient {
     ///
     /// Returns:
     ///     Transaction hash as string
-    pub fn arbitrate<'py>(
+    pub fn arbitrate_for_demand<'py>(
         &self,
         py: Python<'py>,
         obligation: String,
@@ -134,9 +134,30 @@ impl OracleClient {
         let inner = self.inner.clone();
         future_into_py(py, async move {
             let receipt = inner
-                .arbitrate(
+                .arbitrate_for_demand(
                     obligation.parse().map_err(map_parse_to_pyerr)?,
                     demand.into(),
+                    decision,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn arbitrate_raw<'py>(
+        &self,
+        py: Python<'py>,
+        obligation: String,
+        decision_context: Vec<u8>,
+        decision: bool,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .arbitrate_raw(
+                    obligation.parse().map_err(map_parse_to_pyerr)?,
+                    decision_context.into(),
                     decision,
                 )
                 .await
@@ -959,7 +980,7 @@ impl TrustedOracle {
     /// * `obligation` - The obligation attestation UID
     /// * `demand` - The demand data bytes
     /// * `decision` - The oracle's decision (true/false)
-    pub fn arbitrate<'py>(
+    pub fn arbitrate_for_demand<'py>(
         &self,
         py: Python<'py>,
         obligation: String,
@@ -970,9 +991,31 @@ impl TrustedOracle {
         future_into_py(py, async move {
             let receipt = inner
                 .trusted_oracle()
-                .arbitrate(
+                .arbitrate_for_demand(
                     obligation.parse().map_err(map_parse_to_pyerr)?,
                     demand.into(),
+                    decision,
+                )
+                .await
+                .map_err(map_eyre_to_pyerr)?;
+            Ok(receipt.transaction_hash.to_string())
+        })
+    }
+
+    pub fn arbitrate_raw<'py>(
+        &self,
+        py: Python<'py>,
+        obligation: String,
+        decision_context: Vec<u8>,
+        decision: bool,
+    ) -> PyResult<pyo3::Bound<'py, PyAny>> {
+        let inner = self.inner.clone();
+        future_into_py(py, async move {
+            let receipt = inner
+                .trusted_oracle()
+                .arbitrate_raw(
+                    obligation.parse().map_err(map_parse_to_pyerr)?,
+                    decision_context.into(),
                     decision,
                 )
                 .await

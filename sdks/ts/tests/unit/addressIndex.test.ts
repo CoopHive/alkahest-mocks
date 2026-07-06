@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createAddressIndex, lookupAddress } from "../../src/addressIndex";
 import type { ChainAddresses } from "../../src/types";
+import { zeroAddress } from "viem";
 
 const addr = (value: number) =>
   `0x${value.toString(16).padStart(40, "0")}` as `0x${string}`;
@@ -49,5 +50,15 @@ describe("address index", () => {
     expect(Object.keys(createAddressIndex(addresses))).toEqual([
       "0x00000000000000000000000000000000000000aa",
     ]);
+  });
+
+  test("does not index zero-address placeholders as known contracts", () => {
+    const addresses: Partial<ChainAddresses> = {
+      referencesEscrowArbiter: zeroAddress,
+      erc20UnconditionalEscrowObligation: zeroAddress,
+    };
+
+    expect(createAddressIndex(addresses)).toEqual({});
+    expect(lookupAddress(addresses, zeroAddress)).toEqual([]);
   });
 });

@@ -138,6 +138,7 @@ impl<'a> NonexclusiveRevocable<'a> {
         &self,
         fulfillment: FixedBytes<32>,
         confirmer: Address,
+        escrow: FixedBytes<32>,
         from_block: Option<u64>,
     ) -> eyre::Result<
         Log<contracts::arbiters::confirmation::NonexclusiveRevocableConfirmationArbiter::ConfirmationRequested>,
@@ -149,7 +150,8 @@ impl<'a> NonexclusiveRevocable<'a> {
                 contracts::arbiters::confirmation::NonexclusiveRevocableConfirmationArbiter::ConfirmationRequested::SIGNATURE_HASH,
             )
             .topic1(fulfillment)
-            .topic2(confirmer.into_word());
+            .topic2(confirmer.into_word())
+            .topic3(escrow);
 
         let log = crate::utils::wait_for_first_log(
             &*self.module.public_provider,

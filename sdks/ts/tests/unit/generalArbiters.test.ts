@@ -16,7 +16,7 @@ import { abi as recipientArbiterAbi } from "../../src/contracts/arbiters/attesta
 import { abi as schemaArbiterAbi } from "../../src/contracts/arbiters/attestation-properties/SchemaArbiter";
 import { abi as uidArbiterAbi } from "../../src/contracts/arbiters/attestation-properties/UidArbiter";
 // Import contract artifacts needed for tests
-import { abi as trustedOracleArbiterAbi } from "../../src/contracts/arbiters/TrustedOracleArbiter";
+import { abi as trustedOracleArbiterAbi } from "../../src/contracts/arbiters/trusted-oracle/TrustedOracleArbiter";
 import { setupTestEnvironment, type TestContext } from "../utils/setup";
 import { teardownTestEnvironment } from "../utils/teardownTestEnvironment";
 
@@ -325,19 +325,20 @@ describe("General Arbiters Tests", () => {
 
       const obligation = attestationEvent.uid;
       const oracle = charlie;
+      const demand = aliceClient.arbiters.general.trustedOracle.encodeDemand({
+        oracle,
+        data: "0x" as `0x${string}`,
+      });
 
       // First check - should be undefined since no arbitration made yet
       const existingBefore = await aliceClient.arbiters.general.trustedOracle.checkExistingArbitration(
         obligation,
         oracle,
+        demand,
       );
       expect(existingBefore).toBeUndefined();
 
       // Request arbitration first (as this creates the initial arbitration request)
-      const demand = aliceClient.arbiters.general.trustedOracle.encodeDemand({
-        oracle,
-        data: "0x" as `0x${string}`,
-      });
       const requestHash = await aliceClient.arbiters.general.trustedOracle.requestArbitration(
         obligation,
         oracle,

@@ -9,7 +9,7 @@ mod tests {
         types::{ArbiterData, Erc20Data},
         utils::TestContext,
     };
-    use alloy::primitives::{Bytes, FixedBytes, bytes};
+    use alloy::primitives::{FixedBytes, bytes};
     use std::{
         sync::Arc,
         time::{Duration, SystemTime, UNIX_EPOCH},
@@ -73,14 +73,18 @@ mod tests {
     #[tokio::test]
     async fn test_trivial_arbitrate_past() -> eyre::Result<()> {
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let fulfillment_uid = make_fulfillment(&test, "good", escrow_uid).await?;
 
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(fulfillment_uid, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         let bob_client = test.bob_client.clone();
@@ -121,7 +125,7 @@ mod tests {
     #[tokio::test]
     async fn test_conditional_arbitrate_past() -> eyre::Result<()> {
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let good_fulfillment = make_fulfillment(&test, "good", escrow_uid).await?;
         let bad_fulfillment = make_fulfillment(&test, "bad", escrow_uid).await?;
@@ -129,11 +133,19 @@ mod tests {
         // Request arbitration for both
         test.bob_client
             .oracle()
-            .request_arbitration(good_fulfillment, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                good_fulfillment,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
         test.bob_client
             .oracle()
-            .request_arbitration(bad_fulfillment, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                bad_fulfillment,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         let bob_client = test.bob_client.clone();
@@ -167,14 +179,18 @@ mod tests {
     #[tokio::test]
     async fn test_skip_arbitrated_arbitrate_past() -> eyre::Result<()> {
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let fulfillment_uid = make_fulfillment(&test, "good", escrow_uid).await?;
 
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(fulfillment_uid, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         // First arbitration
@@ -229,14 +245,18 @@ mod tests {
     #[tokio::test]
     async fn test_arbitrate_past_async() -> eyre::Result<()> {
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let fulfillment_uid = make_fulfillment(&test, "good", escrow_uid).await?;
 
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(fulfillment_uid, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         let bob_client = Arc::new(test.bob_client.clone());
@@ -270,14 +290,18 @@ mod tests {
     #[tokio::test]
     async fn test_trivial_arbitrate_all() -> eyre::Result<()> {
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let fulfillment_uid = make_fulfillment(&test, "good", escrow_uid).await?;
 
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(fulfillment_uid, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         let oracle_client = Arc::new(test.bob_client.oracle().clone());
@@ -313,7 +337,7 @@ mod tests {
     #[tokio::test]
     async fn test_arbitrate_future_only() -> eyre::Result<()> {
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let oracle_client = Arc::new(test.bob_client.oracle().clone());
         let result = test
@@ -341,7 +365,11 @@ mod tests {
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(fulfillment_uid, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         test.bob_client
@@ -377,14 +405,18 @@ mod tests {
             return Ok(());
         }
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let fulfillment_uid = make_fulfillment(&test, "good", escrow_uid).await?;
 
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(fulfillment_uid, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         let bob_client = Arc::new(test.bob_client.clone());
@@ -443,7 +475,7 @@ mod tests {
             return Ok(());
         }
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let good_fulfillment = make_fulfillment(&test, "good", escrow_uid).await?;
         let bad_fulfillment = make_fulfillment(&test, "bad", escrow_uid).await?;
@@ -451,11 +483,19 @@ mod tests {
         // Request arbitration for both
         test.bob_client
             .oracle()
-            .request_arbitration(good_fulfillment, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                good_fulfillment,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
         test.bob_client
             .oracle()
-            .request_arbitration(bad_fulfillment, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                bad_fulfillment,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         let oracle_client = Arc::new(test.bob_client.oracle().clone());
@@ -510,14 +550,18 @@ mod tests {
     #[tokio::test]
     async fn test_arbitrate_blocking_with_timeout() -> eyre::Result<()> {
         let test = setup_test_environment().await?;
-        let (_, _, escrow_uid) = setup_escrow(&test).await?;
+        let (_, arbiter_item, escrow_uid) = setup_escrow(&test).await?;
 
         let fulfillment_uid = make_fulfillment(&test, "good", escrow_uid).await?;
 
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(fulfillment_uid, test.bob.address(), Bytes::default())
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                arbiter_item.demand.clone(),
+            )
             .await?;
 
         let oracle_client = test.bob_client.oracle().clone();

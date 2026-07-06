@@ -1,7 +1,13 @@
 import { type Address, decodeAbiParameters, encodeAbiParameters, getAbiItem } from "viem";
 import { abi as nativeTokenEscrowAbi } from "../../../../contracts/obligations/escrow/default/NativeTokenEscrowObligation";
 import type { Demand } from "../../../../types";
-import { getAttestation, getAttestedEventFromTxHash, type ViemClient, writeContract } from "../../../../utils";
+import {
+  assertDeployedContract,
+  getAttestation,
+  getAttestedEventFromTxHash,
+  type ViemClient,
+  writeContract,
+} from "../../../../utils";
 import type { NativeTokenAddresses } from "../index";
 
 const nativeEscrowDoObligationFunction = getAbiItem({
@@ -98,6 +104,7 @@ export const makeNativeTokenDefaultEscrowClient = (viemClient: ViemClient, addre
     },
 
     create: async (amount: bigint, item: Demand, expiration: bigint = 0n) => {
+      assertDeployedContract(addresses.escrowObligation, "NativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligation,
         abi: nativeTokenEscrowAbi.abi,
@@ -112,6 +119,7 @@ export const makeNativeTokenDefaultEscrowClient = (viemClient: ViemClient, addre
     },
 
     createFor: async (amount: bigint, item: Demand, recipient: `0x${string}`, expiration: bigint = 0n) => {
+      assertDeployedContract(addresses.escrowObligation, "NativeTokenEscrowObligation");
       const { request } = await viemClient.simulateContract({
         address: addresses.escrowObligation,
         abi: nativeTokenEscrowAbi.abi,

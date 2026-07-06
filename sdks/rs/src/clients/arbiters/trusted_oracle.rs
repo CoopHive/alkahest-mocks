@@ -158,6 +158,21 @@ pub struct ArbitrateManyResult {
     pub subscription: Option<SubscriptionHandle>,
 }
 
+fn decision_context_from_encoded_demand(
+    demand: &Bytes,
+    expected_oracle: Address,
+) -> eyre::Result<Bytes> {
+    let decoded = <TrustedOracleArbiter::DemandData as SolType>::abi_decode(demand.as_ref())?;
+    if decoded.oracle != expected_oracle {
+        eyre::bail!(
+            "TrustedOracle demand is for oracle {}, not this client {}",
+            decoded.oracle,
+            expected_oracle
+        );
+    }
+    Ok(decoded.data)
+}
+
 impl TrustedOracleModule {
     pub fn new(
         public_provider: SharedPublicProvider,
@@ -351,16 +366,33 @@ impl TrustedOracleModule {
         Ok(receipt)
     }
 
-    /// Arbitrate as a trusted oracle with the new 3-argument API
+    /// Arbitrate as a trusted oracle using encoded `TrustedOracleArbiter.DemandData`.
     ///
     /// # Arguments
     /// * `obligation` - The obligation attestation UID
-    /// * `demand` - The demand data bytes
+    /// * `demand` - The encoded `TrustedOracleArbiter.DemandData` bytes
     /// * `decision` - The oracle's decision (true/false)
-    pub async fn arbitrate(
+    pub async fn arbitrate_for_demand(
         &self,
         obligation: FixedBytes<32>,
         demand: Bytes,
+        decision: bool,
+    ) -> eyre::Result<TransactionReceipt> {
+        let decision_context = decision_context_from_encoded_demand(&demand, self.signer_address)?;
+        self.arbitrate_raw(obligation, decision_context, decision)
+            .await
+    }
+
+    /// Arbitrate as a trusted oracle using the raw inner decision context.
+    ///
+    /// # Arguments
+    /// * `obligation` - The obligation attestation UID
+    /// * `decision_context` - The `TrustedOracleArbiter.DemandData.data` bytes
+    /// * `decision` - The oracle's decision (true/false)
+    pub async fn arbitrate_raw(
+        &self,
+        obligation: FixedBytes<32>,
+        decision_context: Bytes,
         decision: bool,
     ) -> eyre::Result<TransactionReceipt> {
         let trusted_oracle_arbiter = TrustedOracleArbiter::new(
@@ -369,7 +401,7 @@ impl TrustedOracleModule {
         );
 
         let receipt = trusted_oracle_arbiter
-            .arbitrate(obligation, demand, decision)
+            .arbitrate(obligation, decision_context, decision)
             .send()
             .await?
             .get_receipt()
@@ -495,11 +527,16 @@ impl TrustedOracleModule {
                 if let Some(decision) = decision {
                     let demand = awd.demand.clone();
                     let uid = awd.attestation.uid;
+                    let signer_address = self.signer_address;
                     Some(async move {
-                        trusted_oracle_arbiter
-                            .arbitrate(uid, demand, *decision)
-                            .send()
-                            .await
+                        let decision_context =
+                            decision_context_from_encoded_demand(&demand, signer_address)?;
+                        Ok::<_, eyre::Report>(
+                            trusted_oracle_arbiter
+                                .arbitrate(uid, decision_context, *decision)
+                                .send()
+                                .await?,
+                        )
                     })
                 } else {
                     None
@@ -856,8 +893,14 @@ impl TrustedOracleModule {
                 continue;
             };
 
+            let Ok(decision_context) =
+                decision_context_from_encoded_demand(&demand, self.signer_address)
+            else {
+                continue;
+            };
+
             match arbiter
-                .arbitrate(attestation.uid, demand, decision_value)
+                .arbitrate(attestation.uid, decision_context, decision_value)
                 .nonce(nonce)
                 .send()
                 .await
@@ -967,8 +1010,14 @@ impl TrustedOracleModule {
                 continue;
             };
 
+            let Ok(decision_context) =
+                decision_context_from_encoded_demand(&demand, self.signer_address)
+            else {
+                continue;
+            };
+
             match arbiter
-                .arbitrate(attestation.uid, demand, decision_value)
+                .arbitrate(attestation.uid, decision_context, decision_value)
                 .nonce(nonce)
                 .send()
                 .await
@@ -1066,8 +1115,14 @@ impl TrustedOracleModule {
                     continue;
                 };
 
+                let Ok(decision_context) =
+                    decision_context_from_encoded_demand(&demand, signer_address)
+                else {
+                    continue;
+                };
+
                 match arbiter
-                    .arbitrate(attestation.uid, demand, decision_value)
+                    .arbitrate(attestation.uid, decision_context, decision_value)
                     .nonce(nonce)
                     .send()
                     .await
@@ -1167,8 +1222,14 @@ impl TrustedOracleModule {
                     continue;
                 };
 
+                let Ok(decision_context) =
+                    decision_context_from_encoded_demand(&demand, signer_address)
+                else {
+                    continue;
+                };
+
                 match arbiter
-                    .arbitrate(attestation.uid, demand, decision_value)
+                    .arbitrate(attestation.uid, decision_context, decision_value)
                     .nonce(nonce)
                     .send()
                     .await
@@ -1215,16 +1276,34 @@ impl<'a> TrustedOracle<'a> {
         self.module.addresses.trusted_oracle_arbiter
     }
 
-    /// Arbitrate as a trusted oracle
+    /// Arbitrate as a trusted oracle using encoded `TrustedOracleArbiter.DemandData`.
     ///
     /// # Arguments
     /// * `fulfillment_uid` - The fulfillment attestation UID
-    /// * `demand` - The demand data bytes
+    /// * `demand` - The encoded `TrustedOracleArbiter.DemandData` bytes
     /// * `decision` - The oracle's decision (true/false)
-    pub async fn arbitrate(
+    pub async fn arbitrate_for_demand(
         &self,
         obligation: FixedBytes<32>,
         demand: Bytes,
+        decision: bool,
+    ) -> eyre::Result<TransactionReceipt> {
+        let decision_context =
+            decision_context_from_encoded_demand(&demand, self.module.signer.address())?;
+        self.arbitrate_raw(obligation, decision_context, decision)
+            .await
+    }
+
+    /// Arbitrate as a trusted oracle using the raw inner decision context.
+    ///
+    /// # Arguments
+    /// * `fulfillment_uid` - The fulfillment attestation UID
+    /// * `decision_context` - The `TrustedOracleArbiter.DemandData.data` bytes
+    /// * `decision` - The oracle's decision (true/false)
+    pub async fn arbitrate_raw(
+        &self,
+        obligation: FixedBytes<32>,
+        decision_context: Bytes,
         decision: bool,
     ) -> eyre::Result<TransactionReceipt> {
         let trusted_oracle_arbiter = TrustedOracleArbiter::new(
@@ -1233,7 +1312,7 @@ impl<'a> TrustedOracle<'a> {
         );
 
         let receipt = trusted_oracle_arbiter
-            .arbitrate(obligation, demand, decision)
+            .arbitrate(obligation, decision_context, decision)
             .send()
             .await?
             .get_receipt()

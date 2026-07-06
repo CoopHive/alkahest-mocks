@@ -43,7 +43,7 @@ Auto-detected from viem client's chain. Override with second arg to `makeClient`
 type Erc20 = { address: `0x${string}`; value: bigint };
 type Erc721 = { address: `0x${string}`; id: bigint };
 type Erc1155 = { address: `0x${string}`; id: bigint; value: bigint };
-type TokenBundle = { erc20s: Erc20[]; erc721s: Erc721[]; erc1155s: Erc1155[] };
+type TokenBundle = { nativeAmount?: bigint; erc20s: Erc20[]; erc721s: Erc721[]; erc1155s: Erc1155[] };
 type Demand = { arbiter: `0x${string}`; demand: `0x${string}` };
 type Attestation = {
   uid: `0x${string}`; schema: `0x${string}`; time: bigint;
@@ -65,9 +65,8 @@ client
 ├── getAttestedEventFromTxHash(hash)  // Extract Attested event from tx
 ├── waitForFulfillment(contract, escrowUid, pollingInterval?)
 ├── extractObligationData(abi, attestation)
-├── extractDemandData(abi, escrowAttestation)
 ├── getEscrowAttestation(fulfillment)
-├── getEscrowAndDemand(demandAbi, fulfillment)
+├── decodeEscrowCondition(escrowAttestation)
 ├── decodeDemand({ arbiter, demand })
 │
 ├── arbiters
@@ -178,9 +177,11 @@ client
     ├── encode({ payload, salt, schema })
     ├── decode(bytes)                      // => { payload, salt, schema }
     ├── doObligation(data, refUID?)
+    ├── doObligationFor(data, recipient, refUID?)
+    ├── doObligationRaw(data, expirationTime?, refUID?, value?)
+    ├── revealAndCollect(data, recipient, escrowContract, escrowUid)
     ├── commit(commitment, bondAmount, commitDeadline)
     ├── computeCommitment(refUID, claimer, data)
-    ├── reclaimBond(fulfillmentUid)
     ├── slashBond(commitment)
     ├── getSlashedBondRecipient()
     ├── getCommitment(commitment)

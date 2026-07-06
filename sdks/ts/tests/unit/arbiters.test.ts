@@ -17,7 +17,7 @@ import { abi as allArbiterAbi } from "../../src/contracts/arbiters/logical/AllAr
 import { abi as anyArbiterAbi } from "../../src/contracts/arbiters/logical/AnyArbiter";
 // Import contract artifacts needed for tests
 import { abi as trivialArbiterAbi } from "../../src/contracts/arbiters/TrivialArbiter";
-import { abi as trustedOracleArbiterAbi } from "../../src/contracts/arbiters/TrustedOracleArbiter";
+import { abi as trustedOracleArbiterAbi } from "../../src/contracts/arbiters/trusted-oracle/TrustedOracleArbiter";
 import { setupTestEnvironment, type TestContext } from "../utils/setup";
 import { teardownTestEnvironment } from "../utils/teardownTestEnvironment";
 
@@ -205,10 +205,8 @@ describe("Arbiters Tests", () => {
 
       expect(initialResult).toBe(false);
 
-      // Make a positive arbitration decision
-      // Note: arbitrate() expects the inner data portion, not the full encoded demand
-      // check computes: keccak256(obligation.uid, demand_.data)
-      const arbitrateHash = await oracleClient.arbiters.general.trustedOracle.arbitrate(
+      // Make a positive arbitration decision using the raw inner decision context.
+      const arbitrateHash = await oracleClient.arbiters.general.trustedOracle.arbitrateRaw(
         statementUid,
         demandData.data,
         true,
@@ -230,6 +228,43 @@ describe("Arbiters Tests", () => {
       expect(finalResult).toBe(true);
     });
 
+    test("testArbitrateForDemandUsesOuterDemandAndChecksOracle", async () => {
+      const attestation = {
+        uid: statementUid,
+        schema: "0x0000000000000000000000000000000000000000000000000000000000000000" as const,
+        time: BigInt(Math.floor(Date.now() / 1000)),
+        expirationTime: 0n,
+        revocationTime: 0n,
+        refUID: "0x0000000000000000000000000000000000000000000000000000000000000000" as const,
+        recipient: "0x0000000000000000000000000000000000000000" as const,
+        attester: "0x0000000000000000000000000000000000000000" as const,
+        revocable: true,
+        data: "0x" as const,
+      };
+
+      const demand = oracleClient.arbiters.general.trustedOracle.encodeDemand({
+        oracle,
+        data: "0x1234",
+      });
+      const counteroffer = "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
+
+      await expect(
+        aliceClient.arbiters.general.trustedOracle.arbitrateForDemand(statementUid, demand, true),
+      ).rejects.toThrow("not this client");
+
+      const hash = await oracleClient.arbiters.general.trustedOracle.arbitrateForDemand(statementUid, demand, true);
+      await testClient.waitForTransactionReceipt({ hash });
+
+      const result = await testClient.readContract({
+        address: testContext.addresses.trustedOracleArbiter,
+        abi: trustedOracleArbiterAbi.abi,
+        functionName: "check",
+        args: [attestation, demand, counteroffer],
+      });
+
+      expect(result).toBe(true);
+    });
+
     test("testCheckObligationWithDifferentOracles", async () => {
       // Set up two different oracles with different decisions
       const oracle1 = oracle;
@@ -241,8 +276,7 @@ describe("Arbiters Tests", () => {
         data: "0x" as const,
       };
       const demand1 = oracleClient.arbiters.general.trustedOracle.encodeDemand(demandData1);
-      // Note: arbitrate() expects the inner data portion, not the full encoded demand
-      const arbitrateHash1 = await oracleClient.arbiters.general.trustedOracle.arbitrate(
+      const arbitrateHash1 = await oracleClient.arbiters.general.trustedOracle.arbitrateRaw(
         statementUid,
         demandData1.data,
         true,
@@ -259,8 +293,7 @@ describe("Arbiters Tests", () => {
         data: "0x" as const,
       };
       const demand2 = aliceClient.arbiters.general.trustedOracle.encodeDemand(demandData2);
-      // Note: arbitrate() expects the inner data portion, not the full encoded demand
-      const arbitrateHash2 = await aliceClient.arbiters.general.trustedOracle.arbitrate(
+      const arbitrateHash2 = await aliceClient.arbiters.general.trustedOracle.arbitrateRaw(
         statementUid,
         demandData2.data,
         false,

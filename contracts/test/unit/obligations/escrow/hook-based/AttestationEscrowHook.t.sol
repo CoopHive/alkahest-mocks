@@ -81,7 +81,7 @@ contract AttestationEscrowHookTest is Test {
                     data: AttestationRequestData({
                         recipient: recipient,
                         expirationTime: 0,
-                        revocable: true,
+                        revocable: false,
                         refUID: bytes32(0),
                         data: abi.encode("release"),
                         value: 0
@@ -115,7 +115,7 @@ contract AttestationEscrowHookTest is Test {
                     data: AttestationRequestData({
                         recipient: recipient,
                         expirationTime: 0,
-                        revocable: true,
+                        revocable: false,
                         refUID: bytes32(0),
                         data: abi.encode("release"),
                         value: 1 wei
@@ -140,7 +140,7 @@ contract AttestationEscrowHookTest is Test {
                     data: AttestationRequestData({
                         recipient: recipient,
                         expirationTime: 0,
-                        revocable: true,
+                        revocable: false,
                         refUID: bytes32(0),
                         data: abi.encode("paid release"),
                         value: 1 wei
@@ -174,7 +174,7 @@ contract AttestationEscrowHookTest is Test {
                     data: AttestationRequestData({
                         recipient: recipient,
                         expirationTime: 0,
-                        revocable: true,
+                        revocable: false,
                         refUID: bytes32(0),
                         data: abi.encode("paid return"),
                         value: 1 wei
@@ -204,7 +204,7 @@ contract AttestationEscrowHookTest is Test {
                     data: AttestationRequestData({
                         recipient: recipient,
                         expirationTime: 0,
-                        revocable: true,
+                        revocable: false,
                         refUID: bytes32(0),
                         data: abi.encode("return"),
                         value: 0
@@ -227,10 +227,9 @@ contract AttestationEscrowHookTest is Test {
     function testAttestationHook2CountsIdenticalPendingLocks() public {
         bytes memory data = abi.encode(
             AttestationReferenceEscrowHook.HookData({
-                attestationUid: existingAttestation,
+                referencedAttestationUid: existingAttestation,
                 recipient: recipient,
-                validationExpirationTime: 0,
-                validationRevocable: false
+                expirationTime: 0
             })
         );
         bytes32 dataHash = keccak256(data);
@@ -247,7 +246,7 @@ contract AttestationEscrowHookTest is Test {
         assertEq(hook2.pending(caller, dataHash), 0);
 
         vm.expectRevert(
-            abi.encodeWithSelector(AttestationReferenceEscrowHook.NoPendingValidation.selector, caller, dataHash)
+            abi.encodeWithSelector(AttestationReferenceEscrowHook.NoPendingReferenceAttestation.selector, caller, dataHash)
         );
         hook2.onRelease(data, recipient, _dummyEscrow(), bytes32(0));
         vm.stopPrank();
@@ -256,10 +255,9 @@ contract AttestationEscrowHookTest is Test {
     function testAttestationHook2RejectsNativeValueOnLock() public {
         bytes memory data = abi.encode(
             AttestationReferenceEscrowHook.HookData({
-                attestationUid: existingAttestation,
+                referencedAttestationUid: existingAttestation,
                 recipient: recipient,
-                validationExpirationTime: 0,
-                validationRevocable: false
+                expirationTime: 0
             })
         );
 
@@ -271,27 +269,26 @@ contract AttestationEscrowHookTest is Test {
         assertEq(address(hook2).balance, 0);
     }
 
-    function testAttestationHook2ConstructorReusesExistingValidationSchema() public {
+    function testAttestationHook2ConstructorReusesExistingReferenceAttestationSchema() public {
         address predicted = vm.computeCreateAddress(address(this), vm.getNonce(address(this)));
         bytes32 expectedSchema =
-            SchemaRegistryUtils.getUID("bytes32 validatedAttestationUid", ISchemaResolver(predicted), true);
+            SchemaRegistryUtils.getUID("bytes32 referencedAttestationUid", ISchemaResolver(predicted), false);
 
         bytes32 registeredSchema =
-            schemaRegistry.register("bytes32 validatedAttestationUid", ISchemaResolver(predicted), true);
+            schemaRegistry.register("bytes32 referencedAttestationUid", ISchemaResolver(predicted), false);
         assertEq(registeredSchema, expectedSchema);
 
         AttestationReferenceEscrowHook reusedSchemaHook = new AttestationReferenceEscrowHook(eas, schemaRegistry);
-        assertEq(reusedSchemaHook.VALIDATION_SCHEMA(), expectedSchema);
+        assertEq(reusedSchemaHook.REFERENCE_ATTESTATION_SCHEMA(), expectedSchema);
         assertEq(schemaRegistry.getSchema(expectedSchema).uid, expectedSchema);
     }
 
     function testAttestationHook2ReturnDecrementsOnePendingLock() public {
         bytes memory data = abi.encode(
             AttestationReferenceEscrowHook.HookData({
-                attestationUid: existingAttestation,
+                referencedAttestationUid: existingAttestation,
                 recipient: recipient,
-                validationExpirationTime: 0,
-                validationRevocable: false
+                expirationTime: 0
             })
         );
         bytes32 dataHash = keccak256(data);
@@ -306,14 +303,14 @@ contract AttestationEscrowHookTest is Test {
         vm.stopPrank();
     }
 
-    function testAttestationHook2RejectsForgedValidationAttestation() public {
-        bytes32 validationSchema = hook2.VALIDATION_SCHEMA();
+    function testAttestationHook2RejectsForgedReferenceAttestation() public {
+        bytes32 referenceSchema = hook2.REFERENCE_ATTESTATION_SCHEMA();
 
         vm.expectRevert();
         vm.prank(caller);
         eas.attest(
             AttestationRequest({
-                schema: validationSchema,
+                schema: referenceSchema,
                 data: AttestationRequestData({
                     recipient: recipient,
                     expirationTime: 0,
@@ -329,10 +326,9 @@ contract AttestationEscrowHookTest is Test {
     function testAttestationHook2UsesEncodedRecipient() public {
         bytes memory data = abi.encode(
             AttestationReferenceEscrowHook.HookData({
-                attestationUid: existingAttestation,
+                referencedAttestationUid: existingAttestation,
                 recipient: recipient,
-                validationExpirationTime: 0,
-                validationRevocable: false
+                expirationTime: 0
             })
         );
 
@@ -344,25 +340,24 @@ contract AttestationEscrowHookTest is Test {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         vm.stopPrank();
 
-        bytes32 uid = _findValidationUid(logs);
+        bytes32 uid = _findReferenceAttestationUid(logs);
         assertNotEq(uid, bytes32(0));
 
         (, address attester, bytes32 schema) = _readAttestedTopics(logs, uid);
         assertEq(attester, address(hook2));
-        assertEq(schema, hook2.VALIDATION_SCHEMA());
+        assertEq(schema, hook2.REFERENCE_ATTESTATION_SCHEMA());
 
         assertEq(eas.getAttestation(uid).recipient, recipient);
         assertEq(eas.getAttestation(uid).refUID, existingAttestation);
     }
 
-    function testAttestationHook2UsesValidationProperties() public {
-        uint64 validationExpiration = uint64(block.timestamp + 30 days);
+    function testAttestationHook2UsesExpiration() public {
+        uint64 expiration = uint64(block.timestamp + 30 days);
         bytes memory data = abi.encode(
             AttestationReferenceEscrowHook.HookData({
-                attestationUid: existingAttestation,
+                referencedAttestationUid: existingAttestation,
                 recipient: recipient,
-                validationExpirationTime: validationExpiration,
-                validationRevocable: true
+                expirationTime: expiration
             })
         );
 
@@ -374,20 +369,42 @@ contract AttestationEscrowHookTest is Test {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         vm.stopPrank();
 
-        bytes32 uid = _findValidationUid(logs);
+        bytes32 uid = _findReferenceAttestationUid(logs);
         assertNotEq(uid, bytes32(0));
 
-        Attestation memory validation = eas.getAttestation(uid);
-        assertEq(validation.expirationTime, validationExpiration);
-        assertTrue(validation.revocable);
+        Attestation memory referenceAttestation = eas.getAttestation(uid);
+        assertEq(referenceAttestation.expirationTime, expiration);
+        assertFalse(referenceAttestation.revocable);
     }
 
-    function _findValidationUid(Vm.Log[] memory logs) internal view returns (bytes32 uid) {
+    function testAttestationHookRejectsRevocableAttestation() public {
+        bytes memory data = abi.encode(
+            AttestationEscrowHook.HookData({
+                attestation: AttestationRequest({
+                    schema: testSchema,
+                    data: AttestationRequestData({
+                        recipient: recipient,
+                        expirationTime: 0,
+                        revocable: true,
+                        refUID: bytes32(0),
+                        data: abi.encode("release"),
+                        value: 0
+                    })
+                })
+            })
+        );
+
+        vm.prank(caller);
+        vm.expectRevert(AttestationEscrowHook.UnsupportedRevocableAttestation.selector);
+        hook.onLock(data, caller, caller);
+    }
+
+    function _findReferenceAttestationUid(Vm.Log[] memory logs) internal view returns (bytes32 uid) {
         for (uint256 i; i < logs.length; ++i) {
             if (
                 logs[i].topics.length == 4
                     && logs[i].topics[0] == keccak256("Attested(address,address,bytes32,bytes32)")
-                    && logs[i].topics[3] == hook2.VALIDATION_SCHEMA()
+                    && logs[i].topics[3] == hook2.REFERENCE_ATTESTATION_SCHEMA()
             ) {
                 return abi.decode(logs[i].data, (bytes32));
             }

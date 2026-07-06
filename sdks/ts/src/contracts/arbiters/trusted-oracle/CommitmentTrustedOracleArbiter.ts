@@ -1,0 +1,1078 @@
+export const abi = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "arbitrate",
+      "inputs": [
+        {
+          "name": "intentHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "decision",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "attestationIntentHash",
+      "inputs": [
+        {
+          "name": "attestation",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "attestationIntentHash",
+      "inputs": [
+        {
+          "name": "schema",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "attester",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "recipient",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "expirationTime",
+          "type": "uint64",
+          "internalType": "uint64"
+        },
+        {
+          "name": "revocable",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "refUID",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dataHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "attestationIntentHash",
+      "inputs": [
+        {
+          "name": "schema",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "attester",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "recipient",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "expirationTime",
+          "type": "uint64",
+          "internalType": "uint64"
+        },
+        {
+          "name": "revocable",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "refUID",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "check",
+      "inputs": [
+        {
+          "name": "fulfillment",
+          "type": "tuple",
+          "internalType": "struct Attestation",
+          "components": [
+            {
+              "name": "uid",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "time",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "revocationTime",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "attester",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "revocable",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "decisionKeyFor",
+      "inputs": [
+        {
+          "name": "intentHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "decisions",
+      "inputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "decodeDemandData",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct CommitmentTrustedOracleArbiter.DemandData",
+          "components": [
+            {
+              "name": "oracle",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "requestArbitration",
+      "inputs": [
+        {
+          "name": "intentHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "oracle",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "ArbitrationMade",
+      "inputs": [
+        {
+          "name": "decisionKey",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "intentHash",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "oracle",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "decision",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ArbitrationRequested",
+      "inputs": [
+        {
+          "name": "intentHash",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "oracle",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "demand",
+          "type": "bytes",
+          "indexed": false,
+          "internalType": "bytes"
+        }
+      ],
+      "anonymous": false
+    }
+  ],
+  "bytecode": {
+    "object": "0x60808060405234601557610914908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461057b5750806320249e201461054157806333f37e4a146104f95780636cc1b5d3146104bc5780636f6bd32b1461043b578063838a68d9146103385780638da3721a146101eb578063cd8c1ef314610176578063fb242e861461012a5763fcb0c3901461008a575f80fd5b34610126576060366003190112610126576004356024356001600160401b038111610126576100bd9036906004016106b2565b9060443591821515809303610126576100d690826108ab565b335f525f60205260405f20815f5260205260405f2060ff1981541660ff85161790556040519283527fbbe9caf8b56a2139bcb80c791657954e2e1ddfad0cf3725d0ce16838a46752d160203394a4005b5f80fd5b34610126576040366003190112610126576004356001600160a01b03811690819003610126575f525f60205260405f206024355f52602052602060ff60405f2054166040519015158152f35b346101265760e03660031901126101265761018f610648565b61019761065e565b906101a061061e565b916101a9610688565b9160c435926001600160401b038411610126576020946101d06101e39536906004016106b2565b8681519101209360a4359360043561084a565b604051908152f35b34610126576060366003190112610126576004356001600160401b0381116101265761021b9036906004016106f8565b6024356001600160401b0381116101265761023a9036906004016106b2565b9081518201916020830190602081850312610126576020810151906001600160401b03821161012657019260409084900312610126576040519261027d846105ce565b60208101516001600160a01b038116810361012657845260408101516001600160401b03811161012657602091010181601f82011215610126578051926102c384610697565b926102d160405194856105fd565b84845260208584010111610126575f602085610309968261030196018388015e85010152602085019283526107f3565b9051906108ab565b9060018060a01b039051165f525f60205260405f20905f52602052602060ff60405f2054166040519015158152f35b34610126576020366003190112610126576004356001600160401b03811161012657366023820112156101265780600401356001600160401b03811161012657810160248101913683116101265760606020604051610396816105ce565b5f81520152602081830312610126576024810135906001600160401b0382116101265701906040908290031261012657604051916103d3836105ce565b6103df60248301610674565b83526044820135916001600160401b0383116101265761040292016024016106b2565b90602081019182526104376040519283926020845260018060a01b0390511660208401525160408084015260608301906107cf565b0390f35b3461012657606036600319011261012657610454610648565b6044356001600160401b038111610126576104739036906004016106b2565b7f5a87a605f49708d9bbadaa74684a5e23583375d9ed010cda2db60567202de60b604051926020845260018060a01b031692806104b76004359460208301906107cf565b0390a3005b34610126576040366003190112610126576024356001600160401b038111610126576101e36104f160209236906004016106b2565b6004356108ab565b346101265760e03660031901126101265760206101e3610517610648565b61051f61065e565b9061052861061e565b610530610688565b9060c4359360a4359360043561084a565b34610126576020366003190112610126576004356001600160401b038111610126576101e361057660209236906004016106f8565b6107f3565b34610126576020366003190112610126576004359063ffffffff60e01b8216809203610126576020916346d1b90d60e11b81149081156105bd575b5015158152f35b6301ffc9a760e01b149050836105b6565b604081019081106001600160401b038211176105e957604052565b634e487b7160e01b5f52604160045260245ffd5b90601f801991011681019081106001600160401b038211176105e957604052565b606435906001600160401b038216820361012657565b35906001600160401b038216820361012657565b602435906001600160a01b038216820361012657565b604435906001600160a01b038216820361012657565b35906001600160a01b038216820361012657565b60843590811515820361012657565b6001600160401b0381116105e957601f01601f191660200190565b81601f82011215610126578035906106c982610697565b926106d760405194856105fd565b8284526020838301011161012657815f926020809301838601378301015290565b919061014083820312610126576040519061014082018281106001600160401b038211176105e9576040528193803583526020810135602084015261073f60408201610634565b604084015261075060608201610634565b606084015261076160808201610634565b608084015260a081013560a084015261077c60c08201610674565b60c084015261078d60e08201610674565b60e0840152610100810135801515810361012657610100840152610120810135916001600160401b03831161012657610120926107ca92016106b2565b910152565b805180835260209291819084018484015e5f828201840152601f01601f1916010190565b6108479060208101519060018060a01b0360e08201511660018060a01b0360c0830151166001600160401b036060840151169061010084015115159261012060a0860151950151602081519101209561084a565b90565b959391926001600160401b03919593604051966020880198895260018060a01b0316604088015260018060a01b03166060870152166080850152151560a084015260c083015260e082015260e081526108a5610100826105fd565b51902090565b906108a56108d0916040519283916020830195865260408084015260608301906107cf565b03601f1981018352826105fd56fea264697066735822122001742d7f381bbce7d79882a2f2224642c1c11ec82916e229e9740153d9a6c6a764736f6c634300081b0033",
+    "sourceMap": "900:4213:122:-:0;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a71461057b5750806320249e201461054157806333f37e4a146104f95780636cc1b5d3146104bc5780636f6bd32b1461043b578063838a68d9146103385780638da3721a146101eb578063cd8c1ef314610176578063fb242e861461012a5763fcb0c3901461008a575f80fd5b34610126576060366003190112610126576004356024356001600160401b038111610126576100bd9036906004016106b2565b9060443591821515809303610126576100d690826108ab565b335f525f60205260405f20815f5260205260405f2060ff1981541660ff85161790556040519283527fbbe9caf8b56a2139bcb80c791657954e2e1ddfad0cf3725d0ce16838a46752d160203394a4005b5f80fd5b34610126576040366003190112610126576004356001600160a01b03811690819003610126575f525f60205260405f206024355f52602052602060ff60405f2054166040519015158152f35b346101265760e03660031901126101265761018f610648565b61019761065e565b906101a061061e565b916101a9610688565b9160c435926001600160401b038411610126576020946101d06101e39536906004016106b2565b8681519101209360a4359360043561084a565b604051908152f35b34610126576060366003190112610126576004356001600160401b0381116101265761021b9036906004016106f8565b6024356001600160401b0381116101265761023a9036906004016106b2565b9081518201916020830190602081850312610126576020810151906001600160401b03821161012657019260409084900312610126576040519261027d846105ce565b60208101516001600160a01b038116810361012657845260408101516001600160401b03811161012657602091010181601f82011215610126578051926102c384610697565b926102d160405194856105fd565b84845260208584010111610126575f602085610309968261030196018388015e85010152602085019283526107f3565b9051906108ab565b9060018060a01b039051165f525f60205260405f20905f52602052602060ff60405f2054166040519015158152f35b34610126576020366003190112610126576004356001600160401b03811161012657366023820112156101265780600401356001600160401b03811161012657810160248101913683116101265760606020604051610396816105ce565b5f81520152602081830312610126576024810135906001600160401b0382116101265701906040908290031261012657604051916103d3836105ce565b6103df60248301610674565b83526044820135916001600160401b0383116101265761040292016024016106b2565b90602081019182526104376040519283926020845260018060a01b0390511660208401525160408084015260608301906107cf565b0390f35b3461012657606036600319011261012657610454610648565b6044356001600160401b038111610126576104739036906004016106b2565b7f5a87a605f49708d9bbadaa74684a5e23583375d9ed010cda2db60567202de60b604051926020845260018060a01b031692806104b76004359460208301906107cf565b0390a3005b34610126576040366003190112610126576024356001600160401b038111610126576101e36104f160209236906004016106b2565b6004356108ab565b346101265760e03660031901126101265760206101e3610517610648565b61051f61065e565b9061052861061e565b610530610688565b9060c4359360a4359360043561084a565b34610126576020366003190112610126576004356001600160401b038111610126576101e361057660209236906004016106f8565b6107f3565b34610126576020366003190112610126576004359063ffffffff60e01b8216809203610126576020916346d1b90d60e11b81149081156105bd575b5015158152f35b6301ffc9a760e01b149050836105b6565b604081019081106001600160401b038211176105e957604052565b634e487b7160e01b5f52604160045260245ffd5b90601f801991011681019081106001600160401b038211176105e957604052565b606435906001600160401b038216820361012657565b35906001600160401b038216820361012657565b602435906001600160a01b038216820361012657565b604435906001600160a01b038216820361012657565b35906001600160a01b038216820361012657565b60843590811515820361012657565b6001600160401b0381116105e957601f01601f191660200190565b81601f82011215610126578035906106c982610697565b926106d760405194856105fd565b8284526020838301011161012657815f926020809301838601378301015290565b919061014083820312610126576040519061014082018281106001600160401b038211176105e9576040528193803583526020810135602084015261073f60408201610634565b604084015261075060608201610634565b606084015261076160808201610634565b608084015260a081013560a084015261077c60c08201610674565b60c084015261078d60e08201610674565b60e0840152610100810135801515810361012657610100840152610120810135916001600160401b03831161012657610120926107ca92016106b2565b910152565b805180835260209291819084018484015e5f828201840152601f01601f1916010190565b6108479060208101519060018060a01b0360e08201511660018060a01b0360c0830151166001600160401b036060840151169061010084015115159261012060a0860151950151602081519101209561084a565b90565b959391926001600160401b03919593604051966020880198895260018060a01b0316604088015260018060a01b03166060870152166080850152151560a084015260c083015260e082015260e081526108a5610100826105fd565b51902090565b906108a56108d0916040519283916020830195865260408084015260608301906107cf565b03601f1981018352826105fd56fea264697066735822122001742d7f381bbce7d79882a2f2224642c1c11ec82916e229e9740153d9a6c6a764736f6c634300081b0033",
+    "sourceMap": "900:4213:122:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;900:4213:122;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;2261:34;;;;:::i;:::-;2315:10;900:4213;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2365:62;900:4213;2315:10;2365:62;;900:4213;;;;;;;;;;;-1:-1:-1;;900:4213:122;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;900:4213:122;;;;;;:::i;:::-;;;:::i;:::-;;;;:::i;:::-;;;;:::i;:::-;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;4325:102;900:4213;;;;;;:::i;:::-;;;;;;4411:15;900:4213;;;;;;4325:102;:::i;:::-;900:4213;;;;;;;;;;;;-1:-1:-1;;900:4213:122;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;:::i;:::-;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;:::i;:::-;;;;2995:32;;;900:4213;2995:32;;900:4213;;;;;;;;;2995:32;;900:4213;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;3124:40;900:4213;;3058:34;900:4213;;;;;;;;;;;;;;;;3058:34;:::i;:::-;3151:12;;3124:40;;:::i;:::-;900:4213;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;900:4213:122;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;:::i;:::-;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;-1:-1:-1;;900:4213:122;;;;;;:::i;:::-;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;:::i;:::-;2754:48;900:4213;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;2754:48;;;900:4213;;;;;;;-1:-1:-1;;900:4213:122;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;:::i;:::-;;;;:::i;:::-;;;;;;-1:-1:-1;;900:4213:122;;;;;;;;:::i;:::-;;;:::i;:::-;;;;:::i;:::-;;;:::i;:::-;;;;;;;;;;;:::i;:::-;;;;;;-1:-1:-1;;900:4213:122;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;:::i;:::-;;:::i;:::-;;;;;;-1:-1:-1;;900:4213:122;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;573:41:88;;;:81;;;;900:4213:122;;;;;;;573:81:88;-1:-1:-1;;;829:40:77;;-1:-1:-1;573:81:88;;;900:4213:122;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;:::o;:::-;;;;-1:-1:-1;900:4213:122;;;;;-1:-1:-1;900:4213:122;;;;;;;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;:::o;:::-;;;;-1:-1:-1;;;;;900:4213:122;;;;;;:::o;:::-;;;-1:-1:-1;;;;;900:4213:122;;;;;;:::o;:::-;;;;-1:-1:-1;;;;;900:4213:122;;;;;;:::o;:::-;;;;-1:-1:-1;;;;;900:4213:122;;;;;;:::o;:::-;;;-1:-1:-1;;;;;900:4213:122;;;;;;:::o;:::-;;;;;;;;;;;:::o;:::-;-1:-1:-1;;;;;900:4213:122;;;;;;-1:-1:-1;;900:4213:122;;;;:::o;:::-;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;:::i;:::-;;;;;;;;;;;;;-1:-1:-1;900:4213:122;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;900:4213:122;;;;;;;;;;:::i;:::-;;;;:::o;:::-;;;;;;;;;;;;;;;;;-1:-1:-1;900:4213:122;;;;;;;;-1:-1:-1;;900:4213:122;;;;:::o;3575:397::-;3685:280;3575:397;3720:18;;;900:4213;;;;;;;3752:20;;;900:4213;;;;;;;3786:21;;;900:4213;;-1:-1:-1;;;;;3821:26:122;;;900:4213;;3861:21;;;;900:4213;;;3896:18;3938:16;3896:18;;;900:4213;3938:16;;;3720:18;900:4213;;;;3928:27;3685:280;;:::i;:::-;3575:397;:::o;4521:368::-;;;;;-1:-1:-1;;;;;4521:368:122;;;900:4213;;4797:84;;;;900:4213;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;4797:84;;;;;;:::i;:::-;900:4213;4787:95;;4521:368;:::o;3306:160::-;;3428:30;900:4213;3306:160;900:4213;;3428:30;;;;;;900:4213;;;;;;;;;;;;;:::i;:::-;3428:30;900:4213;;3428:30;;;;;;:::i",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "arbitrate(bytes32,bytes,bool)": "fcb0c390",
+    "attestationIntentHash((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes))": "20249e20",
+    "attestationIntentHash(bytes32,address,address,uint64,bool,bytes32,bytes)": "cd8c1ef3",
+    "attestationIntentHash(bytes32,address,address,uint64,bool,bytes32,bytes32)": "33f37e4a",
+    "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": "8da3721a",
+    "decisionKeyFor(bytes32,bytes)": "6cc1b5d3",
+    "decisions(address,bytes32)": "fb242e86",
+    "decodeDemandData(bytes)": "838a68d9",
+    "requestArbitration(bytes32,address,bytes)": "6f6bd32b",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.27+commit.40a35a09\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"decisionKey\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intentHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"decision\",\"type\":\"bool\"}],\"name\":\"ArbitrationMade\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intentHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"}],\"name\":\"ArbitrationRequested\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intentHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"},{\"internalType\":\"bool\",\"name\":\"decision\",\"type\":\"bool\"}],\"name\":\"arbitrate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"uid\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"time\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"revocationTime\",\"type\":\"uint64\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"attester\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct Attestation\",\"name\":\"attestation\",\"type\":\"tuple\"}],\"name\":\"attestationIntentHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"attester\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"attestationIntentHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"attester\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"attestationIntentHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"uid\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"schema\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"time\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"expirationTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"revocationTime\",\"type\":\"uint64\"},{\"internalType\":\"bytes32\",\"name\":\"refUID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"attester\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"revocable\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct Attestation\",\"name\":\"fulfillment\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"},{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"check\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intentHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"}],\"name\":\"decisionKeyFor\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"decisions\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"decodeDemandData\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct CommitmentTrustedOracleArbiter.DemandData\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intentHash\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"demand\",\"type\":\"bytes\"}],\"name\":\"requestArbitration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Unlike `TrustedOracleArbiter`, decisions are keyed before the fulfillment UID exists. The oracle approves      the semantic fields that can be known before EAS creates the attestation: schema, attester, recipient,      expiration, revocability, refUID, and data hash. EAS-derived fields such as UID, time, and revocation time      are intentionally excluded.Security note: This contract has not been included in professional manual audits and has only been reviewed      by automated audit tooling so far.\",\"kind\":\"dev\",\"methods\":{\"arbitrate(bytes32,bytes,bool)\":{\"params\":{\"decision\":\"Oracle decision to record.\",\"demand\":\"Opaque demand context that must match the escrow's demand data.\",\"intentHash\":\"Hash returned by `attestationIntentHash`.\"}},\"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)\":{\"params\":{\"demand\":\"Arbiter-specific demand data encoded by the escrow creator.\",\"escrowUid\":\"The UID of the escrow attestation being fulfilled.\",\"fulfillment\":\"The EAS attestation being used as fulfillment.\"}},\"requestArbitration(bytes32,address,bytes)\":{\"details\":\"Request events are non-authoritative. Settlement uses the escrow demand and recorded oracle decision.\"},\"supportsInterface(bytes4)\":{\"details\":\"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas.\"}},\"title\":\"CommitmentTrustedOracleArbiter\",\"version\":1},\"userdoc\":{\"events\":{\"ArbitrationMade(bytes32,bytes32,address,bool)\":{\"notice\":\"Emitted when an oracle records a decision for an attestation intent and context.\"},\"ArbitrationRequested(bytes32,address,bytes)\":{\"notice\":\"Emitted to request oracle review of a not-yet-created attestation intent.\"}},\"kind\":\"user\",\"methods\":{\"arbitrate(bytes32,bytes,bool)\":{\"notice\":\"Records the caller's oracle decision for an attestation intent and demand context.\"},\"attestationIntentHash((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes))\":{\"notice\":\"Hashes the semantic attestation fields an oracle can approve before EAS assigns a UID.\"},\"attestationIntentHash(bytes32,address,address,uint64,bool,bytes32,bytes)\":{\"notice\":\"Hashes an attestation intent from pre-encoded attestation data.\"},\"attestationIntentHash(bytes32,address,address,uint64,bool,bytes32,bytes32)\":{\"notice\":\"Hashes an attestation intent from an already-computed data hash.\"},\"check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)\":{\"notice\":\"Returns true when `fulfillment` satisfies `demand` for `escrowUid`.\"},\"decisionKeyFor(bytes32,bytes)\":{\"notice\":\"Returns the decision key used for `(intentHash, demand)`.\"},\"decisions(address,bytes32)\":{\"notice\":\"Recorded oracle decisions keyed by oracle and `keccak256(intentHash, demand)`.\"},\"decodeDemandData(bytes)\":{\"notice\":\"Decodes ABI-encoded trusted commitment-oracle demand data.\"},\"requestArbitration(bytes32,address,bytes)\":{\"notice\":\"Emits an off-chain hint requesting oracle review for an attestation intent.\"}},\"notice\":\"Defers fulfillment acceptance to a trusted oracle decision made over a future attestation intent.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/arbiters/trusted-oracle/CommitmentTrustedOracleArbiter.sol\":\"CommitmentTrustedOracleArbiter\"},\"evmVersion\":\"prague\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@eas/=lib/eas-contracts/contracts/\",\":@erc8004/=lib/erc-8004-contracts/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@src/=src/\",\":@test/=test/\",\":ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/\",\":eas-contracts/=lib/eas-contracts/contracts/\",\":erc-8004-contracts/=lib/erc-8004-contracts/contracts/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/\",\":hardhat/=lib/eas-contracts/node_modules/hardhat/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\"],\"viaIR\":true},\"sources\":{\"lib/eas-contracts/contracts/Common.sol\":{\"keccak256\":\"0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d\",\"dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377\",\"dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617\",\"dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u\"]},\"src/BaseArbiter.sol\":{\"keccak256\":\"0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa\",\"dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE\"]},\"src/IArbiter.sol\":{\"keccak256\":\"0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9\",\"dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M\"]},\"src/arbiters/trusted-oracle/CommitmentTrustedOracleArbiter.sol\":{\"keccak256\":\"0x20282163d27bf460784aadabdfea598b11ea8b8df75ac911badfedbdd345157f\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://5741c03bb2495e9f3694a705b22ab8e12f5b2be8ebd02f4433b6e63901c75c44\",\"dweb:/ipfs/QmRsi3eP3cWoVVT37Ewi7dcwVwgPfptABmhsagHhoowgvC\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.27+commit.40a35a09"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "decisionKey",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "bytes32",
+              "name": "intentHash",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "oracle",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "bool",
+              "name": "decision",
+              "type": "bool",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "ArbitrationMade",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "intentHash",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "oracle",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "ArbitrationRequested",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "intentHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bool",
+              "name": "decision",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "arbitrate"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "attestation",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "attestationIntentHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "schema",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "attester",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expirationTime",
+              "type": "uint64"
+            },
+            {
+              "internalType": "bool",
+              "name": "revocable",
+              "type": "bool"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "refUID",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "dataHash",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "attestationIntentHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "schema",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "attester",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expirationTime",
+              "type": "uint64"
+            },
+            {
+              "internalType": "bool",
+              "name": "revocable",
+              "type": "bool"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "refUID",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "attestationIntentHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct Attestation",
+              "name": "fulfillment",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "uid",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "schema",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expirationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "revocationTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "refUID",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "attester",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "revocable",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "intentHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decisionKeyFor",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "decisions",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "decodeDemandData",
+          "outputs": [
+            {
+              "internalType": "struct CommitmentTrustedOracleArbiter.DemandData",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "oracle",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "intentHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "oracle",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "demand",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "requestArbitration"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "arbitrate(bytes32,bytes,bool)": {
+            "params": {
+              "decision": "Oracle decision to record.",
+              "demand": "Opaque demand context that must match the escrow's demand data.",
+              "intentHash": "Hash returned by `attestationIntentHash`."
+            }
+          },
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "params": {
+              "demand": "Arbiter-specific demand data encoded by the escrow creator.",
+              "escrowUid": "The UID of the escrow attestation being fulfilled.",
+              "fulfillment": "The EAS attestation being used as fulfillment."
+            }
+          },
+          "requestArbitration(bytes32,address,bytes)": {
+            "details": "Request events are non-authoritative. Settlement uses the escrow demand and recorded oracle decision."
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "arbitrate(bytes32,bytes,bool)": {
+            "notice": "Records the caller's oracle decision for an attestation intent and demand context."
+          },
+          "attestationIntentHash((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes))": {
+            "notice": "Hashes the semantic attestation fields an oracle can approve before EAS assigns a UID."
+          },
+          "attestationIntentHash(bytes32,address,address,uint64,bool,bytes32,bytes)": {
+            "notice": "Hashes an attestation intent from pre-encoded attestation data."
+          },
+          "attestationIntentHash(bytes32,address,address,uint64,bool,bytes32,bytes32)": {
+            "notice": "Hashes an attestation intent from an already-computed data hash."
+          },
+          "check((bytes32,bytes32,uint64,uint64,uint64,bytes32,address,address,bool,bytes),bytes,bytes32)": {
+            "notice": "Returns true when `fulfillment` satisfies `demand` for `escrowUid`."
+          },
+          "decisionKeyFor(bytes32,bytes)": {
+            "notice": "Returns the decision key used for `(intentHash, demand)`."
+          },
+          "decisions(address,bytes32)": {
+            "notice": "Recorded oracle decisions keyed by oracle and `keccak256(intentHash, demand)`."
+          },
+          "decodeDemandData(bytes)": {
+            "notice": "Decodes ABI-encoded trusted commitment-oracle demand data."
+          },
+          "requestArbitration(bytes32,address,bytes)": {
+            "notice": "Emits an off-chain hint requesting oracle review for an attestation intent."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@eas/=lib/eas-contracts/contracts/",
+        "@erc8004/=lib/erc-8004-contracts/contracts/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@src/=src/",
+        "@test/=test/",
+        "ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+        "eas-contracts/=lib/eas-contracts/contracts/",
+        "erc-8004-contracts/=lib/erc-8004-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "eth-gas-reporter/=lib/eas-contracts/node_modules/eth-gas-reporter/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "hardhat-deploy/=lib/eas-contracts/node_modules/hardhat-deploy/",
+        "hardhat/=lib/eas-contracts/node_modules/hardhat/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/arbiters/trusted-oracle/CommitmentTrustedOracleArbiter.sol": "CommitmentTrustedOracleArbiter"
+      },
+      "evmVersion": "prague",
+      "libraries": {},
+      "viaIR": true
+    },
+    "sources": {
+      "lib/eas-contracts/contracts/Common.sol": {
+        "keccak256": "0x957bd2e6d0d6d637f86208b135c29fbaf4412cb08e5e7a61ede16b80561bf685",
+        "urls": [
+          "bzz-raw://da1dc9aedbb1d4d39c46c2235918d3adfbc5741dd34a46010cf425d134e7936d",
+          "dweb:/ipfs/QmWUk6bXnLaghS2riF3GTFEeURCzgYFMA5woa6AsgPwEgc"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol": {
+        "keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+        "urls": [
+          "bzz-raw://81233d1f98060113d9922180bb0f14f8335856fe9f339134b09335e9f678c377",
+          "dweb:/ipfs/QmWh6R35SarhAn4z2wH8SU456jJSYL2FgucfTFgbHJJN4E"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+        "urls": [
+          "bzz-raw://971f954442df5c2ef5b5ebf1eb245d7105d9fbacc7386ee5c796df1d45b21617",
+          "dweb:/ipfs/QmadRjHbkicwqwwh61raUEapaVEtaLMcYbQZWs9gUkgj3u"
+        ],
+        "license": "MIT"
+      },
+      "src/BaseArbiter.sol": {
+        "keccak256": "0x27fa97834bcd6e592f3b534e64859b208c688363d33fb9b62436d009ffff3ed1",
+        "urls": [
+          "bzz-raw://b61ac6195ae644325adf77fdb301651cddfca4b63d9db5123ee075869f3784aa",
+          "dweb:/ipfs/QmYRu5hER8gaMjqyY5bDV9EAwVN12CbS3Z2bW8dLp7sPSE"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/IArbiter.sol": {
+        "keccak256": "0x00f3f5d8460c738eff4a776cf309efe38342fcc951abfe97d1c2e285acb1e330",
+        "urls": [
+          "bzz-raw://7201a176f3d5c3d01ca13bbcd9ef5587effe8fabf20e0b8f81f2d6ee362269b9",
+          "dweb:/ipfs/QmXn9aSvoGPQuNTxe3mM47RNQ1bfYCEczQCYsDDM9ohc8M"
+        ],
+        "license": "UNLICENSED"
+      },
+      "src/arbiters/trusted-oracle/CommitmentTrustedOracleArbiter.sol": {
+        "keccak256": "0x20282163d27bf460784aadabdfea598b11ea8b8df75ac911badfedbdd345157f",
+        "urls": [
+          "bzz-raw://5741c03bb2495e9f3694a705b22ab8e12f5b2be8ebd02f4433b6e63901c75c44",
+          "dweb:/ipfs/QmRsi3eP3cWoVVT37Ewi7dcwVwgPfptABmhsagHhoowgvC"
+        ],
+        "license": "UNLICENSED"
+      }
+    },
+    "version": 1
+  },
+  "id": 122
+} as const;

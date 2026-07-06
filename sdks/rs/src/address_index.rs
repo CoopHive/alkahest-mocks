@@ -289,6 +289,32 @@ impl DefaultExtensionConfig {
             "token_bundle_splitter_unvalidated",
             self.splitters_addresses.token_bundle_splitter_unvalidated
         );
+        add!(
+            "splitters_addresses",
+            "commitment_erc20_splitter",
+            self.splitters_addresses.commitment_erc20_splitter
+        );
+        add!(
+            "splitters_addresses",
+            "commitment_erc1155_splitter",
+            self.splitters_addresses.commitment_erc1155_splitter
+        );
+        add!(
+            "splitters_addresses",
+            "commitment_native_token_splitter",
+            self.splitters_addresses.commitment_native_token_splitter
+        );
+        add!(
+            "splitters_addresses",
+            "commitment_token_bundle_splitter",
+            self.splitters_addresses.commitment_token_bundle_splitter
+        );
+        add!(
+            "splitters_addresses",
+            "commitment_token_bundle_splitter_unvalidated",
+            self.splitters_addresses
+                .commitment_token_bundle_splitter_unvalidated
+        );
 
         add!(
             "attestation_addresses",

@@ -18,28 +18,26 @@ contract AttestationReferenceEscrowObligation is BaseEscrowObligation, BaseArbit
     using ArbiterUtils for Attestation;
     using SchemaRegistryUtils for ISchemaRegistry;
 
-    bytes32 public immutable VALIDATION_SCHEMA;
+    bytes32 public immutable REFERENCE_ATTESTATION_SCHEMA;
 
     /// @notice Attestation-reference escrow terms encoded in each escrow attestation.
     struct ObligationData {
         address arbiter;
         bytes demand;
-        bytes32 attestationUid; // Reference to the pre-made attestation
-        uint64 validationExpirationTime;
-        bool validationRevocable;
+        bytes32 referencedAttestationUid;
+        uint64 expirationTime;
     }
 
     constructor(IEAS _eas, ISchemaRegistry _schemaRegistry)
         BaseEscrowObligation(
             _eas,
             _schemaRegistry,
-            "address arbiter, bytes demand, bytes32 attestationUid, uint64 validationExpirationTime, bool validationRevocable",
+            "address arbiter, bytes demand, bytes32 referencedAttestationUid, uint64 expirationTime",
             true
         )
     {
-        // Register the validation schema
-        VALIDATION_SCHEMA =
-            _schemaRegistry.registerOrReuse("bytes32 validatedAttestationUid", ISchemaResolver(address(this)), true);
+        REFERENCE_ATTESTATION_SCHEMA =
+            _schemaRegistry.registerOrReuse("bytes32 referencedAttestationUid", ISchemaResolver(address(this)), false);
     }
 
     /// @inheritdoc BaseEscrowObligation
@@ -60,31 +58,28 @@ contract AttestationReferenceEscrowObligation is BaseEscrowObligation, BaseArbit
         return (decoded.arbiter, decoded.demand);
     }
 
-    // No assets to lock for attestation escrows
     function _lockEscrow(bytes memory, address) internal override {
-        // No-op: attestations don't require locking assets
+        // No-op: attestations don't require locking assets.
     }
 
-    // Create validation attestation
     function _releaseEscrow(Attestation memory escrow, address to, bytes32) internal override returns (bytes memory) {
         ObligationData memory decoded = abi.decode(escrow.data, (ObligationData));
 
-        // Create validation attestation
-        bytes32 validationUid = eas.attest(
+        bytes32 referenceAttestationUid = eas.attest(
             AttestationRequest({
-                schema: VALIDATION_SCHEMA,
+                schema: REFERENCE_ATTESTATION_SCHEMA,
                 data: AttestationRequestData({
                     recipient: to,
-                    expirationTime: decoded.validationExpirationTime,
-                    revocable: decoded.validationRevocable,
-                    refUID: decoded.attestationUid,
-                    data: abi.encode(decoded.attestationUid),
+                    expirationTime: decoded.expirationTime,
+                    revocable: false,
+                    refUID: decoded.referencedAttestationUid,
+                    data: abi.encode(decoded.referencedAttestationUid),
                     value: 0
                 })
             })
         );
 
-        return abi.encode(validationUid);
+        return abi.encode(referenceAttestationUid);
     }
 
     // No assets to return for attestation escrows
@@ -109,9 +104,8 @@ contract AttestationReferenceEscrowObligation is BaseEscrowObligation, BaseArbit
         ObligationData memory escrow = abi.decode(obligation.data, (ObligationData));
         ObligationData memory demandData = abi.decode(demand, (ObligationData));
 
-        return escrow.attestationUid == demandData.attestationUid
-            && escrow.validationExpirationTime == demandData.validationExpirationTime
-            && escrow.validationRevocable == demandData.validationRevocable && escrow.arbiter == demandData.arbiter
+        return escrow.referencedAttestationUid == demandData.referencedAttestationUid
+            && escrow.expirationTime == demandData.expirationTime && escrow.arbiter == demandData.arbiter
             && keccak256(escrow.demand) == keccak256(demandData.demand);
     }
 
