@@ -758,6 +758,7 @@ impl PyDefaultExtensionConfig {
     /// Mirrors the TS SDK's chain-name-keyed lookup. Accepted names:
     ///   "base_sepolia"        — default; matches the Rust `Default` impl
     ///   "ethereum_sepolia"
+    ///   "monad_testnet"
     ///   "ethereum_mainnet"
     ///   "genlayer_bradbury"
     ///
@@ -769,6 +770,7 @@ impl PyDefaultExtensionConfig {
         let cfg: &alkahest_rs::DefaultExtensionConfig = match normalized.as_str() {
             "base_sepolia" => &alkahest_rs::addresses::BASE_SEPOLIA_ADDRESSES,
             "ethereum_sepolia" => &alkahest_rs::addresses::ETHEREUM_SEPOLIA_ADDRESSES,
+            "monad_testnet" | "monad" => &alkahest_rs::addresses::MONAD_TESTNET_ADDRESSES,
             "ethereum_mainnet" | "ethereum" | "mainnet" => {
                 &alkahest_rs::addresses::ETHEREUM_ADDRESSES
             }
@@ -824,6 +826,7 @@ impl PyDefaultExtensionConfig {
         vec![
             "base_sepolia".to_string(),
             "ethereum_sepolia".to_string(),
+            "monad_testnet".to_string(),
             "ethereum_mainnet".to_string(),
             "genlayer_bradbury".to_string(),
         ]

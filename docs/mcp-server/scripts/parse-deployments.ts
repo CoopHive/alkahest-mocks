@@ -8,7 +8,7 @@ const DEPLOYMENTS_DIR = join(import.meta.dir, "../../../contracts/deployments");
 const CHAIN_INFO: Record<string, { chainName: string; chainId?: number }> = {
   deployment_base_sepolia: { chainName: "Base Sepolia", chainId: 84532 },
   deployment_sepolia: { chainName: "Sepolia", chainId: 11155111 },
-  deployment_monad: { chainName: "Monad Testnet", chainId: 143 },
+  deployment_monad: { chainName: "Monad Testnet", chainId: 10143 },
 };
 
 // Convert camelCase to PascalCase for contract names
