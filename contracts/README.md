@@ -106,13 +106,11 @@ Helper contracts that combine escrow creation and fulfillment collection into si
 - [AtomicPaymentUtils](src/utils/atomic/AtomicPaymentUtils.sol)
 - [AtomicAttestationUtils](src/utils/atomic/AtomicAttestationUtils.sol)
 
-## Integration Tests
+## Tests
 
-Integration tests demonstrate real-world usage patterns:
+Tests cover real-world usage patterns and core utility flows:
 
-- [ERC20BarterUtilsCrossToken](test/integration/ERC20BarterUtilsCrossToken.t.sol) - Trading different ERC20 tokens via atomic utilities
-- [ERC20BarterUtils](test/integration/ERC20BarterUtils.t.sol) - ERC20 atomic utility flows
-- [TokenBundleBarterUtils](test/integration/TokenBundleBarterUtils.t.sol) - Trading bundles of mixed token types
+- [AtomicPaymentUtils](test/unit/utils/atomic/AtomicPaymentUtils.t.sol) - Atomic payment and escrow collection flows
 - [AtomicAttestationUtils](test/unit/utils/atomic/AtomicAttestationUtils.t.sol) - Atomically attesting and creating reference escrows
 - [AttestationEscrowObligation](test/integration/AttestationEscrowObligation.t.sol) - Escrowing attestations
 - [StringCapitalizer](test/integration/StringCapitalizer.t.sol) - Synchronous on-chain arbiter validating string capitalization
@@ -132,7 +130,7 @@ forge test
 forge test -vvv
 
 # Run specific test file
-forge test --match-path test/integration/ERC20BarterUtilsCrossToken.t.sol
+forge test --match-path test/unit/utils/atomic/AtomicPaymentUtils.t.sol
 
 # Run with gas reporting
 forge test --gas-report
@@ -152,6 +150,6 @@ Deployment scripts are located in [script/](script/). See [script/Deploy.s.sol](
 
 Deployed contract addresses and transaction hashes are available for the following networks:
 
-- [Monad Mainnet](deployments/deployments_monad.txt) ([JSON](deployments/deployment_monad.json))
-- [Base Sepolia Testnet](deployments/deployments_base_sepolia.txt) ([JSON](deployments/deployment_base_sepolia.json))
-- [Filecoin Calibration Testnet](deployments/deployments_filecoin_calibration.txt) ([JSON](deployments/deployment_filecoin_calibration.json))
+- [Monad Mainnet](deployments/deployment_monad.json)
+- [Base Sepolia Testnet](deployments/deployment_base_sepolia.json)
+- [Ethereum Sepolia Testnet](deployments/deployment_sepolia.json)

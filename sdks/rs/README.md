@@ -10,7 +10,7 @@ cargo add alkahest-rs
 
 ## Usage
 
-Initialize a client with a private key and RPC URL. Defaults to Base Sepolia addresses; Filecoin Calibration is also supported via `DefaultExtensionConfig`.
+Initialize a client with a private key and RPC URL. Defaults to Base Sepolia addresses. Pass a `DefaultExtensionConfig` for other supported deployments or custom addresses.
 
 ```rust
 use alkahest_rs::DefaultAlkahestClient;
@@ -130,7 +130,7 @@ async fn main() -> eyre::Result<()> {
         ).await?;
     let fulfillment = DefaultAlkahestClient::get_attested_event(fulfillment_receipt)?;
 
-    // Charlie: arbitrate (or use oracle().listen_and_arbitrate_sync for automatic polling)
+    // Charlie: arbitrate (or use arbitrate_many_sync / arbitrate_many_blocking_sync for event-driven arbitration)
     // ... Charlie validates and submits decision via TrustedOracleArbiter
 
     // Bob: collect the escrow

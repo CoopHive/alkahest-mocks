@@ -317,10 +317,10 @@ client.erc20().payment().pay_erc20_and_collect(escrow_uid).await?;
 - `references/rust-api.md` — full Rust SDK API tree
 - `references/python-api.md` — full Python SDK API tree
 - `references/contracts.md` — contract addresses and data schemas
-- `docs/Escrow Flow (pt 1).md` — token trading walkthrough
-- `docs/Escrow Flow (pt 2).md` — oracle arbitration walkthrough
-- `docs/Escrow Flow (pt 2b).md` — commit-reveal frontrunning protection
-- `docs/Escrow Flow (pt 3).md` — composing demands with logical arbiters
-- `docs/Writing Arbiters/` — custom arbiter development
-- `docs/Writing Contracts/` — custom escrow/obligation development
+- `docs/website/Escrow Flow/Token Trading.mdx` — token trading walkthrough
+- `docs/website/Escrow Flow/Job Trading.mdx` — oracle arbitration walkthrough
+- `docs/drafts/Escrow Flow (pt 2b - Frontrunning Protection).md` — commit-reveal frontrunning protection
+- `docs/website/Escrow Flow/Composing Demands.mdx` — composing demands with logical arbiters
+- `docs/website/Writing Arbiters/` — custom arbiter development
+- `docs/website/Writing Escrow Contracts.md` and `docs/website/Writing Fulfillment Contracts.md` — custom escrow/obligation development
 - `docs/mcp-server/` — MCP server for looking up contract details

@@ -380,41 +380,30 @@ trustedOracleArbiter.arbitrate(fulfillmentUid, isValid);
 
 ```typescript
 // In Charlie's arbitration callback, decode the CommitRevealObligation data
-const { unwatch } = await charlieClient.oracle.listenAndArbitrateForEscrow({
-  escrow: {
-    attester: addresses.erc20EscrowObligation,
-    demandAbi: parseAbiParameters("(address[] arbiters, bytes[] demands)"),
-  },
-  fulfillment: {
-    attester: addresses.commitRevealObligation,
-    obligationAbi: parseAbiParameters("(bytes payload, bytes32 salt, bytes32 schema)"),
-  },
-  arbitrate: async (obligation, demand) => {
-    // obligation[0].payload contains the ABI-encoded result
-    const [result] = decodeAbiParameters(
-      parseAbiParameters("string"),
-      obligation[0].payload,
-    );
-
-    // Validate the result (same logic as pt 2)
-    if (demand[0].demands[1]) {
-      // Parse the oracle demand to get the query
-      const [oracleDemand] = decodeAbiParameters(
-        parseAbiParameters("(address oracle, bytes data)"),
-        demand[0].demands[1],
+const { unwatch } =
+  await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
+    async ({ attestation, demand }) => {
+      const [{ payload }] = decodeAbiParameters(
+        parseAbiParameters("(bytes payload, bytes32 salt, bytes32 schema)"),
+        attestation.data,
       );
+      const [result] = decodeAbiParameters(parseAbiParameters("string"), payload);
+
+      const oracleDemand =
+        charlieClient.arbiters.general.trustedOracle.decodeDemand(demand);
       const [query] = decodeAbiParameters(
         parseAbiParameters("string"),
         oracleDemand.data,
       );
+
       if (query.startsWith("capitalize ")) {
         return result === query.substring(11).toUpperCase();
       }
-    }
-    return false;
-  },
-  pollingInterval: 1000,
-});
+
+      return false;
+    },
+    { mode: "allUnarbitrated", pollingInterval: 1000 },
+  );
 ```
 
 **Rust**

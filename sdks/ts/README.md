@@ -96,7 +96,7 @@ const fulfillment = await clientBob.stringObligation.doObligation(
   escrow.attested.uid, // reference to the escrow being fulfilled
 );
 
-// Charlie: arbitrate the result (or use listenAndArbitrate for automatic polling)
+// Charlie: arbitrate the result (or use arbitrateMany for event-driven arbitration)
 await clientCharlie.arbiters.general.trustedOracle.arbitrate(
   fulfillment.attested.uid,
   demand,
@@ -131,17 +131,17 @@ Tests run against an Anvil fork of Base Sepolia.
 
 2. Run tests using Anvil fork:
    ```
-   npm run test:anvil
+   bun run test:anvil
    ```
 
 3. Run a specific test file:
    ```
-   npm run test:anvil:single tests/tradeErc20.test.ts
+   bun run test:anvil:single tests/tradeErc20.test.ts
    ```
 
 4. Start Anvil fork in a separate terminal (for debugging):
    ```
-   npm run anvil
+   bun run anvil
    ```
 
 ### Local Development Client

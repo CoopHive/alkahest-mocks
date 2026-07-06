@@ -410,10 +410,14 @@ identity_registry.clear()
 <TabItem value="typescript" label="TypeScript">
 
 ```typescript
-const listener = await charlieClient.oracle.listenAndArbitrate(
-  // ... validation callback from Step 3 ...
-  { skipAlreadyArbitrated: true },
-);
+const listener =
+  await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
+    async ({ attestation, demand }) => {
+      // ... validation callback from Step 3 ...
+      return verifyIdentityDecision(attestation, demand);
+    },
+    { mode: "allUnarbitrated" },
+  );
 
 // When shutting down the oracle
 listener.unwatch();
@@ -1221,7 +1225,7 @@ function startSchedulerWorker(
       const decision = uptime >= job.minUptime;
 
       // Step 3d: Submit decision on-chain
-      // CRITICAL: Unlike synchronous oracles where listenAndArbitrate
+      // CRITICAL: Unlike synchronous oracles where arbitrateMany
       // handles submission automatically, async oracles must MANUALLY
       // call arbitrate() to submit their decision
       await arbiters.general.trustedOracle.arbitrate(uid, job.demandData, decision);

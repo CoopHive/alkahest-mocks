@@ -10,8 +10,8 @@ npm install -g alkahest-cli
 
 Or for local development:
 ```bash
-cd cli && npm install && npm run build
-npm link
+cd cli && bun install && bun run build
+bun link
 ```
 
 Run commands with:
@@ -32,7 +32,7 @@ Provide a wallet via one of (in priority order):
 | Compat env | `PRIVATE_KEY=0x...` |
 | Mnemonic env | `ALKAHEST_MNEMONIC="word1 word2 ..."` |
 
-Ledger support requires optional packages: `npm install @ledgerhq/hw-transport-node-hid @ledgerhq/hw-app-eth`
+Ledger support requires optional packages: `bun add @ledgerhq/hw-transport-node-hid @ledgerhq/hw-app-eth`
 
 ## Global Flags
 

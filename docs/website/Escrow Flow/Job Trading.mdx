@@ -301,88 +301,61 @@ trustedOracleArbiter.arbitrate(fulfillmentUid, isValid);
 
 ```typescript
 // Charlie sets up an automatic validator
-const { unwatch } = await charlieClient.oracle.listenAndArbitrateForEscrow({
-  escrow: {
-    attester: addresses.erc20EscrowObligation,
-    demandAbi: parseAbiParameters("(string query)"),
-  },
-  fulfillment: {
-    attester: addresses.stringObligation,
-    obligationAbi: parseAbiParameters("(string item)"),
-  },
-  arbitrate: async (obligation, demand) => {
-    // Parse the query and result
-    const query = demand[0].query;
-    const result = obligation[0].item;
+const { unwatch } =
+  await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
+    async ({ attestation, demand }) => {
+      const oracleDemand =
+        charlieClient.arbiters.general.trustedOracle.decodeDemand(demand);
+      const [{ query }] = decodeAbiParameters(
+        parseAbiParameters("(string query)"),
+        oracleDemand.data,
+      );
+      const [{ item: result }] = decodeAbiParameters(
+        parseAbiParameters("(string item)"),
+        attestation.data,
+      );
 
-    // Check if this is a capitalization query
-    if (query.startsWith("capitalize ")) {
-      // Extract the text that should be capitalized
-      const textToCapitalize = query.substring(11);
-      // Validate: did Bob capitalize the string correctly?
-      const expectedResult = textToCapitalize.toUpperCase();
-      return result === expectedResult;
-    }
+      if (query.startsWith("capitalize ")) {
+        const textToCapitalize = query.substring(11);
+        return result === textToCapitalize.toUpperCase();
+      }
 
-    // Unknown query type
-    return false;
-  },
-  onAfterArbitrate: async (decision) => {
-    console.log(`Arbitrated ${decision.attestation.uid}: ${decision.decision}`);
-  },
-  pollingInterval: 1000,
-});
+      return false;
+    },
+    {
+      mode: "allUnarbitrated",
+      onAfterArbitrate: async (decision) => {
+        console.log(`Arbitrated ${decision.attestation.uid}: ${decision.decision}`);
+      },
+      pollingInterval: 1000,
+    },
+  );
 ```
 
 </TabItem>
 <TabItem value="rust" label="Rust">
 
 ```rust
-use alkahest_rs::oracle::{ArbitrateOptions, EscrowParams, FulfillmentParams};
+use alkahest_rs::clients::arbiters::ArbitrationMode;
 
-// Charlie sets up an automatic validator
 let result = charlie_client
     .oracle()
-    .listen_and_arbitrate_for_escrow_sync(
-        &EscrowParams {
-            filter: AttestationFilter {
-                attester: Some(ValueOrArray::Value(erc20_escrow_obligation)),
-                ..Default::default()
-            },
-            _demand_data: PhantomData::<QueryDemand>,
-        },
-        &FulfillmentParams {
-            filter: AttestationFilter {
-                attester: Some(ValueOrArray::Value(string_obligation)),
-                ..Default::default()
-            },
-            _obligation_data: PhantomData::<StringObligation>,
-        },
-        |obligation: &StringObligation, demand: &QueryDemand| {
-            // Parse the query and result
-            let query = &demand.query;
-            let result = &obligation.item;
+    .arbitrate_many_sync(
+        |request| {
+            let oracle_demand = decode_trusted_oracle_demand(&request.demand).ok()?;
+            let query = decode_query(&oracle_demand.data).ok()?;
+            let result = decode_string_obligation(&request.attestation.data).ok()?;
 
-            // Check if this is a capitalization query
-            if query.starts_with("capitalize ") {
-                // Extract the text that should be capitalized
-                let text_to_capitalize = &query[11..];
-                // Validate: did Bob capitalize the string correctly?
-                let expected_result = text_to_capitalize.to_uppercase();
-                Some(result == &expected_result)
+            if let Some(text) = query.strip_prefix("capitalize ") {
+                Some(result == text.to_uppercase())
             } else {
-                // Unknown query type
                 Some(false)
             }
         },
         |decision| async move {
-            println!(
-                "Arbitrated {}: {}",
-                decision.attestation.uid,
-                decision.decision
-            );
+            println!("Arbitrated {}: {}", decision.attestation.uid, decision.decision);
         },
-        &ArbitrateOptions::default(),
+        ArbitrationMode::AllUnarbitrated,
     )
     .await?;
 ```
@@ -391,70 +364,24 @@ let result = charlie_client
 <TabItem value="python" label="Python">
 
 ```python
-# Charlie sets up an automatic validator using the Python SDK
+from alkahest_py import ArbitrationMode, PyTrustedOracleArbiterDemandData
 from eth_abi import decode as abi_decode
-from alkahest_py import (
-    AttestationFilter,
-    FulfillmentParams,
-    EscrowParams,
-    ArbitrateOptions,
-    StringObligationData,
-    TrustedOracleArbiterDemandData,
-)
 
-# Build filters/params
-escrow_filter = AttestationFilter(
-    attester=addresses["erc20EscrowObligation"],
-    recipient=None,
-    schema_uid=None,
-    uid=None,
-    ref_uid=None,
-    from_block=0,
-    to_block=None,
-)
-fulfillment_filter = AttestationFilter(
-    attester=addresses["stringObligation"],
-    recipient=None,
-    schema_uid=None,
-    uid=None,
-    ref_uid=None,
-    from_block=0,
-    to_block=None,
-)
-
-# Decoder helpers
-obligation_abi = StringObligationData(item="")
-fulfillment_params = FulfillmentParams(obligation_abi, fulfillment_filter)
-
-# Demand ABI: pass an encoded TrustedOracleArbiter demand template so the SDK knows how to decode the outer struct.
-# The inner "data" field (bytes) will be decoded below in the decision function.
-demand_abi = TrustedOracleArbiterDemandData(charlie, b"").encode_self()
-escrow_params = EscrowParams(demand_abi, escrow_filter)
-
-options = ArbitrateOptions(require_oracle=True, skip_arbitrated=False, require_request=False, only_new=False)
-
-def validate_job(obligation_str, demand_data):
-    # obligation_str is the decoded string from StringObligation
-    # demand_data is a TrustedOracleArbiterDemandData object with fields: oracle, data (bytes)
-    try:
-        (query,) = abi_decode(['string'], demand_data.data)
-    except Exception:
-        return False
+def validate_job(attestation, demand):
+    oracle_demand = PyTrustedOracleArbiterDemandData.decode(demand)
+    (query,) = abi_decode(["string"], oracle_demand.data)
+    (result,) = abi_decode(["string"], attestation.data)
 
     if query.startswith("capitalize "):
-        text_to_capitalize = query[11:]
-        expected = text_to_capitalize.upper()
-        return obligation_str == expected
+        return result == query[11:].upper()
 
     return False
 
-unwatch = await charlie_client.oracle.listen_and_arbitrate_for_escrow_no_spawn(
-    escrow_params,
-    fulfillment_params,
+decisions = await charlie_client.oracle.arbitrate_many(
     validate_job,
     lambda decision: print(f"Arbitrated {decision.attestation.uid}: {decision.decision}"),
-    options,
-    1000,
+    ArbitrationMode.AllUnarbitrated,
+    timeout_seconds=10.0,
 )
 ```
 
@@ -653,39 +580,38 @@ The SDK provides functions to make it easier to set up an automatic validator se
 
 ```typescript
 // Set up an automatic oracle that validates string capitalization
-const { unwatch } = await charlieClient.oracle.listenAndArbitrate({
-  fulfillment: {
-    attester: stringObligation,
-    obligationAbi: parseAbiParameters("(string item)"),
-  },
-  arbitrate: async (obligation) => {
-    // Custom validation logic for any capitalization task
-    const result = obligation[0].item;
-    // Check if result is all uppercase (simple heuristic)
-    const isCapitalized = result === result.toUpperCase() && result.length > 0;
-    return isCapitalized ? true : false;
-  },
-  onAfterArbitrate: async (decision) => {
-    console.log(`Arbitrated ${decision.attestation.uid}: ${decision.decision}`);
-  },
-  pollingInterval: 1000, // Check every second
-});
+const { unwatch } =
+  await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
+    async ({ attestation }) => {
+      const [{ item: result }] = decodeAbiParameters(
+        parseAbiParameters("(string item)"),
+        attestation.data,
+      );
+      return result.length > 0 && result === result.toUpperCase();
+    },
+    {
+      mode: "allUnarbitrated",
+      onAfterArbitrate: async (decision) => {
+        console.log(`Arbitrated ${decision.attestation.uid}: ${decision.decision}`);
+      },
+      pollingInterval: 1000,
+    },
+  );
 
 // For more complex validation with access to the original demand
 const { unwatch: unwatchEscrow } =
-  await charlieClient.oracle.listenAndArbitrateForEscrow({
-    escrow: {
-      attester: erc20EscrowObligation,
-      demandAbi: parseAbiParameters("(string query)"),
-    },
-    fulfillment: {
-      attester: stringObligation,
-      obligationAbi: parseAbiParameters("(string item)"),
-    },
-    arbitrate: async (obligation, demand) => {
-      // Validate that the fulfillment matches the demand
-      const query = demand[0].query;
-      const result = obligation[0].item;
+  await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
+    async ({ attestation, demand }) => {
+      const oracleDemand =
+        charlieClient.arbiters.general.trustedOracle.decodeDemand(demand);
+      const [{ query }] = decodeAbiParameters(
+        parseAbiParameters("(string query)"),
+        oracleDemand.data,
+      );
+      const [{ item: result }] = decodeAbiParameters(
+        parseAbiParameters("(string item)"),
+        attestation.data,
+      );
 
       // Support different query types
       if (query.startsWith("capitalize ")) {
@@ -701,101 +627,65 @@ const { unwatch: unwatchEscrow } =
 
       return false;
     },
-    onAfterArbitrate: async (decision) => {
-      console.log(`Validated job: ${decision.decision}`);
+    {
+      mode: "allUnarbitrated",
+      onAfterArbitrate: async (decision) => {
+        console.log(`Validated job: ${decision.decision}`);
+      },
+      pollingInterval: 1000,
     },
-    pollingInterval: 1000,
-  });
+  );
 
 // Arbitrate past fulfillments (useful for catching up)
-const decisions = await charlieClient.oracle.arbitratePast({
-  fulfillment: {
-    attester: stringObligation,
-    obligationAbi: parseAbiParameters("(string item)"),
-  },
-  arbitrate: async (obligation) => {
-    return obligation[0].item === obligation[0].item.toUpperCase();
-  },
-  skipAlreadyArbitrated: true, // Don't re-arbitrate
-});
+const { decisions } =
+  await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
+    async ({ attestation }) => {
+      const [{ item }] = decodeAbiParameters(
+        parseAbiParameters("(string item)"),
+        attestation.data,
+      );
+      return item === item.toUpperCase();
+    },
+    { mode: "pastUnarbitrated" },
+  );
 ```
 
 </TabItem>
 <TabItem value="rust" label="Rust">
 
 ```rust
-use alloy::dyn_abi::SolType;
-use alloy::sol_types::sol;
-
-sol! {
-    struct StringObligation {
-        string item;
-    }
-
-    struct QueryDemand {
-        string query;
-    }
-}
+use alkahest_rs::clients::arbiters::ArbitrationMode;
 
 // Set up an automatic oracle that validates string capitalization
 let result = charlie_client
     .oracle()
-    .listen_and_arbitrate_sync(
-        &FulfillmentParams {
-            filter: AttestationFilter {
-                attester: Some(ValueOrArray::Value(string_obligation_address)),
-                ..Default::default()
-            },
-            _obligation_data: PhantomData::<StringObligation>,
-        },
-        &|obligation: &StringObligation| {
-            // Custom validation logic for any capitalization task
-            let result = &obligation.item;
-            // Check if result is all uppercase (simple heuristic)
-            let is_capitalized = !result.is_empty() && result == &result.to_uppercase();
-            Some(is_capitalized)
+    .arbitrate_many_sync(
+        |request| {
+            let result = decode_string_obligation(&request.attestation.data).ok()?;
+            Some(!result.is_empty() && result == result.to_uppercase())
         },
         |decision| async move {
             println!("Arbitrated {}: {}", decision.attestation.uid, decision.decision);
         },
-        &ArbitrateOptions::default(),
+        ArbitrationMode::AllUnarbitrated,
     )
     .await?;
 
 // For more complex validation with access to the original demand
 let escrow_result = charlie_client
     .oracle()
-    .listen_and_arbitrate_for_escrow_sync(
-        &EscrowParams {
-            filter: AttestationFilter {
-                attester: Some(ValueOrArray::Value(escrow_obligation_address)),
-                ..Default::default()
-            },
-            _demand_data: PhantomData::<QueryDemand>,
-        },
-        &FulfillmentParams {
-            filter: AttestationFilter {
-                attester: Some(ValueOrArray::Value(string_obligation_address)),
-                ..Default::default()
-            },
-            _obligation_data: PhantomData::<StringObligation>,
-        },
-        |obligation: &StringObligation, demand: &QueryDemand| {
-            // Validate that the fulfillment matches the demand
-            let query = &demand.query;
-            let result = &obligation.item;
+    .arbitrate_many_sync(
+        |request| {
+            let oracle_demand = decode_trusted_oracle_demand(&request.demand).ok()?;
+            let query = decode_query(&oracle_demand.data).ok()?;
+            let result = decode_string_obligation(&request.attestation.data).ok()?;
 
-            // Support different query types
-            if query.starts_with("capitalize ") {
-                let text_to_capitalize = &query[11..];
-                Some(result == &text_to_capitalize.to_uppercase())
-            } else if query.starts_with("reverse ") {
-                let text_to_reverse = &query[8..];
-                let reversed: String = text_to_reverse.chars().rev().collect();
-                Some(result == &reversed)
-            } else if query.starts_with("length ") {
-                let text_to_measure = &query[7..];
-                Some(result == &text_to_measure.len().to_string())
+            if let Some(text) = query.strip_prefix("capitalize ") {
+                Some(result == text.to_uppercase())
+            } else if let Some(text) = query.strip_prefix("reverse ") {
+                Some(result == text.chars().rev().collect::<String>())
+            } else if let Some(text) = query.strip_prefix("length ") {
+                Some(result == text.len().to_string())
             } else {
                 Some(false)
             }
@@ -803,28 +693,20 @@ let escrow_result = charlie_client
         |decision| async move {
             println!("Validated job: {}", decision.decision);
         },
-        &ArbitrateOptions::default(),
+        ArbitrationMode::AllUnarbitrated,
     )
     .await?;
 
-// Arbitrate past fulfillments (useful for catching up)
+// Arbitrate past fulfillments without re-arbitrating known decisions
 let decisions = charlie_client
     .oracle()
-    .arbitrate_past_sync(
-        &FulfillmentParams {
-            filter: AttestationFilter {
-                attester: Some(ValueOrArray::Value(string_obligation_address)),
-                ..Default::default()
-            },
-            _obligation_data: PhantomData::<StringObligation>,
+    .arbitrate_many_sync(
+        |request| {
+            let result = decode_string_obligation(&request.attestation.data).ok()?;
+            Some(result == result.to_uppercase())
         },
-        &|obligation: &StringObligation| {
-            Some(obligation.item == obligation.item.to_uppercase())
-        },
-        &ArbitrateOptions {
-            skip_arbitrated: true, // Don't re-arbitrate
-            ..Default::default()
-        },
+        |_| async {},
+        ArbitrationMode::PastUnarbitrated,
     )
     .await?;
 ```
@@ -833,96 +715,46 @@ let decisions = charlie_client
 <TabItem value="python" label="Python">
 
 ```python
-# Set up an automatic oracle that validates string capitalization
-from alkahest_py import AttestationFilter, FulfillmentParams, ArbitrateOptions, StringObligationData
+from alkahest_py import ArbitrationMode, PyTrustedOracleArbiterDemandData
+from eth_abi import decode as abi_decode
 
-def validate_capitalization(obligation_str):
-    """Custom validation logic for any capitalization task"""
-    return len(obligation_str) > 0 and obligation_str == obligation_str.upper()
+def validate_capitalization(attestation, demand):
+    (result,) = abi_decode(["string"], attestation.data)
+    return len(result) > 0 and result == result.upper()
 
-fulfillment_filter = AttestationFilter(
-    attester=string_obligation,
-    recipient=None,
-    schema_uid=None,
-    uid=None,
-    ref_uid=None,
-    from_block=0,
-    to_block=None,
-)
-obligation_abi = StringObligationData(item="")
-fulfillment_params = FulfillmentParams(obligation_abi, fulfillment_filter)
-options = ArbitrateOptions(require_oracle=True, skip_arbitrated=False, require_request=False, only_new=False)
-
-unwatch = await charlie_client.oracle.listen_and_arbitrate_no_spawn(
-    fulfillment_params,
+decisions = await charlie_client.oracle.arbitrate_many(
     validate_capitalization,
     lambda decision: print(f"Arbitrated {decision.attestation.uid}: {decision.decision}"),
-    options,
-    1000,  # Check every second
+    ArbitrationMode.AllUnarbitrated,
+    timeout_seconds=10.0,
 )
 
-# For more complex validation with access to the original demand
-from eth_abi import decode as abi_decode
-from alkahest_py import EscrowParams, TrustedOracleArbiterDemandData
-
-def validate_with_demand(obligation_str, demand_data):
-    """Validate that the fulfillment matches the demand"""
-    # demand_data is a TrustedOracleArbiterDemandData object with fields: oracle, data (bytes)
-    try:
-        (query,) = abi_decode(['string'], demand_data.data)
-    except Exception:
-        return False
+def validate_with_demand(attestation, demand):
+    oracle_demand = PyTrustedOracleArbiterDemandData.decode(demand)
+    (query,) = abi_decode(["string"], oracle_demand.data)
+    (result,) = abi_decode(["string"], attestation.data)
 
     if query.startswith("capitalize "):
-        text_to_capitalize = query[11:]
-        return obligation_str == text_to_capitalize.upper()
-    elif query.startswith("reverse "):
-        text_to_reverse = query[8:]
-        return obligation_str == text_to_reverse[::-1]
-    elif query.startswith("length "):
-        text_to_measure = query[7:]
-        return obligation_str == str(len(text_to_measure))
+        return result == query[11:].upper()
+    if query.startswith("reverse "):
+        return result == query[8:][::-1]
+    if query.startswith("length "):
+        return result == str(len(query[7:]))
 
     return False
 
-escrow_filter = AttestationFilter(
-    attester=erc20_escrow_obligation,
-    recipient=None,
-    schema_uid=None,
-    uid=None,
-    ref_uid=None,
-    from_block=0,
-    to_block=None,
-)
-fulfillment_filter = AttestationFilter(
-    attester=string_obligation,
-    recipient=None,
-    schema_uid=None,
-    uid=None,
-    ref_uid=None,
-    from_block=0,
-    to_block=None,
-)
-
-demand_abi = TrustedOracleArbiterDemandData(charlie, b"").encode_self()
-escrow_params = EscrowParams(demand_abi, escrow_filter)
-obligation_abi = StringObligationData(item="")
-fulfillment_params = FulfillmentParams(obligation_abi, fulfillment_filter)
-
-unwatch_escrow = await charlie_client.oracle.listen_and_arbitrate_for_escrow_no_spawn(
-    escrow_params,
-    fulfillment_params,
+decisions = await charlie_client.oracle.arbitrate_many(
     validate_with_demand,
     lambda decision: print(f"Validated job: {decision.decision}"),
-    options,
-    1000,
+    ArbitrationMode.AllUnarbitrated,
+    timeout_seconds=10.0,
 )
 
-# Arbitrate past fulfillments (useful for catching up)
-decisions = await charlie_client.oracle.arbitrate_past_sync(
-    fulfillment_params,
-    lambda obligation_str: obligation_str == obligation_str.upper(),
-    ArbitrateOptions(require_oracle=True, skip_arbitrated=True, require_request=False, only_new=False),
+# Arbitrate past fulfillments without re-arbitrating known decisions
+past_decisions = await charlie_client.oracle.arbitrate_many(
+    validate_capitalization,
+    None,
+    ArbitrationMode.PastUnarbitrated,
 )
 ```
 

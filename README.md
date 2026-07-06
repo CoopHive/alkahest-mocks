@@ -69,13 +69,13 @@ Each SDK has its own setup and usage instructions:
 
 Comprehensive guides and tutorials are available in the [docs/](docs/) directory:
 
-- **[Escrow Flow (pt 1 - Token Trading)](<docs/Escrow%20Flow%20(pt%201%20-%20Token%20Trading).md>)** - Trade tokens for tokens using escrow and payment obligations
-- **[Escrow Flow (pt 2 - Job Trading)](<docs/Escrow%20Flow%20(pt%202%20-%20Job%20Trading).md>)** - Escrow with off-chain validation via TrustedOracleArbiter
-- **[Escrow Flow (pt 3 - Composing Demands)](<docs/Escrow%20Flow%20(pt%203%20-%20Composing%20Demands).md>)** - Composing arbiter conditions with AllArbiter and AnyArbiter
-- **[Writing Arbiters (pt 1 - On-chain Arbiters)](<docs/Writing%20Arbiters%20(pt%201%20-%20On-chain%20Arbiters).md>)** - Create custom on-chain validation logic
-- **[Writing Arbiters (pt 2 - Off-chain Oracles)](<docs/Writing%20Arbiters%20(pt%202%20-%20Off-chain%20Oracles)%20(Python).md>)** - Build off-chain oracle validators ([Python](<docs/Writing%20Arbiters%20(pt%202%20-%20Off-chain%20Oracles)%20(Python).md>), [Rust](<docs/Writing%20Arbiters%20(pt%202%20-%20Off-chain%20Oracles)%20(Rust).md>), [TypeScript](<docs/Writing%20Arbiters%20(pt%202%20-%20Off-chain%20Oracles)%20(TypeScript).md>))
-- **[Writing Escrow Contracts](docs/Writing%20Escrow%20Contracts.md)** - Create custom escrow obligations
-- **[Writing Fulfillment Contracts](docs/Writing%20Fulfillment%20Contracts.md)** - Create custom fulfillment obligations
+- **[Escrow Flow (pt 1 - Token Trading)](<docs/website/Escrow%20Flow/Token%20Trading.mdx>)** - Trade tokens for tokens using escrow and payment obligations
+- **[Escrow Flow (pt 2 - Job Trading)](<docs/website/Escrow%20Flow/Job%20Trading.mdx>)** - Escrow with off-chain validation via TrustedOracleArbiter
+- **[Escrow Flow (pt 3 - Composing Demands)](<docs/website/Escrow%20Flow/Composing%20Demands.mdx>)** - Composing arbiter conditions with AllArbiter and AnyArbiter
+- **[Writing Arbiters (pt 1 - On-chain Arbiters)](<docs/website/Writing%20Arbiters/On-chain%20Arbiters.mdx>)** - Create custom on-chain validation logic
+- **[Writing Arbiters (pt 2 - Off-chain Oracles)](<docs/website/Writing%20Arbiters/Off-chain%20Oracles.mdx>)** - Build off-chain oracle validators
+- **[Writing Escrow Contracts](<docs/website/Writing%20Escrow%20Contracts.md>)** - Create custom escrow obligations
+- **[Writing Fulfillment Contracts](<docs/website/Writing%20Fulfillment%20Contracts.md>)** - Create custom fulfillment obligations
 
 ## Development
 
@@ -93,10 +93,10 @@ Comprehensive guides and tutorials are available in the [docs/](docs/) directory
 cd contracts && forge build
 
 # Build TypeScript SDK
-cd sdks/ts && npm install && npm run build
+cd sdks/ts && bun install && bun run build
 
 # Build Python SDK
-cd sdks/py && pip install -e .
+cd sdks/py && uv sync
 
 # Build Rust SDK
 cd sdks/rs && cargo build

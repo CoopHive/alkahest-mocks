@@ -21,7 +21,7 @@ from alkahest_py import (
 )
 
 config = DefaultExtensionConfig(
-    erc20_addresses=PyErc20Addresses(eas="0x...", barter_utils="0x...", ...),
+    erc20_addresses=PyErc20Addresses(eas="0x...", atomic_payment_utils="0x...", ...),
     # ... other address configs
 )
 client = PyAlkahestClient("0xPRIVATE_KEY", "https://rpc-url", config)
