@@ -10,7 +10,7 @@ import asyncio
 import json
 import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from alkahest_py import (
     EnvTestManager,
     MockERC20,
@@ -45,7 +45,7 @@ class UptimeJob:
 class SchedulerContext:
     job_db: Dict[str, UptimeJob] = field(default_factory=dict)
     url_index: Dict[str, str] = field(default_factory=dict)
-    notify: Optional[asyncio.Event] = field(default_factory=asyncio.Event)
+    notify: asyncio.Event = field(default_factory=asyncio.Event)
 
 
 async def run_worker(ctx: SchedulerContext, oracle_client) -> None:
