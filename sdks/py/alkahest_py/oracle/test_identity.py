@@ -4,7 +4,7 @@ Test contextless offchain identity oracle flow
 import pytest
 import json
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 from eth_account import Account
 from eth_account.messages import encode_defunct
 from alkahest_py import (
@@ -78,7 +78,7 @@ def verify_identity_decision(attestation, client) -> bool:
     except Exception:
         return False
 
-async def create_identity_payload(account: Account, nonce: int, data: str = "proof-of-identity") -> str:
+async def create_identity_payload(account: Any, nonce: int, data: str = "proof-of-identity") -> str:
     """Create a signed identity payload"""
     message = f"{data}:{nonce}"
     encoded_message = encode_defunct(text=message)

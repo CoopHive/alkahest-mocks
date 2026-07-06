@@ -14,6 +14,11 @@ classifiers = [
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+include = [
+    { path = "alkahest_py/__init__.pyi", format = "wheel" },
+    { path = "alkahest_py/alkahest_py.pyi", format = "wheel" },
+    { path = "alkahest_py/py.typed", format = "wheel" },
+]
 
 [dependency-groups]
 dev = [
