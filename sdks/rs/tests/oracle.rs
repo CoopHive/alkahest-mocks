@@ -9,7 +9,7 @@ mod tests {
         types::{ArbiterData, Erc20Data},
         utils::TestContext,
     };
-    use alloy::primitives::{FixedBytes, bytes};
+    use alloy::primitives::{Bytes, FixedBytes, bytes};
     use std::{
         sync::Arc,
         time::{Duration, SystemTime, UNIX_EPOCH},
@@ -80,11 +80,7 @@ mod tests {
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(
-                fulfillment_uid,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(fulfillment_uid, test.bob.address(), bytes!(""))
             .await?;
 
         let bob_client = test.bob_client.clone();
@@ -133,19 +129,11 @@ mod tests {
         // Request arbitration for both
         test.bob_client
             .oracle()
-            .request_arbitration(
-                good_fulfillment,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(good_fulfillment, test.bob.address(), bytes!(""))
             .await?;
         test.bob_client
             .oracle()
-            .request_arbitration(
-                bad_fulfillment,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(bad_fulfillment, test.bob.address(), bytes!(""))
             .await?;
 
         let bob_client = test.bob_client.clone();
@@ -183,13 +171,13 @@ mod tests {
 
         let fulfillment_uid = make_fulfillment(&test, "good", escrow_uid).await?;
 
-        // Request arbitration
+        // Request arbitration for the first decision context.
         test.bob_client
             .oracle()
             .request_arbitration(
                 fulfillment_uid,
                 test.bob.address(),
-                arbiter_item.demand.clone(),
+                Bytes::from_static(b"context-one"),
             )
             .await?;
 
@@ -205,7 +193,10 @@ mod tests {
                             &awd.attestation,
                         )
                         .ok()?;
-                    Some(obligation.item == "good")
+                    Some(
+                        obligation.item == "good"
+                            && awd.demand == Bytes::from_static(b"context-one"),
+                    )
                 },
                 |_| async {},
                 ArbitrationMode::Past,
@@ -214,7 +205,16 @@ mod tests {
 
         assert_eq!(result.past_decisions.len(), 1);
 
-        // Second arbitration with PastUnarbitrated should find nothing
+        // A second context for the same fulfillment has a distinct decision key.
+        test.bob_client
+            .oracle()
+            .request_arbitration(
+                fulfillment_uid,
+                test.bob.address(),
+                Bytes::from_static(b"context-two"),
+            )
+            .await?;
+
         let bob_client2 = test.bob_client.clone();
         let result = test
             .bob_client
@@ -226,18 +226,18 @@ mod tests {
                             &awd.attestation,
                         )
                         .ok()?;
-                    Some(obligation.item == "good")
+                    Some(
+                        obligation.item == "good"
+                            && awd.demand == Bytes::from_static(b"context-two"),
+                    )
                 },
                 |_| async {},
                 ArbitrationMode::PastUnarbitrated,
             )
             .await?;
 
-        assert_eq!(
-            result.past_decisions.len(),
-            0,
-            "Should skip already arbitrated"
-        );
+        assert_eq!(result.past_decisions.len(), 1);
+        assert!(result.past_decisions[0].decision);
 
         Ok(())
     }
@@ -252,11 +252,7 @@ mod tests {
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(
-                fulfillment_uid,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(fulfillment_uid, test.bob.address(), bytes!(""))
             .await?;
 
         let bob_client = Arc::new(test.bob_client.clone());
@@ -297,11 +293,7 @@ mod tests {
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(
-                fulfillment_uid,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(fulfillment_uid, test.bob.address(), bytes!(""))
             .await?;
 
         let oracle_client = Arc::new(test.bob_client.oracle().clone());
@@ -365,16 +357,12 @@ mod tests {
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(
-                fulfillment_uid,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(fulfillment_uid, test.bob.address(), bytes!(""))
             .await?;
 
         test.bob_client
             .oracle()
-            .wait_for_arbitration(fulfillment_uid, None, None, None)
+            .wait_for_arbitration(fulfillment_uid, bytes!(""), test.bob.address(), None)
             .await?;
 
         let collection = test
@@ -412,11 +400,7 @@ mod tests {
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(
-                fulfillment_uid,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(fulfillment_uid, test.bob.address(), bytes!(""))
             .await?;
 
         let bob_client = Arc::new(test.bob_client.clone());
@@ -446,7 +430,7 @@ mod tests {
 
         test.bob_client
             .oracle()
-            .wait_for_arbitration(fulfillment_uid, None, None, None)
+            .wait_for_arbitration(fulfillment_uid, bytes!(""), test.bob.address(), None)
             .await?;
 
         let collection = test
@@ -483,19 +467,11 @@ mod tests {
         // Request arbitration for both
         test.bob_client
             .oracle()
-            .request_arbitration(
-                good_fulfillment,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(good_fulfillment, test.bob.address(), bytes!(""))
             .await?;
         test.bob_client
             .oracle()
-            .request_arbitration(
-                bad_fulfillment,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(bad_fulfillment, test.bob.address(), bytes!(""))
             .await?;
 
         let oracle_client = Arc::new(test.bob_client.oracle().clone());
@@ -525,7 +501,7 @@ mod tests {
 
         test.bob_client
             .oracle()
-            .wait_for_arbitration(good_fulfillment, None, None, None)
+            .wait_for_arbitration(good_fulfillment, bytes!(""), test.bob.address(), None)
             .await?;
 
         let collection = test
@@ -557,11 +533,7 @@ mod tests {
         // Request arbitration
         test.bob_client
             .oracle()
-            .request_arbitration(
-                fulfillment_uid,
-                test.bob.address(),
-                arbiter_item.demand.clone(),
-            )
+            .request_arbitration(fulfillment_uid, test.bob.address(), bytes!(""))
             .await?;
 
         let oracle_client = test.bob_client.oracle().clone();
@@ -588,7 +560,7 @@ mod tests {
 
         test.bob_client
             .oracle()
-            .wait_for_arbitration(fulfillment_uid, None, None, None)
+            .wait_for_arbitration(fulfillment_uid, bytes!(""), test.bob.address(), None)
             .await?;
 
         let collection = test

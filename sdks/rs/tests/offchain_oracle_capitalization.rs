@@ -15,7 +15,7 @@ use alkahest_rs::{
     types::{ArbiterData, Erc20Data},
     utils::{TestContext, setup_test_environment},
 };
-use alloy::{primitives::Bytes, sol_types::SolType};
+use alloy::primitives::Bytes;
 use eyre::{Result, WrapErr, eyre};
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -112,7 +112,7 @@ async fn run_synchronous_oracle_capitalization_example(test: &TestContext) -> ey
     // Step 3. Bob asks Charlie to arbitrate his fulfillment.
     test.bob_client
         .oracle()
-        .request_arbitration(fulfillment_uid, charlie_client.address, encoded_demand)
+        .request_arbitration(fulfillment_uid, charlie_client.address, inner_demand_data)
         .await?;
 
     println!("step4: bob requested arbitration from charlie");
@@ -132,14 +132,7 @@ async fn run_synchronous_oracle_capitalization_example(test: &TestContext) -> ey
                         return Some(false);
                     };
 
-                    let Ok(decoded_demand) =
-                        <contracts::arbiters::TrustedOracleArbiter::DemandData as SolType>::abi_decode(
-                            demand.as_ref(),
-                        )
-                    else {
-                        return Some(false);
-                    };
-                    let Ok(payload) = serde_json::from_slice::<ShellOracleDemand>(decoded_demand.data.as_ref())
+                    let Ok(payload) = serde_json::from_slice::<ShellOracleDemand>(demand.as_ref())
                     else {
                         return Some(false);
                     };

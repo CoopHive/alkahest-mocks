@@ -188,8 +188,7 @@ test("asynchronous offchain oracle uptime flow", { timeout: 15000 }, async () =>
       if (!fulfillmentUid || ctx.jobDb.has(fulfillmentUid)) return null;
 
       // Extract demand data from callback argument (no need to fetch from escrow!)
-      const outerDemand = testContext.charlie.client.arbiters.general.trustedOracle.decodeDemand(demand);
-      const demandData = decodeAbiParameters(uptimeDemandAbi, outerDemand.data);
+      const demandData = decodeAbiParameters(uptimeDemandAbi, demand);
 
       const payloadHex = demandData[0]?.payload;
       if (!payloadHex) return null;
@@ -227,13 +226,13 @@ test("asynchronous offchain oracle uptime flow", { timeout: 15000 }, async () =>
   await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.charlie.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   const arbitration = await testContext.charlie.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.charlie.address,
-    demand,
+    testContext.charlie.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   expect(arbitration?.decision).toBe(true);

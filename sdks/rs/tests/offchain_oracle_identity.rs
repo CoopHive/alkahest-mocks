@@ -5,7 +5,7 @@ use std::{
 use alkahest_rs::{
     DefaultAlkahestClient,
     clients::oracle::ArbitrationMode,
-    contracts::{self, obligations::StringObligation},
+    contracts::obligations::StringObligation,
     extensions::{HasArbiters, HasOracle, HasStringObligation},
     utils::{TestContext, setup_test_environment},
 };
@@ -106,12 +106,6 @@ async fn run_contextless_identity_example(test: &TestContext) -> eyre::Result<()
         .arbitrate_many_async(verify_identity, |_| async {}, ArbitrationMode::Future)
         .await?;
 
-    let demand: Bytes = contracts::arbiters::TrustedOracleArbiter::DemandData {
-        oracle: charlie_client.address,
-        data: Bytes::default(),
-    }
-    .into();
-
     async fn create_payload(
         signer: &PrivateKeySigner,
         address: Address,
@@ -139,7 +133,7 @@ async fn run_contextless_identity_example(test: &TestContext) -> eyre::Result<()
 
     test.bob_client
         .oracle()
-        .request_arbitration(good_uid, charlie_client.address, demand.clone())
+        .request_arbitration(good_uid, charlie_client.address, Bytes::default())
         .await?;
 
     let first_log = tokio::time::timeout(
@@ -147,6 +141,7 @@ async fn run_contextless_identity_example(test: &TestContext) -> eyre::Result<()
         charlie_arbiters.trusted_oracle().wait_for_arbitration(
             charlie_client.address,
             good_uid,
+            Bytes::default(),
             None,
         ),
     )
@@ -173,7 +168,7 @@ async fn run_contextless_identity_example(test: &TestContext) -> eyre::Result<()
 
     test.bob_client
         .oracle()
-        .request_arbitration(bad_uid, charlie_client.address, demand)
+        .request_arbitration(bad_uid, charlie_client.address, Bytes::default())
         .await?;
 
     let second_log = tokio::time::timeout(
@@ -181,6 +176,7 @@ async fn run_contextless_identity_example(test: &TestContext) -> eyre::Result<()
         charlie_arbiters.trusted_oracle().wait_for_arbitration(
             charlie_client.address,
             bad_uid,
+            Bytes::default(),
             None,
         ),
     )

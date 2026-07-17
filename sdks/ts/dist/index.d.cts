@@ -660,7 +660,7 @@ type ArbitrateManyOptions = {
     pollingInterval?: number;
 };
 /**
- * An attestation paired with its associated demand data from ArbitrationRequested event
+ * An attestation paired with the raw inner decision context from ArbitrationRequested.
  */
 type AttestationWithDemand = {
     attestation: Attestation;
@@ -717,14 +717,14 @@ declare const makeDefaultExtension: (client: any) => {
                 decodeDemand: (demandData: `0x${string}`) => TrustedOracleArbiterDemandData;
                 arbitrateForDemand: (fulfillmentUid: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
                 arbitrateRaw: (fulfillmentUid: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-                requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
-                checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+                requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
+                checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                     decisionKey: `0x${string}`;
                     fulfillmentUid: `0x${string}`;
                     oracle: `0x${string}`;
                     decision: boolean;
                 } | undefined>;
-                waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+                waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                     decisionKey?: `0x${string}` | undefined;
                     fulfillmentUid?: `0x${string}` | undefined;
                     oracle?: `0x${string}` | undefined;
@@ -743,7 +743,7 @@ declare const makeDefaultExtension: (client: any) => {
                 arbitrate: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
                 arbitrateRaw: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
                 arbitrateForDemand: (intentHash: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-                requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+                requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
                 getArbitrationRequests: (options?: CommitmentArbitrateManyOptions) => Promise<CommitmentArbitrationRequest[]>;
                 getArbitrationRequestLogs: (options?: {
                     fromBlock?: viem.BlockNumber | viem.BlockTag;
@@ -821,13 +821,13 @@ declare const makeDefaultExtension: (client: any) => {
                         readonly name: "decision";
                     }];
                 }], undefined, bigint | "latest" | "earliest" | "pending" | "safe" | "finalized", bigint | "latest" | "earliest" | "pending" | "safe" | "finalized">>;
-                checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+                checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                     decisionKey: `0x${string}`;
                     intentHash: `0x${string}`;
                     oracle: `0x${string}`;
                     decision: boolean;
                 } | undefined>;
-                waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+                waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                     decisionKey?: `0x${string}` | undefined;
                     intentHash?: `0x${string}` | undefined;
                     oracle?: `0x${string}` | undefined;
@@ -849,14 +849,14 @@ declare const makeDefaultExtension: (client: any) => {
                 decodeDemand: (demandData: `0x${string}`) => TrustedOracleArbiterDemandData;
                 arbitrateForDemand: (fulfillmentUid: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
                 arbitrateRaw: (fulfillmentUid: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-                requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
-                checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+                requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
+                checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                     decisionKey: `0x${string}`;
                     fulfillmentUid: `0x${string}`;
                     oracle: `0x${string}`;
                     decision: boolean;
                 } | undefined>;
-                waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+                waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                     decisionKey?: `0x${string}` | undefined;
                     fulfillmentUid?: `0x${string}` | undefined;
                     oracle?: `0x${string}` | undefined;
@@ -874,7 +874,7 @@ declare const makeDefaultExtension: (client: any) => {
                 arbitrate: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
                 arbitrateRaw: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
                 arbitrateForDemand: (intentHash: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-                requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+                requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
                 getArbitrationRequests: (options?: CommitmentArbitrateManyOptions) => Promise<CommitmentArbitrationRequest[]>;
                 getArbitrationRequestLogs: (options?: {
                     fromBlock?: viem.BlockNumber | viem.BlockTag;
@@ -952,13 +952,13 @@ declare const makeDefaultExtension: (client: any) => {
                         readonly name: "decision";
                     }];
                 }], undefined, bigint | "latest" | "earliest" | "pending" | "safe" | "finalized", bigint | "latest" | "earliest" | "pending" | "safe" | "finalized">>;
-                checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+                checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                     decisionKey: `0x${string}`;
                     intentHash: `0x${string}`;
                     oracle: `0x${string}`;
                     decision: boolean;
                 } | undefined>;
-                waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+                waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                     decisionKey?: `0x${string}` | undefined;
                     intentHash?: `0x${string}` | undefined;
                     oracle?: `0x${string}` | undefined;
@@ -10996,14 +10996,14 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
             decodeDemand: (demandData: `0x${string}`) => TrustedOracleArbiterDemandData;
             arbitrateForDemand: (fulfillmentUid: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
             arbitrateRaw: (fulfillmentUid: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-            requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
-            checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+            requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
+            checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                 decisionKey: `0x${string}`;
                 fulfillmentUid: `0x${string}`;
                 oracle: `0x${string}`;
                 decision: boolean;
             } | undefined>;
-            waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+            waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                 decisionKey?: `0x${string}` | undefined;
                 fulfillmentUid?: `0x${string}` | undefined;
                 oracle?: `0x${string}` | undefined;
@@ -11022,7 +11022,7 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
             arbitrate: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
             arbitrateRaw: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
             arbitrateForDemand: (intentHash: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-            requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+            requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
             getArbitrationRequests: (options?: CommitmentArbitrateManyOptions) => Promise<CommitmentArbitrationRequest[]>;
             getArbitrationRequestLogs: (options?: {
                 fromBlock?: viem.BlockNumber | viem.BlockTag;
@@ -11100,13 +11100,13 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
                     readonly name: "decision";
                 }];
             }], undefined, bigint | "latest" | "earliest" | "pending" | "safe" | "finalized", bigint | "latest" | "earliest" | "pending" | "safe" | "finalized">>;
-            checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+            checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                 decisionKey: `0x${string}`;
                 intentHash: `0x${string}`;
                 oracle: `0x${string}`;
                 decision: boolean;
             } | undefined>;
-            waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+            waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                 decisionKey?: `0x${string}` | undefined;
                 intentHash?: `0x${string}` | undefined;
                 oracle?: `0x${string}` | undefined;
@@ -11128,14 +11128,14 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
             decodeDemand: (demandData: `0x${string}`) => TrustedOracleArbiterDemandData;
             arbitrateForDemand: (fulfillmentUid: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
             arbitrateRaw: (fulfillmentUid: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-            requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
-            checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+            requestArbitration: (fulfillmentUid: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
+            checkExistingArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                 decisionKey: `0x${string}`;
                 fulfillmentUid: `0x${string}`;
                 oracle: `0x${string}`;
                 decision: boolean;
             } | undefined>;
-            waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+            waitForArbitration: (fulfillmentUid: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                 decisionKey?: `0x${string}` | undefined;
                 fulfillmentUid?: `0x${string}` | undefined;
                 oracle?: `0x${string}` | undefined;
@@ -11153,7 +11153,7 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
             arbitrate: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
             arbitrateRaw: (intentHash: `0x${string}`, decisionContext: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
             arbitrateForDemand: (intentHash: `0x${string}`, demand: `0x${string}`, decision: boolean) => Promise<`0x${string}`>;
-            requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, demand: `0x${string}`) => Promise<`0x${string}`>;
+            requestArbitration: (intentHash: `0x${string}`, oracle: abitype.Address, decisionContext: `0x${string}`) => Promise<`0x${string}`>;
             getArbitrationRequests: (options?: CommitmentArbitrateManyOptions) => Promise<CommitmentArbitrationRequest[]>;
             getArbitrationRequestLogs: (options?: {
                 fromBlock?: viem.BlockNumber | viem.BlockTag;
@@ -11231,13 +11231,13 @@ declare const makeArbitersClient: (viemClient: ViemClient, addresses: ChainAddre
                     readonly name: "decision";
                 }];
             }], undefined, bigint | "latest" | "earliest" | "pending" | "safe" | "finalized", bigint | "latest" | "earliest" | "pending" | "safe" | "finalized">>;
-            checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`) => Promise<{
+            checkExistingArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`) => Promise<{
                 decisionKey: `0x${string}`;
                 intentHash: `0x${string}`;
                 oracle: `0x${string}`;
                 decision: boolean;
             } | undefined>;
-            waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, demand: `0x${string}`, pollingInterval?: number) => Promise<{
+            waitForArbitration: (intentHash: `0x${string}`, oracle: `0x${string}`, decisionContext: `0x${string}`, pollingInterval?: number) => Promise<{
                 decisionKey?: `0x${string}` | undefined;
                 intentHash?: `0x${string}` | undefined;
                 oracle?: `0x${string}` | undefined;

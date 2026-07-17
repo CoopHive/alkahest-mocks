@@ -11,7 +11,6 @@ from alkahest_py import (
     EnvTestManager,
     ArbitrationMode,
     AlkahestClient,
-    TrustedOracleArbiterDemandData,
 )
 
 @dataclass
@@ -127,8 +126,6 @@ async def test_contextless_offchain_identity_oracle_flow(env, bob_client, charli
     def callback(decision):
         pass
 
-    demand_bytes = TrustedOracleArbiterDemandData(oracle_address, b"").encode_self()
-
     # Test 1: Valid identity proof with nonce 1 (should succeed)
     good_payload = await create_identity_payload(identity_account, 1)
     good_uid = await bob_client.string_obligation.do_obligation(
@@ -136,7 +133,7 @@ async def test_contextless_offchain_identity_oracle_flow(env, bob_client, charli
         None  # No escrow reference (contextless)
     )
 
-    await bob_client.oracle.request_arbitration(good_uid, oracle_address, demand_bytes)
+    await bob_client.oracle.request_arbitration(good_uid, oracle_address, b"")
 
     # Process the arbitration (skip already arbitrated items)
     decisions1 = await oracle_client.oracle.arbitrate_many(
@@ -161,7 +158,7 @@ async def test_contextless_offchain_identity_oracle_flow(env, bob_client, charli
         None
     )
 
-    await bob_client.oracle.request_arbitration(bad_uid, oracle_address, demand_bytes)
+    await bob_client.oracle.request_arbitration(bad_uid, oracle_address, b"")
 
     # Process the arbitration (skip already arbitrated, so only process the new one)
     decisions2 = await oracle_client.oracle.arbitrate_many(

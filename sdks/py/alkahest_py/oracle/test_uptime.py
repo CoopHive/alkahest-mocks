@@ -14,8 +14,8 @@ from typing import Dict, List, Tuple
 from alkahest_py import (
     EnvTestManager,
     MockERC20,
-    TrustedOracleArbiterDemandData,
     ArbitrationMode,
+    TrustedOracleArbiterDemandData,
 )
 
 
@@ -153,7 +153,7 @@ async def test_asynchronous_offchain_oracle_uptime_flow(env, alice_client, bob_c
 
     # Step 3: Request arbitration
     await bob_client.oracle.request_arbitration(
-        fulfillment_uid, oracle_address, demand_bytes
+        fulfillment_uid, oracle_address, inner_demand_data
     )
 
     # Step 4: Set up scheduler context (shared state between listener and worker)
@@ -178,9 +178,7 @@ async def test_asynchronous_offchain_oracle_uptime_flow(env, alice_client, bob_c
             if uid is None or uid in ctx.job_db:
                 return None
 
-            decoded_demand = TrustedOracleArbiterDemandData.decode(demand)
-            inner_demand = bytes(decoded_demand.data)
-            demand_json = json.loads(inner_demand.decode("utf-8"))
+            demand_json = json.loads(bytes(demand).decode("utf-8"))
 
             # Verify URL matches
             if statement != demand_json["service_url"]:
@@ -203,7 +201,7 @@ async def test_asynchronous_offchain_oracle_uptime_flow(env, alice_client, bob_c
             ctx.job_db[uid] = UptimeJob(
                 min_uptime=demand_json["min_uptime"],
                 schedule=schedule,
-                demand=inner_demand,
+                demand=bytes(demand),
             )
             ctx.notify.set()  # Wake up worker
 

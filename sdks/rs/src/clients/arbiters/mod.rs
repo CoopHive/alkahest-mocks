@@ -397,7 +397,7 @@ impl ArbitersModule {
     /// # Example
     /// ```rust,ignore
     /// let receipt = arbiters_module.trusted_oracle().arbitrate_for_demand(obligation, demand, true).await?;
-    /// let event = arbiters_module.trusted_oracle().wait_for_arbitration(oracle, obligation, None).await?;
+    /// let event = arbiters_module.trusted_oracle().wait_for_arbitration(oracle, obligation, demand_context, None).await?;
     /// ```
     pub fn trusted_oracle(&self) -> trusted_oracle::TrustedOracle<'_> {
         trusted_oracle::TrustedOracle::new(self)

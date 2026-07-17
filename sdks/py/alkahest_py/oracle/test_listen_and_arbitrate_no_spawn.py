@@ -46,7 +46,7 @@ async def test_arbitrate_many_all(env, alice_client, bob_client, charlie_client)
     fulfillment_uid = await string_client.do_obligation("good", escrow_uid)
 
     # Bob (fulfiller) requests Charlie (oracle) to arbitrate
-    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, demand_bytes)
+    await bob_client.oracle.request_arbitration(fulfillment_uid, env.charlie, inner_demand_data)
 
     oracle_client = charlie_client.oracle
 
