@@ -16,10 +16,7 @@ use alkahest_rs::{
     types::{ArbiterData, Erc20Data},
     utils::{TestContext, setup_test_environment},
 };
-use alloy::{
-    primitives::{Bytes, FixedBytes},
-    sol_types::SolType,
-};
+use alloy::primitives::{Bytes, FixedBytes};
 use eyre::{Result, WrapErr, eyre};
 use serde::{Deserialize, Serialize};
 use tokio::sync::{Mutex, Notify};
@@ -88,15 +85,7 @@ fn schedule_pings(
             return None;
         };
 
-        let Ok(decoded_demand) =
-            <contracts::arbiters::TrustedOracleArbiter::DemandData as SolType>::abi_decode(
-                demand_bytes.as_ref(),
-            )
-        else {
-            return None;
-        };
-
-        let inner_demand_data = decoded_demand.data;
+        let inner_demand_data = demand_bytes;
         let Ok(parsed_demand) = serde_json::from_slice::<UptimeDemand>(inner_demand_data.as_ref())
         else {
             return None;
@@ -182,7 +171,7 @@ async fn setup_escrow_with_uptime_demand(
         .await?;
     let fulfillment_uid = DefaultAlkahestClient::get_attested_event(fulfillment_receipt)?.uid;
 
-    Ok((escrow_uid, fulfillment_uid, service_url, encoded_demand))
+    Ok((escrow_uid, fulfillment_uid, service_url, inner_demand_data))
 }
 
 async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()> {
@@ -200,7 +189,7 @@ async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()>
         check_interval_secs: 2,
     };
 
-    let (escrow_uid, fulfillment_uid, service_url, encoded_demand) =
+    let (escrow_uid, fulfillment_uid, service_url, inner_demand_data) =
         setup_escrow_with_uptime_demand(test, &demand, charlie_client.address).await?;
 
     let url_index: UrlIndex = Arc::new(Mutex::new(HashMap::new()));
@@ -273,7 +262,11 @@ async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()>
 
     test.bob_client
         .oracle()
-        .request_arbitration(fulfillment_uid, charlie_client.address, encoded_demand)
+        .request_arbitration(
+            fulfillment_uid,
+            charlie_client.address,
+            inner_demand_data.clone(),
+        )
         .await?;
 
     // Listen for arbitration requests
@@ -291,6 +284,7 @@ async fn run_async_uptime_oracle_example(test: &TestContext) -> eyre::Result<()>
         charlie_arbiters.trusted_oracle().wait_for_arbitration(
             charlie_client.address,
             fulfillment_uid,
+            inner_demand_data,
             None,
         ),
     )

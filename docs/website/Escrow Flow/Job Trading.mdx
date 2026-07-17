@@ -55,12 +55,13 @@ bytes32 escrowUid = erc20EscrowObligation.doObligation(
 ```typescript
 import { encodeAbiParameters, parseAbiParameters } from "viem";
 
-// Encode the demand with TrustedOracleArbiter
-const demand = aliceClient.arbiters.encodeTrustedOracleDemand({
-  oracle: charlie, // Charlie's address as the trusted oracle
-  data: encodeAbiParameters(parseAbiParameters("(string query)"), [
-    { query: "capitalize hello world" },
-  ]),
+// Encode the raw decision context, then wrap it for the escrow
+const decisionContext = encodeAbiParameters(parseAbiParameters("(string query)"), [
+  { query: "capitalize hello world" },
+]);
+const demand = aliceClient.arbiters.general.trustedOracle.encodeDemand({
+  oracle: charlie,
+  data: decisionContext,
 });
 
 // Deposit ERC-20 into escrow with permit (gasless approval - single step)
@@ -83,12 +84,13 @@ const { attested: escrow } = await aliceClient.erc20.escrow.default.approveAndCr
 
 ```rust
 use alloy::sol_types::SolValue;
-use alkahest_rs::sol_types::ArbiterDemand;
+use alkahest_rs::contracts::arbiters::TrustedOracleArbiter;
 
-// Encode the demand with TrustedOracleArbiter
-let demand_data = ArbiterDemand {
+// Encode the raw decision context, then wrap it for the escrow
+let decision_context = "capitalize hello world".abi_encode().into();
+let demand_data = TrustedOracleArbiter::DemandData {
     oracle: charlie_address,
-    demand: "capitalize hello world".abi_encode().into(),
+    data: decision_context.clone(),
 };
 let demand = demand_data.abi_encode().into();
 
@@ -98,7 +100,7 @@ let price = Erc20Data {
 };
 let item = ArbiterData {
     arbiter: trusted_oracle_arbiter,
-    demand: demand,
+    demand: demand.clone(),
 };
 
 // Deposit ERC-20 into escrow with permit (gasless approval - single step)
@@ -189,8 +191,9 @@ bytes32 fulfillmentUid = stringObligation.doObligation(
     escrowUid  // Reference to the escrow being fulfilled
 );
 
-// Bob requests arbitration from Charlie
-trustedOracleArbiter.requestArbitration(fulfillmentUid, charlie);
+// Bob requests arbitration from Charlie using the raw inner decision context
+bytes memory decisionContext = abi.encode("capitalize hello world");
+trustedOracleArbiter.requestArbitration(fulfillmentUid, charlie, decisionContext);
 ```
 
 </TabItem>
@@ -203,8 +206,12 @@ const { attested: fulfillment } = await bobClient.stringObligation.doObligation(
   escrow.uid, // Reference to the escrow being fulfilled
 );
 
-// Bob requests arbitration from Charlie
-await bobClient.oracle.requestArbitration(fulfillment.uid, charlie);
+// Bob requests arbitration with the same raw context used by the escrow
+await bobClient.arbiters.general.trustedOracle.requestArbitration(
+  fulfillment.uid,
+  charlie,
+  decisionContext,
+);
 ```
 
 </TabItem>
@@ -221,10 +228,10 @@ let fulfillment_receipt = bob_client
     .await?;
 let fulfillment_uid = get_attested_event(fulfillment_receipt)?.uid;
 
-// Bob requests arbitration from Charlie
+// Bob requests arbitration with the same raw context used by the escrow
 bob_client
     .oracle()
-    .request_arbitration(fulfillment_uid, charlie_address)
+    .request_arbitration(fulfillment_uid, charlie_address, decision_context)
     .await?;
 ```
 
@@ -237,6 +244,9 @@ fulfillment_uid = await bob_client.string_obligation.do_obligation(
     "HELLO WORLD",  # The computed result (capitalized)
     escrow_uid      # Reference to the escrow being fulfilled
 )
+
+# Bob requests arbitration with the same raw context used by the escrow
+await bob_client.oracle.request_arbitration(fulfillment_uid, charlie, inner)
 ```
 
 </TabItem>
@@ -259,9 +269,7 @@ alkahest --private-key 0xCHARLIE_KEY arbiter arbitrate \
 </TabItem>
 </Tabs>
 
-Charlie should listen for `ArbitrationRequested` events demanding him as the oracle. Then he can retrieve the attestation from EAS, decide if it's valid, and use the arbitrate function on TrustedOracleArbiter to submit his decision on-chain.
-
-Note that the `ArbitrationRequested` event doesn't have a reference to an escrow/demand. As explained above, the demand should be retrieved from the fulfillment attestation. If it's an escrow attestation referenced by refUID, you can get the attestation from EAS and parse the demand.
+Charlie should listen for `ArbitrationRequested` events addressed to him. Each event carries the raw inner decision context (`TrustedOracleArbiter.DemandData.data`), which must also be supplied to `arbitrate`. The fulfillment attestation remains linked to its escrow through `refUID` so settlement cannot reuse a fulfillment for another escrow.
 
 <Tabs groupId="language">
 <TabItem value="solidity" label="Solidity">
@@ -271,15 +279,8 @@ Note that the `ArbitrationRequested` event doesn't have a reference to an escrow
 // When an event is found, Charlie retrieves the fulfillment attestation
 Attestation memory fulfillment = eas.getAttestation(fulfillmentUid);
 
-// Get the escrow attestation from the fulfillment's refUID
-Attestation memory escrow = eas.getAttestation(fulfillment.refUID);
-
-// Parse the demand to get the original query
-TrustedOracleArbiter.DemandData memory demandData = abi.decode(
-    escrow.data,
-    (TrustedOracleArbiter.DemandData)
-);
-string memory query = abi.decode(demandData.data, (string));
+// Parse the raw decision context from the ArbitrationRequested event
+string memory query = abi.decode(decisionContext, (string));
 
 // Parse the fulfillment result
 string memory result = abi.decode(fulfillment.data, (string));
@@ -293,7 +294,7 @@ if (bytes(query).length > 10 && keccak256(bytes(substring(query, 0, 10))) == kec
     isValid = keccak256(bytes(result)) == keccak256(bytes(toUpperCase(textToCapitalize)));
 }
 
-trustedOracleArbiter.arbitrate(fulfillmentUid, isValid);
+trustedOracleArbiter.arbitrate(fulfillmentUid, decisionContext, isValid);
 ```
 
 </TabItem>
@@ -304,11 +305,9 @@ trustedOracleArbiter.arbitrate(fulfillmentUid, isValid);
 const { unwatch } =
   await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
     async ({ attestation, demand }) => {
-      const oracleDemand =
-        charlieClient.arbiters.general.trustedOracle.decodeDemand(demand);
       const [{ query }] = decodeAbiParameters(
         parseAbiParameters("(string query)"),
-        oracleDemand.data,
+        demand,
       );
       const [{ item: result }] = decodeAbiParameters(
         parseAbiParameters("(string item)"),
@@ -342,8 +341,7 @@ let result = charlie_client
     .oracle()
     .arbitrate_many_sync(
         |request| {
-            let oracle_demand = decode_trusted_oracle_demand(&request.demand).ok()?;
-            let query = decode_query(&oracle_demand.data).ok()?;
+            let query = decode_query(&request.demand).ok()?;
             let result = decode_string_obligation(&request.attestation.data).ok()?;
 
             if let Some(text) = query.strip_prefix("capitalize ") {
@@ -364,12 +362,11 @@ let result = charlie_client
 <TabItem value="python" label="Python">
 
 ```python
-from alkahest_py import ArbitrationMode, PyTrustedOracleArbiterDemandData
+from alkahest_py import ArbitrationMode
 from eth_abi import decode as abi_decode
 
 def validate_job(attestation, demand):
-    oracle_demand = PyTrustedOracleArbiterDemandData.decode(demand)
-    (query,) = abi_decode(["string"], oracle_demand.data)
+    (query,) = abi_decode(["string"], demand)
     (result,) = abi_decode(["string"], attestation.data)
 
     if query.startswith("capitalize "):
@@ -602,11 +599,9 @@ const { unwatch } =
 const { unwatch: unwatchEscrow } =
   await charlieClient.arbiters.general.trustedOracle.arbitrateMany(
     async ({ attestation, demand }) => {
-      const oracleDemand =
-        charlieClient.arbiters.general.trustedOracle.decodeDemand(demand);
       const [{ query }] = decodeAbiParameters(
         parseAbiParameters("(string query)"),
-        oracleDemand.data,
+        demand,
       );
       const [{ item: result }] = decodeAbiParameters(
         parseAbiParameters("(string item)"),
@@ -676,8 +671,7 @@ let escrow_result = charlie_client
     .oracle()
     .arbitrate_many_sync(
         |request| {
-            let oracle_demand = decode_trusted_oracle_demand(&request.demand).ok()?;
-            let query = decode_query(&oracle_demand.data).ok()?;
+            let query = decode_query(&request.demand).ok()?;
             let result = decode_string_obligation(&request.attestation.data).ok()?;
 
             if let Some(text) = query.strip_prefix("capitalize ") {
@@ -715,7 +709,7 @@ let decisions = charlie_client
 <TabItem value="python" label="Python">
 
 ```python
-from alkahest_py import ArbitrationMode, PyTrustedOracleArbiterDemandData
+from alkahest_py import ArbitrationMode
 from eth_abi import decode as abi_decode
 
 def validate_capitalization(attestation, demand):
@@ -730,8 +724,7 @@ decisions = await charlie_client.oracle.arbitrate_many(
 )
 
 def validate_with_demand(attestation, demand):
-    oracle_demand = PyTrustedOracleArbiterDemandData.decode(demand)
-    (query,) = abi_decode(["string"], oracle_demand.data)
+    (query,) = abi_decode(["string"], demand)
     (result,) = abi_decode(["string"], attestation.data)
 
     if query.startswith("capitalize "):
@@ -779,32 +772,17 @@ if (fulfillmentResult.fulfillment) {
   console.log(`Fulfillment UID: ${fulfillmentResult.fulfillment}`);
 }
 
-// Bob waits for arbitration and then claims
-const waitForArbitrationAndClaim = async () => {
-  // Wait for arbitration decision
-  return new Promise((resolve) => {
-    const unwatch = publicClient.watchEvent({
-      address: trustedOracleArbiter,
-      event: parseAbiEvent(
-        "event ArbitrationMade(bytes32 indexed decisionKey, bytes32 indexed fulfillmentUid, address indexed oracle, bool decision)",
-      ),
-      args: { fulfillmentUid: fulfillment.uid },
-      onLogs: async (logs) => {
-        if (logs[0].args.decision) {
-          // Positive decision - claim the escrow
-          await bobClient.erc20.escrow.default.collect(escrow.uid, fulfillment.uid);
-          resolve({ success: true });
-        } else {
-          resolve({ success: false });
-        }
-        unwatch();
-      },
-      pollingInterval: 1000,
-    });
-  });
-};
+// Bob waits for the exact fulfillment/context/oracle decision, then claims
+const arbitration = await bobClient.arbiters.general.trustedOracle.waitForArbitration(
+  fulfillment.uid,
+  charlie,
+  decisionContext,
+  1000,
+);
 
-const result = await waitForArbitrationAndClaim();
+if (arbitration.decision) {
+  await bobClient.erc20.escrow.default.collect(escrow.uid, fulfillment.uid);
+}
 ```
 
 </TabItem>
@@ -831,34 +809,24 @@ match fulfillment_result {
     }
 }
 
-// Bob waits for arbitration and then claims
-use futures::StreamExt;
+// Bob waits for the exact fulfillment/context/oracle decision, then claims
+let arbitration = bob_client
+    .oracle()
+    .wait_for_arbitration(
+        fulfillment_uid,
+        decision_context,
+        charlie_address,
+        None,
+    )
+    .await?;
 
-let filter = Filter::new()
-    .address(trusted_oracle_arbiter_address)
-    .event_signature(TrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
-    .topic1(fulfillment_uid);
-
-let sub = provider.subscribe_logs(&filter).await?;
-let mut stream = sub.into_stream();
-
-while let Some(log) = stream.next().await {
-    let event = log.log_decode::<TrustedOracleArbiter::ArbitrationMade>()?;
-
-    if event.inner.decision {
-        // Positive decision - claim the escrow
-        bob_client
-            .erc20()
-            .escrow()
-            .default()
-            .collect(escrow_uid, fulfillment_uid)
-            .await?;
-        println!("Successfully claimed escrow!");
-        break;
-    } else {
-        println!("Arbitration failed");
-        break;
-    }
+if arbitration.inner.data.decision {
+    bob_client
+        .erc20()
+        .escrow()
+        .default()
+        .collect(escrow_uid, fulfillment_uid)
+        .await?;
 }
 ```
 
@@ -903,44 +871,16 @@ if fulfillment_result["success"]:
     print(f"Escrow fulfilled by {fulfillment_result['fulfiller']}")
     print(f"Fulfillment UID: {fulfillment_result['fulfillment']}")
 
-# Bob waits for arbitration and then claims
-async def wait_for_arbitration_and_claim(fulfillment_uid, escrow_uid, timeout=60):
-    """Wait for arbitration decision and claim if positive"""
-    start_time = time.time()
-
-    while time.time() - start_time < timeout:
-        # Check for ArbitrationMade events
-        logs = await public_client.get_logs({
-            "address": trusted_oracle_arbiter,
-            "topics": [
-                Web3.keccak(text="ArbitrationMade(bytes32,address,bool)"),
-                fulfillment_uid,
-            ],
-            "fromBlock": "latest",
-        })
-
-        if logs:
-            decision = decode_log(logs[0], "ArbitrationMade")["decision"]
-            if decision:
-                # Positive decision - claim the escrow
-                tx_hash = await bob_client.erc20.escrow.default.collect(escrow_uid, fulfillment_uid)
-                return {"success": True, "tx_hash": tx_hash}
-            else:
-                return {"success": False, "reason": "Negative arbitration"}
-
-        await asyncio.sleep(1)
-
-    raise TimeoutError("Timeout waiting for arbitration")
-
-# Bob waits and claims
-result = await wait_for_arbitration_and_claim(
+# Bob waits for the exact fulfillment/context/oracle decision, then claims
+arbitration = await bob_client.oracle.wait_for_arbitration(
     fulfillment_uid,
-    escrow_uid,
+    list(inner),
+    charlie,
+    None,
 )
-if result["success"]:
-    print(f"Successfully claimed escrow! TX: {result['tx_hash']}")
-else:
-    print(f"Failed to claim: {result['reason']}")
+
+if arbitration.decision:
+    await bob_client.erc20.escrow.default.collect(escrow_uid, fulfillment_uid)
 ```
 
 </TabItem>

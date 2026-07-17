@@ -9,7 +9,6 @@ use alloy::{
     primitives::{Address, Bytes, FixedBytes},
     providers::Provider,
     rpc::types::{Filter, Log, TransactionReceipt},
-    sol,
     sol_types::SolEvent,
 };
 use futures::{Stream, StreamExt as _, future::try_join_all};
@@ -119,7 +118,7 @@ pub enum ArbitrationMode {
     Future,
 }
 
-/// An attestation paired with its associated demand data from ArbitrationRequested event
+/// An attestation paired with the raw inner decision context from `ArbitrationRequested`.
 #[derive(Debug, Clone)]
 pub struct AttestationWithDemand {
     pub attestation: Attestation,
@@ -254,6 +253,14 @@ pub fn commitment_attestation_intent_hash_raw(
     )
 }
 
+/// Returns the trusted-oracle decision key for a fulfillment and inner decision context.
+pub fn decision_key_for(fulfillment_uid: FixedBytes<32>, demand: &Bytes) -> FixedBytes<32> {
+    let mut packed = Vec::with_capacity(32 + demand.len());
+    packed.extend_from_slice(fulfillment_uid.as_slice());
+    packed.extend_from_slice(demand);
+    alloy::primitives::keccak256(packed)
+}
+
 /// Returns the commitment-oracle decision key for an intent hash and inner decision context.
 pub fn commitment_decision_key_for(intent_hash: FixedBytes<32>, demand: Bytes) -> FixedBytes<32> {
     use alloy::sol_types::SolValue as _;
@@ -281,8 +288,8 @@ impl TrustedOracleModule {
     pub async fn wait_for_arbitration(
         &self,
         fulfillment_uid: FixedBytes<32>,
-        demand: Option<Bytes>,
-        oracle: Option<Address>,
+        decision_context: Bytes,
+        oracle: Address,
         from_block: Option<u64>,
     ) -> eyre::Result<Log<TrustedOracleArbiter::ArbitrationMade>> {
         // ArbitrationMade event: (bytes32 indexed decisionKey, bytes32 indexed fulfillmentUid, address indexed oracle, bool decision)
@@ -293,20 +300,9 @@ impl TrustedOracleModule {
             .event_signature(TrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
             .topic2(fulfillment_uid);
 
-        // If demand is provided, compute decisionKey and filter by it
-        if let Some(demand) = demand {
-            // decisionKey = keccak256(abi.encodePacked(fulfillmentUid, demand))
-            let mut packed = Vec::with_capacity(32 + demand.len());
-            packed.extend_from_slice(fulfillment_uid.as_slice());
-            packed.extend_from_slice(&demand);
-            let decision_key = alloy::primitives::keccak256(&packed);
-            filter = filter.topic1(decision_key);
-        }
-
-        // If oracle is provided, filter by it
-        if let Some(oracle) = oracle {
-            filter = filter.topic3(oracle);
-        }
+        filter = filter
+            .topic1(decision_key_for(fulfillment_uid, &decision_context))
+            .topic3(oracle);
 
         let log =
             crate::utils::wait_for_first_log(&*self.public_provider, &filter, self.poll_interval)
@@ -605,14 +601,13 @@ impl TrustedOracleModule {
             .collect()
     }
 
-    /// Read an existing commitment-oracle decision for an encoded demand, if one has been recorded.
+    /// Read an existing commitment-oracle decision for a raw decision context, if recorded.
     pub async fn commitment_existing_arbitration(
         &self,
         intent_hash: FixedBytes<32>,
         oracle: Address,
-        demand: Bytes,
+        decision_context: Bytes,
     ) -> eyre::Result<Option<CommitmentTrustedOracleArbiter::ArbitrationMade>> {
-        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
         let decision_key = commitment_decision_key_for(intent_hash, decision_context);
         let filter = Filter::new()
             .address(self.addresses.commitment_trusted_oracle_arbiter)
@@ -633,15 +628,14 @@ impl TrustedOracleModule {
         }
     }
 
-    /// Wait for a commitment-oracle decision for an encoded demand.
+    /// Wait for a commitment-oracle decision for a raw decision context.
     pub async fn commitment_wait_for_arbitration(
         &self,
         intent_hash: FixedBytes<32>,
         oracle: Address,
-        demand: Bytes,
+        decision_context: Bytes,
         from_block: Option<u64>,
     ) -> eyre::Result<CommitmentTrustedOracleArbiter::ArbitrationMade> {
-        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
         let decision_key = commitment_decision_key_for(intent_hash, decision_context);
         let filter = Filter::new()
             .from_block(from_block.unwrap_or(0))
@@ -691,9 +685,7 @@ impl TrustedOracleModule {
         &self,
         request: &CommitmentArbitrationRequest,
     ) -> eyre::Result<Filter> {
-        let decision_context =
-            commitment_decision_context_from_encoded_demand(&request.demand, self.signer_address)?;
-        let decision_key = commitment_decision_key_for(request.intent_hash, decision_context);
+        let decision_key = commitment_decision_key_for(request.intent_hash, request.demand.clone());
         Ok(Filter::new()
             .address(self.addresses.commitment_trusted_oracle_arbiter)
             .event_signature(CommitmentTrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
@@ -751,14 +743,9 @@ impl TrustedOracleModule {
                     &*self.wallet_provider,
                 );
                 if let Some(decision) = decision {
-                    let demand = request.demand.clone();
+                    let decision_context = request.demand.clone();
                     let intent_hash = request.intent_hash;
-                    let signer_address = self.signer_address;
                     Some(async move {
-                        let decision_context = commitment_decision_context_from_encoded_demand(
-                            &demand,
-                            signer_address,
-                        )?;
                         Ok::<_, eyre::Report>(
                             arbiter
                                 .arbitrate(intent_hash, decision_context, *decision)
@@ -902,21 +889,19 @@ impl TrustedOracleModule {
             .to_block(BlockNumberOrTag::Latest)
     }
 
-    fn make_arbitration_made_filter(&self, fulfillment_uid: Option<FixedBytes<32>>) -> Filter {
-        // ArbitrationMade event: (bytes32 indexed decisionKey, bytes32 indexed fulfillmentUid, address indexed oracle, bool decision)
-        // topic1 = decisionKey, topic2 = fulfillmentUid, topic3 = oracle
-        let mut filter = Filter::new()
+    fn make_arbitration_made_filter(
+        &self,
+        fulfillment_uid: FixedBytes<32>,
+        demand: &Bytes,
+    ) -> Filter {
+        Filter::new()
             .address(self.addresses.trusted_oracle_arbiter)
             .event_signature(TrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic1(decision_key_for(fulfillment_uid, demand))
+            .topic2(fulfillment_uid)
             .topic3(self.signer_address)
             .from_block(BlockNumberOrTag::Earliest)
-            .to_block(BlockNumberOrTag::Latest);
-
-        if let Some(fulfillment_uid) = fulfillment_uid {
-            filter = filter.topic2(fulfillment_uid);
-        }
-
-        filter
+            .to_block(BlockNumberOrTag::Latest)
     }
 
     async fn filter_unarbitrated_attestations_with_demand(
@@ -924,7 +909,7 @@ impl TrustedOracleModule {
         attestations: Vec<AttestationWithDemand>,
     ) -> eyre::Result<Vec<AttestationWithDemand>> {
         let futs = attestations.into_iter().map(|awd| {
-            let filter = self.make_arbitration_made_filter(Some(awd.attestation.uid));
+            let filter = self.make_arbitration_made_filter(awd.attestation.uid, &awd.demand);
             async move {
                 let logs = self.public_provider.get_logs(&filter).await?;
                 Ok::<_, eyre::Error>((awd, !logs.is_empty()))
@@ -958,7 +943,7 @@ impl TrustedOracleModule {
             let demand = log.inner.demand.clone();
             async move {
                 let attestation = eas.getAttestation(log.inner.fulfillmentUid).call().await?;
-                Ok::<_, alloy::contract::Error>(AttestationWithDemand {
+                Ok::<_, eyre::Report>(AttestationWithDemand {
                     attestation,
                     demand,
                 })
@@ -1008,12 +993,9 @@ impl TrustedOracleModule {
                     &*self.wallet_provider,
                 );
                 if let Some(decision) = decision {
-                    let demand = awd.demand.clone();
+                    let decision_context = awd.demand.clone();
                     let uid = awd.attestation.uid;
-                    let signer_address = self.signer_address;
                     Some(async move {
-                        let decision_context =
-                            decision_context_from_encoded_demand(&demand, signer_address)?;
                         Ok::<_, eyre::Report>(
                             trusted_oracle_arbiter
                                 .arbitrate(uid, decision_context, *decision)
@@ -1342,7 +1324,7 @@ impl TrustedOracleModule {
             let demand = arbitration_log.inner.demand.clone();
 
             if skip_arbitrated {
-                let filter = self.make_arbitration_made_filter(Some(attestation.uid));
+                let filter = self.make_arbitration_made_filter(attestation.uid, &demand);
                 if let Ok(logs) = self.public_provider.get_logs(&filter).await {
                     if !logs.is_empty() {
                         continue;
@@ -1376,11 +1358,7 @@ impl TrustedOracleModule {
                 continue;
             };
 
-            let Ok(decision_context) =
-                decision_context_from_encoded_demand(&demand, self.signer_address)
-            else {
-                continue;
-            };
+            let decision_context = demand;
 
             match arbiter
                 .arbitrate(attestation.uid, decision_context, decision_value)
@@ -1474,12 +1452,7 @@ impl TrustedOracleModule {
                 continue;
             };
 
-            let Ok(decision_context) = commitment_decision_context_from_encoded_demand(
-                &request.demand,
-                self.signer_address,
-            ) else {
-                continue;
-            };
+            let decision_context = request.demand.clone();
 
             match arbiter
                 .arbitrate(request.intent_hash, decision_context, decision_value)
@@ -1562,7 +1535,7 @@ impl TrustedOracleModule {
             let demand = arbitration_log.inner.demand.clone();
 
             if skip_arbitrated {
-                let filter = self.make_arbitration_made_filter(Some(attestation.uid));
+                let filter = self.make_arbitration_made_filter(attestation.uid, &demand);
                 if let Ok(logs) = self.public_provider.get_logs(&filter).await {
                     if !logs.is_empty() {
                         continue;
@@ -1596,11 +1569,7 @@ impl TrustedOracleModule {
                 continue;
             };
 
-            let Ok(decision_context) =
-                decision_context_from_encoded_demand(&demand, self.signer_address)
-            else {
-                continue;
-            };
+            let decision_context = demand;
 
             match arbiter
                 .arbitrate(attestation.uid, decision_context, decision_value)
@@ -1695,12 +1664,7 @@ impl TrustedOracleModule {
                 continue;
             };
 
-            let Ok(decision_context) = commitment_decision_context_from_encoded_demand(
-                &request.demand,
-                self.signer_address,
-            ) else {
-                continue;
-            };
+            let decision_context = request.demand.clone();
 
             match arbiter
                 .arbitrate(request.intent_hash, decision_context, decision_value)
@@ -1772,6 +1736,7 @@ impl TrustedOracleModule {
                     let filter = Filter::new()
                         .address(arbiter_address)
                         .event_signature(TrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+                        .topic1(decision_key_for(attestation.uid, &demand))
                         .topic2(attestation.uid)
                         .topic3(signer_address)
                         .from_block(BlockNumberOrTag::Earliest)
@@ -1805,11 +1770,7 @@ impl TrustedOracleModule {
                     continue;
                 };
 
-                let Ok(decision_context) =
-                    decision_context_from_encoded_demand(&demand, signer_address)
-                else {
-                    continue;
-                };
+                let decision_context = demand;
 
                 match arbiter
                     .arbitrate(attestation.uid, decision_context, decision_value)
@@ -1879,6 +1840,7 @@ impl TrustedOracleModule {
                     let filter = Filter::new()
                         .address(arbiter_address)
                         .event_signature(TrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+                        .topic1(decision_key_for(attestation.uid, &demand))
                         .topic2(attestation.uid)
                         .topic3(signer_address)
                         .from_block(BlockNumberOrTag::Earliest)
@@ -1912,11 +1874,7 @@ impl TrustedOracleModule {
                     continue;
                 };
 
-                let Ok(decision_context) =
-                    decision_context_from_encoded_demand(&demand, signer_address)
-                else {
-                    continue;
-                };
+                let decision_context = demand;
 
                 match arbiter
                     .arbitrate(attestation.uid, decision_context, decision_value)
@@ -2176,14 +2134,13 @@ impl<'a> TrustedOracle<'a> {
             .collect()
     }
 
-    /// Read an existing commitment-oracle decision for an encoded demand, if one has been recorded.
+    /// Read an existing commitment-oracle decision for a raw decision context, if recorded.
     pub async fn commitment_existing_arbitration(
         &self,
         intent_hash: FixedBytes<32>,
         oracle: Address,
-        demand: Bytes,
+        decision_context: Bytes,
     ) -> eyre::Result<Option<CommitmentTrustedOracleArbiter::ArbitrationMade>> {
-        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
         let decision_key = commitment_decision_key_for(intent_hash, decision_context);
         let filter = Filter::new()
             .address(self.module.addresses.commitment_trusted_oracle_arbiter)
@@ -2204,15 +2161,14 @@ impl<'a> TrustedOracle<'a> {
         }
     }
 
-    /// Wait for a commitment-oracle decision for an encoded demand.
+    /// Wait for a commitment-oracle decision for a raw decision context.
     pub async fn commitment_wait_for_arbitration(
         &self,
         intent_hash: FixedBytes<32>,
         oracle: Address,
-        demand: Bytes,
+        decision_context: Bytes,
         from_block: Option<u64>,
     ) -> eyre::Result<CommitmentTrustedOracleArbiter::ArbitrationMade> {
-        let decision_context = commitment_decision_context_from_encoded_demand(&demand, oracle)?;
         let decision_key = commitment_decision_key_for(intent_hash, decision_context);
         let filter = Filter::new()
             .from_block(from_block.unwrap_or(0))
@@ -2296,11 +2252,13 @@ impl<'a> TrustedOracle<'a> {
     /// # Arguments
     /// * `oracle` - The oracle address
     /// * `obligation` - The obligation attestation UID
+    /// * `decision_context` - Raw `TrustedOracleArbiter.DemandData.data` bytes
     /// * `from_block` - Optional starting block number
     pub async fn wait_for_arbitration(
         &self,
         oracle: Address,
         fulfillment_uid: FixedBytes<32>,
+        decision_context: Bytes,
         from_block: Option<u64>,
     ) -> eyre::Result<TrustedOracleArbiter::ArbitrationMade> {
         // ArbitrationMade event: (bytes32 indexed decisionKey, bytes32 indexed fulfillmentUid, address indexed oracle, bool decision)
@@ -2309,6 +2267,7 @@ impl<'a> TrustedOracle<'a> {
             .from_block(from_block.unwrap_or(0))
             .address(self.module.addresses.trusted_oracle_arbiter)
             .event_signature(TrustedOracleArbiter::ArbitrationMade::SIGNATURE_HASH)
+            .topic1(decision_key_for(fulfillment_uid, &decision_context))
             .topic2(fulfillment_uid)
             .topic3(oracle.into_word());
 

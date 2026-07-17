@@ -117,11 +117,11 @@ client
     ├── trusted_oracle
     │   ├── get_eas_address() -> str
     │   ├── get_trusted_oracle_arbiter_address() -> str
-    │   ├── request_arbitration(obligation_uid, oracle, demand) -> str (tx_hash)
+    │   ├── request_arbitration(obligation_uid, oracle, decision_context) -> str (tx_hash)
     │   ├── extract_obligation_data(attestation) -> str
     │   ├── extract_demand_data(escrow_attestation) -> PyTrustedOracleArbiterDemandData
-    │   ├── arbitrate(obligation, demand, decision) -> str (tx_hash)
-    │   └── wait_for_arbitration(obligation, demand?, oracle?, from_block?) -> PyArbitrationMadeLog
+    │   ├── arbitrate_raw(obligation, decision_context, decision) -> str (tx_hash)
+    │   └── wait_for_arbitration(obligation, decision_context, oracle, from_block?) -> PyArbitrationMadeLog
     │
     ├── logical
     │   ├── all

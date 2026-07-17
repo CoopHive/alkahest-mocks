@@ -10,9 +10,9 @@ from typing import List
 from alkahest_py import (
     EnvTestManager,
     MockERC20,
-    TrustedOracleArbiterDemandData,
     ArbitrationMode,
     AlkahestClient,
+    TrustedOracleArbiterDemandData,
 )
 
 @dataclass
@@ -83,7 +83,7 @@ async def test_synchronous_offchain_oracle_capitalization_flow(env, alice_client
     )
 
     # Step 3: Bob asks the oracle to arbitrate his fulfillment
-    await bob_client.oracle.request_arbitration(fulfillment_uid, oracle_address, demand_bytes)
+    await bob_client.oracle.request_arbitration(fulfillment_uid, oracle_address, inner_demand_data)
 
     # Step 4: Oracle evaluates with async decision function
     async def decision_function(attestation, demand):
@@ -97,8 +97,7 @@ async def test_synchronous_offchain_oracle_capitalization_flow(env, alice_client
 
         # Parse the demand directly from callback argument (no need to fetch from escrow!)
         try:
-            decoded_demand = TrustedOracleArbiterDemandData.decode(demand)
-            demand_json = json.loads(bytes(decoded_demand.data).decode('utf-8'))
+            demand_json = json.loads(bytes(demand).decode('utf-8'))
         except Exception as e:
             print(f"Failed to parse demand: {e}")
             return False
