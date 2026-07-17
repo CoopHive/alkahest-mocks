@@ -68,7 +68,7 @@ test("synchronous offchain oracle capitalization flow", async () => {
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.charlie.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   await testContext.bob.client.viemClient.waitForTransactionReceipt({ hash: requestHash });
 
@@ -81,8 +81,7 @@ test("synchronous offchain oracle capitalization flow", async () => {
       if (!statement) return false;
 
       // Extract demand data from callback argument (no need to fetch from escrow!)
-      const outerDemand = testContext.charlie.client.arbiters.general.trustedOracle.decodeDemand(demand);
-      const demandData = decodeAbiParameters(shellDemandAbi, outerDemand.data);
+      const demandData = decodeAbiParameters(shellDemandAbi, demand);
 
       const payloadHex = demandData[0]?.payload;
       if (!payloadHex) return false;

@@ -619,8 +619,7 @@ async ({ attestation, demand }) => {
   if (!statement) return false;
 
   // Step 2b: Parse demand from callback argument
-  const outerDemand = charlieClient.arbiters.general.trustedOracle.decodeDemand(demand);
-  const demandData = decodeAbiParameters(shellDemandAbi, outerDemand.data);
+  const demandData = decodeAbiParameters(shellDemandAbi, demand);
 
   const payloadHex = demandData[0]?.payload;
   if (!payloadHex) return false;
@@ -1031,8 +1030,7 @@ async ({ attestation, demand }) => {
   if (!fulfillmentUid || ctx.jobDb.has(fulfillmentUid)) return null;
 
   // Step 2b: Parse demand from callback argument
-  const outerDemand = charlieClient.arbiters.general.trustedOracle.decodeDemand(demand);
-  const demandData = decodeAbiParameters(uptimeDemandAbi, outerDemand.data);
+  const demandData = decodeAbiParameters(uptimeDemandAbi, demand);
 
   const payloadHex = demandData[0]?.payload;
   if (!payloadHex) return null;

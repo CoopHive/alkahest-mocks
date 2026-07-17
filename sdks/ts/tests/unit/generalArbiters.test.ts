@@ -279,13 +279,18 @@ describe("General Arbiters Tests", () => {
 
       const obligation = attestationEvent.uid;
       const oracle = charlie; // Use charlie as oracle
+      const decisionContext = "0x1234" as `0x${string}`;
       const demand = aliceClient.arbiters.general.trustedOracle.encodeDemand({
         oracle,
-        data: "0x" as `0x${string}`,
+        data: decisionContext,
       });
 
       // Request arbitration and verify the transaction
-      const hash = await aliceClient.arbiters.general.trustedOracle.requestArbitration(obligation, oracle, demand);
+      const hash = await aliceClient.arbiters.general.trustedOracle.requestArbitration(
+        obligation,
+        oracle,
+        aliceClient.arbiters.general.trustedOracle.decodeDemand(demand).data,
+      );
 
       // Verify the hash format
       expect(hash).toMatch(/^0x[0-9a-f]{64}$/i);
@@ -316,6 +321,7 @@ describe("General Arbiters Tests", () => {
       if (!log) throw new Error("No log found");
       expect(log.args?.obligation).toBe(obligation);
       expect(log.args?.oracle?.toLowerCase()).toBe(oracle.toLowerCase());
+      expect(log.args?.demand).toBe(decisionContext);
     });
 
     test("should check for existing arbitration", async () => {
@@ -334,7 +340,7 @@ describe("General Arbiters Tests", () => {
       const existingBefore = await aliceClient.arbiters.general.trustedOracle.checkExistingArbitration(
         obligation,
         oracle,
-        demand,
+        aliceClient.arbiters.general.trustedOracle.decodeDemand(demand).data,
       );
       expect(existingBefore).toBeUndefined();
 
@@ -342,7 +348,7 @@ describe("General Arbiters Tests", () => {
       const requestHash = await aliceClient.arbiters.general.trustedOracle.requestArbitration(
         obligation,
         oracle,
-        demand,
+        aliceClient.arbiters.general.trustedOracle.decodeDemand(demand).data,
       );
       await testClient.waitForTransactionReceipt({ hash: requestHash });
 

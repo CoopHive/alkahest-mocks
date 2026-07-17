@@ -137,15 +137,15 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
     return decoded.data;
   };
 
-  const decisionKeyFromDemand = (intentHash: `0x${string}`, demand: `0x${string}`): `0x${string}` =>
-    decisionKeyFor(intentHash, decodeDemand(demand).data);
-
-  const requestArbitration = async (intentHash: `0x${string}`, oracle: Address, demand: `0x${string}`) =>
-    await viemClient.writeContract({
+  const requestArbitration = async (
+    intentHash: `0x${string}`,
+    oracle: Address,
+    decisionContext: `0x${string}`,
+  ) => await viemClient.writeContract({
       address: addresses.commitmentTrustedOracleArbiter,
       abi: commitmentTrustedOracleArbiterAbi.abi,
       functionName: "requestArbitration",
-      args: [intentHash, oracle, demand],
+      args: [intentHash, oracle, decisionContext],
       account: viemClient.account,
       chain: viemClient.chain,
     });
@@ -169,7 +169,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
     if (options.mode === "pastUnarbitrated" || options.mode === "allUnarbitrated") {
       const filteredRequests = await Promise.all(
         requests.map(async (request) => {
-          const decisionKey = decisionKeyFromDemand(request.intentHash, request.demand);
+          const decisionKey = decisionKeyFor(request.intentHash, request.demand);
           const existingLogs = await viemClient.getLogs({
             address: addresses.commitmentTrustedOracleArbiter,
             event: arbitrationMadeEvent,
@@ -224,7 +224,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
 
     let decisions: CommitmentDecision[] = [];
     if (shouldProcessPast) {
-      const requests = await getArbitrationRequests(options);
+      const requests = await getArbitrationRequests({ ...options, mode });
       const decisionResults: (CommitmentDecision | null)[] = [];
 
       for (const request of requests) {
@@ -234,7 +234,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
           continue;
         }
 
-        const hash = await arbitrateRaw(request.intentHash, decisionContextFromDemand(request.demand), decision);
+        const hash = await arbitrateRaw(request.intentHash, request.demand, decision);
         decisionResults.push({ hash, intentHash: request.intentHash, decision });
       }
 
@@ -247,6 +247,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
     }
 
     const optimalInterval = getOptimalPollingInterval(viemClient, options.pollingInterval);
+    const handledDecisionKeys = new Set<`0x${string}`>();
     const unwatch = viemClient.watchEvent({
       address: addresses.commitmentTrustedOracleArbiter,
       event: arbitrationRequestedEvent,
@@ -259,10 +260,28 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
               intentHash: log.args.intentHash as `0x${string}`,
               demand: log.args.demand as `0x${string}`,
             };
-            const decisionResult = await arbitrate(request);
-            if (decisionResult === null) return;
+            const decisionKey = decisionKeyFor(request.intentHash, request.demand);
 
-            const hash = await arbitrateRaw(request.intentHash, decisionContextFromDemand(request.demand), decisionResult);
+            if (mode === "allUnarbitrated") {
+              if (handledDecisionKeys.has(decisionKey)) return;
+              handledDecisionKeys.add(decisionKey);
+              const existing = await viemClient.getLogs({
+                address: addresses.commitmentTrustedOracleArbiter,
+                event: arbitrationMadeEvent,
+                args: { decisionKey, intentHash: request.intentHash, oracle: viemClient.account.address },
+                fromBlock: "earliest",
+                toBlock: "latest",
+              });
+              if (existing.length > 0) return;
+            }
+
+            const decisionResult = await arbitrate(request);
+            if (decisionResult === null) {
+              handledDecisionKeys.delete(decisionKey);
+              return;
+            }
+
+            const hash = await arbitrateRaw(request.intentHash, request.demand, decisionResult);
             const decision = { hash, intentHash: request.intentHash, decision: decisionResult };
 
             if (options.onAfterArbitrate) {
@@ -290,7 +309,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
     checkExistingArbitration: async (
       intentHash: `0x${string}`,
       oracle: `0x${string}`,
-      demand: `0x${string}`,
+      decisionContext: `0x${string}`,
     ): Promise<
       | {
           decisionKey: `0x${string}`;
@@ -303,7 +322,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
       const logs = await viemClient.getLogs({
         address: addresses.commitmentTrustedOracleArbiter,
         event: arbitrationMadeEvent,
-        args: { decisionKey: decisionKeyFromDemand(intentHash, demand), intentHash, oracle },
+        args: { decisionKey: decisionKeyFor(intentHash, decisionContext), intentHash, oracle },
         fromBlock: "earliest",
         toBlock: "latest",
       });
@@ -322,7 +341,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
     waitForArbitration: async (
       intentHash: `0x${string}`,
       oracle: `0x${string}`,
-      demand: `0x${string}`,
+      decisionContext: `0x${string}`,
       pollingInterval?: number,
     ): Promise<{
       decisionKey?: `0x${string}` | undefined;
@@ -330,7 +349,7 @@ export const makeCommitmentTrustedOracleArbiterClient = (viemClient: ViemClient,
       oracle?: `0x${string}` | undefined;
       decision?: boolean | undefined;
     }> => {
-      const decisionKey = decisionKeyFromDemand(intentHash, demand);
+      const decisionKey = decisionKeyFor(intentHash, decisionContext);
       const logs = await viemClient.getLogs({
         address: addresses.commitmentTrustedOracleArbiter,
         event: arbitrationMadeEvent,

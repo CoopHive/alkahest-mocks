@@ -139,12 +139,16 @@ mod transport_parity {
         // exercises its live-stream path (not just historical get_logs).
         let bob_wait = bob_client.clone();
         let fulfillment_uid = fulfillment_event.uid;
+        let oracle = test.bob.address();
         let waiter = tokio::spawn(async move {
             tokio::time::timeout(
                 Duration::from_secs(60),
-                bob_wait
-                    .oracle()
-                    .wait_for_arbitration(fulfillment_uid, None, None, None),
+                bob_wait.oracle().wait_for_arbitration(
+                    fulfillment_uid,
+                    Bytes::default(),
+                    oracle,
+                    None,
+                ),
             )
             .await
         });

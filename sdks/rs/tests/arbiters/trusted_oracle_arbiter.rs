@@ -252,7 +252,7 @@ async fn test_wait_for_trusted_oracle_arbitration() -> eyre::Result<()> {
             alice_client
                 .arbiters()
                 .trusted_oracle()
-                .wait_for_arbitration(oracle, obligation_uid, None)
+                .wait_for_arbitration(oracle, obligation_uid, Bytes::default(), None)
                 .await
         }
     });

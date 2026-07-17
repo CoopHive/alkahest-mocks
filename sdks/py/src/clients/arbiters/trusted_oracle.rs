@@ -74,16 +74,16 @@ impl OracleClient {
         py: Python<'py>,
         obligation_uid: String,
         oracle: String,
-        demand: Vec<u8>,
+        decision_context: Vec<u8>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
         future_into_py(py, async move {
             let uid: FixedBytes<32> = obligation_uid.parse().map_err(map_parse_to_pyerr)?;
             let oracle_addr = oracle.parse().map_err(map_parse_to_pyerr)?;
-            let demand_bytes = alloy::primitives::Bytes::from(demand);
+            let decision_context = alloy::primitives::Bytes::from(decision_context);
 
             let receipt = inner
-                .request_arbitration(uid, oracle_addr, demand_bytes)
+                .request_arbitration(uid, oracle_addr, decision_context)
                 .await
                 .map_err(map_eyre_to_pyerr)?;
 
@@ -99,7 +99,7 @@ impl OracleClient {
         py: Python<'py>,
         intent_hash: String,
         oracle: String,
-        demand: Vec<u8>,
+        decision_context: Vec<u8>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
         future_into_py(py, async move {
@@ -107,7 +107,7 @@ impl OracleClient {
                 .commitment_request_arbitration(
                     intent_hash.parse().map_err(map_parse_to_pyerr)?,
                     oracle.parse().map_err(map_parse_to_pyerr)?,
-                    demand.into(),
+                    decision_context.into(),
                 )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
@@ -317,7 +317,7 @@ impl OracleClient {
         py: Python<'py>,
         intent_hash: String,
         oracle: String,
-        demand: Vec<u8>,
+        decision_context: Vec<u8>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
         future_into_py(py, async move {
@@ -325,7 +325,7 @@ impl OracleClient {
                 .commitment_existing_arbitration(
                     intent_hash.parse().map_err(map_parse_to_pyerr)?,
                     oracle.parse().map_err(map_parse_to_pyerr)?,
-                    demand.into(),
+                    decision_context.into(),
                 )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
@@ -343,7 +343,7 @@ impl OracleClient {
         py: Python<'py>,
         intent_hash: String,
         oracle: String,
-        demand: Vec<u8>,
+        decision_context: Vec<u8>,
         from_block: Option<u64>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
@@ -352,7 +352,7 @@ impl OracleClient {
                 .commitment_wait_for_arbitration(
                     intent_hash.parse().map_err(map_parse_to_pyerr)?,
                     oracle.parse().map_err(map_parse_to_pyerr)?,
-                    demand.into(),
+                    decision_context.into(),
                     from_block,
                 )
                 .await
@@ -465,7 +465,12 @@ impl OracleClient {
             };
 
             let result = inner
-                .commitment_arbitrate_many_blocking_sync(arbitrate_func, callback, rust_mode, timeout)
+                .commitment_arbitrate_many_blocking_sync(
+                    arbitrate_func,
+                    callback,
+                    rust_mode,
+                    timeout,
+                )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
 
@@ -599,8 +604,8 @@ impl OracleClient {
     ///
     /// Args:
     ///     obligation: The obligation attestation UID
-    ///     demand: Optional demand data bytes
-    ///     oracle: Optional oracle address
+    ///     decision_context: Raw TrustedOracleArbiter.DemandData.data bytes
+    ///     oracle: Oracle address
     ///     from_block: Optional starting block number
     ///
     /// Returns:
@@ -609,8 +614,8 @@ impl OracleClient {
         &self,
         py: Python<'py>,
         obligation: String,
-        demand: Option<Vec<u8>>,
-        oracle: Option<String>,
+        decision_context: Vec<u8>,
+        oracle: String,
         from_block: Option<u64>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
@@ -618,11 +623,8 @@ impl OracleClient {
             let event = inner
                 .wait_for_arbitration(
                     obligation.parse().map_err(map_parse_to_pyerr)?,
-                    demand.map(|d| d.into()),
-                    oracle
-                        .map(|o| o.parse())
-                        .transpose()
-                        .map_err(map_parse_to_pyerr)?,
+                    decision_context.into(),
+                    oracle.parse().map_err(map_parse_to_pyerr)?,
                     from_block,
                 )
                 .await
@@ -1670,7 +1672,7 @@ impl TrustedOracle {
         py: Python<'py>,
         intent_hash: String,
         oracle: String,
-        demand: Vec<u8>,
+        decision_context: Vec<u8>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
         future_into_py(py, async move {
@@ -1679,7 +1681,7 @@ impl TrustedOracle {
                 .commitment_request_arbitration(
                     intent_hash.parse().map_err(map_parse_to_pyerr)?,
                     oracle.parse().map_err(map_parse_to_pyerr)?,
-                    demand.into(),
+                    decision_context.into(),
                 )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
@@ -1787,7 +1789,7 @@ impl TrustedOracle {
         py: Python<'py>,
         intent_hash: String,
         oracle: String,
-        demand: Vec<u8>,
+        decision_context: Vec<u8>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
         future_into_py(py, async move {
@@ -1796,7 +1798,7 @@ impl TrustedOracle {
                 .commitment_existing_arbitration(
                     intent_hash.parse().map_err(map_parse_to_pyerr)?,
                     oracle.parse().map_err(map_parse_to_pyerr)?,
-                    demand.into(),
+                    decision_context.into(),
                 )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
@@ -1814,7 +1816,7 @@ impl TrustedOracle {
         py: Python<'py>,
         intent_hash: String,
         oracle: String,
-        demand: Vec<u8>,
+        decision_context: Vec<u8>,
         from_block: Option<u64>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
@@ -1824,7 +1826,7 @@ impl TrustedOracle {
                 .commitment_wait_for_arbitration(
                     intent_hash.parse().map_err(map_parse_to_pyerr)?,
                     oracle.parse().map_err(map_parse_to_pyerr)?,
-                    demand.into(),
+                    decision_context.into(),
                     from_block,
                 )
                 .await
@@ -1939,7 +1941,12 @@ impl TrustedOracle {
 
             let result = inner
                 .trusted_oracle()
-                .commitment_arbitrate_many_blocking_sync(arbitrate_func, callback, rust_mode, timeout)
+                .commitment_arbitrate_many_blocking_sync(
+                    arbitrate_func,
+                    callback,
+                    rust_mode,
+                    timeout,
+                )
                 .await
                 .map_err(map_eyre_to_pyerr)?;
 
@@ -2075,12 +2082,14 @@ impl TrustedOracle {
     /// # Arguments
     /// * `oracle` - The oracle address
     /// * `obligation` - The obligation attestation UID
+    /// * `decision_context` - Raw TrustedOracleArbiter.DemandData.data bytes
     /// * `from_block` - Optional starting block number
     pub fn wait_for_arbitration<'py>(
         &self,
         py: Python<'py>,
         oracle: String,
         obligation: String,
+        decision_context: Vec<u8>,
         from_block: Option<u64>,
     ) -> PyResult<pyo3::Bound<'py, PyAny>> {
         let inner = self.inner.clone();
@@ -2090,6 +2099,7 @@ impl TrustedOracle {
                 .wait_for_arbitration(
                     oracle.parse().map_err(map_parse_to_pyerr)?,
                     obligation.parse().map_err(map_parse_to_pyerr)?,
+                    decision_context.into(),
                     from_block,
                 )
                 .await

@@ -45,7 +45,7 @@ test("trivial arbitrateMany with mode past", async () => {
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   // Wait for arbitration request to be confirmed
@@ -90,12 +90,12 @@ test("conditional arbitrateMany", async () => {
   const requestHash1 = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment1.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   const requestHash2 = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment2.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   // Wait for arbitration requests to be confirmed
@@ -145,7 +145,7 @@ test("arbitrateMany with pastUnarbitrated skips already arbitrated", async () =>
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   // Wait for arbitration request to be confirmed
@@ -206,7 +206,7 @@ test("TrustedOracle status helpers ignore wrong decision context", async () => {
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   await testContext.testClient.waitForTransactionReceipt({ hash: requestHash });
 
@@ -220,12 +220,17 @@ test("TrustedOracle status helpers ignore wrong decision context", async () => {
   const existingWrong = await testContext.bob.client.arbiters.general.trustedOracle.checkExistingArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   expect(existingWrong).toBeUndefined();
 
   const pendingWait = testContext.bob.client.arbiters.general.trustedOracle
-    .waitForArbitration(fulfillment.uid, testContext.bob.address, demand, 50)
+    .waitForArbitration(
+      fulfillment.uid,
+      testContext.bob.address,
+      testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
+      50,
+    )
     .then(() => "resolved");
   const waitRace = await Promise.race([pendingWait, Bun.sleep(150).then(() => "timeout")]);
   expect(waitRace).toBe("timeout");
@@ -291,7 +296,7 @@ test("arbitrateMany with mode all (past + future)", async () => {
   await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   await Bun.sleep(150);
@@ -342,7 +347,7 @@ test("arbitrateMany with mode future (only new events)", async () => {
   await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   await Bun.sleep(150);
@@ -378,12 +383,12 @@ test("arbitrateMany with escrow demand extraction", async () => {
   const requestHash1 = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment1.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   const requestHash2 = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment2.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   // Wait for arbitration requests to be confirmed
@@ -399,10 +404,8 @@ test("arbitrateMany with escrow demand extraction", async () => {
 
   const { decisions } = await testContext.bob.client.arbiters.general.trustedOracle.arbitrateMany(async ({ attestation, demand }) => {
     const obligation = testContext.bob.client.extractObligationData(obligationAbi, attestation);
-    // Use demand directly from callback instead of fetching from escrow
-    // First decode the outer TrustedOracleArbiter DemandData struct, then decode the inner data
-    const outerDemand = testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand);
-    const demandData = decodeAbiParameters(demandAbi, outerDemand.data);
+    // The callback receives the raw inner decision context.
+    const demandData = decodeAbiParameters(demandAbi, demand);
     return obligation[0].item === demandData[0].mockDemand;
   }, { mode: "past" });
 
@@ -439,7 +442,7 @@ test("waitForArbitration with existing decision", async () => {
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   await testContext.testClient.waitForTransactionReceipt({
     hash: requestHash,
@@ -463,7 +466,7 @@ test("waitForArbitration with existing decision", async () => {
   const result = await testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   expect(result.fulfillmentUid).toBe(fulfillment.uid);
@@ -493,7 +496,7 @@ test("waitForArbitration with new decision", async () => {
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   await testContext.testClient.waitForTransactionReceipt({
     hash: requestHash,
@@ -503,7 +506,7 @@ test("waitForArbitration with new decision", async () => {
   const waitPromise = testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   // Make arbitration decision after a short delay
@@ -546,7 +549,7 @@ test("waitForArbitration with false decision", { timeout: 15000 }, async () => {
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   await testContext.testClient.waitForTransactionReceipt({
     hash: requestHash,
@@ -556,7 +559,7 @@ test("waitForArbitration with false decision", { timeout: 15000 }, async () => {
   const waitPromise = testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   // Make arbitration decision with false result
@@ -599,7 +602,7 @@ test("waitForArbitration integration with escrow collection", { timeout: 15000 }
   const requestHash = await testContext.bob.client.arbiters.general.trustedOracle.requestArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
   await testContext.testClient.waitForTransactionReceipt({
     hash: requestHash,
@@ -609,7 +612,7 @@ test("waitForArbitration integration with escrow collection", { timeout: 15000 }
   const waitPromise = testContext.bob.client.arbiters.general.trustedOracle.waitForArbitration(
     fulfillment.uid,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.trustedOracle.decodeDemand(demand).data,
   );
 
   // Make arbitration decision
@@ -665,7 +668,7 @@ test("commitment trusted oracle arbitrateMany approves future fulfillment intent
   const requestHash = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.requestArbitration(
     intentHash,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.commitmentTrustedOracle.decodeDemand(demand).data,
   );
   await testContext.testClient.waitForTransactionReceipt({ hash: requestHash });
 
@@ -673,8 +676,7 @@ test("commitment trusted oracle arbitrateMany approves future fulfillment intent
   const { decisions } = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.arbitrateMany(
     async ({ intentHash: requestedIntentHash, demand }) => {
       expect(requestedIntentHash).toBe(intentHash);
-      const outerDemand = testContext.bob.client.arbiters.general.commitmentTrustedOracle.decodeDemand(demand);
-      const demandData = decodeAbiParameters(demandAbi, outerDemand.data);
+      const demandData = decodeAbiParameters(demandAbi, demand);
       return demandData[0].mockDemand === "foo";
     },
     { mode: "past" },
@@ -686,14 +688,14 @@ test("commitment trusted oracle arbitrateMany approves future fulfillment intent
   const existing = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.checkExistingArbitration(
     intentHash,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.commitmentTrustedOracle.decodeDemand(demand).data,
   );
   expect(existing?.decision).toBe(true);
 
   const waited = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.waitForArbitration(
     intentHash,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.commitmentTrustedOracle.decodeDemand(demand).data,
   );
   expect(waited.intentHash).toBe(intentHash);
   expect(waited.decision).toBe(true);
@@ -737,7 +739,7 @@ test("commitment trusted oracle status helpers ignore wrong decision context", a
   const existingWrong = await testContext.bob.client.arbiters.general.commitmentTrustedOracle.checkExistingArbitration(
     intentHash,
     testContext.bob.address,
-    demand,
+    testContext.bob.client.arbiters.general.commitmentTrustedOracle.decodeDemand(demand).data,
   );
   expect(existingWrong).toBeUndefined();
 });
